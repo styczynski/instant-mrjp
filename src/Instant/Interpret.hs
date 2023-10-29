@@ -22,7 +22,7 @@ evalStmt = \case
   IAssignment _ n e -> evalExpr e >>= \i -> modify (M.insert n i)
 
 
-evalExpr :: Expr -> Interpret Int
+evalExpr :: IExpr -> Interpret Int
 evalExpr = \case
   IExprInt _ i -> pure i
   IExprVar ann v -> gets (M.lookup v) >>=

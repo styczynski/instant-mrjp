@@ -134,7 +134,7 @@ initVar v = gets ((M.lookup v) . csVarMap) >>= \case
 
 
 compileOperator :: (LLVMType -> LLVMLit -> LLVMLit -> LLVMExpr)
-                -> LLVMType -> Expr -> Expr
+                -> LLVMType -> IExpr -> IExpr
                 -> LLVMCompiler (LLVMLit, LLVM)
 compileOperator op t a b = do
   (aref, acode) <- compileExpr a
@@ -144,7 +144,7 @@ compileOperator op t a b = do
   pure (LLLReg i, acode ++ bcode ++ icode)
 
 
-compileExpr :: Expr -> LLVMCompiler (LLVMLit, LLVM)
+compileExpr :: IExpr -> LLVMCompiler (LLVMLit, LLVM)
 compileExpr = \case
   IExprInt _ i -> pure (LLLInt i, [])
   IExprVar ann s -> do

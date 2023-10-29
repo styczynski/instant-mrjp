@@ -92,9 +92,9 @@ comutative MUL = True
 comutative _   = False
 
 
-compileExpr :: Expr -> JVMCompiler JVM
+compileExpr :: IExpr -> JVMCompiler JVM
 compileExpr e = ($[]) . snd <$> builder e where
-  builder :: Expr -> JVMCompiler (Int, JVM -> JVM)
+  builder :: IExpr -> JVMCompiler (Int, JVM -> JVM)
   builder = \case -- optimizes stack
     IExprInt _ i     -> pure (1, ((ICONST i):))
     IExprVar ann v   -> do

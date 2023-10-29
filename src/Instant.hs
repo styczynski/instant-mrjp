@@ -8,7 +8,7 @@ import Instant.Syntax
 
 
 parse :: String -> String -> Either String ICode
-parse filename code = toInstantNode <$> parseInstant filename code
+parse filename code = fromAST <$> parseInstant filename code
 
 
 toJVM :: String -> ICode -> Either String String
