@@ -4,12 +4,14 @@
 : hash: 49e0a8bfa2628eac07b71cf9e3f12f06d29c36d43e444733f11fe55a029845cf
 ? /home/students/inf/p/ps386038/Code/instant-mrjp/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.8.1.0/build/insc_jvm/autogen/cabal_macros.h
 : hash: 12267e3f7b19c560e8c91a48655095ec7dc5b1bf082828b1199eb353b1aeb338
+/home/students/inf/p/ps386038/Code/instant-mrjp/LICENSE:
+  hash: 96d425a92b2aaaf12baec4d134c99bd9b45943968bf22d00ad36d13b77eb986d
 /home/students/inf/p/ps386038/Code/instant-mrjp/README.md:
   hash: b9d0143ca23517bed49abccdc4338a0059c23bd3377bf58f922605a89c496285
 /home/students/inf/p/ps386038/Code/instant-mrjp/app/insc_jvm/Main.hs:
   hash: 256d9ced8f1cf9bd04a0595d2b3515202c7b553912bda54acddaec5ae4a99339
 /home/students/inf/p/ps386038/Code/instant-mrjp/instant-lang.cabal:
-  hash: 84118c089984eb6d63124abed62d2cad3b1c26ccb7b0a477d8bbd2db45aeb405
+  hash: 1fa856ccf159f3358a012ee5af3204cd98433e5310526f343fe552eea77a408f
 /home/students/inf/p/ps386038/Code/instant-mrjp/package.yaml:
   hash: b826f224fc4450df309be234955797aa17046cfa485983590646fd017937fd5d
 /usr/include/stdc-predef.h:
