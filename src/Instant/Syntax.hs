@@ -27,21 +27,21 @@ at ann =
 
 data ASTNode (ASTLevel :: ASTLevel) where
   ASTPlus  :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL4 -> ASTNode 'ExprL4
-  AST21    ::        ASTNode 'ExprL3            -> ASTNode 'ExprL4
+  ASTExprL3    ::        ASTNode 'ExprL3            -> ASTNode 'ExprL4
 
   ASTMinus :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL2 -> ASTNode 'ExprL3
-  AST32    ::        ASTNode 'ExprL2            -> ASTNode 'ExprL3
+  ASTExprL2    ::        ASTNode 'ExprL2            -> ASTNode 'ExprL3
 
-  ASTMult  :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
+  ASTMultiplication  :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
   ASTDiv   :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
-  AST43    ::        ASTNode 'ExprL1            -> ASTNode 'ExprL2
+  ASTExprL1    ::        ASTNode 'ExprL1            -> ASTNode 'ExprL2
 
   ASTInt   :: Ann -> Int                -> ASTNode 'ExprL1
   ASTVar   :: Ann -> String             -> ASTNode 'ExprL1
-  ASTParen ::        ASTNode 'ExprL4            -> ASTNode 'ExprL1
+  ASTParens ::        ASTNode 'ExprL4            -> ASTNode 'ExprL1
 
   ASTExpr  :: Ann -> ASTNode 'ExprL4            -> ASTNode 'Stmt
-  ASTAss   :: Ann -> String -> ASTNode 'ExprL4  -> ASTNode 'Stmt
+  ASTAssignment   :: Ann -> String -> ASTNode 'ExprL4  -> ASTNode 'Stmt
 
   ASTNode      ::        [ASTNode 'Stmt]          -> ASTNode 'InstantProgram
 deriving instance Eq (ASTNode t)
@@ -76,17 +76,17 @@ type instance EntailedBy 'InstantProgram  = Instant
 entail :: ASTNode t -> EntailedBy t
 entail (ASTNode stmts) = Instant (fmap entail stmts)
 entail (ASTExpr ann e) = IExpr ann (entail e)
-entail (ASTAss ann name e) = IAssg ann name (entail e)
+entail (ASTAssignment ann name e) = IAssg ann name (entail e)
 entail (ASTPlus ann a b) = EPlus ann (entail a) (entail b)
-entail (AST21 e) = entail e
+entail (ASTExprL3 e) = entail e
 entail (ASTMinus ann a b) = EMinus ann (entail a) (entail b)
-entail (AST32 e) = entail e
-entail (ASTMult ann a b) = EMult ann (entail a) (entail b)
+entail (ASTExprL2 e) = entail e
+entail (ASTMultiplication ann a b) = EMult ann (entail a) (entail b)
 entail (ASTDiv ann a b) = EDiv ann (entail a) (entail b)
-entail (AST43 e) = entail e
+entail (ASTExprL1 e) = entail e
 entail (ASTInt ann i) = EInt ann i
 entail (ASTVar ann n) = EVar ann n
-entail (ASTParen e) = entail e
+entail (ASTParens e) = entail e
 
 
 varMap :: Instant -> Map String Int

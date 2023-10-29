@@ -70,24 +70,24 @@ infixL op p x = do
 astE1 :: Parser (ASTNode 'ExprL4)
 astE1 = choice
   [ withAnn (pure ASTPlus) <*> (try $ astE2 <* operator "+") <*> astE1
-  , AST21 <$> astE2
+  , ASTExprL3 <$> astE2
   ]
 
 
 astE2 :: Parser (ASTNode 'ExprL3)
 astE2 = choice
-  [ try $ (AST32 <$> astE3) >>= infixL (ASTMinus <$ operator "-") astE3
-  , AST32 <$> astE3
+  [ try $ (ASTExprL2 <$> astE3) >>= infixL (ASTMinus <$ operator "-") astE3
+  , ASTExprL2 <$> astE3
   ]
 
 
 astE3 :: Parser (ASTNode 'ExprL2)
 astE3 = choice
-  [ try $ (AST43 <$> astE4) >>=
-    infixL ( ASTMult <$ operator "*" <|>
+  [ try $ (ASTExprL1 <$> astE4) >>=
+    infixL ( ASTMultiplication <$ operator "*" <|>
              ASTDiv <$ operator "/"
            ) astE4
-  , AST43 <$> astE4
+  , ASTExprL1 <$> astE4
   ]
 
 
@@ -95,12 +95,12 @@ astE4 :: Parser (ASTNode 'ExprL1)
 astE4 = choice
   [ withAnn (pure ASTInt) <*> unsigned
   , withAnn (pure ASTVar) <*> lId
-  , ASTParen <$> paren astE1
+  , ASTParens <$> paren astE1
   ]
 
 astSt :: Parser (ASTNode 'Stmt)
 astSt = choice
-  [ withAnn (pure ASTAss) <*> (try $ lId <* operator "=") <*> astE1
+  [ withAnn (pure ASTAssignment) <*> (try $ lId <* operator "=") <*> astE1
   , withAnn (pure ASTExpr) <*> astE1
   ]
 
