@@ -15,7 +15,7 @@ import Instant.Syntax
 
 
 type Parser = ParsecT Void String Identity
-parseInstant :: String -> String -> Either String (AST 'P)
+parseInstant :: String -> String -> Either String (ASTNode 'InstantProgram)
 parseInstant filename inp = first
   (concat . fmap parseErrorPretty . bundleErrors)
   (parse ast filename inp)
@@ -67,21 +67,21 @@ infixL op p x = do
   infixL op p r <|> return r
 
 
-astE1 :: Parser (AST 'E1)
+astE1 :: Parser (ASTNode 'ExprL4)
 astE1 = choice
   [ withAnn (pure ASTPlus) <*> (try $ astE2 <* operator "+") <*> astE1
   , AST21 <$> astE2
   ]
 
 
-astE2 :: Parser (AST 'E2)
+astE2 :: Parser (ASTNode 'ExprL3)
 astE2 = choice
   [ try $ (AST32 <$> astE3) >>= infixL (ASTMinus <$ operator "-") astE3
   , AST32 <$> astE3
   ]
 
 
-astE3 :: Parser (AST 'E3)
+astE3 :: Parser (ASTNode 'ExprL2)
 astE3 = choice
   [ try $ (AST43 <$> astE4) >>=
     infixL ( ASTMult <$ operator "*" <|>
@@ -91,23 +91,23 @@ astE3 = choice
   ]
 
 
-astE4 :: Parser (AST 'E4)
+astE4 :: Parser (ASTNode 'ExprL1)
 astE4 = choice
   [ withAnn (pure ASTInt) <*> unsigned
   , withAnn (pure ASTVar) <*> lId
   , ASTParen <$> paren astE1
   ]
 
-astSt :: Parser (AST 'St)
+astSt :: Parser (ASTNode 'Stmt)
 astSt = choice
   [ withAnn (pure ASTAss) <*> (try $ lId <* operator "=") <*> astE1
   , withAnn (pure ASTExpr) <*> astE1
   ]
 
 
-astP :: Parser (AST 'P)
-astP = AST <$> sepBy astSt (operator ";")
+astP :: Parser (ASTNode 'InstantProgram)
+astP = ASTNode <$> sepBy astSt (operator ";")
 
 
-ast :: Parser (AST 'P)
+ast :: Parser (ASTNode 'InstantProgram)
 ast = (skip *> astP <* eof)

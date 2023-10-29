@@ -7,13 +7,13 @@ import qualified Data.Map as M
 import           Data.Map(Map)
 
 
-data TermType
-  = E1 -- plus
-  | E2 -- minus
-  | E3 -- mult/div
-  | E4 -- paren/lit
-  | St -- statement
-  | P  -- program
+data ASTLevel
+  = ExprL4 -- plus
+  | ExprL3 -- minus
+  | ExprL2 -- mult/div
+  | ExprL1 -- paren/lit
+  | Stmt -- statement
+  | InstantProgram  -- program
   deriving (Eq, Show)
 
 data Ann = Ann { line :: Int, column :: Int, file :: String }
@@ -25,27 +25,27 @@ at ann =
   file ann ++ ":" ++ show (line ann) ++ ":" ++ show (column ann)
 
 
-data AST (termType :: TermType) where
-  ASTPlus  :: Ann -> AST 'E2 -> AST 'E1 -> AST 'E1
-  AST21    ::        AST 'E2            -> AST 'E1
+data ASTNode (ASTLevel :: ASTLevel) where
+  ASTPlus  :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL4 -> ASTNode 'ExprL4
+  AST21    ::        ASTNode 'ExprL3            -> ASTNode 'ExprL4
 
-  ASTMinus :: Ann -> AST 'E2 -> AST 'E3 -> AST 'E2
-  AST32    ::        AST 'E3            -> AST 'E2
+  ASTMinus :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL2 -> ASTNode 'ExprL3
+  AST32    ::        ASTNode 'ExprL2            -> ASTNode 'ExprL3
 
-  ASTMult  :: Ann -> AST 'E3 -> AST 'E4 -> AST 'E3
-  ASTDiv   :: Ann -> AST 'E3 -> AST 'E4 -> AST 'E3
-  AST43    ::        AST 'E4            -> AST 'E3
+  ASTMult  :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
+  ASTDiv   :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
+  AST43    ::        ASTNode 'ExprL1            -> ASTNode 'ExprL2
 
-  ASTInt   :: Ann -> Int                -> AST 'E4
-  ASTVar   :: Ann -> String             -> AST 'E4
-  ASTParen ::        AST 'E1            -> AST 'E4
+  ASTInt   :: Ann -> Int                -> ASTNode 'ExprL1
+  ASTVar   :: Ann -> String             -> ASTNode 'ExprL1
+  ASTParen ::        ASTNode 'ExprL4            -> ASTNode 'ExprL1
 
-  ASTExpr  :: Ann -> AST 'E1            -> AST 'St
-  ASTAss   :: Ann -> String -> AST 'E1  -> AST 'St
+  ASTExpr  :: Ann -> ASTNode 'ExprL4            -> ASTNode 'Stmt
+  ASTAss   :: Ann -> String -> ASTNode 'ExprL4  -> ASTNode 'Stmt
 
-  AST      ::        [AST 'St]          -> AST 'P
-deriving instance Eq (AST t)
-deriving instance Show (AST t)
+  ASTNode      ::        [ASTNode 'Stmt]          -> ASTNode 'InstantProgram
+deriving instance Eq (ASTNode t)
+deriving instance Show (ASTNode t)
 
 data Expr
   = EPlus Ann Expr Expr
@@ -64,17 +64,17 @@ data InstantStmt
 newtype Instant = Instant { instantCode :: [InstantStmt] }
   deriving (Eq, Show)
 
-type family EntailedBy (t :: TermType) :: *
-type instance EntailedBy 'E1 = Expr
-type instance EntailedBy 'E2 = Expr
-type instance EntailedBy 'E3 = Expr
-type instance EntailedBy 'E4 = Expr
-type instance EntailedBy 'St = InstantStmt
-type instance EntailedBy 'P  = Instant
+type family EntailedBy (t :: ASTLevel) :: *
+type instance EntailedBy 'ExprL4 = Expr
+type instance EntailedBy 'ExprL3 = Expr
+type instance EntailedBy 'ExprL2 = Expr
+type instance EntailedBy 'ExprL1 = Expr
+type instance EntailedBy 'Stmt = InstantStmt
+type instance EntailedBy 'InstantProgram  = Instant
 
 
-entail :: AST t -> EntailedBy t
-entail (AST stmts) = Instant (fmap entail stmts)
+entail :: ASTNode t -> EntailedBy t
+entail (ASTNode stmts) = Instant (fmap entail stmts)
 entail (ASTExpr ann e) = IExpr ann (entail e)
 entail (ASTAss ann name e) = IAssg ann name (entail e)
 entail (ASTPlus ann a b) = EPlus ann (entail a) (entail b)
