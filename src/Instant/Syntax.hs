@@ -64,29 +64,29 @@ data InstantStmt
 newtype Instant = Instant { instantCode :: [InstantStmt] }
   deriving (Eq, Show)
 
-type family EntailedBy (t :: ASTLevel) :: *
-type instance EntailedBy 'ExprL4 = Expr
-type instance EntailedBy 'ExprL3 = Expr
-type instance EntailedBy 'ExprL2 = Expr
-type instance EntailedBy 'ExprL1 = Expr
-type instance EntailedBy 'Stmt = InstantStmt
-type instance EntailedBy 'InstantProgram  = Instant
+type family InstantNode (t :: ASTLevel) :: *
+type instance InstantNode 'ExprL4 = Expr
+type instance InstantNode 'ExprL3 = Expr
+type instance InstantNode 'ExprL2 = Expr
+type instance InstantNode 'ExprL1 = Expr
+type instance InstantNode 'Stmt = InstantStmt
+type instance InstantNode 'InstantProgram  = Instant
 
 
-entail :: ASTNode t -> EntailedBy t
-entail (ASTNode stmts) = Instant (fmap entail stmts)
-entail (ASTExpr ann e) = IExpr ann (entail e)
-entail (ASTAssignment ann name e) = IAssg ann name (entail e)
-entail (ASTPlus ann a b) = EPlus ann (entail a) (entail b)
-entail (ASTExprL3 e) = entail e
-entail (ASTMinus ann a b) = EMinus ann (entail a) (entail b)
-entail (ASTExprL2 e) = entail e
-entail (ASTMultiplication ann a b) = EMult ann (entail a) (entail b)
-entail (ASTDiv ann a b) = EDiv ann (entail a) (entail b)
-entail (ASTExprL1 e) = entail e
-entail (ASTInt ann i) = EInt ann i
-entail (ASTVar ann n) = EVar ann n
-entail (ASTParens e) = entail e
+toInstantNode :: ASTNode t -> InstantNode t
+toInstantNode (ASTNode stmts) = Instant (fmap toInstantNode stmts)
+toInstantNode (ASTExpr ann e) = IExpr ann (toInstantNode e)
+toInstantNode (ASTAssignment ann name e) = IAssg ann name (toInstantNode e)
+toInstantNode (ASTPlus ann a b) = EPlus ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTExprL3 e) = toInstantNode e
+toInstantNode (ASTMinus ann a b) = EMinus ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTExprL2 e) = toInstantNode e
+toInstantNode (ASTMultiplication ann a b) = EMult ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTDiv ann a b) = EDiv ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTExprL1 e) = toInstantNode e
+toInstantNode (ASTInt ann i) = EInt ann i
+toInstantNode (ASTVar ann n) = EVar ann n
+toInstantNode (ASTParens e) = toInstantNode e
 
 
 varMap :: Instant -> Map String Int

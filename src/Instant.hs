@@ -8,7 +8,7 @@ import Instant.Syntax
 
 
 parse :: String -> String -> Either String Instant
-parse filename code = entail <$> parseInstant filename code
+parse filename code = toInstantNode <$> parseInstant filename code
 
 
 toJVM :: String -> Instant -> Either String String
