@@ -1,47 +1,36 @@
-name:                instant-lang
+name:                instant-mrjp
 version:             0.1.0.0
-github:              "radrow/instant-lang"
-license:             BSD3
-author:              "Radosław Rowicki"
-maintainer:          "rr386088@students.mimuw.edu.pl"
-copyright:           "2019 Radosław Rowicki"
+github:              "styczynski/instant-mrjp"
+license:             MIT
+author:              "Piotr Styczyński"
+maintainer:          "piotr@styczynski.in"
+copyright:           "2023 Piotr Styczyński (@styczynski)"
 
 extra-source-files:
+- LICENSE
 - README.md
 
-description:         Please see the README on GitHub at <https://github.com/radrow/instant-lang#readme>
+description: For details on usage please see README on GitHub at <https://github.com/styczynski/instant-mrjp#readme>
 
 dependencies:
-- base >= 4.7 && < 5
 - filepath
+- base >= 4.8 && < 5
 
 library:
   source-dirs: src
+  dependencies:
+    - parser-combinators
+    - mtl
+    - megaparsec
+    - containers
   default-extensions:
+    - KindSignatures
     - LambdaCase
+    - MultiWayIf
     - GADTs
     - DataKinds
-    - MultiWayIf
-    - KindSignatures
-  dependencies:
-    - megaparsec
-    - mtl
-    - containers
-    - parser-combinators
 
 executables:
-  insc_jvm:
-    main:                Main.hs
-    source-dirs:         app/insc_jvm
-    ghc-options:
-    - -threaded
-    - -O3
-    - -Wall
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - instant-lang
-    - process
   insc_llvm:
     main:                Main.hs
     source-dirs:         app/insc_llvm
@@ -52,5 +41,18 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - instant-lang
+    - instant-mrjp
     - process
+  insc_jvm:
+    main:                Main.hs
+    source-dirs:         app/insc_jvm
+    ghc-options:
+    - -threaded
+    - -O3
+    - -Wall
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - instant-mrjp
+    - process
+
