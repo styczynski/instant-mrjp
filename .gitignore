@@ -1,4 +1,6 @@
 .stack-work/
 .stack-work/**
 *.cabal
+insc_llvm
+insc_jvm
 
