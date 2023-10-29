@@ -9,7 +9,7 @@ import           Data.Bifunctor
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
-import           Prelude hiding (lex)
+import           Prelude hiding (parserLex)
 
 import Instant.Syntax
 
@@ -21,8 +21,8 @@ parseInstant filename inp = first
   (parse ast filename inp)
 
 
-getASTMeta :: Parser ASTMeta
-getASTMeta = do
+parserASTMeta :: Parser ASTMeta
+parserASTMeta = do
   p <- getSourcePos
   return $ ASTMeta
     (fromIntegral $ unPos $ sourceLine p)
@@ -31,32 +31,32 @@ getASTMeta = do
 
 
 withASTMeta :: Parser (ASTMeta -> a) -> Parser a
-withASTMeta p = liftA2 (flip ($)) getASTMeta p
+withASTMeta p = liftA2 (flip ($)) parserASTMeta p
 
 
-skip :: Parser ()
-skip = L.space (void spaceChar) empty empty
+parserSkip :: Parser ()
+parserSkip = L.space (void spaceChar) empty empty
 
 
-lex :: Parser a -> Parser a
-lex = L.lexeme skip
+parserLex :: Parser a -> Parser a
+parserLex = L.lexeme parserSkip
 
 
-lId :: Parser String
-lId = lex $ liftA2 (:) lowerChar (many alphaNumChar)
+parserIdentifier :: Parser String
+parserIdentifier = parserLex $ liftA2 (:) lowerChar (many alphaNumChar)
 
 
-unsigned :: Parser Int
-unsigned = lex $ L.decimal
+parserDecimal :: Parser Int
+parserDecimal = parserLex $ L.decimal
 
 
-operator :: String -> Parser ()
-operator o =
-  lex $ try $ string o *> notFollowedBy (oneOf "=+-/*;")
+parserOperator :: String -> Parser ()
+parserOperator o =
+  parserLex $ try $ string o *> notFollowedBy (oneOf "=+-/*;")
 
 
-paren :: Parser a -> Parser a
-paren = between (L.symbol skip "(") (L.symbol skip ")")
+parserParens :: Parser a -> Parser a
+parserParens = between (L.symbol parserSkip "(") (L.symbol parserSkip ")")
 
 
 infixL :: Parser (ASTMeta -> a -> b -> a) -> Parser b -> a -> Parser a
@@ -67,47 +67,47 @@ infixL op p x = do
   infixL op p r <|> return r
 
 
-astE1 :: Parser (ASTNode 'ExprL4)
-astE1 = choice
-  [ withASTMeta (pure ASTPlus) <*> (try $ astE2 <* operator "+") <*> astE1
-  , ASTExprL3 <$> astE2
+parserExprL4 :: Parser (ASTNode 'ExprL4)
+parserExprL4 = choice
+  [ withASTMeta (pure ASTPlus) <*> (try $ parserExprL3 <* parserOperator "+") <*> parserExprL4
+  , ASTExprL3 <$> parserExprL3
   ]
 
 
-astE2 :: Parser (ASTNode 'ExprL3)
-astE2 = choice
-  [ try $ (ASTExprL2 <$> astE3) >>= infixL (ASTMinus <$ operator "-") astE3
-  , ASTExprL2 <$> astE3
+parserExprL3 :: Parser (ASTNode 'ExprL3)
+parserExprL3 = choice
+  [ try $ (ASTExprL2 <$> parserExprL2) >>= infixL (ASTMinus <$ parserOperator "-") parserExprL2
+  , ASTExprL2 <$> parserExprL2
   ]
 
 
-astE3 :: Parser (ASTNode 'ExprL2)
-astE3 = choice
-  [ try $ (ASTExprL1 <$> astE4) >>=
-    infixL ( ASTMultiplication <$ operator "*" <|>
-             ASTDiv <$ operator "/"
-           ) astE4
-  , ASTExprL1 <$> astE4
+parserExprL2 :: Parser (ASTNode 'ExprL2)
+parserExprL2 = choice
+  [ try $ (ASTExprL1 <$> parserExprL1) >>=
+    infixL ( ASTMultiplication <$ parserOperator "*" <|>
+             ASTDiv <$ parserOperator "/"
+           ) parserExprL1
+  , ASTExprL1 <$> parserExprL1
   ]
 
 
-astE4 :: Parser (ASTNode 'ExprL1)
-astE4 = choice
-  [ withASTMeta (pure ASTInt) <*> unsigned
-  , withASTMeta (pure ASTVar) <*> lId
-  , ASTParens <$> paren astE1
+parserExprL1 :: Parser (ASTNode 'ExprL1)
+parserExprL1 = choice
+  [ withASTMeta (pure ASTInt) <*> parserDecimal
+  , withASTMeta (pure ASTVar) <*> parserIdentifier
+  , ASTParens <$> parserParens parserExprL4
   ]
 
-astSt :: Parser (ASTNode 'Stmt)
-astSt = choice
-  [ withASTMeta (pure ASTAssignment) <*> (try $ lId <* operator "=") <*> astE1
-  , withASTMeta (pure ASTExpr) <*> astE1
+parserStmt :: Parser (ASTNode 'Stmt)
+parserStmt = choice
+  [ withASTMeta (pure ASTAssignment) <*> (try $ parserIdentifier <* parserOperator "=") <*> parserExprL4
+  , withASTMeta (pure ASTExpr) <*> parserExprL4
   ]
 
 
-astP :: Parser (ASTNode 'InstantProgram)
-astP = ASTNode <$> sepBy astSt (operator ";")
+parserInstantProgram :: Parser (ASTNode 'InstantProgram)
+parserInstantProgram = ASTNode <$> sepBy parserStmt (parserOperator ";")
 
 
 ast :: Parser (ASTNode 'InstantProgram)
-ast = (skip *> astP <* eof)
+ast = (parserSkip *> parserInstantProgram <* eof)
