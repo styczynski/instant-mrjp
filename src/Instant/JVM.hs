@@ -75,7 +75,7 @@ getVarName :: String -> JVMCompiler Int
 getVarName v = asks (M.! v)
 
 
-checkVarInit :: Ann -> String -> JVMCompiler ()
+checkVarInit :: ASTMeta -> String -> JVMCompiler ()
 checkVarInit ann v =
   get >>= \s -> if S.member v s
                 then pure ()

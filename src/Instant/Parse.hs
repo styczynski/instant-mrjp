@@ -21,17 +21,17 @@ parseInstant filename inp = first
   (parse ast filename inp)
 
 
-getAnn :: Parser Ann
-getAnn = do
+getASTMeta :: Parser ASTMeta
+getASTMeta = do
   p <- getSourcePos
-  return $ Ann
+  return $ ASTMeta
     (fromIntegral $ unPos $ sourceLine p)
     (fromIntegral $ unPos $ sourceColumn p)
     (sourceName p)
 
 
-withAnn :: Parser (Ann -> a) -> Parser a
-withAnn p = liftA2 (flip ($)) getAnn p
+withASTMeta :: Parser (ASTMeta -> a) -> Parser a
+withASTMeta p = liftA2 (flip ($)) getASTMeta p
 
 
 skip :: Parser ()
@@ -59,9 +59,9 @@ paren :: Parser a -> Parser a
 paren = between (L.symbol skip "(") (L.symbol skip ")")
 
 
-infixL :: Parser (Ann -> a -> b -> a) -> Parser b -> a -> Parser a
+infixL :: Parser (ASTMeta -> a -> b -> a) -> Parser b -> a -> Parser a
 infixL op p x = do
-  f <- withAnn op
+  f <- withASTMeta op
   y <- p
   let r = f x y
   infixL op p r <|> return r
@@ -69,7 +69,7 @@ infixL op p x = do
 
 astE1 :: Parser (ASTNode 'ExprL4)
 astE1 = choice
-  [ withAnn (pure ASTPlus) <*> (try $ astE2 <* operator "+") <*> astE1
+  [ withASTMeta (pure ASTPlus) <*> (try $ astE2 <* operator "+") <*> astE1
   , ASTExprL3 <$> astE2
   ]
 
@@ -93,15 +93,15 @@ astE3 = choice
 
 astE4 :: Parser (ASTNode 'ExprL1)
 astE4 = choice
-  [ withAnn (pure ASTInt) <*> unsigned
-  , withAnn (pure ASTVar) <*> lId
+  [ withASTMeta (pure ASTInt) <*> unsigned
+  , withASTMeta (pure ASTVar) <*> lId
   , ASTParens <$> paren astE1
   ]
 
 astSt :: Parser (ASTNode 'Stmt)
 astSt = choice
-  [ withAnn (pure ASTAssignment) <*> (try $ lId <* operator "=") <*> astE1
-  , withAnn (pure ASTExpr) <*> astE1
+  [ withASTMeta (pure ASTAssignment) <*> (try $ lId <* operator "=") <*> astE1
+  , withASTMeta (pure ASTExpr) <*> astE1
   ]
 
 

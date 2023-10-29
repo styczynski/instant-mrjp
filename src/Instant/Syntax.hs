@@ -16,49 +16,49 @@ data ASTLevel
   | InstantProgram  -- program
   deriving (Eq, Show)
 
-data Ann = Ann { line :: Int, column :: Int, file :: String }
+data ASTMeta = ASTMeta  { line :: Int, column :: Int, file :: String }
   deriving (Eq, Show)
 
 
-at :: Ann -> String
-at ann =
-  file ann ++ ":" ++ show (line ann) ++ ":" ++ show (column ann)
+at :: ASTMeta -> String
+at astMeta =
+  file astMeta ++ ":" ++ show (line astMeta) ++ ":" ++ show (column astMeta)
 
 
-data ASTNode (ASTLevel :: ASTLevel) where
-  ASTPlus  :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL4 -> ASTNode 'ExprL4
+data ASTNode (astLevel :: ASTLevel) where
+  ASTPlus  :: ASTMeta -> ASTNode 'ExprL3 -> ASTNode 'ExprL4 -> ASTNode 'ExprL4
   ASTExprL3    ::        ASTNode 'ExprL3            -> ASTNode 'ExprL4
 
-  ASTMinus :: Ann -> ASTNode 'ExprL3 -> ASTNode 'ExprL2 -> ASTNode 'ExprL3
+  ASTMinus :: ASTMeta -> ASTNode 'ExprL3 -> ASTNode 'ExprL2 -> ASTNode 'ExprL3
   ASTExprL2    ::        ASTNode 'ExprL2            -> ASTNode 'ExprL3
 
-  ASTMultiplication  :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
-  ASTDiv   :: Ann -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
+  ASTMultiplication  :: ASTMeta -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
+  ASTDiv   :: ASTMeta -> ASTNode 'ExprL2 -> ASTNode 'ExprL1 -> ASTNode 'ExprL2
   ASTExprL1    ::        ASTNode 'ExprL1            -> ASTNode 'ExprL2
 
-  ASTInt   :: Ann -> Int                -> ASTNode 'ExprL1
-  ASTVar   :: Ann -> String             -> ASTNode 'ExprL1
+  ASTInt   :: ASTMeta -> Int                -> ASTNode 'ExprL1
+  ASTVar   :: ASTMeta -> String             -> ASTNode 'ExprL1
   ASTParens ::        ASTNode 'ExprL4            -> ASTNode 'ExprL1
 
-  ASTExpr  :: Ann -> ASTNode 'ExprL4            -> ASTNode 'Stmt
-  ASTAssignment   :: Ann -> String -> ASTNode 'ExprL4  -> ASTNode 'Stmt
+  ASTExpr  :: ASTMeta -> ASTNode 'ExprL4            -> ASTNode 'Stmt
+  ASTAssignment   :: ASTMeta -> String -> ASTNode 'ExprL4  -> ASTNode 'Stmt
 
   ASTNode      ::        [ASTNode 'Stmt]          -> ASTNode 'InstantProgram
 deriving instance Eq (ASTNode t)
 deriving instance Show (ASTNode t)
 
 data Expr
-  = EPlus Ann Expr Expr
-  | EMinus Ann Expr Expr
-  | EMult Ann Expr Expr
-  | EDiv Ann Expr Expr
-  | EInt Ann Int
-  | EVar Ann String
+  = EPlus ASTMeta Expr Expr
+  | EMinus ASTMeta Expr Expr
+  | EMult ASTMeta Expr Expr
+  | EDiv ASTMeta Expr Expr
+  | EInt ASTMeta Int
+  | EVar ASTMeta String
   deriving (Eq, Show)
 
 data InstantStmt
-  = IExpr Ann Expr
-  | IAssg Ann String Expr
+  = IExpr ASTMeta Expr
+  | IAssg ASTMeta String Expr
   deriving (Eq, Show)
 
 newtype Instant = Instant { instantCode :: [InstantStmt] }

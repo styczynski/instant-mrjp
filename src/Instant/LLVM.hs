@@ -115,7 +115,7 @@ newRef :: LLVMCompiler String
 newRef = modify (\s -> s{csStore = csStore s + 1}) *> (("val_"<>) . show <$> lastId)
 
 
-lookupVarAt :: Ann -> String -> LLVMCompiler String
+lookupVarAt :: ASTMeta -> String -> LLVMCompiler String
 lookupVarAt ann v = gets ((M.lookup v) . csVarMap) >>= \case
   Nothing -> throwError $ at ann ++ " Undefined variable " ++ v
   Just i -> pure ("var_" ++ v ++ show i)
