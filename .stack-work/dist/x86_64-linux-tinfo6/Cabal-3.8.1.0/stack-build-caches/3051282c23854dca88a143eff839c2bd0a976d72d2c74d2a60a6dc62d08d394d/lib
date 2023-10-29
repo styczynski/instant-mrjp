@@ -1,0 +1,28 @@
+? /home/students/inf/p/ps386038/.stack/programs/x86_64-linux/ghc-tinfo6-9.4.7/lib/ghc-9.4.7/lib/x86_64-linux-ghc-9.4.7/rts-1.0.2/include/ghcversion.h
+: hash: ee548d48ca5c94d7c7fab127ec07be47b01afa24d6495358aa9ff6cfc8541c81
+? /home/students/inf/p/ps386038/Code/instant-mrjp/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.8.1.0/build/autogen/Paths_instant_lang.hs
+: hash: dd4096559dd68f6cba8efc96e63663b52287d660d521ec04dcd237f10c0ea5fe
+/home/students/inf/p/ps386038/Code/instant-mrjp/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.8.1.0/build/autogen/cabal_macros.h:
+  hash: a332df81710962fe7d6657b48bfd7fd130d2c4190683f0135892f7e5c39e99b0
+/home/students/inf/p/ps386038/Code/instant-mrjp/README.md:
+  hash: b9d0143ca23517bed49abccdc4338a0059c23bd3377bf58f922605a89c496285
+/home/students/inf/p/ps386038/Code/instant-mrjp/instant-lang.cabal:
+  hash: 84118c089984eb6d63124abed62d2cad3b1c26ccb7b0a477d8bbd2db45aeb405
+/home/students/inf/p/ps386038/Code/instant-mrjp/package.yaml:
+  hash: b826f224fc4450df309be234955797aa17046cfa485983590646fd017937fd5d
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant.hs:
+  hash: b061dfb5abd46adc66628b89df2da93d5e0e510389bd1f6ee566a2697dec73e0
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/Interpret.hs:
+  hash: 6ceaafab6ba06cc38e15c0def49f606cb51865c6e24d5167c7ff462c94079330
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/JVM.hs:
+  hash: 275382cab9f017f26916e5b1c447f9dbc24371609003cf396f8c22d486675879
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/LLVM.hs:
+  hash: 12dcf94db6e86048d6e88ff23ad9fad9cda59a05da3f29b0baeea1442ebdaeba
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/PP.hs:
+  hash: 1fa8a06d0016ae7e1652c1358c7ed5b627f9bde90e04b7077d31550f4bf63b8b
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/Parse.hs:
+  hash: 1a6b21aa10b9ca4fb57bf5886973eb4b8200d20473f9e3c0b5aa96c8ea13ec57
+/home/students/inf/p/ps386038/Code/instant-mrjp/src/Instant/Syntax.hs:
+  hash: 9a2612c2d09a3e52756a878abc098435487f0d4bcf41dc972d20b30944d213f7
+/usr/include/stdc-predef.h:
+  hash: cb08cd5d4cc059a90833ac48a284d25016e8d56ded8ad4cd98d8ac59cc5053f3

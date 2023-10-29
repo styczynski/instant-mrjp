@@ -1,0 +1,16 @@
+? /home/students/inf/p/ps386038/.stack/programs/x86_64-linux/ghc-tinfo6-9.4.7/lib/ghc-9.4.7/lib/x86_64-linux-ghc-9.4.7/rts-1.0.2/include/ghcversion.h
+: hash: ee548d48ca5c94d7c7fab127ec07be47b01afa24d6495358aa9ff6cfc8541c81
+? /home/students/inf/p/ps386038/Code/instant-mrjp/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.8.1.0/build/insc_llvm/autogen/Paths_instant_lang.hs
+: hash: 5668fd9b1e8e07edb7241933f88dbe20cfe1731a566c53f450b3b80190cb8e5d
+? /home/students/inf/p/ps386038/Code/instant-mrjp/.stack-work/dist/x86_64-linux-tinfo6/Cabal-3.8.1.0/build/insc_llvm/autogen/cabal_macros.h
+: hash: 5ee22507bb0732f4614e4624003f3a53efe5a58aa94870bb0587c286d825e549
+/home/students/inf/p/ps386038/Code/instant-mrjp/README.md:
+  hash: b9d0143ca23517bed49abccdc4338a0059c23bd3377bf58f922605a89c496285
+/home/students/inf/p/ps386038/Code/instant-mrjp/app/insc_llvm/Main.hs:
+  hash: 7bf8e9e99920f4f6818878cce183e7ba82f9a95f92b56a8f53f29b372d91df31
+/home/students/inf/p/ps386038/Code/instant-mrjp/instant-lang.cabal:
+  hash: 84118c089984eb6d63124abed62d2cad3b1c26ccb7b0a477d8bbd2db45aeb405
+/home/students/inf/p/ps386038/Code/instant-mrjp/package.yaml:
+  hash: b826f224fc4450df309be234955797aa17046cfa485983590646fd017937fd5d
+/usr/include/stdc-predef.h:
+  hash: cb08cd5d4cc059a90833ac48a284d25016e8d56ded8ad4cd98d8ac59cc5053f3
