@@ -48,20 +48,20 @@ deriving instance Eq (ASTNode t)
 deriving instance Show (ASTNode t)
 
 data Expr
-  = EPlus ASTMeta Expr Expr
-  | EMinus ASTMeta Expr Expr
-  | EMult ASTMeta Expr Expr
-  | EDiv ASTMeta Expr Expr
-  | EInt ASTMeta Int
-  | EVar ASTMeta String
+  = IExprPlus ASTMeta Expr Expr
+  | IExprMinus ASTMeta Expr Expr
+  | IExprMultiplication ASTMeta Expr Expr
+  | IExprDiv ASTMeta Expr Expr
+  | IExprInt ASTMeta Int
+  | IExprVar ASTMeta String
   deriving (Eq, Show)
 
-data InstantStmt
+data IStatement
   = IExpr ASTMeta Expr
-  | IAssg ASTMeta String Expr
+  | IAssignment ASTMeta String Expr
   deriving (Eq, Show)
 
-newtype Instant = Instant { instantCode :: [InstantStmt] }
+newtype ICode = ICode { statements :: [IStatement] }
   deriving (Eq, Show)
 
 type family InstantNode (t :: ASTLevel) :: *
@@ -69,29 +69,29 @@ type instance InstantNode 'ExprL4 = Expr
 type instance InstantNode 'ExprL3 = Expr
 type instance InstantNode 'ExprL2 = Expr
 type instance InstantNode 'ExprL1 = Expr
-type instance InstantNode 'Stmt = InstantStmt
-type instance InstantNode 'InstantProgram  = Instant
+type instance InstantNode 'Stmt = IStatement
+type instance InstantNode 'InstantProgram  = ICode
 
 
 toInstantNode :: ASTNode t -> InstantNode t
-toInstantNode (ASTNode stmts) = Instant (fmap toInstantNode stmts)
+toInstantNode (ASTNode stmts) = ICode (fmap toInstantNode stmts)
 toInstantNode (ASTExpr ann e) = IExpr ann (toInstantNode e)
-toInstantNode (ASTAssignment ann name e) = IAssg ann name (toInstantNode e)
-toInstantNode (ASTPlus ann a b) = EPlus ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTAssignment ann name e) = IAssignment ann name (toInstantNode e)
+toInstantNode (ASTPlus ann a b) = IExprPlus ann (toInstantNode a) (toInstantNode b)
 toInstantNode (ASTExprL3 e) = toInstantNode e
-toInstantNode (ASTMinus ann a b) = EMinus ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTMinus ann a b) = IExprMinus ann (toInstantNode a) (toInstantNode b)
 toInstantNode (ASTExprL2 e) = toInstantNode e
-toInstantNode (ASTMultiplication ann a b) = EMult ann (toInstantNode a) (toInstantNode b)
-toInstantNode (ASTDiv ann a b) = EDiv ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTMultiplication ann a b) = IExprMultiplication ann (toInstantNode a) (toInstantNode b)
+toInstantNode (ASTDiv ann a b) = IExprDiv ann (toInstantNode a) (toInstantNode b)
 toInstantNode (ASTExprL1 e) = toInstantNode e
-toInstantNode (ASTInt ann i) = EInt ann i
-toInstantNode (ASTVar ann n) = EVar ann n
+toInstantNode (ASTInt ann i) = IExprInt ann i
+toInstantNode (ASTVar ann n) = IExprVar ann n
 toInstantNode (ASTParens e) = toInstantNode e
 
 
-varMap :: Instant -> Map String Int
+varMap :: ICode -> Map String Int
 varMap code = M.fromList $ zip names [1..] where
-  names = S.toList $ foldl inserter S.empty (instantCode code)
+  names = S.toList $ foldl inserter S.empty (statements code)
 
   inserter prev (IExpr _ _) = prev
-  inserter prev (IAssg _ v _) = S.insert v prev
+  inserter prev (IAssignment _ v _) = S.insert v prev

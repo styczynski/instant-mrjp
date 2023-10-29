@@ -7,13 +7,13 @@ import qualified Instant.LLVM as LLVM
 import Instant.Syntax
 
 
-parse :: String -> String -> Either String Instant
+parse :: String -> String -> Either String ICode
 parse filename code = toInstantNode <$> parseInstant filename code
 
 
-toJVM :: String -> Instant -> Either String String
+toJVM :: String -> ICode -> Either String String
 toJVM = JVM.build
 
 
-toLLVM :: Instant -> Either String String
+toLLVM :: ICode -> Either String String
 toLLVM = LLVM.build

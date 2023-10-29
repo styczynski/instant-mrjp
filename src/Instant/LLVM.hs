@@ -43,7 +43,7 @@ data LLVMExpr
   = LLEAdd LLVMType LLVMLit LLVMLit
   | LLESub LLVMType LLVMLit LLVMLit
   | LLEMul LLVMType LLVMLit LLVMLit
-  | LLEDiv LLVMType LLVMLit LLVMLit
+  | LLIExprDiv LLVMType LLVMLit LLVMLit
 
 
 type LLVM = [LLVMOp]
@@ -77,7 +77,7 @@ serializeExpr = \case
                   <> serializeLit a <> ", "<> serializeLit b
   LLEMul t a b -> "mul " <> serializeType t <> " "
                   <> serializeLit a <> ", "<> serializeLit b
-  LLEDiv t a b -> "sdiv " <> serializeType t <> " "
+  LLIExprDiv t a b -> "sdiv " <> serializeType t <> " "
                   <> serializeLit a <> ", "<> serializeLit b
 
 
@@ -146,19 +146,19 @@ compileOperator op t a b = do
 
 compileExpr :: Expr -> LLVMCompiler (LLVMLit, LLVM)
 compileExpr = \case
-  EInt _ i -> pure (LLLInt i, [])
-  EVar ann s -> do
+  IExprInt _ i -> pure (LLLInt i, [])
+  IExprVar ann s -> do
     v <- lookupVarAt ann s
     pure (LLLReg v, [])
-  EPlus _ a b -> compileOperator LLEAdd i32 a b
-  EMinus _ a b -> compileOperator LLESub i32 a b
-  EMult _ a b -> compileOperator LLEMul i32 a b
-  EDiv _ a b -> compileOperator LLEDiv i32 a b
+  IExprPlus _ a b -> compileOperator LLEAdd i32 a b
+  IExprMinus _ a b -> compileOperator LLESub i32 a b
+  IExprMultiplication _ a b -> compileOperator LLEMul i32 a b
+  IExprDiv _ a b -> compileOperator LLIExprDiv i32 a b
 
 
-compileStmt :: InstantStmt -> LLVMCompiler LLVM
+compileStmt :: IStatement -> LLVMCompiler LLVM
 compileStmt = \case
-  IAssg _ v e -> do
+  IAssignment _ v e -> do
     (valRef, ecode) <- compileExpr e
     ref <- initVar v
     pure $ ecode ++ [LLOAssg ref (LLEAdd i32 valRef (LLLInt 0))]
@@ -183,14 +183,14 @@ invocation = unlines
   ]
 
 
-compileInstant :: Instant -> LLVMCompiler String
+compileInstant :: ICode -> LLVMCompiler String
 compileInstant code = do
   llcode <- (++[LLORet i32 (LLLInt 0)]) . join <$>
-    traverse compileStmt (instantCode code)
+    traverse compileStmt (statements code)
   pure $ invocation ++ concat (fmap ((<>"\n") . ("  "<>) . serializeOp) llcode) ++ "\n}"
 
 
-build :: Instant -> Either String String
+build :: ICode -> Either String String
 build code =
   evalState (runExceptT $ compileInstant code) (CompilerState 0 M.empty)
 

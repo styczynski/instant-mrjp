@@ -96,15 +96,15 @@ compileExpr :: Expr -> JVMCompiler JVM
 compileExpr e = ($[]) . snd <$> builder e where
   builder :: Expr -> JVMCompiler (Int, JVM -> JVM)
   builder = \case -- optimizes stack
-    EInt _ i     -> pure (1, ((ICONST i):))
-    EVar ann v   -> do
+    IExprInt _ i     -> pure (1, ((ICONST i):))
+    IExprVar ann v   -> do
       checkVarInit ann v
       i <- getVarName v
       pure (1, ((ILOAD i):))
-    EPlus _ a b  -> buildOp ADD a b
-    EMinus _ a b -> buildOp SUB a b
-    EMult _ a b  -> buildOp MUL a b
-    EDiv _ a b   -> buildOp DIV a b
+    IExprPlus _ a b  -> buildOp ADD a b
+    IExprMinus _ a b -> buildOp SUB a b
+    IExprMultiplication _ a b  -> buildOp MUL a b
+    IExprDiv _ a b   -> buildOp DIV a b
 
   buildOp op a b = do
       (ai, ab) <- builder a
@@ -115,24 +115,24 @@ compileExpr e = ($[]) . snd <$> builder e where
         GT -> pure (ai    , ab . bb . (op:))
 
 
-compileStmt :: InstantStmt -> JVMCompiler JVM
+compileStmt :: IStatement -> JVMCompiler JVM
 compileStmt = \case
   IExpr _ e -> join <$> sequence
     [ pure [GETSTATIC "java/lang/System/out" "Ljava/io/PrintStream;"]
     , compileExpr e
     , pure [INVOKEVIRTUAL 1 "java/io/PrintStream/println(I)V"]
     ]
-  IAssg _ v e -> do
+  IAssignment _ v e -> do
     easm <- compileExpr e
     registerVar v
     idx <- getVarName v
     pure $ easm ++ [ISTORE idx]
 
 
-compileInstant :: String -> Instant -> JVMCompiler String
+compileInstant :: String -> ICode -> JVMCompiler String
 compileInstant filename code = do
   varsCount <- asks M.size
-  jvm <- join <$> mapM compileStmt (instantCode code)
+  jvm <- join <$> mapM compileStmt (statements code)
   let funBody = unlines . fmap (("  "<>) . serializeOp) $ jvm
   pure $
     invocation filename ++
@@ -147,7 +147,7 @@ compileInstant filename code = do
     ".end method\n"
 
 
-build :: String -> Instant -> Either String String
+build :: String -> ICode -> Either String String
 build filename code =
   runReader (evalStateT (runExceptT $ compileInstant filename code) S.empty) (varMap code)
 
