@@ -5,20 +5,48 @@ module Instant.Backend where
 
 import Instant.Syntax
 import qualified Data.Text as T
+import qualified Data.List as L
 import Instant.Logs
+import Control.Exception
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import System.Process
 
 type InstantBackendFn = String -> ICode -> InstantPipeline (Either String String)
 
 data InstantBackend = InstantBackend
   {
     name :: String,
-    run :: InstantBackendFn
+    inputExtension :: String,
+    run :: InstantBackendFn,
+    compileExecutable :: String -> InstantPipeline ()
   }
 
-runBackend :: String -> (ASTNode 'InstantProgram) -> InstantBackend -> InstantPipeline (Either String String)
-runBackend fileName ast backend = do
+runBackend :: String -> String ->(ASTNode 'InstantProgram) -> InstantBackend -> InstantPipeline (Maybe T.Text)
+runBackend filePath fileName ast backend = do
     normalizedAST <- do
         printLogInfo $ "Normalizing AST"
         return $ fromAST ast
     printLogInfo $ "Running correct compiler backend: " <> (T.pack $ name backend)
-    (run backend) fileName normalizedAST
+    backendResponse <- (run backend) fileName normalizedAST
+    case backendResponse of
+      Left e -> return $ Just $ "Backend reported an error: " <> (T.pack filePath) <> ": " <> (T.pack e)
+      Right outputCode -> do
+          printLogInfo $ "Created file: " <> (T.pack filePath)
+          liftIO $ writeFile filePath outputCode
+          printLogInfo $ "Calling backend compile step: " <> (T.pack $ name backend)
+          (compileExecutable backend) filePath
+          return Nothing
+
+execCmd :: String -> [String] -> InstantPipeline ()
+execCmd cmd args = do
+    printLogInfo $ "Executing command '" <> (T.pack $ L.intercalate " " $ [cmd] ++ args) <> "'"
+    result <- liftIO safeExec 
+    case result of
+        Left ex -> instantError "Command has failed"
+        Right _ -> printLogInfo $ "Command executed successfully."
+    return ()
+        where
+            safeExec :: IO (Either SomeException ())
+            safeExec = try $ do
+                callProcess cmd args
+                return $ ()
