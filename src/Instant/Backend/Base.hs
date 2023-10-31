@@ -17,7 +17,6 @@ type InstantBackendFn = String -> ICode -> InstantPipeline (Either String String
 class SerializableInstruction a where
   toCode :: a -> String
 
-
 data InstantBackend = InstantBackend
   { name :: String,
     inputExtension :: String,

@@ -1,13 +1,12 @@
 module Instant.Backend.LLVM.Syntax where
 
-import Instant.Backend.Base
 import qualified Data.List as L
+import Instant.Backend.Base
 
 data LLVMType
-  =
-    LINT Int
-    | LVARARGS
-    | LPOINTER LLVMType
+  = LINT Int
+  | LVARARGS
+  | LPOINTER LLVMType
 
 lint32 :: LLVMType
 lint32 = LINT 32
@@ -37,37 +36,37 @@ data LLVMExpr
 type LLVM = [LLVMOp]
 
 instance SerializableInstruction LLVMLit where
-    toCode (CONSTReg s) = "%" <> s
-    toCode (CONSTInt i) = show i
-    toCode (CONSTGetElementPtr (x, y) ref (t1, v1) (t2, v2)) =
-        concat
-        [ "getelementptr inbounds (",
-            "[",
-            show x,
-            " x ",
-            toCode y,
-            "], ",
-            "[",
-            show x,
-            " x ",
-            toCode y,
-            "]* ",
-            ref,
-            ", ",
-            toCode t1,
-            " ",
-            toCode v1,
-            ", ",
-            toCode t2,
-            " ",
-            toCode v2,
-            ")"
-        ]
+  toCode (CONSTReg s) = "%" <> s
+  toCode (CONSTInt i) = show i
+  toCode (CONSTGetElementPtr (x, y) ref (t1, v1) (t2, v2)) =
+    concat
+      [ "getelementptr inbounds (",
+        "[",
+        show x,
+        " x ",
+        toCode y,
+        "], ",
+        "[",
+        show x,
+        " x ",
+        toCode y,
+        "]* ",
+        ref,
+        ", ",
+        toCode t1,
+        " ",
+        toCode v1,
+        ", ",
+        toCode t2,
+        " ",
+        toCode v2,
+        ")"
+      ]
 
 instance SerializableInstruction LLVMType where
-    toCode (LINT i) = "i" <> show i
-    toCode (LVARARGS) = "..."
-    toCode (LPOINTER t) = toCode t <> "*"
+  toCode (LINT i) = "i" <> show i
+  toCode (LVARARGS) = "..."
+  toCode (LPOINTER t) = toCode t <> "*"
 
 instance SerializableInstruction LLVMExpr where
   toCode (INSTRAdd t a b) =
@@ -100,17 +99,17 @@ instance SerializableInstruction LLVMExpr where
       <> toCode b
 
 instance SerializableInstruction LLVMOp where
-    toCode (OPAssignment s e) = "%" <> s <> " = " <> toCode e
-    toCode (OPDoCall rett argst fun args) =
-        concat
-        [ "call ",
-            toCode rett,
-            " ",
-            bracSep (fmap toCode argst) <> " ",
-            fun,
-            bracSep (fmap (\(t, l) -> toCode t <> " " <> toCode l) args)
-        ]
-    toCode (OPDoReturn t v) = "ret " <> toCode t <> " " <> toCode v
+  toCode (OPAssignment s e) = "%" <> s <> " = " <> toCode e
+  toCode (OPDoCall rett argst fun args) =
+    concat
+      [ "call ",
+        toCode rett,
+        " ",
+        bracSep (fmap toCode argst) <> " ",
+        fun,
+        bracSep (fmap (\(t, l) -> toCode t <> " " <> toCode l) args)
+      ]
+  toCode (OPDoReturn t v) = "ret " <> toCode t <> " " <> toCode v
 
 bracSep :: [String] -> String
 bracSep elems = '(' : concat (L.intersperse ", " elems) ++ ")"
