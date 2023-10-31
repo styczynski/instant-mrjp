@@ -57,9 +57,5 @@ parserStmt = MP.choice
   ]
 
 
-parserInstantProgram :: Parser (ASTNode 'InstantProgram)
-parserInstantProgram = ASTNode <$> MP.sepBy parserStmt (parserOperator ";")
-
-
 ast :: Parser (ASTNode 'InstantProgram)
-ast = (parserSkip *> parserInstantProgram <* MP.eof)
+ast = (parserSkip *> (ASTNode <$> MP.sepBy parserStmt (parserOperator ";")) <* MP.eof)

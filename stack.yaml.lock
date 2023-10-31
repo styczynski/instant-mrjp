@@ -18,6 +18,17 @@ packages:
       size: 1401
   original:
     hackage: diagnose-2.5.1
+- completed:
+    name: jvm-parser
+    pantry-tree:
+      sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93
+      size: 2066
+    sha256: 1fec89977f476302e9867ba6d5d6bfbbaa229b4f4e2621c4462d9223b5262c07
+    size: 37304
+    url: https://github.com/GaloisInc/jvm-parser/archive/6cb3fce6c390d8b4963ca211d0a3ca88fb6ec2ca.tar.gz
+    version: 0.3.0.0
+  original:
+    url: https://github.com/GaloisInc/jvm-parser/archive/6cb3fce6c390d8b4963ca211d0a3ca88fb6ec2ca.tar.gz
 snapshots:
 - completed:
     sha256: 85d2382958c178491d3fe50d770a624621f5ab456beef7d31ac7521f780c9bc7

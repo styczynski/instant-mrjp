@@ -27,6 +27,7 @@ library:
     - co-log
     - text
     - diagnose
+    - jvm-parser
   default-extensions:
     - KindSignatures
     - LambdaCase
