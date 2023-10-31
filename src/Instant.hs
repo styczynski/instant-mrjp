@@ -31,7 +31,7 @@ runCLI = evaluateInstantPipeline runPipeline
 runPipeline :: InstantPipeline ()
 runPipeline = do
   args <- liftIO $ getArgs
-  backend <- return $ JVM.backend
+  backend <- return $ LLVM.backend
   case args of
     file:rest -> do
       let noBin = "no-bin" `elem` rest

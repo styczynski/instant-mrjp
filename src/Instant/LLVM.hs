@@ -1,12 +1,14 @@
-module Instant.LLVM(build) where
+module Instant.LLVM(backend) where
 
 import           Data.List
 import           Data.Map(Map)
 import qualified Data.Map as M
 import           Control.Monad.State.Strict
 import           Control.Monad.Except
+import           System.FilePath
 
 import Instant.Syntax
+import Instant.Backend
 
 
 data LLVMType
@@ -190,7 +192,13 @@ compileInstant code = do
   pure $ invocation ++ concat (fmap ((<>"\n") . ("  "<>) . serializeOp) llcode) ++ "\n}"
 
 
-build :: ICode -> Either String String
-build code =
-  evalState (runExceptT $ compileInstant code) (CompilerState 0 M.empty)
-
+backend :: InstantBackend
+backend = InstantBackend {
+  name = "LLVM",
+  inputExtension = "ll",
+  run = \filename code -> do
+      return $ evalState (runExceptT $ compileInstant code) (CompilerState 0 M.empty),
+  compileExecutable = \filePath -> do
+    let outpath = replaceExtension filePath "bc"
+    execCmd "llvm-as" [filePath, "-o", outpath]
+}
