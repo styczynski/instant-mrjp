@@ -26,6 +26,7 @@ library:
     - process
     - co-log
     - text
+    - diagnose
   default-extensions:
     - KindSignatures
     - LambdaCase
@@ -33,6 +34,7 @@ library:
     - GADTs
     - DataKinds
     - RankNTypes
+    - FlexibleContexts
 
 executables:
   # insc_llvm:

@@ -1,4 +1,4 @@
-module Instant.JVM(build) where
+module Instant.JVM(backend) where
 
 import           Control.Monad.Reader
 import           Control.Monad.State.Strict
@@ -10,6 +10,7 @@ import           Data.Set(Set)
 import           System.FilePath
 
 import Instant.Syntax
+import Instant.Backend
 
 
 data JVMOp
@@ -146,10 +147,12 @@ compileInstant filename code = do
     "return\n" ++
     ".end method\n"
 
-
-build :: String -> ICode -> Either String String
-build filename code =
-  runReader (evalStateT (runExceptT $ compileInstant filename code) S.empty) (varMap code)
+backend :: InstantBackend
+backend = InstantBackend {
+  name = "JVM",
+  run = \filename code -> do
+      return $ runReader (evalStateT (runExceptT $ compileInstant filename code) S.empty) (varMap code)
+}
 
 
 estimateStackSize :: JVM -> Int

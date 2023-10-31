@@ -14,6 +14,7 @@ import System.Process
 import Control.Monad.IO.Class (MonadIO, liftIO)
 
 import           Instant.Parse
+import Instant.Backend
 import qualified Instant.JVM as JVM
 import qualified Instant.LLVM as LLVM
 
@@ -22,11 +23,10 @@ import Instant.Logs
 import qualified Data.Text as T
 import qualified Data.List as L
 
-parse :: String -> String -> Either String ICode
-parse filename code = fromAST <$> parseInstant filename code
 
 runCLI :: IO ()
 runCLI = evaluateInstantPipeline runPipeline
+
 
 runPipeline :: InstantPipeline ()
 runPipeline = do
@@ -37,16 +37,20 @@ runPipeline = do
           jasminName = replaceExtension file "j"
       contents <- liftIO $ readFile file
       printLogInfo $ "Parsing: " <> (T.pack file)
-      ast <- return $ parse file contents
-      printLogInfo $ "Parsed: " <> (T.pack file)
-      case ast >>= JVM.build (takeFileName jasminName) of
-        Left e -> instantError $ "Parsing problem: " <> (T.pack file) <> ": " <> (T.pack e)
-        Right jasminCode -> do
-          printLogInfo $ "Writing Jasmine code to " <> (T.pack jasminName)
-          liftIO $ writeFile jasminName jasminCode
-          when (not noBin) $ do
-            let outpath = takeDirectory file
-            callJasmine jasminName outpath
+      parsedAST <- parseInstant file contents
+      case parsedAST of
+        Left _ -> instantError $ "Parser encountered a critical errors (see logs above): " <> (T.pack file)
+        Right node -> do
+            printLogInfo $ "Input file was correctly parsed: " <> (T.pack file)
+            backendResponse <- runBackend (takeFileName jasminName) node JVM.backend
+            case backendResponse of
+                Left e -> instantError $ "Parsing problem: " <> (T.pack file) <> ": " <> (T.pack e)
+                Right jasminCode -> do
+                    printLogInfo $ "Writing Jasmine code to " <> (T.pack jasminName)
+                    liftIO $ writeFile jasminName jasminCode
+                    when (not noBin) $ do
+                        let outpath = takeDirectory file
+                        callJasmine jasminName outpath
     _ -> instantError "BAD ARGS"
 
 execCmd :: String -> [String] -> InstantPipeline ()

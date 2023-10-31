@@ -17,6 +17,9 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
+flags:
+  diagnose:
+    megaparsec-compat: true
 allow-newer: true
 resolver:
   url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/21/17.yaml
@@ -43,6 +46,7 @@ packages:
 #
 extra-deps:
   - co-log-0.6.0.2
+  - diagnose-2.5.1
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
