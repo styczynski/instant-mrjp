@@ -18,15 +18,6 @@ import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import           Prelude hiding (parserLex)
 
-type Parser = ParsecT Void String Identity
-parserASTMeta :: Parser ASTMeta
-parserASTMeta = do
-  p <- getSourcePos
-  return $ ASTMeta
-    (fromIntegral $ unPos $ sourceLine p)
-    (fromIntegral $ unPos $ sourceColumn p)
-    (sourceName p)
-
 data ASTLevel
   = ExprL4 -- plus
   | ExprL3 -- minus
@@ -35,14 +26,6 @@ data ASTLevel
   | Stmt -- statement
   | InstantProgram  -- program
   deriving (Eq, Show)
-
-data ASTLevelT (astLevel :: ASTLevel) where
-  LExprL4 :: ASTLevelT 'ExprL4
-  LExprL3 :: ASTLevelT 'ExprL3
-  LExprL2 :: ASTLevelT 'ExprL2
-  LExprL1 :: ASTLevelT 'ExprL1
-  LStmt :: ASTLevelT 'Stmt
-  LInstantProgram :: ASTLevelT 'InstantProgram
 
 data ASTMeta = ASTMeta  { line :: Int, column :: Int, file :: String }
   deriving (Eq, Show)
@@ -100,87 +83,12 @@ type instance InstantNode 'ExprL1 = IExpr
 type instance InstantNode 'Stmt = IStatement
 type instance InstantNode 'InstantProgram  = ICode
 
-type family InstantNodeQ q :: (ASTLevel)
-type instance InstantNodeQ IExpr = 'ExprL4
-type instance InstantNodeQ IStatement = 'Stmt
-type instance InstantNodeQ ICode = 'InstantProgram
-
--- Dupa
-
-
-withASTMeta :: Parser (ASTMeta -> a) -> Parser a
-withASTMeta p = liftA2 (flip ($)) parserASTMeta p
-
-
-parserSkip :: Parser ()
-parserSkip = L.space (void spaceChar) empty empty
-
-
-parserLex :: Parser a -> Parser a
-parserLex = L.lexeme parserSkip
-
-
-parserIdentifier :: Parser String
-parserIdentifier = parserLex $ liftA2 (:) lowerChar (many alphaNumChar)
-
-
-parserDecimal :: Parser Int
-parserDecimal = parserLex $ L.decimal
-
-
-parserOperator :: String -> Parser ()
-parserOperator o =
-  parserLex $ try $ string o *> notFollowedBy (oneOf "=+-/*;")
-
-
-parserParens :: Parser a -> Parser a
-parserParens = between (L.symbol parserSkip "(") (L.symbol parserSkip ")")
-
-
-infixL :: Parser (ASTMeta -> a -> b -> a) -> Parser b -> a -> Parser a
-infixL op p x = do
-  f <- withASTMeta op
-  y <- p
-  let r = f x y
-  infixL op p r <|> return r
-
-----
-
-
 
 class INode a where
   fromAST :: (InstantNode l ~ a) => ASTNode l -> a
   pretty :: a -> String
-  parseAST :: Parser (ASTNode (InstantNodeQ a))
 
 instance INode IExpr where
-  parseAST = parseASTExprL4
-    where
-      --parseASTExprL4 :: Parser (ASTNode 'ExprL4)
-      parseASTExprL4 = choice
-        [ withASTMeta (pure ASTPlus) <*> (try $ (parseASTExprL3) <* parserOperator "+") <*> (parseASTExprL4)
-        , ASTExprL3 <$> (parseASTExprL3)
-        ]
-      --parseASTExprL3 :: Parser (ASTNode 'ExprL3)
-      parseASTExprL3 = choice
-        [ try $ (ASTExprL2 <$> (parseASTExprL2)) >>= infixL (ASTMinus <$ parserOperator "-") (parseASTExprL2)
-        , ASTExprL2 <$> (parseASTExprL2)
-        ]
-      --parseASTExprL2 :: Parser (ASTNode 'ExprL2)
-      parseASTExprL2 = choice
-        [ try $ (ASTExprL1 <$> (parseASTExprL1)) >>=
-          infixL ( ASTMultiplication <$ parserOperator "*" <|>
-                  ASTDiv <$ parserOperator "/"
-                ) (parseASTExprL1)
-        , ASTExprL1 <$> (parseASTExprL1)
-        ]
-     -- parseASTExprL1 :: Parser (ASTNode 'ExprL1)
-      parseASTExprL1 = choice
-        [ withASTMeta (pure ASTInt) <*> parserDecimal
-        , withASTMeta (pure ASTVar) <*> parserIdentifier
-        , ASTParens <$> parserParens (parseASTExprL4)
-        ]
-
   fromAST (ASTPlus ann a b) = IExprPlus ann (fromAST a) (fromAST b)
   fromAST (ASTExprL3 e) = fromAST e
   fromAST (ASTMinus ann a b) = IExprMinus ann (fromAST a) (fromAST b)
@@ -188,6 +96,9 @@ instance INode IExpr where
   fromAST (ASTMultiplication ann a b) = IExprMultiplication ann (fromAST a) (fromAST b)
   fromAST (ASTDiv ann a b) = IExprDiv ann (fromAST a) (fromAST b)
   fromAST (ASTExprL1 e) = fromAST e
+  fromAST (ASTInt ann i) = IExprInt ann i
+  fromAST (ASTVar ann n) = IExprVar ann n
+  fromAST (ASTParens e) = fromAST e
   pretty = \case
     IExprInt _ i -> show i
     IExprVar _ s -> s
@@ -197,11 +108,6 @@ instance INode IExpr where
     IExprDiv _ a b -> "(" <> pretty a <> " / " <> pretty b <> ")"
 
 instance INode IStatement where
-  parseAST = choice
-    [ withASTMeta (pure ASTAssignment) <*> (try $ parserIdentifier <* parserOperator "=") <*> (parseAST :: (Parser (ASTNode (InstantNodeQ IExpr))))
-    , withASTMeta (pure ASTExpr) <*> (parseAST :: (Parser (ASTNode (InstantNodeQ IExpr))))
-    ]
-
   fromAST (ASTAssignment ann name e) = IAssignment ann name (fromAST e)
   fromAST (ASTExpr ann e) = IExpr ann (fromAST e)
   pretty = \case
@@ -210,8 +116,6 @@ instance INode IStatement where
 
 
 instance INode ICode where
-  parseAST = (parserSkip *> (ASTNode <$> sepBy (parseAST :: (Parser (ASTNode (InstantNodeQ IStatement)))) (parserOperator ";")) <* eof)
-
   fromAST (ASTNode stmts) = ICode (fmap fromAST stmts)
   pretty = foldMap ((<>"\n") . pretty) . statements
 
