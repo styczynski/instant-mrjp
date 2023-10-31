@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Instant.Backend where
+module Instant.Backend.Base where
 
 import Instant.Syntax
 import qualified Data.Text as T

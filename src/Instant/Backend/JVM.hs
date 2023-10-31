@@ -1,4 +1,4 @@
-module Instant.JVM(backend) where
+module Instant.Backend.JVM(backend) where
 
 import           Control.Monad.Reader
 import           Control.Monad.State.Strict
@@ -10,7 +10,7 @@ import           Data.Set(Set)
 import           System.FilePath
 
 import Instant.Syntax
-import Instant.Backend
+import Instant.Backend.Base
 
 
 data JVMOp

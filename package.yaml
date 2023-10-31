@@ -37,26 +37,25 @@ library:
     - FlexibleContexts
 
 executables:
-  # insc_llvm:
-  #   main:                Main.hs
-  #   source-dirs:         app/insc_llvm
-  #   ghc-options:
-  #   - -threaded
-  #   - -O3
-  #   - -Wall
-  #   - -rtsopts
-  #   - -with-rtsopts=-N
-  #   dependencies:
-  #   - instant-mrjp
-  #   - process
   insc_jvm:
-    main:                Main.hs
-    source-dirs:         app/insc_jvm
+    main:                JVM.hs
+    source-dirs:         cli/insc_jvm
     ghc-options:
-    - -threaded
-    - -O3
-    - -Wall
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -O3
+      - -Wall
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - instant-mrjp
+      - instant-mrjp
+  insc_llvm:
+    main:                LLVM.hs
+    source-dirs:         cli/insc_llvm
+    ghc-options:
+      - -threaded
+      - -O3
+      - -Wall
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - instant-mrjp

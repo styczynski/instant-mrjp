@@ -1,4 +1,4 @@
-module Instant.LLVM(backend) where
+module Instant.Backend.LLVM(backend) where
 
 import           Data.List
 import           Data.Map(Map)
@@ -8,7 +8,7 @@ import           Control.Monad.Except
 import           System.FilePath
 
 import Instant.Syntax
-import Instant.Backend
+import Instant.Backend.Base
 
 
 data LLVMType

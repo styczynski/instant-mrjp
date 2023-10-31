@@ -7,3 +7,6 @@ insc_jvm
 *.j
 *.class
 *.ll
+
+!cli/*
+!cli/**

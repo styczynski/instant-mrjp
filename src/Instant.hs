@@ -14,9 +14,7 @@ import System.Process
 import Control.Monad.IO.Class (MonadIO, liftIO)
 
 import           Instant.Parse
-import Instant.Backend
-import qualified Instant.JVM as JVM
-import qualified Instant.LLVM as LLVM
+import Instant.Backend.Base
 
 import Instant.Syntax
 import Instant.Logs
@@ -24,14 +22,12 @@ import qualified Data.Text as T
 import qualified Data.List as L
 
 
-runCLI :: IO ()
-runCLI = evaluateInstantPipeline runPipeline
+runCLI :: InstantBackend -> IO ()
+runCLI backend = evaluateInstantPipeline $ runPipeline backend
 
-
-runPipeline :: InstantPipeline ()
-runPipeline = do
+runPipeline :: InstantBackend -> InstantPipeline ()
+runPipeline backend = do
   args <- liftIO $ getArgs
-  backend <- return $ LLVM.backend
   case args of
     file:rest -> do
       let noBin = "no-bin" `elem` rest
