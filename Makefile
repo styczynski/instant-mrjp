@@ -7,3 +7,6 @@ clean:
 	./bin/invoke_haskell_stack.sh clean
 	rm insc_llvm -f
 	rm insc_jvm -f
+
+format:
+	ormolu --mode inplace $(git ls-files '*.hs')
