@@ -21,7 +21,7 @@ backend =
     { name = "JVM",
       inputExtension = "j",
       run = \filename code -> do
-        return $ runReader (evalStateT (runExceptT $ compileInstant filename code) S.empty) (varMap code),
+        return $ runReader (evalStateT (runExceptT $ compileICode filename code) S.empty) (varMap code),
       compileExecutable = \filePath -> do
         let outpath = takeDirectory filePath
         execCmd "java" ["-jar", "/home/students/inf/PUBLIC/MRJP/Jasmin/jasmin.jar", filePath, "-d", outpath]

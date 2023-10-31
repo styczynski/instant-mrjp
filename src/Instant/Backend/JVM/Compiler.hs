@@ -12,34 +12,22 @@ import Instant.Backend.JVM.Stack
 import Instant.Syntax
 import qualified Language.JVM.Common as J
 import System.FilePath
+import Instant.Backend.JVM.Entry
+import Instant.Backend.Base
 
-invocation :: String -> String
-invocation filename =
-  unlines
-    [ ".source " ++ filename,
-      ".class public " ++ takeBaseName filename,
-      ".super java/lang/Object",
-      "",
-      ".method public <init>()V",
-      "  aload_0",
-      "  invokenonvirtual java/lang/Object/<init>()V",
-      "  return",
-      ".end method"
-    ]
+type CompilerM = ExceptT String (StateT (Set String) (Reader (Map String Int)))
 
-type JVMCompiler = ExceptT String (StateT (Set String) (Reader (Map String Int)))
-
-getVarName :: String -> JVMCompiler Int
+getVarName :: String -> CompilerM Int
 getVarName v = asks (M.! v)
 
-checkVarInit :: ASTMeta -> String -> JVMCompiler ()
+checkVarInit :: ASTMeta -> String -> CompilerM ()
 checkVarInit ann v =
   get >>= \s ->
     if S.member v s
       then pure ()
       else throwError $ at ann ++ " Undefined variable " ++ v
 
-registerVar :: String -> JVMCompiler ()
+registerVar :: String -> CompilerM ()
 registerVar v = modify (S.insert v)
 
 comutative :: J.Instruction -> Bool
@@ -47,10 +35,10 @@ comutative J.Iadd = True
 comutative J.Imul = True
 comutative _ = False
 
-compileExpr :: IExpr -> JVMCompiler [J.Instruction]
-compileExpr e = ($ []) . snd <$> builder e
+compileIExpr :: IExpr -> CompilerM [J.Instruction]
+compileIExpr e = ($ []) . snd <$> builder e
   where
-    builder :: IExpr -> JVMCompiler (Int, [J.Instruction] -> [J.Instruction])
+    builder :: IExpr -> CompilerM (Int, [J.Instruction] -> [J.Instruction])
     builder = \case
       -- optimizes stack
       IExprInt _ i -> pure (1, ((J.Ldc $ J.Integer $ fromIntegral i) :))
@@ -71,28 +59,28 @@ compileExpr e = ($ []) . snd <$> builder e
         LT -> pure (bi, bb . ab . (if comutative op then id else (J.Swap :)) . (op :))
         GT -> pure (ai, ab . bb . (op :))
 
-compileStmt :: IStatement -> JVMCompiler [J.Instruction]
-compileStmt = \case
+compileIStatement :: IStatement -> CompilerM [J.Instruction]
+compileIStatement = \case
   IExpr _ e ->
     join
       <$> sequence
         [ pure [J.Getstatic $ J.FieldId {J.fieldIdClass = (J.mkClassName "java/lang/System/out"), J.fieldIdName = "Ljava/io/PrintStream;", J.fieldIdType = J.IntType}],
-          compileExpr e,
+          compileIExpr e,
           pure [J.Invokevirtual J.IntType J.MethodKey {J.methodKeyName = "java/io/PrintStream/println(I)V", J.methodKeyReturnType = Nothing, J.methodKeyParameterTypes = [J.IntType]}]
         ]
   IAssignment _ v e -> do
-    easm <- compileExpr e
+    easm <- compileIExpr e
     registerVar v
     idx <- getVarName v
     pure $ easm ++ [J.Istore $ intToWord16 idx]
 
-compileInstant :: String -> ICode -> JVMCompiler String
-compileInstant filename code = do
+compileICode :: String -> ICode -> CompilerM String
+compileICode fileName code = do
   varsCount <- asks M.size
-  jvm <- join <$> mapM compileStmt (statements code)
-  let funBody = unlines . fmap (("  " <>) . serializeOp) $ jvm
+  jvm <- join <$> mapM compileIStatement (statements code)
+  let funBody = unlines . fmap (("  " <>) . toCode) $ jvm
   pure $
-    invocation filename
+    entry fileName
       ++ unlines
         [ "",
           ".method public static main([Ljava/lang/String;)V",

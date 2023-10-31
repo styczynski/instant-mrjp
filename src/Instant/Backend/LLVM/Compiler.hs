@@ -9,30 +9,31 @@ import Instant.Backend.Base
 import Instant.Backend.LLVM.Syntax
 import Instant.Syntax
 import System.FilePath
+import Instant.Backend.LLVM.Entry
 
 data CompilerState = CompilerState
   { csStore :: Int,
     csVarMap :: Map String Int
   }
 
-type LLVMCompiler = ExceptT String (State CompilerState)
+type CompilerM = ExceptT String (State CompilerState)
 
-lastId :: LLVMCompiler Int
+lastId :: CompilerM Int
 lastId = gets csStore
 
-newRef :: LLVMCompiler String
+newRef :: CompilerM String
 newRef = modify (\s -> s {csStore = csStore s + 1}) *> (("val_" <>) . show <$> lastId)
 
-lookupVarAt :: ASTMeta -> String -> LLVMCompiler String
+lookupVarAt :: ASTMeta -> String -> CompilerM String
 lookupVarAt ann v =
   gets ((M.lookup v) . csVarMap) >>= \case
     Nothing -> throwError $ at ann ++ " Undefined variable " ++ v
     Just i -> pure ("var_" ++ v ++ show i)
 
-lookupVar :: String -> LLVMCompiler String
+lookupVar :: String -> CompilerM String
 lookupVar v = gets ((M.! v) . csVarMap) >>= \i -> pure ("var_" ++ v ++ show i)
 
-initVar :: String -> LLVMCompiler String
+initVar :: String -> CompilerM String
 initVar v =
   gets ((M.lookup v) . csVarMap) >>= \case
     Nothing ->
@@ -45,16 +46,16 @@ compileOperator ::
   LLVMType ->
   IExpr ->
   IExpr ->
-  LLVMCompiler (LLVMLit, LLVM)
+  CompilerM (LLVMLit, LLVM)
 compileOperator op t a b = do
-  (aref, acode) <- compileExpr a
-  (bref, bcode) <- compileExpr b
+  (aref, acode) <- compileIExpr a
+  (bref, bcode) <- compileIExpr b
   i <- newRef
   let icode = [OPAssignment i (op t aref bref)]
   pure (CONSTReg i, acode ++ bcode ++ icode)
 
-compileExpr :: IExpr -> LLVMCompiler (LLVMLit, LLVM)
-compileExpr = \case
+compileIExpr :: IExpr -> CompilerM (LLVMLit, LLVM)
+compileIExpr = \case
   IExprInt _ i -> pure (CONSTInt i, [])
   IExprVar ann s -> do
     v <- lookupVarAt ann s
@@ -64,14 +65,14 @@ compileExpr = \case
   IExprMultiplication _ a b -> compileOperator INSTRMul lint32 a b
   IExprDiv _ a b -> compileOperator INSTRDiv lint32 a b
 
-compileStmt :: IStatement -> LLVMCompiler LLVM
-compileStmt = \case
+compileIStatement :: IStatement -> CompilerM LLVM
+compileIStatement = \case
   IAssignment _ v e -> do
-    (valRef, ecode) <- compileExpr e
+    (valRef, ecode) <- compileIExpr e
     ref <- initVar v
     pure $ ecode ++ [OPAssignment ref (INSTRAdd lint32 valRef (CONSTInt 0))]
   IExpr _ e -> do
-    (valRef, ecode) <- compileExpr e
+    (valRef, ecode) <- compileIExpr e
     let call =
           OPDoCall
             lint32
@@ -84,18 +85,9 @@ compileStmt = \case
             ]
     pure $ ecode ++ [call]
 
-invocation :: String
-invocation =
-  unlines
-    [ "@.intprint = private unnamed_addr constant [4 x lint8] c\"%d\\0A\\00\", align 1",
-      "declare dso_local lint32 @printf(lint8*, ...) #1",
-      "",
-      "define dso_local lint32 @main() {\n"
-    ]
-
-compileInstant :: ICode -> LLVMCompiler String
-compileInstant code = do
+compileICode :: String -> ICode -> CompilerM String
+compileICode fileName code = do
   llcode <-
     (++ [OPDoReturn lint32 (CONSTInt 0)]) . join
-      <$> traverse compileStmt (statements code)
-  pure $ invocation ++ concat (fmap ((<> "\n") . ("  " <>) . toCode) llcode) ++ "\n}"
+      <$> traverse compileIStatement (statements code)
+  pure $ (entry fileName) ++ concat (fmap ((<> "\n") . ("  " <>) . toCode) llcode) ++ "\n}"

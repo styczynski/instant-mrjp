@@ -18,7 +18,7 @@ backend =
     { name = "LLVM",
       inputExtension = "ll",
       run = \filename code -> do
-        return $ evalState (runExceptT $ compileInstant code) (CompilerState 0 M.empty),
+        return $ evalState (runExceptT $ compileICode filename code) (CompilerState 0 M.empty),
       compileExecutable = \filePath -> do
         let outpath = replaceExtension filePath "bc"
         execCmd "llvm-as" [filePath, "-o", outpath]
