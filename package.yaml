@@ -23,26 +23,30 @@ library:
     - mtl
     - megaparsec
     - containers
+    - process
+    - co-log
+    - text
   default-extensions:
     - KindSignatures
     - LambdaCase
     - MultiWayIf
     - GADTs
     - DataKinds
+    - RankNTypes
 
 executables:
-  insc_llvm:
-    main:                Main.hs
-    source-dirs:         app/insc_llvm
-    ghc-options:
-    - -threaded
-    - -O3
-    - -Wall
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - instant-mrjp
-    - process
+  # insc_llvm:
+  #   main:                Main.hs
+  #   source-dirs:         app/insc_llvm
+  #   ghc-options:
+  #   - -threaded
+  #   - -O3
+  #   - -Wall
+  #   - -rtsopts
+  #   - -with-rtsopts=-N
+  #   dependencies:
+  #   - instant-mrjp
+  #   - process
   insc_jvm:
     main:                Main.hs
     source-dirs:         app/insc_jvm
@@ -54,5 +58,3 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - instant-mrjp
-    - process
-
