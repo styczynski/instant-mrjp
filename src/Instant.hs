@@ -13,7 +13,7 @@ import System.Process
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
 
-import           Instant.Parse
+import Instant.Parser.Parser
 import Instant.Backend.Base
 
 import Instant.Syntax
