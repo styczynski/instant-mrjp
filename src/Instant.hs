@@ -1,26 +1,23 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Instant where
 
-import Control.Monad
 import Control.Exception
+import Control.Monad
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import qualified Data.List as L
+import qualified Data.Text as T
+import Instant.Backend.Base
+import Instant.Logs
+import Instant.Parser.Parser
+import Instant.Syntax
 import System.Environment
 import System.Exit
-import System.IO
 import System.FilePath
+import System.IO
 import System.Process
-
-import Control.Monad.IO.Class (MonadIO, liftIO)
-
-import Instant.Parser.Parser
-import Instant.Backend.Base
-
-import Instant.Syntax
-import Instant.Logs
-import qualified Data.Text as T
-import qualified Data.List as L
-
 
 runCLI :: InstantBackend -> IO ()
 runCLI backend = evaluateInstantPipeline $ runPipeline backend
@@ -29,7 +26,7 @@ runPipeline :: InstantBackend -> InstantPipeline ()
 runPipeline backend = do
   args <- liftIO $ getArgs
   case args of
-    file:rest -> do
+    file : rest -> do
       let noBin = "no-bin" `elem` rest
           jasminName = replaceExtension file (inputExtension backend)
       contents <- liftIO $ readFile file
@@ -38,12 +35,10 @@ runPipeline backend = do
       case parsedAST of
         Left _ -> instantError $ "Parser encountered a critical errors (see logs above): " <> (T.pack file)
         Right node -> do
-            printLogInfo $ "Input file was correctly parsed: " <> (T.pack file)
-            backendResponse <- runBackend jasminName (takeFileName jasminName) node backend
-            case backendResponse of
-                Just e -> instantError e
-                Nothing -> do
-                    printLogInfo $ "OK"
+          printLogInfo $ "Input file was correctly parsed: " <> (T.pack file)
+          backendResponse <- runBackend jasminName (takeFileName jasminName) node backend
+          case backendResponse of
+            Just e -> instantError e
+            Nothing -> do
+              printLogInfo $ "OK"
     _ -> instantError "BAD ARGS"
-
-    

@@ -9,4 +9,4 @@ clean:
 	rm insc_jvm -f
 
 format:
-	ormolu --mode inplace $(git ls-files '*.hs')
+	ormolu --mode inplace $(shell find . -name '*.hs')

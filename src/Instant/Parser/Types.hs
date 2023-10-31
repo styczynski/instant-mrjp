@@ -1,18 +1,18 @@
-{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+
 module Instant.Parser.Types where
 
-import Instant.Syntax
-import Instant.Logs
-import Error.Diagnose
-import           Control.Monad
-import           Control.Monad.Identity
-import           Data.Void
-import           Data.Void
-import           qualified Text.Megaparsec as MP
+import Control.Monad
+import Control.Monad.Identity
 import qualified Data.Text as T
+import Data.Void
+import Error.Diagnose
 import Error.Diagnose.Compat.Megaparsec
+import Instant.Logs
+import Instant.Syntax
+import qualified Text.Megaparsec as MP
 
 type Parser = MP.ParsecT Void String Identity
 
