@@ -2,15 +2,4 @@ module Instant.Backend.JVM.Entry where
 import System.FilePath
 
 entry :: String -> String
-entry fileName =
-  unlines
-    [ ".source " ++ fileName,
-      ".class public " ++ takeBaseName fileName,
-      ".super java/lang/Object",
-      "",
-      ".method public <init>()V",
-      "  aload_0",
-      "  invokenonvirtual java/lang/Object/<init>()V",
-      "  return",
-      ".end method"
-    ]
+entry fileName = ".source " ++ fileName ++ "\n.class public " ++ takeBaseName fileName ++ "\n.super java/lang/Object\n\n.method public <init>()V\n  aload_0\n  invokenonvirtual java/lang/Object/<init>()V" ++ "\n  return" ++ "\n.end method"

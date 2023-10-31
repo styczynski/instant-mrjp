@@ -8,6 +8,16 @@ data LLVMType
   | LVARARGS
   | LPOINTER LLVMType
 
+
+data LLVMLit
+  = CONSTReg String
+  | CONSTInt Int
+  | CONSTGetElementPtr (Int, LLVMType) String (LLVMType, LLVMLit) (LLVMType, LLVMLit)
+
+data LLVMPrintFunc
+  = FNPRINTF
+  | FNINTPRINT
+
 lint32 :: LLVMType
 lint32 = LINT 32
 
@@ -17,10 +27,6 @@ lint8 = LINT 8
 ptr :: LLVMType -> LLVMType
 ptr = LPOINTER
 
-data LLVMLit
-  = CONSTReg String
-  | CONSTInt Int
-  | CONSTGetElementPtr (Int, LLVMType) String (LLVMType, LLVMLit) (LLVMType, LLVMLit)
 
 data LLVMOp
   = OPAssignment String LLVMExpr
@@ -33,70 +39,33 @@ data LLVMExpr
   | INSTRMul LLVMType LLVMLit LLVMLit
   | INSTRDiv LLVMType LLVMLit LLVMLit
 
-type LLVM = [LLVMOp]
+instance SerializableInstruction LLVMPrintFunc where
+  toCode FNINTPRINT = "@.intprint"
+  toCode FNPRINTF = "@printf"
+
+constZero :: LLVMLit
+constZero = CONSTInt 0
+
+toCodeStdExpr :: String -> LLVMType -> LLVMLit -> LLVMLit -> String
+toCodeStdExpr prefix valueType arg1 arg2 = prefix ++ " " ++ (toCode valueType) ++ " " ++ (toCode arg1) ++ ", " ++ (toCode arg2)
+
+instance SerializableInstruction LLVMExpr where
+  toCode (INSTRAdd argType arg1 arg2) = toCodeStdExpr "add" argType arg1 arg2
+  toCode (INSTRMul argType arg1 arg2) = toCodeStdExpr "mul" argType arg1 arg2
+  toCode (INSTRSub argType arg1 arg2) = toCodeStdExpr "sub" argType arg1 arg2
+  toCode (INSTRDiv argType arg1 arg2) = toCodeStdExpr "sdiv" argType arg1 arg2
+
+instance SerializableInstruction LLVMType where
+  toCode (LINT i) = "i" ++ (show i)
+  toCode (LPOINTER payload) = (toCode payload) ++ "*"
+  toCode (LVARARGS) = "..."
 
 instance SerializableInstruction LLVMLit where
   toCode (CONSTReg s) = "%" <> s
   toCode (CONSTInt i) = show i
-  toCode (CONSTGetElementPtr (x, y) ref (t1, v1) (t2, v2)) =
-    concat
-      [ "getelementptr inbounds (",
-        "[",
-        show x,
-        " x ",
-        toCode y,
-        "], ",
-        "[",
-        show x,
-        " x ",
-        toCode y,
-        "]* ",
-        ref,
-        ", ",
-        toCode t1,
-        " ",
-        toCode v1,
-        ", ",
-        toCode t2,
-        " ",
-        toCode v2,
-        ")"
-      ]
+  toCode (CONSTGetElementPtr (x, y) ref (typeA, valueA) (typeB, valueB)) =
+    "getelementptr inbounds ([" ++ (show x) ++ " x " ++ (toCode y) ++ "], [" ++ (show x) ++ " x " ++ (toCode y) ++ "]* " ++ (ref) ++ ", " ++ (toCode typeA) ++ " " ++ (toCode valueA) ++ ", " ++ (toCode typeB) ++ " " ++ (toCode valueB) ++ ")"
 
-instance SerializableInstruction LLVMType where
-  toCode (LINT i) = "i" <> show i
-  toCode (LVARARGS) = "..."
-  toCode (LPOINTER t) = toCode t <> "*"
-
-instance SerializableInstruction LLVMExpr where
-  toCode (INSTRAdd t a b) =
-    "add "
-      <> toCode t
-      <> " "
-      <> toCode a
-      <> ", "
-      <> toCode b
-  toCode (INSTRSub t a b) =
-    "sub "
-      <> toCode t
-      <> " "
-      <> toCode a
-      <> ", "
-      <> toCode b
-  toCode (INSTRMul t a b) =
-    "mul "
-      <> toCode t
-      <> " "
-      <> toCode a
-      <> ", "
-      <> toCode b
-  toCode (INSTRDiv t a b) =
-    "sdiv "
-      <> toCode t
-      <> " "
-      <> toCode a
-      <> ", "
-      <> toCode b
 
 instance SerializableInstruction LLVMOp where
   toCode (OPAssignment s e) = "%" <> s <> " = " <> toCode e

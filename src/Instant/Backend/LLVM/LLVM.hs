@@ -12,14 +12,16 @@ import Instant.Backend.LLVM.Compiler
 import Instant.Syntax
 import System.FilePath
 
+llvmexecutable = "llvm-as"
+
 backend :: InstantBackend
 backend =
   InstantBackend
     { name = "LLVM",
       inputExtension = "ll",
       run = \filename code -> do
-        return $ evalState (runExceptT $ compileICode filename code) (CompilerState 0 M.empty),
+        return $ evalState (runExceptT $ compileICode filename code) initialCompilerState,
       compileExecutable = \filePath -> do
         let outpath = replaceExtension filePath "bc"
-        execCmd "llvm-as" [filePath, "-o", outpath]
+        execCmd llvmexecutable [filePath, "-o", outpath]
     }

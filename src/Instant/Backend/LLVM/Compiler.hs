@@ -3,7 +3,6 @@ module Instant.Backend.LLVM.Compiler where
 import Control.Monad.Except
 import Control.Monad.State.Strict
 import Data.List
-import Data.Map (Map)
 import qualified Data.Map as M
 import Instant.Backend.Base
 import Instant.Backend.LLVM.Syntax
@@ -12,82 +11,93 @@ import System.FilePath
 import Instant.Backend.LLVM.Entry
 
 data CompilerState = CompilerState
-  { csStore :: Int,
-    csVarMap :: Map String Int
+  { 
+    variableStoreFreeIndex :: Int,
+    errMsg :: String,
+    vPrefix :: String,
+    rPrefix :: String,
+    localVariables :: M.Map String Int
   }
 
 type CompilerM = ExceptT String (State CompilerState)
 
-lastId :: CompilerM Int
-lastId = gets csStore
+noCode :: [LLVMOp]
+noCode = []
 
-newRef :: CompilerM String
-newRef = modify (\s -> s {csStore = csStore s + 1}) *> (("val_" <>) . show <$> lastId)
+valPrefix = "def_value_"
+varPrefix = "def_variable_"
 
-lookupVarAt :: ASTMeta -> String -> CompilerM String
-lookupVarAt ann v =
-  gets ((M.lookup v) . csVarMap) >>= \case
-    Nothing -> throwError $ at ann ++ " Undefined variable " ++ v
-    Just i -> pure ("var_" ++ v ++ show i)
+getLocalVar :: CompilerM Int
+getLocalVar = gets variableStoreFreeIndex
 
-lookupVar :: String -> CompilerM String
-lookupVar v = gets ((M.! v) . csVarMap) >>= \i -> pure ("var_" ++ v ++ show i)
+initialCompilerState :: CompilerState
+initialCompilerState = (CompilerState 0 "" valPrefix varPrefix M.empty)
+
+createVariable :: CompilerM String
+createVariable = modify (\currentState -> currentState {variableStoreFreeIndex = variableStoreFreeIndex currentState + 1}) *> ((valPrefix <>) . show <$> getLocalVar)
+
+getVariable :: ASTMeta -> String -> CompilerM String
+getVariable astMetadata variableName =
+  gets ((M.lookup variableName) . localVariables) >>= \case
+    Nothing -> throwError $ getMetaDescription astMetadata ++ " Error: Variable is not defined: " ++ variableName
+    Just i -> pure $ varPrefix ++ variableName ++ show i
+
+getVariableNoMeta :: String -> CompilerM String
+getVariableNoMeta variableName = gets ((M.! variableName) . localVariables) >>= \i -> pure $ varPrefix ++ variableName ++ show i
 
 initVar :: String -> CompilerM String
 initVar v =
-  gets ((M.lookup v) . csVarMap) >>= \case
-    Nothing ->
-      modify (\s -> s {csVarMap = M.insert v 0 (csVarMap s)}) >> initVar v
+  gets ((M.lookup v) . localVariables) >>= \case
     Just i ->
-      modify (\s -> s {csVarMap = M.insert v (i + 1) (csVarMap s)}) >> lookupVar v
-
-compileOperator ::
-  (LLVMType -> LLVMLit -> LLVMLit -> LLVMExpr) ->
-  LLVMType ->
-  IExpr ->
-  IExpr ->
-  CompilerM (LLVMLit, LLVM)
-compileOperator op t a b = do
-  (aref, acode) <- compileIExpr a
-  (bref, bcode) <- compileIExpr b
-  i <- newRef
-  let icode = [OPAssignment i (op t aref bref)]
-  pure (CONSTReg i, acode ++ bcode ++ icode)
-
-compileIExpr :: IExpr -> CompilerM (LLVMLit, LLVM)
+      modify (\s -> s {localVariables = M.insert v (i + 1) (localVariables s)}) >> getVariableNoMeta v
+    Nothing ->
+      modify (\s -> s {localVariables = M.insert v 0 (localVariables s)}) >> initVar v
+    
+compileIExpr :: IExpr -> CompilerM (LLVMLit, [LLVMOp])
 compileIExpr = \case
-  IExprInt _ i -> pure (CONSTInt i, [])
-  IExprVar ann s -> do
-    v <- lookupVarAt ann s
-    pure (CONSTReg v, [])
-  IExprPlus _ a b -> compileOperator INSTRAdd lint32 a b
-  IExprMinus _ a b -> compileOperator INSTRSub lint32 a b
-  IExprMultiplication _ a b -> compileOperator INSTRMul lint32 a b
-  IExprDiv _ a b -> compileOperator INSTRDiv lint32 a b
-
-compileIStatement :: IStatement -> CompilerM LLVM
-compileIStatement = \case
-  IAssignment _ v e -> do
-    (valRef, ecode) <- compileIExpr e
-    ref <- initVar v
-    pure $ ecode ++ [OPAssignment ref (INSTRAdd lint32 valRef (CONSTInt 0))]
-  IExpr _ e -> do
-    (valRef, ecode) <- compileIExpr e
-    let call =
-          OPDoCall
-            lint32
-            [ptr lint8, LVARARGS]
-            "@printf"
-            [ ( ptr lint8,
-                CONSTGetElementPtr (4, lint8) "@.intprint" (lint32, CONSTInt 0) (lint32, CONSTInt 0)
-              ),
-              (lint32, valRef)
-            ]
-    pure $ ecode ++ [call]
+  IExprMinus _ left right -> compileOperator INSTRSub lint32 left right
+  IExprMultiplication _ left right -> compileOperator INSTRMul lint32 left right
+  IExprVar astMetadata s -> do
+    v <- getVariable astMetadata s
+    pure (CONSTReg v, noCode)
+  IExprInt _ val -> pure (CONSTInt val, noCode)
+  IExprPlus _ left right -> compileOperator INSTRAdd lint32 left right
+  IExprDiv _ left right -> compileOperator INSTRDiv lint32 left right
+  where
+    compileOperator op t a b = do
+      (aref, acode) <- compileIExpr a
+      (bref, bcode) <- compileIExpr b
+      i <- createVariable
+      let icode = [OPAssignment i (op t aref bref)]
+      pure (CONSTReg i, acode ++ bcode ++ icode)
 
 compileICode :: String -> ICode -> CompilerM String
 compileICode fileName code = do
   llcode <-
-    (++ [OPDoReturn lint32 (CONSTInt 0)]) . join
+    (++ [OPDoReturn lint32 (constZero)]) . join
       <$> traverse compileIStatement (statements code)
   pure $ (entry fileName) ++ concat (fmap ((<> "\n") . ("  " <>) . toCode) llcode) ++ "\n}"
+
+emitInstruction :: [LLVMOp] -> LLVMOp -> CompilerM [LLVMOp]
+emitInstruction code instr = pure $ code ++ [instr]
+
+emitPrintCall ::(LLVMLit, [LLVMOp]) -> CompilerM [LLVMOp]
+emitPrintCall (variableReference, code) = do
+  emitInstruction code $ OPDoCall
+      lint32
+      [ptr lint8, LVARARGS]
+      (toCode FNPRINTF)
+      [ ( ptr lint8,
+          CONSTGetElementPtr (4, lint8) (toCode FNINTPRINT) (lint32, constZero) (lint32, constZero)
+        ),
+        (lint32, variableReference)
+      ]
+
+compileIStatement :: IStatement -> CompilerM [LLVMOp]
+compileIStatement (IExpr _ e) = do
+    exprCompilerCode <- compileIExpr e
+    emitPrintCall $ exprCompilerCode
+compileIStatement (IAssignment _ v e) = do
+    (variableReference, resultCode) <- compileIExpr e
+    ref <- initVar v
+    emitInstruction resultCode $ OPAssignment ref (INSTRAdd lint32 variableReference (constZero))

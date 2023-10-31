@@ -30,9 +30,11 @@ data ASTLevel
 data ASTMeta = ASTMeta {line :: Int, column :: Int, file :: String}
   deriving (Eq, Show)
 
-at :: ASTMeta -> String
-at astMeta =
-  file astMeta ++ ":" ++ show (line astMeta) ++ ":" ++ show (column astMeta)
+class Meta a where
+  getMetaDescription :: a -> String
+
+instance Meta ASTMeta where
+  getMetaDescription astMeta = file astMeta ++ ":" ++ show (line astMeta) ++ ":" ++ show (column astMeta)
 
 data ASTNode (astLevel :: ASTLevel) where
   ASTPlus :: ASTMeta -> ASTNode 'ExprL3 -> ASTNode 'ExprL4 -> ASTNode 'ExprL4
@@ -89,15 +91,15 @@ class INode a where
   pretty :: a -> String
 
 instance INode IExpr where
-  fromAST (ASTPlus ann a b) = IExprPlus ann (fromAST a) (fromAST b)
+  fromAST (ASTPlus astMetadata a b) = IExprPlus astMetadata (fromAST a) (fromAST b)
   fromAST (ASTExprL3 e) = fromAST e
-  fromAST (ASTMinus ann a b) = IExprMinus ann (fromAST a) (fromAST b)
+  fromAST (ASTMinus astMetadata a b) = IExprMinus astMetadata (fromAST a) (fromAST b)
   fromAST (ASTExprL2 e) = fromAST e
-  fromAST (ASTMultiplication ann a b) = IExprMultiplication ann (fromAST a) (fromAST b)
-  fromAST (ASTDiv ann a b) = IExprDiv ann (fromAST a) (fromAST b)
+  fromAST (ASTMultiplication astMetadata a b) = IExprMultiplication astMetadata (fromAST a) (fromAST b)
+  fromAST (ASTDiv astMetadata a b) = IExprDiv astMetadata (fromAST a) (fromAST b)
   fromAST (ASTExprL1 e) = fromAST e
-  fromAST (ASTInt ann i) = IExprInt ann i
-  fromAST (ASTVar ann n) = IExprVar ann n
+  fromAST (ASTInt astMetadata i) = IExprInt astMetadata i
+  fromAST (ASTVar astMetadata n) = IExprVar astMetadata n
   fromAST (ASTParens e) = fromAST e
   pretty = \case
     IExprInt _ i -> show i
@@ -108,8 +110,8 @@ instance INode IExpr where
     IExprDiv _ a b -> "(" <> pretty a <> " / " <> pretty b <> ")"
 
 instance INode IStatement where
-  fromAST (ASTAssignment ann name e) = IAssignment ann name (fromAST e)
-  fromAST (ASTExpr ann e) = IExpr ann (fromAST e)
+  fromAST (ASTAssignment astMetadata name e) = IAssignment astMetadata name (fromAST e)
+  fromAST (ASTExpr astMetadata e) = IExpr astMetadata (fromAST e)
   pretty = \case
     IExpr _ e -> pretty e
     IAssignment _ v e -> v <> " = " <> pretty e

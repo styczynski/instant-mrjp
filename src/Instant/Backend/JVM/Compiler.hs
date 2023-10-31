@@ -21,11 +21,11 @@ getVarName :: String -> CompilerM Int
 getVarName v = asks (M.! v)
 
 checkVarInit :: ASTMeta -> String -> CompilerM ()
-checkVarInit ann v =
+checkVarInit astMetadata v =
   get >>= \s ->
     if S.member v s
       then pure ()
-      else throwError $ at ann ++ " Undefined variable " ++ v
+      else throwError $ getMetaDescription astMetadata ++ " Undefined variable " ++ v
 
 registerVar :: String -> CompilerM ()
 registerVar v = modify (S.insert v)
@@ -42,8 +42,8 @@ compileIExpr e = ($ []) . snd <$> builder e
     builder = \case
       -- optimizes stack
       IExprInt _ i -> pure (1, ((J.Ldc $ J.Integer $ fromIntegral i) :))
-      IExprVar ann v -> do
-        checkVarInit ann v
+      IExprVar astMetadata v -> do
+        checkVarInit astMetadata v
         i <- getVarName v
         pure (1, ((J.Iload $ intToWord16 i) :))
       IExprPlus _ a b -> buildOp J.Iadd a b
@@ -80,13 +80,4 @@ compileICode fileName code = do
   jvm <- join <$> mapM compileIStatement (statements code)
   let funBody = unlines . fmap (("  " <>) . toCode) $ jvm
   pure $
-    entry fileName
-      ++ unlines
-        [ "",
-          ".method public static main([Ljava/lang/String;)V",
-          ".limit locals " ++ show (varsCount + 1),
-          ".limit stack " ++ show (estimateStackSize jvm)
-        ]
-      ++ funBody
-      ++ "return\n"
-      ++ ".end method\n"
+    (entry fileName) ++ "\n.method public static main([Ljava/lang/String;)V\n.limit locals " ++ (show (varsCount + 1)) ++ "\n.limit stack " ++ (show (estimateStackSize jvm)) ++ "\n" ++ funBody ++ "return\n.end method\n"
