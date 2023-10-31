@@ -50,52 +50,52 @@ compileOperator op t a b = do
   (aref, acode) <- compileExpr a
   (bref, bcode) <- compileExpr b
   i <- newRef
-  let icode = [LLOAssg i (op t aref bref)]
-  pure (LLLReg i, acode ++ bcode ++ icode)
+  let icode = [OPAssignment i (op t aref bref)]
+  pure (CONSTReg i, acode ++ bcode ++ icode)
 
 compileExpr :: IExpr -> LLVMCompiler (LLVMLit, LLVM)
 compileExpr = \case
-  IExprInt _ i -> pure (LLLInt i, [])
+  IExprInt _ i -> pure (CONSTInt i, [])
   IExprVar ann s -> do
     v <- lookupVarAt ann s
-    pure (LLLReg v, [])
-  IExprPlus _ a b -> compileOperator LLEAdd i32 a b
-  IExprMinus _ a b -> compileOperator LLESub i32 a b
-  IExprMultiplication _ a b -> compileOperator LLEMul i32 a b
-  IExprDiv _ a b -> compileOperator LLIExprDiv i32 a b
+    pure (CONSTReg v, [])
+  IExprPlus _ a b -> compileOperator INSTRAdd lint32 a b
+  IExprMinus _ a b -> compileOperator INSTRSub lint32 a b
+  IExprMultiplication _ a b -> compileOperator INSTRMul lint32 a b
+  IExprDiv _ a b -> compileOperator INSTRDiv lint32 a b
 
 compileStmt :: IStatement -> LLVMCompiler LLVM
 compileStmt = \case
   IAssignment _ v e -> do
     (valRef, ecode) <- compileExpr e
     ref <- initVar v
-    pure $ ecode ++ [LLOAssg ref (LLEAdd i32 valRef (LLLInt 0))]
+    pure $ ecode ++ [OPAssignment ref (INSTRAdd lint32 valRef (CONSTInt 0))]
   IExpr _ e -> do
     (valRef, ecode) <- compileExpr e
     let call =
-          LLOCall
-            i32
-            [ptr i8, LLTVargs]
+          OPDoCall
+            lint32
+            [ptr lint8, LVARARGS]
             "@printf"
-            [ ( ptr i8,
-                LLLGetElementPtr (4, i8) "@.intprint" (i32, LLLInt 0) (i32, LLLInt 0)
+            [ ( ptr lint8,
+                CONSTGetElementPtr (4, lint8) "@.intprint" (lint32, CONSTInt 0) (lint32, CONSTInt 0)
               ),
-              (i32, valRef)
+              (lint32, valRef)
             ]
     pure $ ecode ++ [call]
 
 invocation :: String
 invocation =
   unlines
-    [ "@.intprint = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\", align 1",
-      "declare dso_local i32 @printf(i8*, ...) #1",
+    [ "@.intprint = private unnamed_addr constant [4 x lint8] c\"%d\\0A\\00\", align 1",
+      "declare dso_local lint32 @printf(lint8*, ...) #1",
       "",
-      "define dso_local i32 @main() {\n"
+      "define dso_local lint32 @main() {\n"
     ]
 
 compileInstant :: ICode -> LLVMCompiler String
 compileInstant code = do
   llcode <-
-    (++ [LLORet i32 (LLLInt 0)]) . join
+    (++ [OPDoReturn lint32 (CONSTInt 0)]) . join
       <$> traverse compileStmt (statements code)
-  pure $ invocation ++ concat (fmap ((<> "\n") . ("  " <>) . serializeOp) llcode) ++ "\n}"
+  pure $ invocation ++ concat (fmap ((<> "\n") . ("  " <>) . toCode) llcode) ++ "\n}"

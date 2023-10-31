@@ -1,118 +1,116 @@
 module Instant.Backend.LLVM.Syntax where
 
+import Instant.Backend.Base
 import qualified Data.List as L
 
 data LLVMType
-  = LLTInt Int
-  | LLTPtr LLVMType
-  | LLTVargs
+  =
+    LINT Int
+    | LVARARGS
+    | LPOINTER LLVMType
 
-i32 :: LLVMType
-i32 = LLTInt 32
+lint32 :: LLVMType
+lint32 = LINT 32
 
-i8 :: LLVMType
-i8 = LLTInt 8
+lint8 :: LLVMType
+lint8 = LINT 8
 
 ptr :: LLVMType -> LLVMType
-ptr = LLTPtr
+ptr = LPOINTER
 
 data LLVMLit
-  = LLLReg String
-  | LLLInt Int
-  | LLLGetElementPtr (Int, LLVMType) String (LLVMType, LLVMLit) (LLVMType, LLVMLit)
+  = CONSTReg String
+  | CONSTInt Int
+  | CONSTGetElementPtr (Int, LLVMType) String (LLVMType, LLVMLit) (LLVMType, LLVMLit)
 
 data LLVMOp
-  = LLOAssg String LLVMExpr
-  | LLOCall LLVMType [LLVMType] String [(LLVMType, LLVMLit)]
-  | LLORet LLVMType LLVMLit
+  = OPAssignment String LLVMExpr
+  | OPDoCall LLVMType [LLVMType] String [(LLVMType, LLVMLit)]
+  | OPDoReturn LLVMType LLVMLit
 
 data LLVMExpr
-  = LLEAdd LLVMType LLVMLit LLVMLit
-  | LLESub LLVMType LLVMLit LLVMLit
-  | LLEMul LLVMType LLVMLit LLVMLit
-  | LLIExprDiv LLVMType LLVMLit LLVMLit
+  = INSTRAdd LLVMType LLVMLit LLVMLit
+  | INSTRSub LLVMType LLVMLit LLVMLit
+  | INSTRMul LLVMType LLVMLit LLVMLit
+  | INSTRDiv LLVMType LLVMLit LLVMLit
 
 type LLVM = [LLVMOp]
 
-serializeLit :: LLVMLit -> String
-serializeLit = \case
-  LLLReg s -> "%" <> s
-  LLLInt i -> show i
-  LLLGetElementPtr (x, y) ref (t1, v1) (t2, v2) ->
-    concat
-      [ "getelementptr inbounds (",
-        "[",
-        show x,
-        " x ",
-        serializeType y,
-        "], ",
-        "[",
-        show x,
-        " x ",
-        serializeType y,
-        "]* ",
-        ref,
-        ", ",
-        serializeType t1,
-        " ",
-        serializeLit v1,
-        ", ",
-        serializeType t2,
-        " ",
-        serializeLit v2,
-        ")"
-      ]
+instance SerializableInstruction LLVMLit where
+    toCode (CONSTReg s) = "%" <> s
+    toCode (CONSTInt i) = show i
+    toCode (CONSTGetElementPtr (x, y) ref (t1, v1) (t2, v2)) =
+        concat
+        [ "getelementptr inbounds (",
+            "[",
+            show x,
+            " x ",
+            toCode y,
+            "], ",
+            "[",
+            show x,
+            " x ",
+            toCode y,
+            "]* ",
+            ref,
+            ", ",
+            toCode t1,
+            " ",
+            toCode v1,
+            ", ",
+            toCode t2,
+            " ",
+            toCode v2,
+            ")"
+        ]
 
-serializeType :: LLVMType -> String
-serializeType = \case
-  LLTInt i -> "i" <> show i
-  LLTPtr t -> serializeType t <> "*"
-  LLTVargs -> "..."
+instance SerializableInstruction LLVMType where
+    toCode (LINT i) = "i" <> show i
+    toCode (LVARARGS) = "..."
+    toCode (LPOINTER t) = toCode t <> "*"
 
-serializeExpr :: LLVMExpr -> String
-serializeExpr = \case
-  LLEAdd t a b ->
+instance SerializableInstruction LLVMExpr where
+  toCode (INSTRAdd t a b) =
     "add "
-      <> serializeType t
+      <> toCode t
       <> " "
-      <> serializeLit a
+      <> toCode a
       <> ", "
-      <> serializeLit b
-  LLESub t a b ->
+      <> toCode b
+  toCode (INSTRSub t a b) =
     "sub "
-      <> serializeType t
+      <> toCode t
       <> " "
-      <> serializeLit a
+      <> toCode a
       <> ", "
-      <> serializeLit b
-  LLEMul t a b ->
+      <> toCode b
+  toCode (INSTRMul t a b) =
     "mul "
-      <> serializeType t
+      <> toCode t
       <> " "
-      <> serializeLit a
+      <> toCode a
       <> ", "
-      <> serializeLit b
-  LLIExprDiv t a b ->
+      <> toCode b
+  toCode (INSTRDiv t a b) =
     "sdiv "
-      <> serializeType t
+      <> toCode t
       <> " "
-      <> serializeLit a
+      <> toCode a
       <> ", "
-      <> serializeLit b
+      <> toCode b
 
-serializeOp :: LLVMOp -> String
-serializeOp = \case
-  LLOAssg s e -> "%" <> s <> " = " <> serializeExpr e
-  LLOCall rett argst fun args ->
-    concat
-      [ "call ",
-        serializeType rett,
-        " ",
-        bracSep (fmap serializeType argst) <> " ",
-        fun,
-        bracSep (fmap (\(t, l) -> serializeType t <> " " <> serializeLit l) args)
-      ]
-  LLORet t v -> "ret " <> serializeType t <> " " <> serializeLit v
+instance SerializableInstruction LLVMOp where
+    toCode (OPAssignment s e) = "%" <> s <> " = " <> toCode e
+    toCode (OPDoCall rett argst fun args) =
+        concat
+        [ "call ",
+            toCode rett,
+            " ",
+            bracSep (fmap toCode argst) <> " ",
+            fun,
+            bracSep (fmap (\(t, l) -> toCode t <> " " <> toCode l) args)
+        ]
+    toCode (OPDoReturn t v) = "ret " <> toCode t <> " " <> toCode v
 
 bracSep :: [String] -> String
 bracSep elems = '(' : concat (L.intersperse ", " elems) ++ ")"
