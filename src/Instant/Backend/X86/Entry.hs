@@ -1,4 +1,4 @@
-module Instant.Backend.JVM.Entry where
+module Instant.Backend.X86.Entry where
 import System.FilePath
 
 entry :: String -> String

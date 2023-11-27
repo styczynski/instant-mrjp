@@ -1,4 +1,4 @@
-name:                instant-mrjp
+name:                lattec
 version:             0.1.0.0
 github:              "styczynski/instant-mrjp"
 license:             MIT
@@ -38,9 +38,9 @@ library:
     - FlexibleContexts
 
 executables:
-  insc_jvm:
-    main:                JVM.hs
-    source-dirs:         cli/insc_jvm
+  latc_x86:
+    main:                X86.hs
+    source-dirs:         cli/lattec
     ghc-options:
       - -threaded
       - -O3
@@ -48,15 +48,5 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - instant-mrjp
-  insc_llvm:
-    main:                LLVM.hs
-    source-dirs:         cli/insc_llvm
-    ghc-options:
-      - -threaded
-      - -O3
-      - -Wall
-      - -rtsopts
-      - -with-rtsopts=-N
-    dependencies:
-      - instant-mrjp
+      - lattec
+

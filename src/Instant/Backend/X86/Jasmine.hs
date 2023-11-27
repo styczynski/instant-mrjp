@@ -1,4 +1,4 @@
-module Instant.Backend.JVM.Jasmine where
+module Instant.Backend.X86.Jasmine where
 
 import Control.Monad.Except
 import Control.Monad.Reader

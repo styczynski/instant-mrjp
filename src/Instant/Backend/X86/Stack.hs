@@ -1,4 +1,4 @@
-module Instant.Backend.JVM.Stack where
+module Instant.Backend.X86.Stack where
 
 import Control.Monad.Except
 import Control.Monad.Reader
@@ -7,7 +7,7 @@ import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Set (Set)
 import qualified Data.Set as S
-import Instant.Backend.JVM.Jasmine
+import Instant.Backend.X86.Jasmine
 import Instant.Syntax
 import qualified Language.JVM.Common as J
 import System.FilePath

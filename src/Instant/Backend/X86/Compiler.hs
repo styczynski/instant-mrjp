@@ -1,4 +1,4 @@
-module Instant.Backend.JVM.Compiler where
+module Instant.Backend.X86.Compiler where
 
 import Control.Monad.Except
 import Control.Monad.Reader
@@ -7,12 +7,12 @@ import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Set (Set)
 import qualified Data.Set as S
-import Instant.Backend.JVM.Jasmine
-import Instant.Backend.JVM.Stack
+import Instant.Backend.X86.Jasmine
+import Instant.Backend.X86.Stack
 import Instant.Syntax
 import qualified Language.JVM.Common as J
 import System.FilePath
-import Instant.Backend.JVM.Entry
+import Instant.Backend.X86.Entry
 import Instant.Backend.Base
 
 type CompilerM = ExceptT String (StateT (Set String) (Reader (Map String Int)))
