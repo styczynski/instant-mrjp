@@ -4,7 +4,7 @@
 *.cabal
 insc_llvm
 insc_jvm
-
+latc_x86
 *.j
 *.class
 *.ll

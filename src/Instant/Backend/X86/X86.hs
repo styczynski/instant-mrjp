@@ -1,4 +1,4 @@
-module Instant.Backend.X86.JVM (backend) where
+module Instant.Backend.X86.X86 (backend) where
 
 import Control.Monad.Except
 import Control.Monad.Reader
