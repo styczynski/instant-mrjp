@@ -23,7 +23,7 @@ import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Prelude hiding (parserLex)
 
-parseInstant :: String -> String -> InstantPipeline (Either String (ASTNode 'InstantProgram))
+parseInstant :: String -> String -> InstantPipeline (Either String InstantProgram)
 parseInstant filename inp = do
   parserResult <- return $ (MP.runParser ast filename inp)
   errorStr <- return $ case parserResult of

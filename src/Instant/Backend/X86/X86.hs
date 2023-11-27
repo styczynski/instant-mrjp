@@ -9,8 +9,6 @@ import Data.Set (Set)
 import qualified Data.Set as S
 import Instant.Backend.Base
 import Instant.Backend.X86.Compiler
-import Instant.Backend.X86.Jasmine
-import Instant.Backend.X86.Stack
 import Instant.Syntax
 import qualified Language.JVM.Common as J
 import System.FilePath
@@ -18,11 +16,10 @@ import System.FilePath
 backend :: InstantBackend
 backend =
   InstantBackend
-    { name = "X86",
+    { backendName = "X86",
       inputExtension = "j",
       run = \filename code -> do
-        return $ runReader (evalStateT (runExceptT $ compileICode filename code) S.empty) (varMap code),
+        return $ runReader (evalStateT (runExceptT $ compileICode filename code) S.empty) (""),
       compileExecutable = \filePath -> do
-        let outpath = takeDirectory filePath
-        execCmd "java" ["-jar", "/home/students/inf/PUBLIC/MRJP/Jasmin/jasmin.jar", filePath, "-d", outpath]
+        execCmd "/bin/bash" ["-c", "echo 'TODO: Provide compilation backend'"]
     }

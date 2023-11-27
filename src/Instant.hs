@@ -10,6 +10,8 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.List as L
 import qualified Data.Text as T
 import Instant.Backend.Base
+import Instant.Errors.Errors as Errors
+import Instant.Typings.Checker as Typings
 import Instant.Logs
 import Instant.Parser.Parser
 import Instant.Syntax
@@ -36,9 +38,15 @@ runPipeline backend = do
         Left _ -> instantError $ "Parser encountered a critical errors (see logs above): " <> (T.pack file)
         Right node -> do
           printLogInfo $ "Input file was correctly parsed: " <> (T.pack file)
-          backendResponse <- runBackend jasminName (takeFileName jasminName) node backend
-          case backendResponse of
-            Just e -> instantError e
-            Nothing -> do
-              printLogInfo $ "OK"
+          checkerResponse <- Typings.typecheck node
+          case checkerResponse of
+            Left e -> do
+              Errors.printErrors e file contents
+              instantError "Typechecker discovered some problems."
+            Right _ -> do
+              backendResponse <- runBackend jasminName (takeFileName jasminName) node backend
+              case backendResponse of
+                Just e -> instantError e
+                Nothing -> do
+                  instantSuccess
     _ -> instantError "BAD ARGS"

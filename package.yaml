@@ -28,12 +28,18 @@ library:
     - text
     - diagnose
     - jvm-parser
+    - lens
   default-extensions:
     - KindSignatures
     - LambdaCase
     - MultiWayIf
+    - TypeOperators
+    - FunctionalDependencies
     - GADTs
+    - TypeFamilies
+    - StandaloneDeriving
     - DataKinds
+    - OverloadedStrings
     - RankNTypes
     - FlexibleContexts
 

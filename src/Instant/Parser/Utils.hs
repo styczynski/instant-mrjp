@@ -34,8 +34,14 @@ parserASTMeta = do
 withASTMeta :: Parser (ASTMeta -> a) -> Parser a
 withASTMeta p = liftA2 (flip ($)) parserASTMeta p
 
+withRawASTMeta :: (ASTMeta -> a) -> Parser a
+withRawASTMeta = withASTMeta . pure
+
 parserSkip :: Parser ()
-parserSkip = L.space (void spaceChar) MP.empty MP.empty
+parserSkip = L.space
+  (void spaceChar)
+  (L.skipLineComment "//" <|> L.skipLineComment "#")
+  (L.skipBlockComment "/*" "*/")
 
 parserLex :: Parser a -> Parser a
 parserLex = L.lexeme parserSkip
@@ -43,19 +49,31 @@ parserLex = L.lexeme parserSkip
 parserIdentifier :: Parser String
 parserIdentifier = parserLex $ liftA2 (:) lowerChar (MP.many alphaNumChar)
 
-parserDecimal :: Parser Int
+parserCapIdentifier :: Parser String
+parserCapIdentifier = parserLex $ liftA2 (:) upperChar (MP.many alphaNumChar)
+
+parserDecimal :: Parser Integer
 parserDecimal = parserLex $ L.decimal
+
+parserSymbol :: String -> Parser String
+parserSymbol = L.symbol parserSkip
+
+parserKeyword :: String -> Parser ()
+parserKeyword w = parserLex $ MP.try $ string w >> MP.notFollowedBy alphaNumChar >> parserSkip
 
 parserOperator :: String -> Parser ()
 parserOperator o =
-  parserLex $ MP.try $ string o *> MP.notFollowedBy (MP.oneOf "=+-/*;")
+  parserLex $ MP.try $ string o *> MP.notFollowedBy (MP.oneOf ("=+-/*%\\&.|^<>" :: String))
 
 parserParens :: Parser a -> Parser a
 parserParens = MP.between (L.symbol parserSkip "(") (L.symbol parserSkip ")")
 
-infixL :: Parser (ASTMeta -> a -> b -> a) -> Parser b -> a -> Parser a
+parserBlock :: Parser a -> Parser a
+parserBlock = MP.between (L.symbol parserSkip "{") (L.symbol parserSkip "}")
+
+infixL :: Parser (a -> b -> a) -> Parser b -> a -> Parser a
 infixL op p x = do
-  f <- withASTMeta op
+  f <- op
   y <- p
   let r = f x y
   infixL op p r <|> return r
