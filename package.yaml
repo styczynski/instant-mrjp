@@ -29,6 +29,7 @@ library:
     - diagnose
     - jvm-parser
     - lens
+    - array
   default-extensions:
     - KindSignatures
     - LambdaCase

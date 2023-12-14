@@ -11,7 +11,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Instant.Errors.Base where
+module Reporting.Errors.Base where
 import Control.Lens
 
 data SimpleError = SimpleError {

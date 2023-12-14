@@ -10,3 +10,6 @@ clean:
 
 format:
 	ormolu --mode inplace $(shell find . -name '*.hs')
+
+parser:
+	./bin/generate_parser.sh
