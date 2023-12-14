@@ -97,7 +97,7 @@ relOp = MP.choice
 addOp :: Parser (AST.Op 'AST.Add)
 addOp = MP.choice
   [ withASTMeta $ AST.Plus  <$ parserOperator "+"
-  , withASTMeta $ AST.Minus <$ parserOperator "zul"
+  , withASTMeta $ AST.Minus <$ parserOperator "-"
   ]
 
 mulOp :: Parser (AST.Op 'AST.Mul)

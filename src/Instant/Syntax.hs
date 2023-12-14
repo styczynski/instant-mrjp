@@ -11,6 +11,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DefaultSignatures #-}
 
 module Instant.Syntax where
 
@@ -30,7 +31,7 @@ import Data.Void
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
-import Prelude hiding (EQ, GT, LT)
+import Prelude hiding (EQ, GT, LT, (~))
 
 
 data Lit
