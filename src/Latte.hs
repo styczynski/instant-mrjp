@@ -12,6 +12,7 @@ import qualified Data.Text as T
 
 import Reporting.Logs
 import Parser.Parser
+import Parser.Transform
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -38,5 +39,7 @@ runPipeline backend = do
             printErrors err file contents
             latteError "Failed to parse input files"
         (Right ast) -> do
-          printLogInfo $ "Parsed: " <> (T.pack file) <> (T.pack $ show ast)
+          printLogInfo $ "Parsed: " <> (T.pack file)
+          prog <- return $ transformAST ast
+          printLogInfo $ "Transformed: " <> (T.pack file) 
     _ -> latteError "BAD ARGS"
