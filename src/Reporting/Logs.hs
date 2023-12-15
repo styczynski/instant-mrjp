@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ConstraintKinds #-}
 
 module Reporting.Logs where
 
@@ -27,14 +28,25 @@ import Colog
     richMessageAction,
     showSeverity,
     usingLoggerT,
+    liftLogAction,
+    LoggerT,
   )
+import Control.Monad.Trans.Class(MonadTrans)
 import System.IO(hPutStrLn, stderr)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.Exit
 
-type LattePipeline t = forall env m. (WithLog env Message m, MonadIO m) => m t
+--type LattePipeline t = forall env m. (WithLog env Message m, MonadIO m) => m t
+type LattePipeline = LoggerT Message IO
+
+--type WithLattePipeline env m = (WithLog env Message m, MonadIO m)
+
+--type LattePipelineT = LoggerT Message IO
+
+liftPipeline :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) msg
+liftPipeline = liftLogAction
 
 printLogInfo :: Text.Text -> LattePipeline ()
 printLogInfo = logInfo

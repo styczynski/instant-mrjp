@@ -4,25 +4,40 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Reporting.Errors.Messages where
 
+import Typings.Types as Type
+import Data.List
 import Reporting.Errors.Base
 import Reporting.Errors.Def
+import Utils.Similarity
 
 decodeError :: Error -> SimpleError
-decodeError MainType = SimpleError {
-    _errorName = "Invalid main type"
-    , _errorDescription = "Main function should be defined as int main()"
-    , _errorSugestions = [
-        "Changing return type of main to int"
-    ]
-    , _errorOocontext = Nothing
-}
+-- decodeError MainType = SimpleError {
+--     _errorName = "Invalid main type"
+--     , _errorDescription = "Main function should be defined as int main()"
+--     , _errorSugestions = [
+--         "Changing return type of main to int"
+--     ]
+--     , _errorOocontext = Nothing
+-- }
 decodeError NoMain = SimpleError {
     _errorName = "No entrypoint"
     , _errorDescription = "There is no main function defined."
     , _errorSugestions = [
         "Defining main function: int main() {}"
     ]
-    , _errorOocontext = Nothing
+    , _errorLocation = Nothing
+    , _errorContexts = []
+    , _errorHelp = Nothing
+}
+decodeError (CyclicInheritance cls chain msg) = SimpleError {
+    _errorName = "Invalid inheritance"
+    , _errorDescription = "Classes extends each other forming a cycle\n\n" ++ msg
+    , _errorSugestions = [
+        "Redefine classes in a such way that no cycle is formed"
+    ]
+    , _errorLocation = Just $ Type.location cls
+    , _errorContexts = map (\other -> ("Class '" ++ (stringName other) ++ "' forming a cycle " ++ (intercalate " <- " $ map (\c -> if stringName c == stringName other then "[" ++ stringName c ++ "]" else stringName c) (cls:chain ++ [cls])), Just $ Type.location other)) chain
+    , _errorHelp = Just ("Specify other class to extend or remove 'extends' clause", Type.extendsPosition cls)
 }
 -- decodeError (TypeMatch t1 t2) = SimpleError {
 --     _errorName = "Type mismatch"
@@ -84,18 +99,39 @@ decodeError NoMain = SimpleError {
 --     , _errorSugestions = []
 --     , _errorOocontext = Nothing
 -- }
--- decodeError (DuplicateClass cls) = SimpleError {
---     _errorName = "Duplicate definition"
---     , _errorDescription = "Class '" ++ (simplePretty cls) ++ "' was defined twice"
---     , _errorSugestions = []
---     , _errorOocontext = Just $ "Class " ++ simplePretty cls
--- }
--- decodeError (DuplicateField cls i) = SimpleError {
---     _errorName = "Duplicate definition"
---     , _errorDescription = "Method '" ++ (simplePretty i) ++ "' in class " ++ (simplePretty cls) ++ " was defined twice"
---     , _errorSugestions = []
---     , _errorOocontext = Just $ "Class " ++ simplePretty cls
--- }
+decodeError (DuplicateClass cls others) = SimpleError {
+    _errorName = "Duplicate definition"
+    , _errorDescription = "Class '" ++ (stringName cls) ++ "' was defined twice"
+    , _errorSugestions = [
+        "Remove other class definition"
+        , "Rename the classes to have unique names"
+    ]
+    , _errorLocation = Just $ Type.location cls
+    , _errorContexts = map (\other -> ("Duplicate class definition", Just $ Type.location other)) others
+    , _errorHelp = case cls <? others of
+        (Just same) -> Just $ ("Those class definitions are exactly the same, you can remove it", Type.location cls)
+        Nothing -> Just $ ("Two classes differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition cls)
+}
+decodeError (DuplicateMember cls member others) = SimpleError {
+    _errorName = "Duplicate definition"
+    , _errorDescription = "Method '" ++ (stringName member) ++ "' in class " ++ (stringName cls) ++ " was defined twice"
+    , _errorSugestions = []
+    , _errorLocation = Just $ Type.location cls
+    , _errorContexts = map (\other -> ("Duplicate member definition", Just $ Type.location other)) others
+    , _errorHelp = case member <? others of
+        (Just same) -> Just $ ("Those member definitions are exactly the same, you can remove it", Type.location member)
+        Nothing -> Just $ ("Two member differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition member)
+}
+decodeError (DuplicateFun fn others) = SimpleError {
+    _errorName = "Duplicate definition"
+    , _errorDescription = "Function '" ++ (stringName fn) ++ "' was defined twice"
+    , _errorSugestions = []
+    , _errorLocation = Just $ Type.location fn
+    , _errorContexts = map (\other -> ("Duplicate function definition", Just $ Type.location other)) others
+    , _errorHelp = case fn <? others of
+        (Just same) -> Just $ ("Those function definitions are exactly the same, you can remove it", Type.location fn)
+        Nothing -> Just $ ("Two function differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition fn)
+}
 -- decodeError (DuplicateConstructor cls (Just constr)) = SimpleError {
 --     _errorName = "Duplicate definition"
 --     , _errorDescription = "Constructor '" ++ (simplePretty constr) ++ "' in class " ++ (simplePretty cls) ++ " was defined twice"

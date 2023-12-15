@@ -14,11 +14,15 @@
 module Reporting.Errors.Base where
 import Control.Lens
 
+import Reporting.Errors.Position
+
 data SimpleError = SimpleError {
     _errorName :: String
     , _errorDescription :: String
     , _errorSugestions :: [String]
-    , _errorOocontext :: Maybe String
+    , _errorLocation :: Maybe Position
+    , _errorContexts :: [(String, Maybe Position)]
+    , _errorHelp :: Maybe (String, Position)
 }
 
 makeLensesWith abbreviatedFields ''SimpleError

@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE OverlappingInstances #-}
 module Program.Syntax where
 
 -- This module is kind of repeating the AST in a better way
@@ -9,23 +12,19 @@ module Program.Syntax where
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 
-data Position = Position String Int Int 
-              | BuiltIn
-              | Undefined
-  deriving (Eq, Ord)
-
-instance Show Position where
-    show (Position file line col) = "\""++file++"\", line: "++ show line++", column: "++show col
-    show BuiltIn = "inside standard library"
-    show Undefined = "(undefined)"
+import Utils.Similarity
 
 data Ident a = Ident a String deriving (Eq, Ord, Show, Read)
+
+data OptionalName a = Name a (Ident a)
+                | NoName a
+  deriving (Eq, Ord, Show, Read)
 
 data Program a = Program a [Definition a]
   deriving (Eq, Ord, Show, Read)
 
 data Definition a = FunctionDef a (Type a) (Ident a) [Arg a] (Block a)
-                  | ClassDef a (Ident a) (Maybe (Ident a)) [ClassDecl a]
+                  | ClassDef a (Ident a) (OptionalName a) [ClassDecl a]
   deriving (Eq, Ord, Show, Read)
 
 data Arg a = Arg a (Type a) (Ident a)
@@ -103,15 +102,40 @@ data Lit a = Int a Integer
            | Null a
   deriving (Eq, Ord, Show, Read)
 
+instance NearEq (Ident a) where
+    similar (Ident _ x) (Ident _ y) = x == y
+    similar _ _ = False
+
+instance NearEq (OptionalName a) where
+    similar (NoName _) (NoName _) = True
+    similar (Name _ x) (Name _ y) = similar x y
+    similar _ _ = False
+
+instance NearEq (Type a) where
+    similar (VoidT _) (VoidT _) = True
+    similar (BoolT _) (BoolT _) = True
+    similar (StringT _) (StringT _) = True
+    similar (IntT _) (IntT _) = True
+    similar (ByteT _) (ByteT _) = True
+    similar (InfferedT _) (InfferedT _) = True
+    similar (ClassT _ name1) (ClassT _ name2) = similar name1 name2
+    similar (ArrayT _ t1) (ArrayT _ t2) = similar t1 t2
+    similar (FunT _ r1 p1) (FunT _ r2 p2) = similar r1 r2 && similar p1 p2
+    similar _ _ = False
+
 instance Functor Ident where
     fmap f (Ident a s) = Ident (f a) s
+
+instance Functor OptionalName where
+    fmap f (Name a s) = Name (f a) (fmap f s)
+    fmap f (NoName a) = NoName (f a)
 
 instance Functor Program where
     fmap f (Program a d) = Program (f a) (fmap (fmap f) d)
 
 instance Functor Definition where
     fmap f (FunctionDef a t id as b) = FunctionDef (f a) (fmap f t) (fmap f id) (fmap (fmap f) as) (fmap f b)
-    fmap f (ClassDef a id parent ds) = ClassDef (f a) (fmap f id) (fmap (fmap f) parent) (fmap (fmap f) ds)
+    fmap f (ClassDef a id parent ds) = ClassDef (f a) (fmap f id) (fmap f parent) (fmap (fmap f) ds)
 
 instance Functor Arg where
     fmap f (Arg a t id) = Arg (f a) (fmap f t) (fmap f id)
@@ -187,22 +211,27 @@ instance Functor Lit where
     fmap f (Null a) = Null (f a)
 
 
-class PrettyPrint x where
-    printi :: Int -> x -> String 
-
 instance PrettyPrint (Program a) where
     printi _ (Program _ defs) = intercalate "\n\n" (map (printi 0) defs)
 
 instance PrettyPrint (Ident a) where
     printi _ (Ident _ s) = s
 
+instance PrettyPrint (OptionalName a) where
+    printi i (Name _ id) = printi i id
+    printi _ (NoName _) = ""
+
+printiOptionalName :: Int -> String -> String -> OptionalName a -> String
+printiOptionalName i defaultValue prefix (Name _ id) = prefix ++ printi i id
+printiOptionalName i defaultValue prefix (NoName _) = defaultValue
+
 instance PrettyPrint (Definition a) where
     printi _ (FunctionDef _ t id args b) = printi 0 t ++ " " ++ printi 0 id ++ "(" ++ intercalate ", " (map (printi 0) args) ++ ")\n" ++ printi 1 b
-    printi _ (ClassDef _ id mpar decls) = "class " ++ printi 0 id ++ fromMaybe "" (fmap (\i -> " extends "++printi 0 i) mpar) ++ "\n{\n" ++ intercalate "\n" (map (printi 1) decls) ++"\n}"
+    printi _ (ClassDef _ id mpar decls) = "class " ++ printi 0 id ++ (printiOptionalName 0 "" " extends " mpar) ++ "\n{\n" ++ intercalate "\n" (map (printi 1) decls) ++"\n}"
 
 instance PrettyPrint (Block a) where
     printi i (Block _ stmts) = (replicate (i-1) '\t')++"{\n" ++ intercalate "\n" (map (printi i) stmts) ++ "\n"++(replicate (i-1) '\t')++"}"
-    
+
 instance PrettyPrint (Arg a) where
     printi _ (Arg _ t id) = printi 0 t ++ " " ++ printi 0 id
 
@@ -244,7 +273,7 @@ instance PrettyPrint (Expr a) where
     printi _ (UnaryOp _ (Not _) e) = "!"++printi 0 e
     printi _ (BinaryOp _ op el er) = "("++printi 0 el ++" "++printi 0 op++" "++printi 0 er ++")"
     printi _ (Member _ e id _) = printi 0 e ++"."++printi 0 id
-    printi _ (NewObj _ t m) = 
+    printi _ (NewObj _ t m) =
         case m of
             Nothing -> "new "++printi 0 t
             Just e -> "new "++printi 0 t++"["++printi 0 e++"]"

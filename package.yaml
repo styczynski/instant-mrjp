@@ -30,7 +30,12 @@ library:
     - jvm-parser
     - lens
     - array
+    - transformers
+    - keys
+    - stacked-dag
+    - fgl
   default-extensions:
+    - TypeSynonymInstances
     - KindSignatures
     - LambdaCase
     - MultiWayIf

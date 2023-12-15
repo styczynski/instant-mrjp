@@ -19,6 +19,27 @@ packages:
   original:
     hackage: diagnose-2.5.1
 - completed:
+    hackage: keys-3.12.3@sha256:6e868d49982f304462bba35a249662ee41bae1d9f692d8c64369122ef1eee662,2322
+    pantry-tree:
+      sha256: 018031774733527f739192a9b76f8372c678cb9474915d8191450cc4345ba4dd
+      size: 426
+  original:
+    hackage: keys-3.12.3
+- completed:
+    hackage: stacked-dag-0.1.1.0@sha256:e6ad1b75fc6ed9971ccd5da8620fe98bdf6f1a282d5fc8e1c95c962d54e701d9,1888
+    pantry-tree:
+      sha256: 6395eaf52f0be1a0a92cd62df549585ea8d63226bf63ae295e10eb5b233085a9
+      size: 551
+  original:
+    hackage: stacked-dag-0.1.1.0
+- completed:
+    hackage: fgl-5.8.2.0@sha256:9bc966528db0a9bd57c63dd3cb2bbe08e1a2d2de7ac7f517aaaa5d79607f759e,3796
+    pantry-tree:
+      sha256: 8c0adc211f52608695ccda906eca4fa8a60f6e62315b14815b2243c0ddb417e2
+      size: 2749
+  original:
+    hackage: fgl-5.8.2.0
+- completed:
     name: jvm-parser
     pantry-tree:
       sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93

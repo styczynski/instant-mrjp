@@ -12,7 +12,9 @@ import qualified Data.Text as T
 
 import Reporting.Logs
 import Parser.Parser
+import Parser.Types
 import Parser.Transform
+import Typings.Checker as TypeChecker
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -35,11 +37,18 @@ runPipeline backend = do
       printLogInfo $ "Parsing: " <> (T.pack file)
       parsedAST <- parseLatte file contents
       case parsedAST of 
-        (Left err) -> do
-            printErrors err file contents
+        p@(ProgramParseError err) -> do
+            printErrors err file contents p
             latteError "Failed to parse input files"
-        (Right ast) -> do
+        ast -> do
           printLogInfo $ "Parsed: " <> (T.pack file)
-          prog <- return $ transformAST ast
+          prog <- return $ transformAST file ast
           printLogInfo $ "Transformed: " <> (T.pack file) 
+          typingResult <- TypeChecker.checkTypes prog
+          case typingResult of
+            Left err -> do
+              printLogInfo $ "Typecheck failed"
+              printErrors err file contents parsedAST
+            Right (prog, _) -> do
+              printLogInfo $ "Typecheck done" <> (T.pack file)
     _ -> latteError "BAD ARGS"

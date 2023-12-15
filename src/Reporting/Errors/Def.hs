@@ -3,22 +3,26 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Reporting.Errors.Def where
-
+import qualified Program.Syntax as Syntax
+import qualified Typings.Types as Type
 import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
 
 data Error
-  = MainType
-  | NoMain
+  =
+    NoMain
+  -- = MainType
+  -- | NoMain
   -- | TypeMatch Type Type
   -- | OperatorTypeMatch AnyOp [(Type, Type)] (Type, Type)
   -- | ArgNumFun FunId Int Int
   -- | ArgNumMethod ClassId MethodId Int Int
   -- | ArgNumConstructor ClassId (Maybe ConstructorId) Int Int
   -- | DuplicateVar VarId
-  -- | DuplicateFun FunId
-  -- | DuplicateClass ClassId
-  -- | DuplicateField ClassId FieldId
+  | CyclicInheritance Type.Class [Type.Class] String
+  | DuplicateFun Type.Function [Type.Function]
+  | DuplicateClass Type.Class [Type.Class]
+  | DuplicateMember Type.Class Type.Member [Type.Member]
   -- | DuplicateMethod ClassId MethodId
   -- | DuplicateConstructor ClassId (Maybe ConstructorId)
   -- | ClassMatch ClassId ClassId
