@@ -1,7 +1,8 @@
-int main() {
+int main(int x) {
 return 0;
 }
 
+/*
 class A {
     int lol() { return 1; }
 }
@@ -24,3 +25,4 @@ class A6 extends A5 {}
 int test() { return 3; }
 
 int test2() {}
+*/

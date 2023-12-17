@@ -7,7 +7,9 @@ import Program.Syntax
 import qualified Data.Text as T
 import qualified Data.Key as K
 import qualified Typings.Types as Type
+import Control.Monad.State
 import Typings.Def
+import Typings.Env
 import Reporting.Errors.Def as Errors
 import Reporting.Errors.Position
 
@@ -25,7 +27,7 @@ typeFromArg (Arg pos t id) = assureProperType t >> return t
 assureProperType :: Type Position -> TypeChecker ()
 assureProperType t =
     case t of
-        InfferedT pos -> failure Errors.NoMain --fail ("Inffered type instead of a proper type", pos)
+        InfferedT pos -> failure $ Errors.UnknownFailure "Inffered type instead of a proper type" --fail ("Inffered type instead of a proper type", pos)
         _ -> return ()
 
 collectClasses :: [Definition Position] -> TypeChecker [Type.Class]
@@ -103,8 +105,14 @@ collectDefinitions :: [Definition Position] -> TypeChecker ()
 collectDefinitions defs = do
     cls <- checkDuplicates (\h l -> failure $ Errors.DuplicateClass h l) =<< return . groupByKey Type.stringName =<< collectClasses defs
     fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< collectFunctions defs
+    -- cls <- return $ M.map (replaceEmptyParent "Object") cls
     hierarchy <- Hierarchy.constructInheritanceHierarchy cls
     err <- lift $ lift $ Hierarchy.checkLoops hierarchy cls
+    tcEnv <- modify (setupDefEnv fns cls)
     case err of 
         (Just e) -> failure e
         Nothing -> return ()
+    where
+        replaceEmptyParent :: String -> Type.Class -> Type.Class
+        replaceEmptyParent defaultParent (Type.Class name (NoName p) members def) = Type.Class name (Name p (Ident p defaultParent)) members def
+        replaceEmptyParent _ cls = cls

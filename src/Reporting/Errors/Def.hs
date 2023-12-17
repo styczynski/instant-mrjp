@@ -8,9 +8,14 @@ import qualified Typings.Types as Type
 import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
 
+import Typings.Env(TypeCheckerEnv)
+
 data Error
   =
-    NoMain
+   UnknownFailure String
+   | NoMain TypeCheckerEnv
+   | InvalidMainReturn Type.Function TypeCheckerEnv
+   | MainHasArgs Type.Function TypeCheckerEnv
   -- = MainType
   -- | NoMain
   -- | TypeMatch Type Type

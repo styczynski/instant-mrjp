@@ -21,6 +21,9 @@ type Type = Syntax.Type Position
 
 type Name = Syntax.Ident Position
 
+-- instance NearEq (Syntax.Type t) where
+--     similar a b = (Undefined <$ a) == (Undefined <$ b)
+
 instance NearEq Function where
     similar (Fun _ _ _ decl1) (Fun _ _ _ decl2) = similar decl1 decl2
     similar _ _ = False

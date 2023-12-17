@@ -23,6 +23,8 @@ import qualified Data.List.NonEmpty as NEL
 import Error.Diagnose
 
 import Prelude hiding ((<>))
+import qualified Reporting.Errors.Position as P
+import Reporting.Errors.Base (SimpleError(SimpleError))
 
 class Errorable a where
   describe :: a -> Err.SimpleError
@@ -50,23 +52,31 @@ printErrors errorable filename inp ast = do
   title <- return $ "Problem: " ++ (simpleError^.Err.name)
   description <- return $ simpleError^.description
   origin <- return $ simpleError^.Err.location
-  case origin of
-    Nothing -> return ()
-    Just errLocation -> do
-      markers <- return $ [(Position (P.positionLC errLocation) (P.positionLC $ findTokenEnd ast errLocation) (P.positionSrc errLocation), This description)]
-      helpMarkers <- return $ case (simpleError^.Err.help) of
-        Nothing -> []
-        (Just (label, p)) -> [(Position (P.positionLC p) (P.positionLC $ findTokenEnd ast p) (P.positionSrc p), Maybe $ "Action: " ++ label)]
-      contextMarkers <- return $ L.map (mapContext $ P.positionSrc errLocation) $ simpleError^.Err.contexts
-      -- sourceClassMarkers <- return $ case simpleError^.Err.oocontext of
-      --   Nothing -> []
-      --   Just clsName -> [(Position (line, 1) (line, col) origFilename, Where clsName)] ++ contextMarkers
-      suggestions <- return $ case (simpleError^.Err.sugestions) of
-        [] -> []
-        lines -> [Note $ "This that can potentially help:\n" ++ lineMap lines id]
-      diagnostic <- return $ addReport (addFile mempty filename inp :: Diagnostic String) (Err Nothing title (markers ++ contextMarkers ++ helpMarkers) ([] ++ suggestions))
-      printDiagnostic stdout WithUnicode (TabSize 4) defaultStyle diagnostic
+  suggestions <- return $ case (simpleError^.Err.sugestions) of
+    [] -> []
+    lines -> [Note $ "This that can potentially help:\n" ++ lineMap lines id]
+  diagnostic <- return $ addReport (addFile mempty filename inp :: Diagnostic String) (Err Nothing title (getMarkers simpleError filename origin) ([] ++ suggestions))
+  printDiagnostic stdout WithUnicode (TabSize 4) defaultStyle diagnostic
   where
+    --getMarkers :: String -> (Maybe Position) -> ([])
+    getMarkers :: SimpleError -> String -> (Maybe P.Position) -> [(Position, Marker String)]
+    getMarkers simpleError filename Nothing =
+      let errorDescription = simpleError^.description
+          markers = [(Position (0, 0) (0, 1) filename, This errorDescription)]
+          contextMarkers = L.map (mapContext filename) $ simpleError^.Err.contexts
+          helpMarkers = case (simpleError^.Err.help) of
+              Nothing -> []
+              (Just (label, p)) -> [(Position (P.positionLC p) (P.positionLC $ findTokenEnd ast p) (P.positionSrc p), Maybe $ "Action: " ++ label)]
+      in markers ++ contextMarkers ++ helpMarkers
+    getMarkers simpleError _ (Just errLocation) =
+      let errorDescription = simpleError^.description
+          markers = [(Position (P.positionLC errLocation) (P.positionLC $ findTokenEnd ast errLocation) (P.positionSrc errLocation), This errorDescription)]
+          helpMarkers = case (simpleError^.Err.help) of
+              Nothing -> []
+              (Just (label, p)) -> [(Position (P.positionLC p) (P.positionLC $ findTokenEnd ast p) (P.positionSrc p), Maybe $ "Action: " ++ label)]
+          contextMarkers = L.map (mapContext $ P.positionSrc errLocation) $ simpleError^.Err.contexts
+      in markers ++ contextMarkers ++ helpMarkers
+
     mapContext :: String -> (String, Maybe P.Position) -> (Position, Marker String)
     mapContext origFilename (label, labelLoc) = case labelLoc of
       Nothing -> (Position (1, 1) (1, 1) origFilename, Where label)

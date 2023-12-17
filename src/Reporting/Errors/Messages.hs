@@ -10,7 +10,44 @@ import Reporting.Errors.Base
 import Reporting.Errors.Def
 import Utils.Similarity
 
+import Program.Syntax as Syntax
+import Reporting.Errors.Position
+
+import Typings.Debug
+
 decodeError :: Error -> SimpleError
+decodeError (UnknownFailure msg) = SimpleError {
+    _errorName = "Unknown fatal error"
+    , _errorDescription = "This is a generic case for an error. It should never ever happen in practice. It's likely a problem with compiler itself. Oopsie!"
+    , _errorSugestions = [
+        "Ask author why this happened???"
+    ]
+    , _errorLocation = Nothing
+    , _errorContexts = [
+        ("Details:\n" ++ msg, Nothing)
+    ]
+    , _errorHelp = Nothing
+}
+decodeError (InvalidMainReturn main@(Type.Fun _ retType _ _) _) = SimpleError {
+    _errorName = "Invalid entrypoint"
+    , _errorDescription = "Main function has invalid return type"
+    , _errorSugestions = [
+        "Change main() return type to 'int'"
+    ]
+    , _errorLocation = Just $ Type.location main
+    , _errorContexts = []
+    , _errorHelp = Just $ ("Change main() return type from '" ++ (printi 0 retType) ++ "' to 'int'", Type.location main)
+}
+decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
+    _errorName = "Invalid entrypoint"
+    , _errorDescription = "Main function cannot accept any parameters"
+    , _errorSugestions = [
+        "Remove all main() parameters"
+    ]
+    , _errorLocation = Just $ Type.location main
+    , _errorContexts = []
+    , _errorHelp = Just $ ("Remove all main parameters", Type.location main)
+}
 -- decodeError MainType = SimpleError {
 --     _errorName = "Invalid main type"
 --     , _errorDescription = "Main function should be defined as int main()"
@@ -19,16 +56,32 @@ decodeError :: Error -> SimpleError
 --     ]
 --     , _errorOocontext = Nothing
 -- }
-decodeError NoMain = SimpleError {
-    _errorName = "No entrypoint"
-    , _errorDescription = "There is no main function defined."
-    , _errorSugestions = [
-        "Defining main function: int main() {}"
-    ]
-    , _errorLocation = Nothing
-    , _errorContexts = []
-    , _errorHelp = Nothing
-}
+decodeError (NoMain env) = let
+        candidates = (env <--? QueryFn "main" (Just ((Syntax.IntT Undefined), []))) ++ (env <--? QueryFn "main" Nothing)
+    in case candidates of
+        [] -> 
+            SimpleError {
+                _errorName = "No entrypoint"
+                , _errorDescription = "There is no main function defined."
+                , _errorSugestions = [
+                    "Defining main function: int main() {}"
+                ]
+                , _errorLocation = Nothing
+                , _errorContexts = []
+                , _errorHelp = Nothing
+            }
+        firstCandidate:_ -> 
+            SimpleError {
+                _errorName = "No entrypoint"
+                , _errorDescription = "There is no main function defined."
+                , _errorSugestions = [
+                    "Defining main function: int main() {}"
+                    , "Trying to fix spelling of '" ++ (stringName firstCandidate) ++ "'"
+                ]
+                , _errorLocation = Nothing
+                , _errorContexts = []
+                , _errorHelp = Just $ ("Probably you made misspelling and this function should be called 'main'?", Type.namePosition firstCandidate)
+            }
 decodeError (CyclicInheritance cls chain msg) = SimpleError {
     _errorName = "Invalid inheritance"
     , _errorDescription = "Classes extends each other forming a cycle\n\n" ++ msg
