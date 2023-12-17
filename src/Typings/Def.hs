@@ -12,6 +12,8 @@ import Control.Monad.Reader hiding (void)
 import qualified Data.Map as M
 import qualified Data.List.NonEmpty as NE
 
+import Control.Monad.Trans.Class
+
 --type Environment = ([Class], [Function], [(Ident Position, Type Position)])
 
 --type VarEnv   = Map AST.VarId AST.Type
@@ -50,5 +52,8 @@ type TypeChecker a = (ReaderT TypeCheckerEnv (ExceptT Errors.Error LattePipeline
 
 type TypeCheckingResult = Either Errors.Error (Syntax.Program Position, [Type.Class])
 
-failure :: Errors.Error -> TypeChecker ()
+liftPipelineTC :: LattePipeline a -> TypeChecker a 
+liftPipelineTC = lift . lift
+
+failure :: Errors.Error -> TypeChecker a
 failure err = throwError err

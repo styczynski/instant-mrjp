@@ -103,7 +103,7 @@ collectDefinitions :: [Definition Position] -> TypeChecker ()
 collectDefinitions defs = do
     cls <- checkDuplicates (\h l -> failure $ Errors.DuplicateClass h l) =<< return . groupByKey Type.stringName =<< collectClasses defs
     fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< collectFunctions defs
-    hierarchy <- lift $ lift $ Hierarchy.constructInheritanceHierarchy cls
+    hierarchy <- Hierarchy.constructInheritanceHierarchy cls
     err <- lift $ lift $ Hierarchy.checkLoops hierarchy cls
     case err of 
         (Just e) -> failure e

@@ -19,6 +19,8 @@ data Error
   -- | ArgNumMethod ClassId MethodId Int Int
   -- | ArgNumConstructor ClassId (Maybe ConstructorId) Int Int
   -- | DuplicateVar VarId
+  | UnknownParent Type.Class String
+  | CyclicInheritanceSelf Type.Class 
   | CyclicInheritance Type.Class [Type.Class] String
   | DuplicateFun Type.Function [Type.Function]
   | DuplicateClass Type.Class [Type.Class]

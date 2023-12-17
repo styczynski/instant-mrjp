@@ -39,6 +39,26 @@ decodeError (CyclicInheritance cls chain msg) = SimpleError {
     , _errorContexts = map (\other -> ("Class '" ++ (stringName other) ++ "' forming a cycle " ++ (intercalate " <- " $ map (\c -> if stringName c == stringName other then "[" ++ stringName c ++ "]" else stringName c) (cls:chain ++ [cls])), Just $ Type.location other)) chain
     , _errorHelp = Just ("Specify other class to extend or remove 'extends' clause", Type.extendsPosition cls)
 }
+decodeError (CyclicInheritanceSelf cls) = SimpleError {
+    _errorName = "Invalid inheritance"
+    , _errorDescription = "Class cannot extend itself"
+    , _errorSugestions = [
+        "Try to check if that is a spelling error and class should inherit from other one"
+    ]
+    , _errorLocation = Just $ Type.location cls
+    , _errorContexts = []
+    , _errorHelp = Just ("Remove '" ++ (stringName cls) ++ "' from the inheritance list", Type.extendsPosition cls)
+}
+decodeError (UnknownParent cls parent) = SimpleError {
+    _errorName = "Unknown symbol"
+    , _errorDescription = "Class '" ++ (stringName cls) ++ "' extends unknown class '" ++ parent ++ "'"
+    , _errorSugestions = [
+        "Try to check if that is a spelling error and class should inherit from other one"
+    ]
+    , _errorLocation = Just $ Type.location cls
+    , _errorContexts = []
+    , _errorHelp = Nothing
+}
 -- decodeError (TypeMatch t1 t2) = SimpleError {
 --     _errorName = "Type mismatch"
 --     , _errorDescription = "Value has type " ++ (simplePretty t1) ++ " but expected type " ++ (simplePretty t2)
