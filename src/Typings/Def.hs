@@ -31,3 +31,8 @@ liftPipelineTC = lift . lift
 failure :: Errors.Error -> TypeChecker a
 failure err = throwError err
 
+tcEnv :: TypeChecker TypeCheckerEnv
+tcEnv = get
+
+tcEnvGet :: (TypeCheckerEnv -> t) -> TypeChecker t
+tcEnvGet = (flip (<$>)) tcEnv

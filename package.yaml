@@ -35,6 +35,7 @@ library:
     - stacked-dag
     - fgl
     - fuzzyset
+    - monad-extras
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

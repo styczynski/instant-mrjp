@@ -108,8 +108,7 @@ collectDefinitions defs = do
     -- cls <- return $ M.map (replaceEmptyParent "Object") cls
     hierarchy <- Hierarchy.constructInheritanceHierarchy cls
     Hierarchy.checkLoops hierarchy cls
-    tcEnv <- modify (setupDefEnv fns cls)
-    Hierarchy.checkInheritanceDuplicatedMembers hierarchy
+    modify (setupDefEnv fns cls hierarchy)
     where
         replaceEmptyParent :: String -> Type.Class -> Type.Class
         replaceEmptyParent defaultParent (Type.Class name (NoName p) members def) = Type.Class name (Name p (Ident p defaultParent)) members def

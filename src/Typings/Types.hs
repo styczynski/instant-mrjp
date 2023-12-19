@@ -5,6 +5,8 @@ import qualified Program.Syntax as Syntax
 import Utils.Similarity
 --import qualified Error.Diagnose as Syntax
 
+data AllowVoid = AllowVoid | NoVoid
+
 data Class = Class 
                 {-name-}(Name) 
                 {-parent-}(Syntax.OptionalName Position)
@@ -56,10 +58,10 @@ instance TypeContext Member where
     nameOf (Method name _ _ _) = name
 
     location (Field _ _ (Syntax.FieldDecl pos _ _)) = pos
-    location (Field _ _ (Syntax.MethodDecl pos _ _ _ _)) = pos
+    location (Method _ _ _ (Syntax.MethodDecl pos _ _ _ _)) = pos
 
     namePosition (Field _ _ (Syntax.FieldDecl _ _ (Syntax.Ident pos _))) = pos
-    namePosition (Field _ _ (Syntax.MethodDecl _ _ (Syntax.Ident pos _) _ _)) = pos
+    namePosition (Method _ _ _ (Syntax.MethodDecl _ _ (Syntax.Ident pos _) _ _)) = pos
 
 instance TypeContext Function where
     nameOf (Fun name _ _ _) = name

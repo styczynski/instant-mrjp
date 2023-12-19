@@ -7,6 +7,8 @@ module Utils.Graphs(
     , cycles
     , childrenKeys
     , keys
+    , hasEdge
+    , empty
 ) where
 
 import qualified Data.Graph.Inductive.Graph as G
@@ -131,3 +133,10 @@ childrenKeys g@(Graph nodeMap nodeIds graph) key =
 keys :: (Ord key) => Graph key nodeL edgeL -> [key]
 keys (Graph nodeMap _ _) = M.keys nodeMap
 keys _ = []
+
+hasEdge :: (Ord key) => Graph key nodeL edgeL -> key -> key -> Bool
+hasEdge (Graph _ nodeIds graph) a b = fromMaybe False $ (curry $ G.hasEdge graph) <$> M.lookup b nodeIds <*> M.lookup a nodeIds
+--G.hasEdge graph ()
+
+empty :: (Ord key) => Graph key nodeL edgeL
+empty = Graph M.empty M.empty G.empty

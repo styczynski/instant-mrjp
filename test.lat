@@ -2,14 +2,16 @@ int mainx(int x) {
 return 0;
 }
 
-/*
+int main() { return 0; }
+
+
 class A {
     int lol() { return 1; }
 }
 
 class A2 extends A {
     int lol() { return 5; }
-    void lol() {}
+    //void lol() {}
 }
 
 class A3 extends A2 {}
@@ -25,4 +27,3 @@ class A6 extends A5 {}
 int test() { return 3; }
 
 int test2() {}
-*/

@@ -7,6 +7,7 @@ import Reporting.Errors.Def as Errors
 import Data.Maybe
 import Data.List
 import Data.Tuple
+import Control.Lens
 import qualified Typings.Types as Type
 import qualified Program.Syntax as Syntax
 import qualified StackedDag.Base as DagPrinter
@@ -15,11 +16,9 @@ import qualified Utils.Graphs as G
 import qualified Utils.C3 as C3
 
 import Typings.Def
+import Typings.Env
 import Reporting.Logs
 import Language.Haskell.TH.Lens (HasName(name))
-
-data Inheritance = ClassExtends String String deriving (Show)
-data Hierarchy = Hierarchy (G.Graph String Type.Class Inheritance)
 
 -- getParentEdges_ :: M.Map String Int -> Int -> String -> Type.Class -> [(Int, Int, Inheritance)]
 -- getParentEdges_ ids selfId selfName class =
@@ -36,7 +35,10 @@ constructInheritanceHierarchy :: M.Map String Type.Class -> TypeChecker Hierarch
 constructInheritanceHierarchy classMap = do
     liftPipelineTC $ printLogInfo $ "Construct inheritance graph"
     case G.create edgeConstructor edgeLabeller classMap of
-        g@(G.Graph _ _ _) -> return $ Hierarchy g
+        g@(G.Graph _ _ _) -> do
+            c3 <- fmap M.fromList (mapM (\className -> either (\e -> return (className, [])) (\e -> return (className, e)) $ C3.linearizeNode g className) $ G.keys g)
+            return $ Hierarchy g c3
+
         G.UnknownNodeOnEdge _ cls parent -> failure $ Errors.UnknownParent cls parent
     where
         edgeConstructor :: Type.Class -> [String]
@@ -81,8 +83,8 @@ constructInheritanceHierarchy classMap = do
 
 getErrorOnCycle :: Hierarchy -> [String] -> Maybe Errors.Error
 getErrorOnCycle _ [] = Nothing
-getErrorOnCycle (Hierarchy graph) [clsName] = Errors.CyclicInheritanceSelf <$> G.getNode graph clsName
-getErrorOnCycle h@(Hierarchy graph) classNames@(firstClassName:_) =
+getErrorOnCycle (Hierarchy graph _) [clsName] = Errors.CyclicInheritanceSelf <$> G.getNode graph clsName
+getErrorOnCycle h@(Hierarchy graph _) classNames@(firstClassName:_) =
     case G.getNodes graph classNames of
         firstCls : pathCls -> return $ Errors.CyclicInheritance firstCls pathCls (G.prettyFragment graph printNode firstClassName)
         _ -> Nothing
@@ -93,28 +95,8 @@ getErrorOnCycle h@(Hierarchy graph) classNames@(firstClassName:_) =
                 [] -> name
                 l -> name ++ " extends cyclically " ++ (concat $ map (\(name, _) -> name ++ " ") skips)
 
-checkInheritanceDuplicatedMembers :: Hierarchy -> TypeChecker ()
-checkInheritanceDuplicatedMembers h@(Hierarchy graph) = do
-    maybe (return ()) failure $ listToMaybe $ concatMap (\className -> handleLinearizationErorrs (G.getNode graph className) $ (mapMaybe (uncurry checkChain) . M.toList) <$> C3.linearizeNodeContent graph Type.classMembers Type.stringName className) (G.keys graph)
-    where
-        checkChain :: String -> [(Type.Class, Type.Member)] -> Maybe Errors.Error
-        checkChain _ [_] = Nothing
-        checkChain _ [] = Nothing
-        checkChain _ ((c, m):others) =
-            let incompat = filter (compareDefs m . snd) others in
-            if null incompat then Nothing else Just $ Errors.DuplicateMembersInChain c m incompat
-
-        compareDefs :: Type.Member -> Type.Member -> Bool
-        compareDefs (Type.Method _ t1 t2 _) (Type.Method _ tt1 tt2 _) = tcanBeCastUp cls (Syntax.FunT Undefined t1 t2) (Syntax.FunT Undefined tt1 tt2)
-        compareDefs _ _ = False
-
-        handleLinearizationErorrs :: Maybe Type.Class -> Either String [Errors.Error] -> [Errors.Error]
-        handleLinearizationErorrs (Just cls) (Left err) = [InheritanceLinearizationProblem cls err]
-        handleLinearizationErorrs _ (Right v) = v
-
-
 checkLoops :: Hierarchy -> M.Map String Type.Class -> TypeChecker ()
-checkLoops h@(Hierarchy graph) cls = do
+checkLoops h@(Hierarchy graph _) cls = do
     maybe (return ()) failure $ (getErrorOnCycle h) =<< G.cycles graph
     -- cycle <- return $ listToMaybe $ sortBy (\a b -> compare (length a) (length b)) $ filter ((> 1) . length) $ DFS.scc graph
     -- case (z :: Maybe [G.Node]) of
@@ -126,3 +108,12 @@ checkLoops h@(Hierarchy graph) cls = do
     --         (firstCls: pathCls) <- return $ map (\id -> let (Just name) = G.lab graph id in let (Just cl) = M.lookup name cls in cl) nodes
     --         return $ Just $ Errors.CyclicInheritance firstCls pathCls msg
     --     Just _ -> return Nothing
+
+isParent :: Hierarchy -> String -> String -> Bool
+isParent (Hierarchy _ c3) a b = fromMaybe False $ (\cls -> any (\parent -> Type.stringName parent == b) cls) <$> (M.lookup a c3)
+
+classes :: TypeChecker Hierarchy
+classes = tcEnvGet (\env -> env^.definedClasses)
+
+findClass :: String -> TypeChecker (Maybe Type.Class)
+findClass name = (\(Hierarchy g _) -> G.getNode g name) <$> classes
