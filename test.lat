@@ -1,4 +1,4 @@
-int main(int x) {
+int mainx(int x) {
 return 0;
 }
 

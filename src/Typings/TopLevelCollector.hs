@@ -107,11 +107,9 @@ collectDefinitions defs = do
     fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< collectFunctions defs
     -- cls <- return $ M.map (replaceEmptyParent "Object") cls
     hierarchy <- Hierarchy.constructInheritanceHierarchy cls
-    err <- lift $ lift $ Hierarchy.checkLoops hierarchy cls
+    Hierarchy.checkLoops hierarchy cls
     tcEnv <- modify (setupDefEnv fns cls)
-    case err of 
-        (Just e) -> failure e
-        Nothing -> return ()
+    Hierarchy.checkInheritanceDuplicatedMembers hierarchy
     where
         replaceEmptyParent :: String -> Type.Class -> Type.Class
         replaceEmptyParent defaultParent (Type.Class name (NoName p) members def) = Type.Class name (Name p (Ident p defaultParent)) members def

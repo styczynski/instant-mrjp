@@ -70,3 +70,6 @@ extendsPosition :: Class -> Position
 extendsPosition (Class _ _ _ (Syntax.ClassDef _ _ (Syntax.Name _ (Syntax.Ident pos _)) _)) = pos
 --extendsPosition (Class _ _ _ (Syntax.ClassDef _ _ (Syntax.NoName pos) _)) = pos
 extendsPosition cls = location cls
+
+classMembers :: Class -> [Member]
+classMembers (Class _ _ members _) = members

@@ -5,6 +5,8 @@ module Utils.Graphs(
     , prettyFragment
     , getNode
     , cycles
+    , childrenKeys
+    , keys
 ) where
 
 import qualified Data.Graph.Inductive.Graph as G
@@ -121,3 +123,11 @@ cycles g@(Graph nodeMap nodeIds graph) =
     let scss = map (mapMaybe (G.lab graph)) $ sortBy (\a b -> compare (length a) (length b)) $ filter ((> 1) . length) $ DFS.scc graph in
     let loops = mapMaybe (((\e -> Just [e]) =<<) . G.lab graph) (filter (\id -> G.hasEdge graph (id, id)) $ G.nodes graph) in
     listToMaybe $ scss ++ loops
+
+childrenKeys :: (Ord key) => Graph key nodeL edgeL -> key -> [key]
+childrenKeys g@(Graph nodeMap nodeIds graph) key =
+    concat $ maybeToList $ ((mapMaybe $ G.lab graph) . (G.suc graph)) <$> M.lookup key nodeIds
+
+keys :: (Ord key) => Graph key nodeL edgeL -> [key]
+keys (Graph nodeMap _ _) = M.keys nodeMap
+keys _ = []

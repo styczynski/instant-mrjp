@@ -82,6 +82,19 @@ decodeError (NoMain env) = let
                 , _errorContexts = []
                 , _errorHelp = Just $ ("Probably you made misspelling and this function should be called 'main'?", Type.namePosition firstCandidate)
             }
+--InheritanceLinearizationProblem
+decodeError (InheritanceLinearizationProblem cls msg) = SimpleError {
+    _errorName = "Invalid inheritance"
+    , _errorDescription = "There's a problem with C3 linearization of the class inheritance chain\n" ++ msg
+    , _errorSugestions = [
+        "Check the inheritance chain of the class '" ++ stringName cls ++ "'"
+    ]
+    , _errorLocation = Nothing
+    , _errorContexts = [
+        (msg, Just $ Type.extendsPosition cls)
+    ]
+    , _errorHelp = Nothing
+}
 decodeError (CyclicInheritance cls chain msg) = SimpleError {
     _errorName = "Invalid inheritance"
     , _errorDescription = "Classes extends each other forming a cycle\n\n" ++ msg
@@ -112,6 +125,25 @@ decodeError (UnknownParent cls parent) = SimpleError {
     , _errorContexts = []
     , _errorHelp = Nothing
 }
+decodeError (DuplicateMembersInChain cls member others) = SimpleError {
+    _errorName = "Duplicate definition"
+    , _errorDescription = "Class '" ++ stringName cls ++ "' has duplicate defition for member '" ++ stringName member ++ "' in its inheritance chain."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Type.location member
+    , _errorContexts = map (uncurry $ getContext (stringName cls) member) others
+    , _errorHelp = Nothing
+}
+    where
+        getContext originalClassName (Type.Method _ _ _ _) parentCls parentMember@(Type.Method _ _ _ _) =
+            ("Method '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' has incompatible type with method in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
+        getContext originalClassName (Type.Method _ _ _ _) parentCls parentMember@(Type.Field _ _ _) =
+            ("There's a field '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' whose name conflicts with the method in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
+        getContext originalClassName (Type.Field _ _ _) parentCls parentMember@(Type.Field _ _ _) =
+            ("There's a field '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' which conflicts with the field in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
+        getContext originalClassName (Type.Field _ _ _) parentCls parentMember@(Type.Method _ _ _ _) =
+            ("There's a method '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' whose name conflicts with the field in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
+        
+
 -- decodeError (TypeMatch t1 t2) = SimpleError {
 --     _errorName = "Type mismatch"
 --     , _errorDescription = "Value has type " ++ (simplePretty t1) ++ " but expected type " ++ (simplePretty t2)

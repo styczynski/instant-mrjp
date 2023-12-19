@@ -24,12 +24,14 @@ data Error
   -- | ArgNumMethod ClassId MethodId Int Int
   -- | ArgNumConstructor ClassId (Maybe ConstructorId) Int Int
   -- | DuplicateVar VarId
+  | InheritanceLinearizationProblem Type.Class String
   | UnknownParent Type.Class String
   | CyclicInheritanceSelf Type.Class 
   | CyclicInheritance Type.Class [Type.Class] String
   | DuplicateFun Type.Function [Type.Function]
   | DuplicateClass Type.Class [Type.Class]
   | DuplicateMember Type.Class Type.Member [Type.Member]
+  | DuplicateMembersInChain Type.Class Type.Member [(Type.Class, Type.Member)]
   -- | DuplicateMethod ClassId MethodId
   -- | DuplicateConstructor ClassId (Maybe ConstructorId)
   -- | ClassMatch ClassId ClassId
