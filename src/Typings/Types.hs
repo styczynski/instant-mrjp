@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Typings.Types where
 
 import Reporting.Errors.Position
@@ -46,6 +47,10 @@ class TypeContext a where
     location a = let (Syntax.Ident pos _) = nameOf a in pos
     stringName :: a -> String
     stringName a = let (Syntax.Ident _ id) = nameOf a in id
+
+instance TypeContext Name where
+    nameOf = id
+    namePosition (Syntax.Ident pos _) = pos
 
 instance TypeContext Class where
     nameOf (Class name _ _ _) = name

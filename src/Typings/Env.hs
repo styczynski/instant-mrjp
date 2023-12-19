@@ -25,7 +25,7 @@ data Hierarchy = Hierarchy (G.Graph String Type.Class Inheritance) (M.Map String
 type FunctEnv = M.Map String Type.Function
 
 type ClassEnv = M.Map String Type.Class
-type VarEnv = M.Map Type.Name Type.Type
+type VarEnv = M.Map String (Type.Name, Type.Type)
 
 data TypeCheckerEnv = TypeCheckerEnv
   {
@@ -66,3 +66,6 @@ setupDefEnv fns cls classHierarchy env =
         , _teDefinedFunsFuzz = Fuzz.fromList $ map T.pack $ M.keys fns
         , _teDefinedClasses = classHierarchy
     }
+
+addVar :: Type.Name -> Type.Type -> TypeCheckerEnv -> TypeCheckerEnv
+addVar name t env = env & currentScopeVars %~ M.insert (Type.stringName name) (name, t)

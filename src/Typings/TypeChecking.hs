@@ -5,13 +5,18 @@ import Typings.Def
 import Typings.Types as Type
 import Reporting.Errors.Position
 
+import Control.Monad.State hiding (void)
+
 import Typings.InheritanceHierarchy
-import Typings.Env (TypeCheckerEnv)
+import Typings.Env
 
 import qualified Reporting.Errors.Def as Errors
 
 class TypeCheckable a where
     checkTypes :: a Position -> TypeChecker (a Position)
+
+withVar :: Type.Name -> Type.Type -> TypeChecker x -> TypeChecker x
+withVar name t = withStateT (addVar name t)
 
 canBeCastUp :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 canBeCastUp tFrom tTo = do
@@ -141,7 +146,7 @@ instance TypeCheckable Syntax.Stmt where
                 checkRedeclaration id
                 lift $ assureProperType t
                 checkTypeExists NoVoid t
-                (nds, f) <- local (addVar id t) (checkDecls ds)
+                (nds, f) <- withVar id t (checkDecls ds)
                 return (d:nds, f . addVar id t)
             checkDecls (d@(t, Syntax.Init pos id e):ds) = do
                 checkRedeclaration id
@@ -157,7 +162,7 @@ instance TypeCheckable Syntax.Stmt where
                             b <- lift $ equivalentType cls t et
                             if b then return (t, ne)
                             else return (t, Cast pos t ne)
-                (nds, f) <- local (addVar id nt) (checkDecls ds)
+                (nds, f) <- withVar id nt (checkDecls ds)
                 return ((nt, Syntax.Init pos id nne):nds, f . addVar id nt)
             checkDecls [] = return ([], id)
     checkTypes (Syntax.Assignment pos ase e) = do
