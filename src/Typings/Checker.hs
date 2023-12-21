@@ -62,6 +62,7 @@ performTypeCheck prog@(Program pos defs) = do
     Collector.collectDefinitions defs
     checkForMain
     checkInheritanceDuplicatedMembers
+    Typings.TypeChecking.checkTypes prog
     return (prog, [])
 
 checkTypes :: Program Position -> LattePipeline TypeCheckingResult

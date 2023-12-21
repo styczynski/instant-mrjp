@@ -4,6 +4,7 @@ import qualified Program.Syntax as Syntax
 import Typings.Def
 import Typings.Types as Type
 import Reporting.Errors.Position
+import Utils.Similarity
 
 import Control.Monad.State hiding (void)
 
@@ -16,6 +17,8 @@ import qualified Reporting.Errors.Def as Errors
 
 class TypeCheckable a where
     checkTypes :: a Position -> TypeChecker (a Position)
+    inferType :: a Position -> TypeChecker (a Position, Type.Type)
+    inferType ast = (\newAst -> return (newAst, Syntax.VoidT Undefined)) =<< checkTypes ast
 
 withVar :: Type.Name -> Type.Type -> TypeChecker x -> TypeChecker x
 withVar name t m = do
@@ -76,7 +79,7 @@ checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeC
 checkCastUp pos tFrom tTo = do
     c <- canBeCastUp tFrom tTo 
     if c then return ()
-    else todoImplementError "Cannot convert types" --throw ("Cannot convert " ++ typeName tFrom ++ " to "++typeName tTo, pos)
+    else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ typeName tFrom ++ " to "++typeName tTo, pos)
 
 typeFromArg :: Syntax.Arg Position -> TypeChecker Type.Type
 typeFromArg (Syntax.Arg pos t id) = assureProperType t >> return t
@@ -183,7 +186,7 @@ instance TypeCheckable Syntax.Stmt where
                 return (d:nds) -- TODO Handle env -> env? f . addVar id t
             checkDecls (d@(t, Syntax.Init pos id e):ds) = do
                 --checkRedeclaration id
-                (ne, et) <- checkE e
+                (ne, et) <- inferType e
                 (nt, nne) <- case t of
                         Syntax.InfferedT _ -> case et of
                                         Syntax.InfferedT _ -> todoImplementError $ "Type cannot be inffered from null"
@@ -198,9 +201,9 @@ instance TypeCheckable Syntax.Stmt where
                 return ((nt, Syntax.Init pos id nne):nds)
             checkDecls [] = return []
     checkTypes (Syntax.Assignment pos ase e) = do
-        (nase, aset) <- checkE ase
+        (nase, aset) <- inferType ase
         checkEisLValue pos nase
-        (ne, et) <- checkE e
+        (ne, et) <- inferType e
         checkCastUp pos et aset
         b <- equivalentType et aset
         if b then return $ Syntax.Assignment pos nase ne
@@ -210,7 +213,7 @@ instance TypeCheckable Syntax.Stmt where
                 _ -> return $ Syntax.Assignment pos nase ne
     checkTypes (Syntax.ReturnValue pos e) = do
         rt <- getContextFunctionReturnType
-        (ne, et) <- checkE e
+        (ne, et) <- inferType e
         checkCastUp pos et rt
         b <- equivalentType et rt
         if b then return $ Syntax.ReturnValue pos ne
@@ -221,7 +224,7 @@ instance TypeCheckable Syntax.Stmt where
             Syntax.VoidT _ -> return $ Syntax.ReturnVoid pos
             _ -> todoImplementError $ "Return is missing a value"
     checkTypes (Syntax.IfElse pos econd strue sfalse) = do
-        (necond, econdt) <- checkE econd
+        (necond, econdt) <- inferType econd
         case econdt of
             Syntax.BoolT _ -> case strue of
                         Syntax.VarDecl pv _ -> todoImplementError $ "Value declaration cannot be a single statement"
@@ -234,7 +237,7 @@ instance TypeCheckable Syntax.Stmt where
                                     return $ Syntax.IfElse pos necond nst nsf
             _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++typeName econdt
     checkTypes (Syntax.While pos econd stmt) = do
-        (necond, econdt) <- checkE econd
+        (necond, econdt) <- inferType econd
         case econdt of
             Syntax.BoolT _ -> case stmt of
                         Syntax.VarDecl pv _ -> todoImplementError $ "Value declaration cannot be a single statement"
@@ -243,12 +246,13 @@ instance TypeCheckable Syntax.Stmt where
                             return $ Syntax.While pos necond nst
             _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++typeName econdt
     checkTypes (Syntax.ExprStmt pos e) = do
-        (ne, _) <- checkE e
+        (ne, _) <- inferType e
         return $ Syntax.ExprStmt pos ne
 
 -- TODO: Implement
 checkEisLValue :: Position -> Syntax.Expr Position -> TypeChecker ()
 checkEisLValue pos _ = return ()
 
-checkE :: Syntax.Expr Position -> TypeChecker (Syntax.Expr Position, Type.Type)
-checkE a = return (a, Syntax.VoidT Undefined)
+instance TypeCheckable Syntax.Expr where
+    checkTypes expr = (return . fst) =<< inferType expr
+    inferType expr = return (expr, Syntax.VoidT Undefined)
