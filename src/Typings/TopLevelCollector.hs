@@ -100,10 +100,53 @@ checkRedeclarationInClasses cls = do
                 walk (_, []) = return ()
                 walk (_, _) = return ()
 
+addBuiltinClasses :: [Type.Class] -> TypeChecker [Type.Class]
+addBuiltinClasses cls = return $ builtIn ++ cls 
+    where
+        void = VoidT BuiltIn
+        bool = BoolT BuiltIn
+        int = IntT BuiltIn
+        byte = ByteT BuiltIn
+        name = Ident BuiltIn
+        string = StringT BuiltIn
+        array = ArrayT BuiltIn
+        object = class_ "Object"
+        class_ s = ClassT BuiltIn (name s)
+        builtinClassDecl :: Definition Position
+        builtinClassDecl = ClassDef BuiltIn (Ident BuiltIn "") (NoName BuiltIn) []
+        builtinMethodDecl :: ClassDecl Position
+        builtinMethodDecl = MethodDecl BuiltIn (VoidT BuiltIn) (Ident BuiltIn "") [] (Block BuiltIn [])
+        builtIn = [
+                Type.Class (name "Object") (NoName BuiltIn) [
+                    Type.Method (name "equals") bool [class_ "Object"] builtinMethodDecl,
+                    Type.Method (name "getHashCode") int [] builtinMethodDecl,
+                    Type.Method (name "toString") (class_ "String") [] builtinMethodDecl
+                ] builtinClassDecl,
+                Type.Class (name "String") (justName $ name "Object") [
+                    Type.Method (name "charAt") int [int] builtinMethodDecl,
+                    Type.Method (name "equals") bool [class_ "Object"] builtinMethodDecl,
+                    Type.Method (name "concat") (class_ "String") [class_ "String"] builtinMethodDecl,
+                    Type.Method (name "startsWith") bool [class_ "String"] builtinMethodDecl,
+                    Type.Method (name "endsWith") bool [class_ "String"] builtinMethodDecl,
+                    Type.Method (name "getBytes") (array byte) [] builtinMethodDecl,
+                    Type.Method (name "indexOf") int [class_ "String", int] builtinMethodDecl,
+                    Type.Method (name "length") int [] builtinMethodDecl,
+                    Type.Method (name "substring") (class_ "String") [int, int] builtinMethodDecl,
+                    Type.Method (name "toString") string [] builtinMethodDecl,
+                    Type.Method (name "getHashCode") int [] builtinMethodDecl
+                ] builtinClassDecl,
+                Type.Class (name "Array") (justName $ name "Object") [
+                    Type.Field (name "elements") object builtinMethodDecl,
+                    Type.Field (name "length") int builtinMethodDecl,
+                    Type.Field (name "elementSize") int builtinMethodDecl,
+                    Type.Method (name "toString") string [] builtinMethodDecl
+                ] builtinClassDecl
+            ]
+
 
 collectDefinitions :: [Definition Position] -> TypeChecker ()
 collectDefinitions defs = do
-    cls <- checkDuplicates (\h l -> failure $ Errors.DuplicateClass h l) =<< return . groupByKey Type.stringName =<< collectClasses defs
+    cls <- checkDuplicates (\h l -> failure $ Errors.DuplicateClass h l) =<< return . groupByKey Type.stringName =<< addBuiltinClasses =<< collectClasses defs
     fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< collectFunctions defs
     -- cls <- return $ M.map (replaceEmptyParent "Object") cls
     hierarchy <- Hierarchy.constructInheritanceHierarchy cls

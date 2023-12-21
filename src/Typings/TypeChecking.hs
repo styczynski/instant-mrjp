@@ -54,7 +54,7 @@ withClassContext className m = do
 withFunctionContext :: String -> TypeChecker x -> TypeChecker x
 withFunctionContext funcName m = do
     -- TODO: Add args to env here!!! (see funEnv)
-    (\fn -> withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m) =<< maybe (todoImplementError "Unknown function was used") return =<< tcEnvGet (flip findFunction funcName)
+    (\fn -> withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m) =<< maybe (todoImplementError $ "Unknown function was used: " ++ funcName) return =<< tcEnvGet (flip findFunction funcName)
 
 getContextClassType :: TypeChecker (Maybe Type.Type)
 getContextClassType = 
@@ -278,7 +278,6 @@ checkEisLValue pos _ = return ()
 
 instance TypeCheckable Syntax.Expr where
     checkTypes expr = (return . fst) =<< inferType expr
-    --inferType expr = return (expr, Syntax.VoidT Undefined)
 
     inferType (Syntax.Lit pos l@(Syntax.Int _ i)) = 
         if i < 256 && i >= 0 then return (Syntax.Lit pos (Syntax.Byte pos i), Syntax.ByteT pos)

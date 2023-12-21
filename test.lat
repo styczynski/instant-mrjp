@@ -1,29 +1,5 @@
-int mainx(int x) {
-return 0;
+int main() {
+    int r = 5;
+    int r;
+    return r;
 }
-
-int main() { return 0; }
-
-
-class A {
-    int lol() { return 1; }
-}
-
-class A2 extends A {
-    int lol() { return 5; }
-    //void lol() {}
-}
-
-class A3 extends A2 {}
-
-class Other extends A3 {}
-
-class Other2 extends Other {}
-
-class A5 extends A3 {}
-
-class A6 extends A5 {}
-
-int test() { return 3; }
-
-int test2() {}
