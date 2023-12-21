@@ -15,6 +15,16 @@ import Control.Lens
 import qualified Data.Map as M
 import qualified Reporting.Errors.Def as Errors
 
+void = Syntax.VoidT BuiltIn
+bool = Syntax.BoolT BuiltIn
+int = Syntax.IntT BuiltIn
+byte = Syntax.ByteT BuiltIn
+name = Syntax.Ident BuiltIn
+string = Syntax.StringT BuiltIn
+array = Syntax.ArrayT BuiltIn
+object = class_ "Object"
+class_ s = Syntax.ClassT BuiltIn (name s)
+
 class TypeCheckable a where
     checkTypes :: a Position -> TypeChecker (a Position)
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
@@ -26,6 +36,12 @@ withVar name t m = do
     newEnv <- either (\(newName, prevName, prevType) -> todoImplementError $ "Redeclaration of " ++ (Type.stringName prevName)) (return) (addVar name t env)
     withStateT (const newEnv) m
     --withStateT (addVar name t) m
+
+getFunction :: String -> TypeChecker (Maybe Type.Function)
+getFunction name = tcEnvGet ((flip findFunction) name)
+
+getVar :: String -> TypeChecker (Maybe Type.Type)
+getVar name = (maybe (return Nothing) (return . Just . snd)) =<< (tcEnvGet $ lookupVar name)
 
 withSeparateScope :: Position -> TypeChecker x -> TypeChecker x
 withSeparateScope pos = withStateT (separateScope pos)
@@ -40,12 +56,19 @@ withFunctionContext funcName m = do
     -- TODO: Add args to env here!!! (see funEnv)
     (\fn -> withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m) =<< maybe (todoImplementError "Unknown function was used") return =<< tcEnvGet (flip findFunction funcName)
 
+getContextClassType :: TypeChecker (Maybe Type.Type)
+getContextClassType = 
+    maybe (return Nothing) (\(Type.Class className@(Syntax.Ident pos _) _ _ _) -> return $ Just $ Syntax.ClassT pos className) =<< ((tcEnvGet $ (\env -> env^.currentClass)))
+
 getContextFunctionReturnType :: TypeChecker Type.Type 
 getContextFunctionReturnType = 
     maybe (todoImplementError "Invalid usage ??? out of function context") (\(Type.Fun _ retType _ _) -> return retType) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
 checkArgsRedeclaration :: [Syntax.Arg Position] -> TypeChecker ()
 checkArgsRedeclaration _ = return ()
+
+getMemberType :: Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
+getMemberType _ _ = return Nothing
 
 canBeCastUp :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 canBeCastUp tFrom tTo = do
@@ -79,7 +102,7 @@ checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeC
 checkCastUp pos tFrom tTo = do
     c <- canBeCastUp tFrom tTo 
     if c then return ()
-    else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ typeName tFrom ++ " to "++typeName tTo, pos)
+    else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
 typeFromArg :: Syntax.Arg Position -> TypeChecker Type.Type
 typeFromArg (Syntax.Arg pos t id) = assureProperType t >> return t
@@ -235,7 +258,7 @@ instance TypeCheckable Syntax.Stmt where
                                 _ -> do
                                     nsf <- checkTypes sfalse
                                     return $ Syntax.IfElse pos necond nst nsf
-            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++typeName econdt
+            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
     checkTypes (Syntax.While pos econd stmt) = do
         (necond, econdt) <- inferType econd
         case econdt of
@@ -244,7 +267,7 @@ instance TypeCheckable Syntax.Stmt where
                         _ -> do
                             nst <- checkTypes stmt
                             return $ Syntax.While pos necond nst
-            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++typeName econdt
+            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
     checkTypes (Syntax.ExprStmt pos e) = do
         (ne, _) <- inferType e
         return $ Syntax.ExprStmt pos ne
@@ -255,4 +278,180 @@ checkEisLValue pos _ = return ()
 
 instance TypeCheckable Syntax.Expr where
     checkTypes expr = (return . fst) =<< inferType expr
-    inferType expr = return (expr, Syntax.VoidT Undefined)
+    --inferType expr = return (expr, Syntax.VoidT Undefined)
+
+    inferType (Syntax.Lit pos l@(Syntax.Int _ i)) = 
+        if i < 256 && i >= 0 then return (Syntax.Lit pos (Syntax.Byte pos i), Syntax.ByteT pos)
+        else if i < 2^31 && i >= -(2^31) then return (Syntax.Lit pos l, Syntax.IntT pos)
+        else todoImplementError "Constant exceeds the size of int"
+    inferType (Syntax.Lit pos l@(Syntax.String _ _)) = return (Syntax.Lit pos l, Syntax.StringT pos)
+    inferType (Syntax.Lit pos l@(Syntax.Bool _ _)) = return (Syntax.Lit pos l, Syntax.BoolT pos)
+    inferType (Syntax.Lit pos l@(Syntax.Byte _ _)) = return (Syntax.Lit pos l, Syntax.ByteT pos)
+    inferType (Syntax.Lit pos l@(Syntax.Null _)) = return (Syntax.Lit pos l, Syntax.InfferedT pos)
+    inferType (Syntax.Var pos id@(Syntax.Ident _ varName)) = do
+        mv <- getVar varName
+        case mv of
+            Just t -> return (Syntax.Var pos id, t)
+            Nothing -> do
+                mc <- getContextClassType
+                case mc of
+                    Just (Syntax.ClassT _ idc@(Syntax.Ident _ clsName)) -> do
+                        mm <- getMemberType idc id
+                        case mm of
+                            Just t -> return (Syntax.Member pos (Syntax.Var pos (Syntax.Ident pos "this")) id (Just clsName), t)
+                            Nothing -> do
+                                mf <- getFun id
+                                case mf of
+                                    Just t -> return (Syntax.Var pos id, t)
+                                    Nothing -> err id
+                    Nothing -> do
+                        mf <- getFun id
+                        case mf of
+                            Just t -> return (Syntax.Var pos id, t)
+                            Nothing -> err id
+        where
+            getFun id@(Syntax.Ident _ name) = do
+                mf <- getFunction name
+                case mf of
+                    Just (Type.Fun (Syntax.Ident p _) t ts _) -> return . Just $ Syntax.FunT p t ts
+                    _ -> err id
+            err (Syntax.Ident pos name) = todoImplementError ("Undefined identifier: "++name)
+            elemF i@(Syntax.Ident _ name) (f@(Type.Fun (Syntax.Ident _ n) _ _ _):xs) =
+                if name == n then Just f
+                else elemF i xs
+            elemF _ [] = Nothing
+    inferType (Syntax.App pos efun es) = do
+        (nef, eft) <- inferType efun
+        case eft of
+            Syntax.FunT _ ret args -> do
+                nes <- mapM inferType es
+                let efts = map snd nes
+                if length efts > length args then
+                    todoImplementError ("Too many arguments")
+                else if length efts < length args then
+                    todoImplementError ("Too few arguments")
+                else return ()
+                mapM_ (\(l,(e,r)) -> checkCastUp (Syntax.getPosE e) r l) $ zip args nes
+                return (Syntax.App pos nef (map fst nes), ret)
+            _ -> todoImplementError ("Expected a function or a method, given"++printi 0 eft)
+    inferType (Syntax.Cast pos t e) = do
+        checkTypeExists Type.NoVoid t
+        case t of
+            Syntax.InfferedT _ -> todoImplementError ("Invalid type in cast expression")
+            _ -> do
+                (ne, et) <- inferType e
+                c <- canBeCastDown et t
+                if c then 
+                    case ne of
+                        (Syntax.Cast _ _ ie) -> return (Syntax.Cast pos t ie, t)
+                        (Syntax.Lit _ (Syntax.Null _)) -> return (ne, t)
+                        _ -> return (Syntax.Cast pos t ne, t)
+                else todoImplementError ("Illegal cast of "++printi 0 et++" to "++printi 0 t)
+    inferType (Syntax.ArrAccess pos earr ein _) = do
+        (nearr, art) <- inferType earr
+        case art of
+            Syntax.ArrayT _ t -> do
+                (nein, et) <- inferType ein
+                case et of
+                    Syntax.IntT _ -> return (Syntax.ArrAccess pos nearr nein (Just t), t)
+                    Syntax.ByteT _ -> return (Syntax.ArrAccess pos nearr (Syntax.Cast pos int nein) (Just t), t)
+                    _ -> todoImplementError ("Expected a numerical index, given "++printi 0 et)
+            _ -> todoImplementError ("Expected array type, given "++printi 0 art)
+    inferType (Syntax.NewObj pos t m) = do
+        checkTypeExists NoVoid t
+        case m of
+            Nothing -> do
+                case t of
+                    Syntax.ClassT _ (Syntax.Ident _ n) -> if n /= "String" then return ()
+                    else todoImplementError ("Cannot instantiate an empty String")
+                    Syntax.StringT _ -> todoImplementError ("Cannot instantiate an empty String")
+                    _ -> todoImplementError ("Expected a class")
+                return (Syntax.NewObj pos t m, t)
+            Just e -> do
+                (ne, et) <- inferType e
+                b <- canBeCastUp et int
+                if b then return (Syntax.NewObj pos t (Just ne), Syntax.ArrayT pos t)
+                else todoImplementError ("Expected a numerical size in array constructor, given "++printi 0 et)
+    inferType (Syntax.Member pos e id _) = do
+        (ne, et) <- inferType e
+        case et of
+            Syntax.StringT _ -> cont pos ne id (name "String")
+            Syntax.ArrayT _ _ -> cont pos ne id (name "Array")
+            Syntax.ClassT _ name -> cont pos ne id name
+            Syntax.InfferedT _ -> cont pos ne id (name "Object")
+            _ -> todoImplementError ("Expected an object, given "++printi 0 et)
+        where
+            cont pos e id@(Syntax.Ident p i) cls@(Syntax.Ident _ clsName) = do
+                if clsName == "Array" && (i == "elements" || i == "elementSize") then
+                    todoImplementError ("Undefined member "++i)
+                else do
+                    mem <- getMemberType cls id
+                    case mem of
+                        Just t -> return (Syntax.Member pos e id (Just clsName), t)
+                        Nothing -> todoImplementError ("Undefined member "++i)
+    inferType (Syntax.UnaryOp pos op e) = do
+        (ne, et) <- inferType e
+        case (op, et) of
+            (Syntax.Not _, Syntax.BoolT _) -> return (Syntax.UnaryOp pos op ne, et)
+            (Syntax.Neg _, Syntax.IntT _) -> return (Syntax.UnaryOp pos op ne, et)
+            (Syntax.Neg _, Syntax.ByteT _) -> return (Syntax.UnaryOp pos op ne, et)
+            (Syntax.Not _, _) -> todoImplementError ("Expected boolean expression, given "++printi 0 et)
+            _ -> todoImplementError ("Expected a number, given "++printi 0 et)
+    inferType (Syntax.BinaryOp pos op el er) = do
+        (nel, elt) <- inferType el
+        (ner, ert) <- inferType er
+        let err = todoImplementError ("Incompatible operands' types: "++printi 0 elt++" and "++printi 0 ert)
+        case (op, fmap (\_->()) elt, fmap (\_->()) ert) of
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
+            (Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
+            (Syntax.Add _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
+            (Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (Syntax.Add _, Syntax.StringT _, Syntax.ArrayT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (Syntax.Add _, Syntax.StringT _, Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
+            (Syntax.Add _, Syntax.StringT _, Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (Syntax.Add _, Syntax.StringT _, Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "byteToString")) [ner]])
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (Syntax.Equ _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (Syntax.Neq _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
+            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
+            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
+            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
+            (Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (Syntax.Equ _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos op nel ner, bool)
+            (Syntax.Equ _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
+            (Syntax.Neq _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos op nel ner, bool)
+            (Syntax.Neq _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
+            (op, a, b) -> 
+                if a == b then
+                    case a of
+                        Syntax.ClassT _ (Syntax.Ident _ c) -> err
+                        Syntax.VoidT _ -> err
+                        Syntax.ByteT _ -> 
+                            case op of
+                                Syntax.Div _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
+                                Syntax.Mod _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
+                                _ -> return (Syntax.BinaryOp pos op nel ner, opType elt op)
+                        _ -> return (Syntax.BinaryOp pos op nel ner, opType elt op)
+                else if a == Syntax.IntT () && b == Syntax.ByteT () then
+                    inferType (Syntax.BinaryOp pos op nel (Syntax.Cast pos (Syntax.IntT pos) ner))
+                else if a == Syntax.ByteT () && b == Syntax.IntT () then
+                    inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) ner)
+                else err
+        where
+            opType t (Syntax.Equ _) = bool
+            opType t (Syntax.Neq _) = bool
+            opType t (Syntax.Lt _) = bool
+            opType t (Syntax.Le _) = bool
+            opType t (Syntax.Gt _) = bool
+            opType t (Syntax.Ge _) = bool
+            opType t _ = t

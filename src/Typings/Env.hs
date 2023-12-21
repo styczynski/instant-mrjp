@@ -79,6 +79,8 @@ addVar :: Type.Name -> Type.Type -> TypeCheckerEnv -> Either (Type.Name, Type.Na
 addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (Left . (<++) name) $ M.lookup (Type.stringName name) old) $ env & currentScopeVars <<%~ M.insert (Type.stringName name) (name, t)
 --addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (\(prevName, prevType) -> Left (name, prevName, prevType)) $ M.lookup (Type.stringName name) old) $ env & currentScopeVars <<%~ M.insert (Type.stringName name) (name, t)
 
+lookupVar :: String -> TypeCheckerEnv -> Maybe (Type.Name, Type.Type)
+lookupVar name env = M.lookup name (env^.currentScopeVars)
 
 separateScope :: Position -> TypeCheckerEnv -> TypeCheckerEnv
 separateScope pos env = env
