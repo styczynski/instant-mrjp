@@ -31,6 +31,9 @@ liftPipelineTC = lift . lift
 failure :: Errors.Error -> TypeChecker a
 failure err = throwError err
 
+todoImplementError :: String -> TypeChecker a
+todoImplementError = failure . Errors.UnknownFailure
+
 tcEnv :: TypeChecker TypeCheckerEnv
 tcEnv = get
 

@@ -20,6 +20,9 @@ data OptionalName a = Name a (Ident a)
                 | NoName a
   deriving (Eq, Ord, Show, Read)
 
+justName :: Ident a -> OptionalName a
+justName id@(Ident pos _) = Name pos id
+
 data Program a = Program a [Definition a]
   deriving (Eq, Ord, Show, Read)
 

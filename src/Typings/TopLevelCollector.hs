@@ -27,7 +27,7 @@ typeFromArg (Arg pos t id) = assureProperType t >> return t
 assureProperType :: Type Position -> TypeChecker ()
 assureProperType t =
     case t of
-        InfferedT pos -> failure $ Errors.UnknownFailure "Inffered type instead of a proper type" --fail ("Inffered type instead of a proper type", pos)
+        InfferedT pos -> todoImplementError "Inffered type instead of a proper type" --fail ("Inffered type instead of a proper type", pos)
         _ -> return ()
 
 collectClasses :: [Definition Position] -> TypeChecker [Type.Class]

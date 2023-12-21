@@ -54,6 +54,13 @@ packages:
   original:
     hackage: monad-extras-0.6.0
 - completed:
+    hackage: tuple-append-0.3.0.0@sha256:d66b8374ab1f49b0cbccd4d82773951d0f62249ab0af69e4b1326d4ea3362683,1520
+    pantry-tree:
+      sha256: 7de7ee01888eea6a25ed2ac9783c49be6e7eaff0fdcea329e3c031430e2c1ada
+      size: 670
+  original:
+    hackage: tuple-append-0.3.0.0
+- completed:
     name: jvm-parser
     pantry-tree:
       sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93

@@ -36,6 +36,7 @@ library:
     - fgl
     - fuzzyset
     - monad-extras
+    - tuple-append
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures
