@@ -7,12 +7,16 @@ import qualified Program.Syntax as Syntax
 import qualified Typings.Types as Type
 import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
-
+import Reporting.Errors.Position
 import Typings.Env(TypeCheckerEnv)
 
 data Error
   =
    UnknownFailure String
+   | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)
+   | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
+   | IncompatibleTypesAssign TypeCheckerEnv (Syntax.Stmt Position) Type.Type Type.Type
+   | IncompatibleTypesInit TypeCheckerEnv (Syntax.DeclItem Position) Type.Type Type.Type
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
    | MainHasArgs Type.Function TypeCheckerEnv

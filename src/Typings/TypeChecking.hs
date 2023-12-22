@@ -30,10 +30,10 @@ class TypeCheckable a where
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
     inferType ast = (\newAst -> return (newAst, Syntax.VoidT Undefined)) =<< checkTypes ast
 
-withVar :: Type.Name -> Type.Type -> TypeChecker x -> TypeChecker x
-withVar name t m = do
+withVar :: Position -> (TypeCheckerEnv -> Position -> (Type.Name, Type.Type) -> (Type.Name, Type.Type) -> Errors.Error) -> Type.Name -> Type.Type -> TypeChecker x -> TypeChecker x
+withVar sourcePosition errorHandler name t m = do
     env <- tcEnv
-    newEnv <- either (\(newName, prevName, prevType) -> todoImplementError $ "Redeclaration of " ++ (Type.stringName prevName)) (return) (addVar name t env)
+    newEnv <- either (\(newName, prevName, prevType) -> failure $ errorHandler env sourcePosition (name, t) (prevName, prevType)) (return) (addVar name t env)
     withStateT (const newEnv) m
     --withStateT (addVar name t) m
 
@@ -59,6 +59,10 @@ withFunctionContext funcName m = do
 getContextClassType :: TypeChecker (Maybe Type.Type)
 getContextClassType = 
     maybe (return Nothing) (\(Type.Class className@(Syntax.Ident pos _) _ _ _) -> return $ Just $ Syntax.ClassT pos className) =<< ((tcEnvGet $ (\env -> env^.currentClass)))
+
+getContextFunction :: TypeChecker Type.Function
+getContextFunction =
+    maybe (todoImplementError "Invalid usage ??? out of function context") (return) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
 getContextFunctionReturnType :: TypeChecker Type.Type 
 getContextFunctionReturnType = 
@@ -97,6 +101,13 @@ canBeCastUp tFrom tTo = do
         (Syntax.ClassT _ _, Syntax.InfferedT _) -> return True -- only when casting null
         (Syntax.ArrayT _ _, Syntax.InfferedT _) -> return True -- only when casting null
         _ -> return False
+
+checkCastUpErr :: (TypeCheckerEnv -> Type.Type -> Type.Type -> Errors.Error) -> Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
+checkCastUpErr errorHandler pos tFrom tTo = do
+    c <- canBeCastUp tFrom tTo 
+    if c then return ()
+    else (\env -> failure $ errorHandler env tFrom tTo) =<< tcEnv
+    --else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
 checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
 checkCastUp pos tFrom tTo = do
@@ -197,17 +208,17 @@ instance TypeCheckable Syntax.Stmt where
     checkTypes (Syntax.Empty pos) = return $ Syntax.Empty pos
     checkTypes (Syntax.BlockStmt pos b) = checkTypes b >>= \b -> return $ Syntax.BlockStmt pos b
     checkTypes (Syntax.VarDecl pos decls) = do
-        ndecls <- checkDecls decls -- TODO: Handle f correctly Env -> Env?
+        ndecls <- checkDecls pos decls -- TODO: Handle f correctly Env -> Env?
         return $ Syntax.VarDecl pos ndecls
         where
-            checkDecls :: [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)] 
-            checkDecls (d@(t, Syntax.NoInit pos id):ds) = do
+            checkDecls :: Position -> [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)] 
+            checkDecls srcPos (d@(t, Syntax.NoInit pos id):ds) = do
                 --checkRedeclaration id
                 assureProperType t
                 checkTypeExists NoVoid t
-                nds <- withVar id t (checkDecls ds)
+                nds <- withVar srcPos Errors.VariableRedeclared id t (checkDecls srcPos ds)
                 return (d:nds) -- TODO Handle env -> env? f . addVar id t
-            checkDecls (d@(t, Syntax.Init pos id e):ds) = do
+            checkDecls srcPos (d@(t, Syntax.Init pos id e):ds) = do
                 --checkRedeclaration id
                 (ne, et) <- inferType e
                 (nt, nne) <- case t of
@@ -216,28 +227,29 @@ instance TypeCheckable Syntax.Stmt where
                                         _ -> return (et, ne)
                         _ -> do
                             checkTypeExists NoVoid t
-                            checkCastUp pos et t
+                            checkCastUpErr (\env -> Errors.IncompatibleTypesInit env (snd d)) pos et t
                             b <- equivalentType t et
                             if b then return (t, ne)
                             else return (t, Syntax.Cast pos t ne)
-                nds <- withVar id nt (checkDecls ds)
+                nds <- withVar srcPos Errors.VariableRedeclared id nt (checkDecls srcPos ds)
                 return ((nt, Syntax.Init pos id nne):nds)
-            checkDecls [] = return []
-    checkTypes (Syntax.Assignment pos ase e) = do
+            checkDecls _ [] = return []
+    checkTypes stmt@(Syntax.Assignment pos ase e) = do
         (nase, aset) <- inferType ase
         checkEisLValue pos nase
         (ne, et) <- inferType e
-        checkCastUp pos et aset
+        checkCastUpErr (\env -> Errors.IncompatibleTypesAssign env stmt) pos et aset
         b <- equivalentType et aset
         if b then return $ Syntax.Assignment pos nase ne
         else case aset of
                 Syntax.IntT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 Syntax.ByteT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 _ -> return $ Syntax.Assignment pos nase ne
-    checkTypes (Syntax.ReturnValue pos e) = do
+    checkTypes stmt@(Syntax.ReturnValue pos e) = do
         rt <- getContextFunctionReturnType
+        fn <- getContextFunction
         (ne, et) <- inferType e
-        checkCastUp pos et rt
+        checkCastUpErr (\env -> Errors.IncompatibleTypesReturn env stmt fn) pos et rt
         b <- equivalentType et rt
         if b then return $ Syntax.ReturnValue pos ne
         else return $ Syntax.ReturnValue pos (Syntax.Cast pos rt ne)

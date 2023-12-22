@@ -56,6 +56,49 @@ decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
 --     ]
 --     , _errorOocontext = Nothing
 -- }
+--IncompatibleTypesAssign
+--Syntax.Init pos id e
+decodeError (IncompatibleTypesInit env (Syntax.Init pos id e) rightType leftType) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Declaration of variable '" ++ printi 0 id ++ "' has type " ++ printi 0 leftType ++ " which is incompatible with the value that is being assigned."
+    , _errorSugestions = []
+    , _errorLocation = Just $ pos
+    , _errorContexts = [
+        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPosE e)
+    ]
+    , _errorHelp = Nothing
+}
+decodeError (IncompatibleTypesAssign env (Syntax.Assignment pos _ right) rightType leftType) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Left side of assignment has type " ++ printi 0 leftType ++ " which is incompatible with the value that is being assigned."
+    , _errorSugestions = []
+    , _errorLocation = Just $ pos
+    , _errorContexts = [
+        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPosE right)
+    ]
+    , _errorHelp = Nothing
+}
+decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn actualType expectedType) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Return, returns value of type: " ++ printi 0 actualType ++ ". However the parent function should return value of type " ++ printi 0 expectedType
+    , _errorSugestions = []
+    , _errorLocation = Just $ pos
+    , _errorContexts = [
+        ("Defintion of function '" ++ stringName contextFn ++ "'", Just $ Type.location contextFn)
+    ]
+    , _errorHelp = Nothing
+}
+
+decodeError (VariableRedeclared env sourcePos (newName, newType) (oldName, oldType)) = SimpleError {
+    _errorName = "Duplicate definition"
+    , _errorDescription = "Variable '" ++ stringName newName ++ "' of type " ++ printi 0 newType ++ " has duplicate declaration."
+    , _errorSugestions = []
+    , _errorLocation = Just $ sourcePos
+    , _errorContexts = [
+        ("Previous conflicting definition of variable '" ++ stringName oldName ++ "' of type " ++ printi 0 oldType ++ " ", Just $ Type.location oldName)
+    ]
+    , _errorHelp = Just $ ("Rename new variable to something else", Type.location newName)
+}
 decodeError (NoMain env) = let
         candidates = (env <--? QueryFn "main" (Just ((Syntax.IntT Undefined), []))) ++ (env <--? QueryFn "main" Nothing)
     in case candidates of

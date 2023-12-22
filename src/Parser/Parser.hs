@@ -22,6 +22,7 @@ instance Errorable ParseError where
         , _errorLocation = case loc of 
           Nothing -> Nothing
           Just (l, c) -> Just $ P.Position src l c
+        , _errorHelp = Nothing
     }
   -- getOrigin (ParseError _ _ loc) = loc
   -- getSourceName (ParseError src _ _) = src
