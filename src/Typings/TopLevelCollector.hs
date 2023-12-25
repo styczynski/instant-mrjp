@@ -21,8 +21,8 @@ groupByKey :: (Ord k) => (v -> k) -> [v] -> M.Map k [v]
 groupByKey getkey
   = M.fromListWith (++) . fmap (\val -> (getkey val, [val]))
 
-typeFromArg :: Arg Position -> TypeChecker (Type.Type)
-typeFromArg (Arg pos t id) = assureProperType t >> return t
+argsToMapping :: [Arg Position] -> TypeChecker (M.Map String (Type.Name, Type.Type))
+argsToMapping = fmap M.fromList . mapM (\(Arg pos t id@(Ident _ name)) -> assureProperType t >> return (name, (id, t))) --assureProperType t >> return t
 
 assureProperType :: Type Position -> TypeChecker ()
 assureProperType t =
@@ -40,13 +40,13 @@ collectClasses ((def@(ClassDef pos id parent decls)):xs) = do
     where
         memberOf :: ClassDecl Position -> TypeChecker Type.Member
         memberOf decl@(FieldDecl pos t id) = assureProperType t >> return (Type.Field id t decl)
-        memberOf decl@(MethodDecl pos t id args _) = return . ($ decl) . Type.Method id t  =<< (mapM typeFromArg args)
+        memberOf decl@(MethodDecl pos t id args _) = return . ($ decl) . Type.Method id t  =<< (argsToMapping args)
 
 collectFunctions :: [Definition Position] -> TypeChecker [Type.Function]
 collectFunctions ((ClassDef _ _ _ _):xs) = collectFunctions xs
 collectFunctions [] = return []
-collectFunctions ((decl@(FunctionDef pos t id args _)):xs) = do 
-    f <- return . ($ decl) . Type.Fun id t =<< (mapM typeFromArg args)
+collectFunctions ((decl@(FunctionDef pos t id args _)):xs) = do
+    f <- return . ($ decl) . Type.Fun id t =<< (argsToMapping args)
     rest <- collectFunctions xs
     return $ f : rest
 
@@ -101,8 +101,10 @@ checkRedeclarationInClasses cls = do
                 walk (_, _) = return ()
 
 addBuiltinClasses :: [Type.Class] -> TypeChecker [Type.Class]
-addBuiltinClasses cls = return $ builtIn ++ cls 
+addBuiltinClasses cls = return $ builtIn ++ cls
     where
+        args types = M.fromList $ map (\t -> ("", (Ident Undefined "", t))) types
+        noargs = M.empty
         void = VoidT BuiltIn
         bool = BoolT BuiltIn
         int = IntT BuiltIn
@@ -118,28 +120,28 @@ addBuiltinClasses cls = return $ builtIn ++ cls
         builtinMethodDecl = MethodDecl BuiltIn (VoidT BuiltIn) (Ident BuiltIn "") [] (Block BuiltIn [])
         builtIn = [
                 Type.Class (name "Object") (NoName BuiltIn) [
-                    Type.Method (name "equals") bool [class_ "Object"] builtinMethodDecl,
-                    Type.Method (name "getHashCode") int [] builtinMethodDecl,
-                    Type.Method (name "toString") (class_ "String") [] builtinMethodDecl
+                    Type.Method (name "equals") bool (args [class_ "Object"]) builtinMethodDecl,
+                    Type.Method (name "getHashCode") int noargs builtinMethodDecl,
+                    Type.Method (name "toString") (class_ "String") noargs builtinMethodDecl
                 ] builtinClassDecl,
                 Type.Class (name "String") (justName $ name "Object") [
-                    Type.Method (name "charAt") int [int] builtinMethodDecl,
-                    Type.Method (name "equals") bool [class_ "Object"] builtinMethodDecl,
-                    Type.Method (name "concat") (class_ "String") [class_ "String"] builtinMethodDecl,
-                    Type.Method (name "startsWith") bool [class_ "String"] builtinMethodDecl,
-                    Type.Method (name "endsWith") bool [class_ "String"] builtinMethodDecl,
-                    Type.Method (name "getBytes") (array byte) [] builtinMethodDecl,
-                    Type.Method (name "indexOf") int [class_ "String", int] builtinMethodDecl,
-                    Type.Method (name "length") int [] builtinMethodDecl,
-                    Type.Method (name "substring") (class_ "String") [int, int] builtinMethodDecl,
-                    Type.Method (name "toString") string [] builtinMethodDecl,
-                    Type.Method (name "getHashCode") int [] builtinMethodDecl
+                    Type.Method (name "charAt") int (args [int]) builtinMethodDecl,
+                    Type.Method (name "equals") bool (args [class_ "Object"]) builtinMethodDecl,
+                    Type.Method (name "concat") (class_ "String") (args [class_ "String"]) builtinMethodDecl,
+                    Type.Method (name "startsWith") bool (args [class_ "String"]) builtinMethodDecl,
+                    Type.Method (name "endsWith") bool (args [class_ "String"]) builtinMethodDecl,
+                    Type.Method (name "getBytes") (array byte) noargs builtinMethodDecl,
+                    Type.Method (name "indexOf") int (args [class_ "String", int]) builtinMethodDecl,
+                    Type.Method (name "length") int noargs builtinMethodDecl,
+                    Type.Method (name "substring") (class_ "String") (args [int, int]) builtinMethodDecl,
+                    Type.Method (name "toString") string noargs builtinMethodDecl,
+                    Type.Method (name "getHashCode") int noargs builtinMethodDecl
                 ] builtinClassDecl,
                 Type.Class (name "Array") (justName $ name "Object") [
                     Type.Field (name "elements") object builtinMethodDecl,
                     Type.Field (name "length") int builtinMethodDecl,
                     Type.Field (name "elementSize") int builtinMethodDecl,
-                    Type.Method (name "toString") string [] builtinMethodDecl
+                    Type.Method (name "toString") string noargs builtinMethodDecl
                 ] builtinClassDecl
             ]
 

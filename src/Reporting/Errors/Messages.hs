@@ -16,9 +16,9 @@ import Reporting.Errors.Position
 import Typings.Debug
 
 decodeError :: Error -> SimpleError
-decodeError (UnknownFailure msg) = SimpleError {
+decodeError (UnknownFailure env msg) = SimpleError {
     _errorName = "Unknown fatal error"
-    , _errorDescription = "This is a generic case for an error. It should never ever happen in practice. It's likely a problem with compiler itself. Oopsie!"
+    , _errorDescription = "This is a generic case for an error. It should never ever happen in practice. It's likely a problem with compiler itself. Oopsie!\n\n" ++ show env
     , _errorSugestions = [
         "Ask author why this happened???"
     ]
@@ -26,6 +26,15 @@ decodeError (UnknownFailure msg) = SimpleError {
     , _errorContexts = [
         ("Details:\n" ++ msg, Nothing)
     ]
+    , _errorHelp = Nothing
+}
+-- UnknownVariable
+decodeError (UnknownVariable env name) = SimpleError {
+    _errorName = "Unknown symbol"
+    , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
+    , _errorSugestions = []
+    , _errorLocation = Just $ Type.location name
+    , _errorContexts = []
     , _errorHelp = Nothing
 }
 decodeError (InvalidMainReturn main@(Type.Fun _ retType _ _) _) = SimpleError {
@@ -102,7 +111,7 @@ decodeError (VariableRedeclared env sourcePos (newName, newType) (oldName, oldTy
 decodeError (NoMain env) = let
         candidates = (env <--? QueryFn "main" (Just ((Syntax.IntT Undefined), []))) ++ (env <--? QueryFn "main" Nothing)
     in case candidates of
-        [] -> 
+        [] ->
             SimpleError {
                 _errorName = "No entrypoint"
                 , _errorDescription = "There is no main function defined."
@@ -113,7 +122,7 @@ decodeError (NoMain env) = let
                 , _errorContexts = []
                 , _errorHelp = Nothing
             }
-        firstCandidate:_ -> 
+        firstCandidate:_ ->
             SimpleError {
                 _errorName = "No entrypoint"
                 , _errorDescription = "There is no main function defined."
@@ -185,7 +194,7 @@ decodeError (DuplicateMembersInChain cls member others) = SimpleError {
             ("There's a field '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' which conflicts with the field in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
         getContext originalClassName (Type.Field _ _ _) parentCls parentMember@(Type.Method _ _ _ _) =
             ("There's a method '" ++ stringName parentMember ++ "' declared in parent class '" ++ stringName parentCls ++ "' whose name conflicts with the field in the child class '" ++ originalClassName ++ "'", Just $ Type.location parentMember)
-        
+
 
 -- decodeError (TypeMatch t1 t2) = SimpleError {
 --     _errorName = "Type mismatch"

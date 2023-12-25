@@ -1,3 +1,10 @@
+int foo(int a, int b) {
+    if (true) {
+        int c = 3;
+    }
+    return a+b+c;
+}
+
 int main() {
-    int r = "q";
+    int r = foo(2, 5);
 }

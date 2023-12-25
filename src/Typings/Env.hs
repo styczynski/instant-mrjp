@@ -1,16 +1,18 @@
 {-# LANGUAGE ImpredicativeTypes #-}
-{-# LANGUAGE TemplateHaskell #-}  
-{-# LANGUAGE FlexibleInstances #-} 
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Typings.Env where
 
 import Control.Lens
 
+import Utils.Similarity
 import qualified Program.Syntax as Syntax
 import qualified Typings.Types as Type
 import qualified Data.Text as T
 import qualified Data.FuzzySet.Simple as Fuzz
 import Reporting.Errors.Position
 import Data.Tuple.Append
+import Data.List
 
 import Control.Monad.Except hiding (void)
 import Control.Monad.Reader hiding (void)
@@ -45,6 +47,21 @@ data TypeCheckerEnv = TypeCheckerEnv
 
 makeLensesWith abbreviatedFields ''TypeCheckerEnv
 
+instance Show TypeCheckerEnv where
+  show env =
+    let parentScopesStr = intercalate "\n" $ map (showScope 1 "[Parent scope]") (env^.parentScopes) in
+    "TypeCheckerEnv:\n" ++ parentScopesStr ++ "\n" ++ (showScope 1 "[Current scope]" $ (Undefined, env^.currentScopeVars))
+    where
+      showVar :: String -> Type.Name -> Type.Type -> String
+      showVar name id varType =
+        "'" ++ name ++ "' declared at " ++ (show id) ++ " :: " ++ (printi 0 varType)
+      showScope :: Int -> String -> (Position, VarEnv) -> String
+      showScope i label (pos, env) =
+        let indent = concat $ replicate i "  " in
+        let scopeStr = intercalate ("  \n" ++ indent) $ map (\(name, (id, varType)) -> "  " ++ showVar name id varType) $ M.assocs env in
+        indent ++ "Scope " ++ label ++ " defined at " ++ show pos ++ " {\n" ++ indent ++ scopeStr ++ "\n" ++ indent ++ "}"
+        --M.foldWithKey (\name (id, varType) -> showVar name id varType) "" env
+
 initialEnv :: TypeCheckerEnv
 initialEnv = TypeCheckerEnv
   { _teDefinedFuns      = M.empty
@@ -64,7 +81,7 @@ initialEnv = TypeCheckerEnv
 findFunction :: TypeCheckerEnv -> String -> Maybe Type.Function
 findFunction env = (flip M.lookup) (env^.definedFuns)
 
-setupDefEnv :: FunctEnv -> ClassEnv -> Hierarchy -> TypeCheckerEnv -> TypeCheckerEnv 
+setupDefEnv :: FunctEnv -> ClassEnv -> Hierarchy -> TypeCheckerEnv -> TypeCheckerEnv
 setupDefEnv fns cls classHierarchy env =
     env {
         _teDefinedFuns = fns
@@ -86,3 +103,8 @@ separateScope :: Position -> TypeCheckerEnv -> TypeCheckerEnv
 separateScope pos env = env
   & parentScopes %~ (:) (pos, env^.currentScopeVars)
   & currentScopeVars .~ M.empty
+
+revertScope :: TypeCheckerEnv -> TypeCheckerEnv
+revertScope env = let currentParentScopes = env^.parentScopes in env
+  & parentScopes .~ (tail currentParentScopes)
+  & currentScopeVars .~ (snd $ head currentParentScopes)

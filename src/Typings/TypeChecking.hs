@@ -44,7 +44,8 @@ getVar :: String -> TypeChecker (Maybe Type.Type)
 getVar name = (maybe (return Nothing) (return . Just . snd)) =<< (tcEnvGet $ lookupVar name)
 
 withSeparateScope :: Position -> TypeChecker x -> TypeChecker x
-withSeparateScope pos = withStateT (separateScope pos)
+withSeparateScope pos m =
+    withStateT revertScope . return =<< withStateT (separateScope pos) m
 
 withClassContext :: String -> TypeChecker x -> TypeChecker x
 withClassContext className m = do
@@ -54,18 +55,24 @@ withClassContext className m = do
 withFunctionContext :: String -> TypeChecker x -> TypeChecker x
 withFunctionContext funcName m = do
     -- TODO: Add args to env here!!! (see funEnv)
-    (\fn -> withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m) =<< maybe (todoImplementError $ "Unknown function was used: " ++ funcName) return =<< tcEnvGet (flip findFunction funcName)
+    fn@(Type.Fun _ _ args _) <- maybe (todoImplementError $ "Unknown function was used: " ++ funcName) return =<< tcEnvGet (flip findFunction funcName)
+    --withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m
+    env <- tcEnv
+    -- either (\_ -> return env) (return) $ addVar varName varType env
+    newEnv <- foldM (\env (varName, varType) -> either (\_ -> todoImplementError "eeyy??") (return) $ addVar varName varType env) env args
+    withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
+    --withStateT (\env -> M.fold (\(varName, varType) env -> addVar varName varType env) env args)
 
 getContextClassType :: TypeChecker (Maybe Type.Type)
-getContextClassType = 
+getContextClassType =
     maybe (return Nothing) (\(Type.Class className@(Syntax.Ident pos _) _ _ _) -> return $ Just $ Syntax.ClassT pos className) =<< ((tcEnvGet $ (\env -> env^.currentClass)))
 
 getContextFunction :: TypeChecker Type.Function
 getContextFunction =
     maybe (todoImplementError "Invalid usage ??? out of function context") (return) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
-getContextFunctionReturnType :: TypeChecker Type.Type 
-getContextFunctionReturnType = 
+getContextFunctionReturnType :: TypeChecker Type.Type
+getContextFunctionReturnType =
     maybe (todoImplementError "Invalid usage ??? out of function context") (\(Type.Fun _ retType _ _) -> return retType) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
 checkArgsRedeclaration :: [Syntax.Arg Position] -> TypeChecker ()
@@ -104,14 +111,14 @@ canBeCastUp tFrom tTo = do
 
 checkCastUpErr :: (TypeCheckerEnv -> Type.Type -> Type.Type -> Errors.Error) -> Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
 checkCastUpErr errorHandler pos tFrom tTo = do
-    c <- canBeCastUp tFrom tTo 
+    c <- canBeCastUp tFrom tTo
     if c then return ()
     else (\env -> failure $ errorHandler env tFrom tTo) =<< tcEnv
     --else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
 checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
 checkCastUp pos tFrom tTo = do
-    c <- canBeCastUp tFrom tTo 
+    c <- canBeCastUp tFrom tTo
     if c then return ()
     else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
@@ -159,7 +166,7 @@ instance TypeCheckable Syntax.Definition where
         mapM typeFromArg args >>= mapM_ (checkTypeExists NoVoid)
         checkArgsRedeclaration args
         --checkedBody <- local (funEnv tret args) (checkTypes b)
-        checkedBody <- withFunctionContext funName (checkTypes b)
+        checkedBody <- withFunctionContext funName (checkTypesFunctionBlock b)
         return $ Syntax.FunctionDef pos tret id args checkedBody
     checkTypes (Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
         checkTypeExists Type.NoVoid (Syntax.ClassT pos pid)
@@ -188,6 +195,11 @@ instance TypeCheckable Syntax.Block where
         newStmts <- withSeparateScope pos (mapM checkTypes stmts)
         return $ Syntax.Block pos newStmts
 
+checkTypesFunctionBlock :: Syntax.Block Position -> TypeChecker (Syntax.Block Position)
+checkTypesFunctionBlock (Syntax.Block pos stmts) = do
+    newStmts <- mapM checkTypes stmts
+    return $ Syntax.Block pos newStmts
+
 -- funEnv ret args (classes, functions, env) = (classes, functions, newenv)
 --     where
 --         newenv = map fromArg args ++ (name "$ret", ret) : env
@@ -211,7 +223,7 @@ instance TypeCheckable Syntax.Stmt where
         ndecls <- checkDecls pos decls -- TODO: Handle f correctly Env -> Env?
         return $ Syntax.VarDecl pos ndecls
         where
-            checkDecls :: Position -> [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)] 
+            checkDecls :: Position -> [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)]
             checkDecls srcPos (d@(t, Syntax.NoInit pos id):ds) = do
                 --checkRedeclaration id
                 assureProperType t
@@ -291,7 +303,7 @@ checkEisLValue pos _ = return ()
 instance TypeCheckable Syntax.Expr where
     checkTypes expr = (return . fst) =<< inferType expr
 
-    inferType (Syntax.Lit pos l@(Syntax.Int _ i)) = 
+    inferType (Syntax.Lit pos l@(Syntax.Int _ i)) =
         if i < 256 && i >= 0 then return (Syntax.Lit pos (Syntax.Byte pos i), Syntax.ByteT pos)
         else if i < 2^31 && i >= -(2^31) then return (Syntax.Lit pos l, Syntax.IntT pos)
         else todoImplementError "Constant exceeds the size of int"
@@ -324,9 +336,11 @@ instance TypeCheckable Syntax.Expr where
             getFun id@(Syntax.Ident _ name) = do
                 mf <- getFunction name
                 case mf of
-                    Just (Type.Fun (Syntax.Ident p _) t ts _) -> return . Just $ Syntax.FunT p t ts
+                    Just fn@(Type.Fun (Syntax.Ident p _) t ts _) -> return . Just $ Syntax.FunT p t $ funcArgsTypes fn
                     _ -> err id
-            err (Syntax.Ident pos name) = todoImplementError ("Undefined identifier: "++name)
+            err id@(Syntax.Ident pos name) = do
+                env <- tcEnv
+                failure $ Errors.UnknownVariable env id --todoImplementError ("Undefined identifier: "++name)
             elemF i@(Syntax.Ident _ name) (f@(Type.Fun (Syntax.Ident _ n) _ _ _):xs) =
                 if name == n then Just f
                 else elemF i xs
@@ -352,7 +366,7 @@ instance TypeCheckable Syntax.Expr where
             _ -> do
                 (ne, et) <- inferType e
                 c <- canBeCastDown et t
-                if c then 
+                if c then
                     case ne of
                         (Syntax.Cast _ _ ie) -> return (Syntax.Cast pos t ie, t)
                         (Syntax.Lit _ (Syntax.Null _)) -> return (ne, t)
@@ -442,12 +456,12 @@ instance TypeCheckable Syntax.Expr where
             (Syntax.Equ _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
             (Syntax.Neq _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos op nel ner, bool)
             (Syntax.Neq _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
-            (op, a, b) -> 
+            (op, a, b) ->
                 if a == b then
                     case a of
                         Syntax.ClassT _ (Syntax.Ident _ c) -> err
                         Syntax.VoidT _ -> err
-                        Syntax.ByteT _ -> 
+                        Syntax.ByteT _ ->
                             case op of
                                 Syntax.Div _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
                                 Syntax.Mod _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))

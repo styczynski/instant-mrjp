@@ -40,7 +40,7 @@ checkInheritanceDuplicatedMembers = do
             if null incompat then return Nothing else return $ Just $ Errors.DuplicateMembersInChain c m incompat
 
         compareDefs :: Type.Member -> Type.Member -> TypeChecker Bool
-        compareDefs (Type.Method _ t1 t2 _) (Type.Method _ tt1 tt2 _) = canBeCastUp (FunT Undefined t1 t2) (FunT Undefined tt1 tt2)
+        compareDefs m1@(Type.Method _ t1 t2 _) m2@(Type.Method _ tt1 tt2 _) = canBeCastUp (FunT Undefined t1 $ Type.methodArgsTypes m1) (FunT Undefined tt1 $ Type.methodArgsTypes m2)
         compareDefs _ _ = return $ False
 
         handleLinearizationErorrs :: Maybe Type.Class -> Either String (TypeChecker [Errors.Error]) -> TypeChecker [Errors.Error]

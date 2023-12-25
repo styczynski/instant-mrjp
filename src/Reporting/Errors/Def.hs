@@ -12,7 +12,8 @@ import Typings.Env(TypeCheckerEnv)
 
 data Error
   =
-   UnknownFailure String
+   UnknownFailure TypeCheckerEnv String
+   | UnknownVariable TypeCheckerEnv Type.Name
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
    | IncompatibleTypesAssign TypeCheckerEnv (Syntax.Stmt Position) Type.Type Type.Type
@@ -30,7 +31,7 @@ data Error
   -- | DuplicateVar VarId
   | InheritanceLinearizationProblem Type.Class String
   | UnknownParent Type.Class String
-  | CyclicInheritanceSelf Type.Class 
+  | CyclicInheritanceSelf Type.Class
   | CyclicInheritance Type.Class [Type.Class] String
   | DuplicateFun Type.Function [Type.Function]
   | DuplicateClass Type.Class [Type.Class]

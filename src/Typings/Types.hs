@@ -2,22 +2,23 @@
 module Typings.Types where
 
 import Reporting.Errors.Position
+import qualified Data.Map as M
 import qualified Program.Syntax as Syntax
 import Utils.Similarity
 --import qualified Error.Diagnose as Syntax
 
 data AllowVoid = AllowVoid | NoVoid
 
-data Class = Class 
-                {-name-}(Name) 
+data Class = Class
+                {-name-}(Name)
                 {-parent-}(Syntax.OptionalName Position)
                 {-members-}[Member]
                 (Syntax.Definition Position)
     deriving (Eq, Ord, Show)
 data Member = Field (Name) (Type) (Syntax.ClassDecl Position)
-            | Method (Name) (Type) [Type] (Syntax.ClassDecl Position)
+            | Method (Name) (Type) (M.Map String (Name, Type)) (Syntax.ClassDecl Position)
     deriving (Eq, Ord, Show)
-data Function  = Fun (Name) Type [Type] (Syntax.Definition Position)
+data Function  = Fun (Name) Type (M.Map String (Name, Type)) (Syntax.Definition Position)
     deriving (Eq, Show)
 
 type Type = Syntax.Type Position
@@ -80,3 +81,10 @@ extendsPosition cls = location cls
 
 classMembers :: Class -> [Member]
 classMembers (Class _ _ members _) = members
+
+funcArgsTypes :: Function -> [Type]
+funcArgsTypes (Fun _ _ args _) = map snd $ M.elems args
+
+methodArgsTypes :: Member -> [Type]
+methodArgsTypes (Method _ _ args _) = map snd $ M.elems args
+methodArgsTypes _ = []
