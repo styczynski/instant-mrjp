@@ -13,6 +13,7 @@ import qualified Data.FuzzySet.Simple as Fuzz
 import Reporting.Errors.Position
 import Data.Tuple.Append
 import Data.List
+import Data.Maybe
 
 import Control.Monad.Except hiding (void)
 import Control.Monad.Reader hiding (void)
@@ -99,7 +100,7 @@ addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (Left . (<++) name) 
 --addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (\(prevName, prevType) -> Left (name, prevName, prevType)) $ M.lookup (Type.stringName name) old) $ env & currentScopeVars <<%~ M.insert (Type.stringName name) (name, t)
 
 lookupVar :: String -> TypeCheckerEnv -> Maybe (Type.Name, Type.Type)
-lookupVar name env = M.lookup name (env^.currentScopeVars)
+lookupVar name env = listToMaybe $ mapMaybe (M.lookup name) ([env^.currentScopeVars] ++ (map snd $ env^.parentScopes))
 
 separateScope :: Position -> TypeCheckerEnv -> TypeCheckerEnv
 separateScope pos env = env

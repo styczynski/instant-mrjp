@@ -29,6 +29,31 @@ decodeError (UnknownFailure env msg) = SimpleError {
     , _errorHelp = Nothing
 }
 -- UnknownVariable
+decodeError (MissingReturnValue env pos expectedReturnType fn) =
+    SimpleError {
+        _errorName = "Invalid return"
+        , _errorDescription = "Used return with no value, where it's illegal.\nFunction '" ++ stringName fn ++ "' expects return value of type " ++ printi 0 expectedReturnType
+        , _errorSugestions = [
+            "Change '" ++ stringName fn ++ "' return type to void"
+            , "Add value to the return statement"
+        ]
+        , _errorLocation = Just $ pos
+        , _errorContexts = [
+            ("'" ++ stringName fn ++ "' return type was declared here", Just $ Type.location fn)
+        ]
+        , _errorHelp = Just $ ("Maybe you wanted to change return type of '" ++ stringName fn ++ "' to void?", Type.location fn)
+    }
+decodeError (UnknownType env name) =
+    SimpleError {
+        _errorName = "Unknown symbol"
+        , _errorDescription = "Used unknown type name '" ++ (stringName name) ++ "'"
+        , _errorSugestions = [
+            "Make sure the naming is correct and there's no misspell"
+        ]
+        , _errorLocation = Just $ Type.location name
+        , _errorContexts = []
+        , _errorHelp = Nothing
+    }
 decodeError (UnknownVariable env name) = let
         candidates = (env <--? QueryVarExact (stringName name)) ++ []
     in case candidates of
@@ -39,7 +64,9 @@ decodeError (UnknownVariable env name) = let
                     SimpleError {
                         _errorName = "Unknown symbol"
                         , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'\nUnfortunately I couldn't find any variables to use as a suggestion."
-                        , _errorSugestions = []
+                        , _errorSugestions = [
+                            "Make sure you've used a correct variable and there's no misspelling"
+                        ]
                         , _errorLocation = Just $ Type.location name
                         , _errorContexts = []
                         , _errorHelp = Nothing
@@ -48,7 +75,9 @@ decodeError (UnknownVariable env name) = let
                     SimpleError {
                         _errorName = "Unknown symbol"
                         , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
-                        , _errorSugestions = []
+                        , _errorSugestions = [
+                            "Make sure you've used a correct variable and there's no misspelling"
+                        ]
                         , _errorLocation = Just $ Type.location name
                         , _errorContexts = []
                         , _errorHelp = Just ("Maybe that was a typo? Similar variable names in this context are:" ++ (printVars "" $ map (\(_, _, varName, varType) -> (varName, varType)) l), Type.location name)
@@ -57,7 +86,9 @@ decodeError (UnknownVariable env name) = let
             SimpleError {
                 _errorName = "Unknown symbol"
                 , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
-                , _errorSugestions = []
+                , _errorSugestions = [
+                    "Make sure you've used a correct variable and there's no misspelling"
+                ]
                 , _errorLocation = Just $ Type.location name
                 , _errorContexts = [
                      ("There's variable '" ++ stringName varName ++ "' of type " ++ printi 0 varType ++ " declared in nested scope prior to the usage.", Just $ Type.location varName)

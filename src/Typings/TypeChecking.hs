@@ -139,8 +139,9 @@ canBeCastDown tFrom tTo = do
         _ -> canBeCastUp tTo tFrom
 
 checkTypeExists :: Type.AllowVoid -> Syntax.Type Position -> TypeChecker ()
-checkTypeExists _ (Syntax.ClassT _ id@(Syntax.Ident pos n)) =
-    maybe (todoImplementError $ "Undeclared type "++n) (\_ -> return ()) =<< findClass n
+checkTypeExists _ (Syntax.ClassT _ id@(Syntax.Ident pos n)) = do
+    env <- tcEnv
+    maybe (failure $ Errors.UnknownType env id) (\_ -> return ()) =<< findClass n
         -- Just x -> return ()
         -- _ -> throw ("Undeclared type "++n, pos)
 checkTypeExists _ (Syntax.ArrayT _ t) = checkTypeExists NoVoid t
@@ -269,7 +270,10 @@ instance TypeCheckable Syntax.Stmt where
         rt <- getContextFunctionReturnType
         case rt of
             Syntax.VoidT _ -> return $ Syntax.ReturnVoid pos
-            _ -> todoImplementError $ "Return is missing a value"
+            _ -> do
+                fn <- getContextFunction
+                env <- tcEnv
+                failure $ Errors.MissingReturnValue env pos rt fn
     checkTypes (Syntax.IfElse pos econd strue sfalse) = do
         (necond, econdt) <- inferType econd
         case econdt of

@@ -14,6 +14,9 @@ data Error
   =
    UnknownFailure TypeCheckerEnv String
    | UnknownVariable TypeCheckerEnv Type.Name
+   | UnknownType TypeCheckerEnv Type.Name 
+   | VariableIllegalType TypeCheckerEnv Type.Name Type.Type
+   | MissingReturnValue TypeCheckerEnv Position Type.Type Type.Function
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
    | IncompatibleTypesAssign TypeCheckerEnv (Syntax.Stmt Position) Type.Type Type.Type

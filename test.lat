@@ -1,8 +1,10 @@
 int foo(int a, int b) {
+    void u = "e";
     if (true) {
-        int c = 3;
+        int c = 9;
     }
-    return a+b+c;
+    return;
+    return a+b;
 }
 
 int main() {
