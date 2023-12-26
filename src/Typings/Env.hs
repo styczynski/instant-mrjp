@@ -43,6 +43,7 @@ data TypeCheckerEnv = TypeCheckerEnv
   , _teRetType          :: Maybe Type.Type
   , _teCurrentScopeVars :: VarEnv
   , _teParentScopes     :: [(Position, VarEnv)]
+  , _tePreviousScopes   :: [(Position, VarEnv)]
   }
 
 makeLensesWith abbreviatedFields ''TypeCheckerEnv
@@ -75,6 +76,7 @@ initialEnv = TypeCheckerEnv
   , _teRetType          = Nothing
   , _teCurrentScopeVars = M.empty
   , _teParentScopes     = []
+  , _tePreviousScopes   = []
   }
 
 
@@ -106,5 +108,6 @@ separateScope pos env = env
 
 revertScope :: TypeCheckerEnv -> TypeCheckerEnv
 revertScope env = let currentParentScopes = env^.parentScopes in env
+  & previousScopes %~ (:) (fst $ head currentParentScopes, env^.currentScopeVars)
   & parentScopes .~ (tail currentParentScopes)
   & currentScopeVars .~ (snd $ head currentParentScopes)

@@ -29,14 +29,42 @@ decodeError (UnknownFailure env msg) = SimpleError {
     , _errorHelp = Nothing
 }
 -- UnknownVariable
-decodeError (UnknownVariable env name) = SimpleError {
-    _errorName = "Unknown symbol"
-    , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
-    , _errorSugestions = []
-    , _errorLocation = Just $ Type.location name
-    , _errorContexts = []
-    , _errorHelp = Nothing
-}
+decodeError (UnknownVariable env name) = let
+        candidates = (env <--? QueryVarExact (stringName name)) ++ []
+    in case candidates of
+        [] ->
+            let fuzzCandidates = env <--? QueryVar (stringName name) in
+            case fuzzCandidates of
+                [] ->
+                    SimpleError {
+                        _errorName = "Unknown symbol"
+                        , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'\nUnfortunately I couldn't find any variables to use as a suggestion."
+                        , _errorSugestions = []
+                        , _errorLocation = Just $ Type.location name
+                        , _errorContexts = []
+                        , _errorHelp = Nothing
+                    }
+                l ->
+                    SimpleError {
+                        _errorName = "Unknown symbol"
+                        , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
+                        , _errorSugestions = []
+                        , _errorLocation = Just $ Type.location name
+                        , _errorContexts = []
+                        , _errorHelp = Just ("Maybe that was a typo? Similar variable names in this context are:" ++ (printVars "" $ map (\(_, _, varName, varType) -> (varName, varType)) l), Type.location name)
+                    }
+        l -> let (False, blockPos, varName, varType) = head l in
+            SimpleError {
+                _errorName = "Unknown symbol"
+                , _errorDescription = "Used unknown variable '" ++ (stringName name) ++ "'"
+                , _errorSugestions = []
+                , _errorLocation = Just $ Type.location name
+                , _errorContexts = [
+                     ("There's variable '" ++ stringName varName ++ "' of type " ++ printi 0 varType ++ " declared in nested scope prior to the usage.", Just $ Type.location varName)
+                     , ("The visibility scope of mentioned variable starts here", Just $ blockPos)
+                ]
+                , _errorHelp = Just $ ("Maybe you want to use variable '" ++ stringName varName ++ "', but the variable was declared in nested scope inaccessible in the place of usage. Did you wanted to move the variable to upper scope?", Type.location varName)
+            }
 decodeError (InvalidMainReturn main@(Type.Fun _ retType _ _) _) = SimpleError {
     _errorName = "Invalid entrypoint"
     , _errorDescription = "Main function has invalid return type"
