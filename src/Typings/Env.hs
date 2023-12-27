@@ -84,6 +84,9 @@ initialEnv = TypeCheckerEnv
 findFunction :: TypeCheckerEnv -> String -> Maybe Type.Function
 findFunction env = (flip M.lookup) (env^.definedFuns)
 
+findMember :: TypeCheckerEnv -> String -> Maybe Type.Member
+findMember env name = (Type.findClassMember name) =<< env^.currentClass
+
 setupDefEnv :: FunctEnv -> ClassEnv -> Hierarchy -> TypeCheckerEnv -> TypeCheckerEnv
 setupDefEnv fns cls classHierarchy env =
     env {
@@ -97,6 +100,7 @@ setupDefEnv fns cls classHierarchy env =
 
 addVar :: Type.Name -> Type.Type -> TypeCheckerEnv -> Either (Type.Name, Type.Name, Type.Type) TypeCheckerEnv
 addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (Left . (<++) name) $ M.lookup (Type.stringName name) old) $ env & currentScopeVars <<%~ M.insert (Type.stringName name) (name, t)
+
 --addVar name t env = (\(old, newEnv) -> maybe (Right newEnv) (\(prevName, prevType) -> Left (name, prevName, prevType)) $ M.lookup (Type.stringName name) old) $ env & currentScopeVars <<%~ M.insert (Type.stringName name) (name, t)
 
 lookupVar :: String -> TypeCheckerEnv -> Maybe (Type.Name, Type.Type)

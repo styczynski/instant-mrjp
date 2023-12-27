@@ -213,7 +213,32 @@ decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn ac
     ]
     , _errorHelp = Nothing
 }
-
+decodeError (DuplicateFunctionArgument env fn (Syntax.Arg _ argType argID) otherArgs) =
+    let argMessages = map (argMessage argType) otherArgs in
+    let duplciatesCount = length argMessages  in
+    let exactDuplicatesCount = length (filter (== True) $ map snd argMessages)  in
+    let typeConflictsCount = duplciatesCount - exactDuplicatesCount in
+        SimpleError {
+            _errorName = "Duplicate definition"
+            , _errorDescription = case (exactDuplicatesCount, typeConflictsCount) of
+                (0, c) -> "Function parameter '" ++ printi 0 argID ++ "' of type " ++ printi 0 argType ++ " has conflicting " ++ (show c) ++ " declarations with the same name."
+                (c, 0) -> "Function parameter '" ++ printi 0 argID ++ "' of type " ++ printi 0 argType ++ " has " ++ (show c) ++ " exact duplicate declarations."
+                _ -> "Function parameter '" ++ printi 0 argID ++ "' of type " ++ printi 0 argType ++ " has conflicting declarations with the same name, but different type and also exact duplicate declarations."
+            , _errorSugestions = []
+            , _errorLocation = Just $ Type.namePosition fn
+            , _errorContexts = map fst argMessages
+            , _errorHelp = case (exactDuplicatesCount, typeConflictsCount) of
+                (0, c) -> Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else to prevent conflicts with " ++ (show c) ++ " other variables with the same name, but different types", Type.location argID)
+                (c, 0) -> Just $ ("Remove " ++ (show c) ++ " copied duplicate parameter declarations", Type.location argID)
+                (_, _) -> Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else and remove " ++ (show duplciatesCount) ++ " conflicting parameters with the same name", Type.location argID)
+                --Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else", Type.location argID)
+        }
+    where
+        argMessage :: (Syntax.Type Position) -> (Syntax.Arg Position) -> ((String, Maybe Position), Bool)
+        argMessage argType (Syntax.Arg _ conflictType conflictID) =
+            case similar argType conflictType of
+                True -> (("Exact duplicated declaration", Just $ Type.location conflictID), True)
+                False -> (("Conflicting parameter declaration for '" ++ printi 0 conflictID ++ "' of type " ++ printi 0 conflictType ++ " ", Just $ Type.location conflictID), False)
 decodeError (VariableRedeclared env sourcePos (newName, newType) (oldName, oldType)) = SimpleError {
     _errorName = "Duplicate definition"
     , _errorDescription = "Variable '" ++ stringName newName ++ "' of type " ++ printi 0 newType ++ " has duplicate declaration."

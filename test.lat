@@ -1,4 +1,10 @@
-int foo(int a, int b, int q) {
+class QQ {
+    int foo(int a, int b, string b) {
+        return b+a;
+    }
+}
+
+int foo(int a, int b) {
     string u = "e";
     if (true) {
         int c = 9;

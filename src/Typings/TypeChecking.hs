@@ -52,6 +52,23 @@ withClassContext className m = do
     -- TODO: Add class this to env here!! (see classEnv)
     (\cls -> withStateT (\env -> env & currentClass %~ (\_ -> Just cls)) m) =<< maybe (todoImplementError "Unknown class was used") return =<< findClass className
 
+withMethodContext :: String -> TypeChecker x -> TypeChecker x
+withMethodContext methodName m = do
+        env <- tcEnv
+        member <- tcEnvGet ((flip findMember) methodName)
+        case member of
+                (Just (Type.Method methodName methodType args (Syntax.MethodDecl a t id as b))) -> do
+                    (Type.Class (Syntax.Ident pos _) _ _ currentClassDecl) <- maybe (todoImplementError "withMethodContext: missing current class") (return) $ env^.currentClass
+                    withSeparateScope pos (methodContext methodName methodType args (Syntax.FunctionDef a t id as b) m)
+                _ -> todoImplementError "withMethodContext: Missing member?"
+    where
+        methodContext :: Type.Name -> Type.Type -> (M.Map String (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
+        methodContext methodName methodType args currentClassDecl m = do
+            env <- tcEnv
+            newEnv <- foldM (\accEnv (varName, varType) -> either (\_ -> todoImplementError "withMethodContext: duplicate arg?") (return) $ addVar varName varType accEnv) env args
+            withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just $ (Type.Fun methodName methodType args currentClassDecl))) m 
+ 
+
 withFunctionContext :: String -> TypeChecker x -> TypeChecker x
 withFunctionContext funcName m = do
     -- TODO: Add args to env here!!! (see funEnv)
@@ -59,8 +76,8 @@ withFunctionContext funcName m = do
     --withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m
     env <- tcEnv
     -- either (\_ -> return env) (return) $ addVar varName varType env
-    newEnv <- foldM (\env (varName, varType) -> either (\_ -> todoImplementError "eeyy??") (return) $ addVar varName varType env) env args
-    withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
+    newEnv <- foldM (\env (varName, varType) -> either (\_ -> todoImplementError "withFunctionContext: Duplicate arg?") (return) $ addVar varName varType env) env args
+    withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
     --withStateT (\env -> M.fold (\(varName, varType) env -> addVar varName varType env) env args)
 
 getContextClassType :: TypeChecker (Maybe Type.Type)
@@ -75,8 +92,13 @@ getContextFunctionReturnType :: TypeChecker Type.Type
 getContextFunctionReturnType =
     maybe (todoImplementError "Invalid usage ??? out of function context") (\(Type.Fun _ retType _ _) -> return retType) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
-checkArgsRedeclaration :: [Syntax.Arg Position] -> TypeChecker ()
-checkArgsRedeclaration _ = return ()
+checkArgsRedeclaration :: (TypeCheckerEnv -> (Type.Function) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> Errors.Error) -> [Syntax.Arg Position] -> TypeChecker ()
+checkArgsRedeclaration errorHandler args = 
+    mapM_ (\elem@(Syntax.Arg _ _ (Syntax.Ident _ elemName)) -> checkError errorHandler elem $ filter (\other@(Syntax.Arg _ _ (Syntax.Ident _ otherName)) -> elemName == otherName && elem /= other) args) args
+    where
+        checkError :: (TypeCheckerEnv -> (Type.Function) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> Errors.Error) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> TypeChecker ()
+        checkError errorHandler arg [] = return ()
+        checkError errorHandler arg duplicates = failure =<< tcEnvGet (\env -> maybe (Errors.UnknownFailure env "checkArgsRedeclaration: No current function") (\fn -> errorHandler env fn arg duplicates) $ env^.currentFunction)
 
 getMemberType :: Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
 getMemberType _ _ = return Nothing
@@ -167,9 +189,8 @@ instance TypeCheckable Syntax.Definition where
     checkTypes fn@(Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
         checkTypeExists Type.AllowVoid (Errors.TypeInFunctionReturn fn) tret
         mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInFunctionArgDecl fn arg) t)
-        checkArgsRedeclaration args
         --checkedBody <- local (funEnv tret args) (checkTypes b)
-        checkedBody <- withFunctionContext funName (checkTypesFunctionBlock b)
+        checkedBody <- withFunctionContext funName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
         return $ Syntax.FunctionDef pos tret id args checkedBody
     checkTypes cls@(Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
         checkTypeExists Type.NoVoid (Errors.TypeInClassParent cls) (Syntax.ClassT pos pid)
@@ -188,9 +209,10 @@ instance TypeCheckable Syntax.ClassDecl where
     checkTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
         checkTypeExists AllowVoid (Errors.TypeInMethodReturn method) tret
         mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
-        checkArgsRedeclaration args
+        --checkArgsRedeclaration args
         -- TODO: should be separate function not withFunctionContext
-        checkedBody <- withFunctionContext methodName (checkTypes b)
+        checkedBody <- withMethodContext methodName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
+        -- checkedBody <- withFunctionContext methodName (checkTypes b)
         return $ Syntax.MethodDecl pos tret id args checkedBody
 
 instance TypeCheckable Syntax.Block where

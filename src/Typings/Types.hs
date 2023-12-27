@@ -5,6 +5,7 @@ import Reporting.Errors.Position
 import qualified Data.Map as M
 import qualified Program.Syntax as Syntax
 import Utils.Similarity
+import Data.Maybe
 --import qualified Error.Diagnose as Syntax
 
 data AllowVoid = AllowVoid | NoVoid
@@ -71,13 +72,20 @@ instance TypeContext Member where
 
 instance TypeContext Function where
     nameOf (Fun name _ _ _) = name
+
     location (Fun _ _ _ (Syntax.FunctionDef pos _ _ _ _)) = pos
+    location (Fun _ _ _ (Syntax.ClassDef pos _ _ _)) = pos
+
     namePosition (Fun _ _ _ (Syntax.FunctionDef _ _ (Syntax.Ident pos _) _ _)) = pos
+    namePosition f = location f
 
 extendsPosition :: Class -> Position
 extendsPosition (Class _ _ _ (Syntax.ClassDef _ _ (Syntax.Name _ (Syntax.Ident pos _)) _)) = pos
 --extendsPosition (Class _ _ _ (Syntax.ClassDef _ _ (Syntax.NoName pos) _)) = pos
 extendsPosition cls = location cls
+
+findClassMember :: String -> Class -> Maybe Member
+findClassMember name = listToMaybe . filter (\member -> stringName member == name) . classMembers
 
 classMembers :: Class -> [Member]
 classMembers (Class _ _ members _) = members

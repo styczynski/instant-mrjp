@@ -32,6 +32,7 @@ data Error
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
    | IncompatibleTypesAssign TypeCheckerEnv (Syntax.Stmt Position) Type.Type Type.Type
    | IncompatibleTypesInit TypeCheckerEnv (Syntax.DeclItem Position) Type.Type Type.Type
+   | DuplicateFunctionArgument TypeCheckerEnv Type.Function (Syntax.Arg Position) [(Syntax.Arg Position)]
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
    | MainHasArgs Type.Function TypeCheckerEnv
