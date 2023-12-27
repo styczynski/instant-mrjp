@@ -213,7 +213,7 @@ decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn ac
     ]
     , _errorHelp = Nothing
 }
-decodeError (DuplicateFunctionArgument env fn (Syntax.Arg _ argType argID) otherArgs) =
+decodeError (DuplicateFunctionArgument env fn (Syntax.Arg pos argType argID) otherArgs) =
     let argMessages = map (argMessage argType) otherArgs in
     let duplciatesCount = length argMessages  in
     let exactDuplicatesCount = length (filter (== True) $ map snd argMessages)  in
@@ -225,7 +225,7 @@ decodeError (DuplicateFunctionArgument env fn (Syntax.Arg _ argType argID) other
                 (c, 0) -> "Function parameter '" ++ printi 0 argID ++ "' of type " ++ printi 0 argType ++ " has " ++ (show c) ++ " exact duplicate declarations."
                 _ -> "Function parameter '" ++ printi 0 argID ++ "' of type " ++ printi 0 argType ++ " has conflicting declarations with the same name, but different type and also exact duplicate declarations."
             , _errorSugestions = []
-            , _errorLocation = Just $ Type.namePosition fn
+            , _errorLocation = Just $ pos
             , _errorContexts = map fst argMessages
             , _errorHelp = case (exactDuplicatesCount, typeConflictsCount) of
                 (0, c) -> Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else to prevent conflicts with " ++ (show c) ++ " other variables with the same name, but different types", Type.location argID)
