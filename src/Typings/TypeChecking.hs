@@ -122,8 +122,8 @@ checkCastUp pos tFrom tTo = do
     if c then return ()
     else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
-typeFromArg :: Syntax.Arg Position -> TypeChecker Type.Type
-typeFromArg (Syntax.Arg pos t id) = assureProperType t >> return t
+typeFromArg :: Syntax.Arg Position -> TypeChecker (Type.Type, Syntax.Arg Position)
+typeFromArg arg@(Syntax.Arg pos t id) = assureProperType t >> return (t, arg)
 
 canBeCastDown :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 canBeCastDown tFrom tTo = do
@@ -138,15 +138,17 @@ canBeCastDown tFrom tTo = do
         (Syntax.ClassT _ (Syntax.Ident _ "Object"), Syntax.ArrayT _ _) -> return True
         _ -> canBeCastUp tTo tFrom
 
-checkTypeExists :: Type.AllowVoid -> Syntax.Type Position -> TypeChecker ()
-checkTypeExists _ (Syntax.ClassT _ id@(Syntax.Ident pos n)) = do
+checkTypeExists :: Type.AllowVoid -> Errors.TypeContext -> Syntax.Type Position -> TypeChecker ()
+checkTypeExists _ _ (Syntax.ClassT _ id@(Syntax.Ident pos n)) = do
     env <- tcEnv
     maybe (failure $ Errors.UnknownType env id) (\_ -> return ()) =<< findClass n
         -- Just x -> return ()
         -- _ -> throw ("Undeclared type "++n, pos)
-checkTypeExists _ (Syntax.ArrayT _ t) = checkTypeExists NoVoid t
-checkTypeExists Type.NoVoid (Syntax.VoidT pos) = todoImplementError "Illegal use of type void"
-checkTypeExists _ _ = return ()
+checkTypeExists _ typeContext (Syntax.ArrayT _ t) = checkTypeExists NoVoid typeContext t
+checkTypeExists Type.NoVoid typeContext invalidType@(Syntax.VoidT _) = do
+    env <- tcEnv
+    failure $ Errors.IllegalTypeUsed env typeContext invalidType
+checkTypeExists _ _ _ = return ()
 
 equivalentType :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 equivalentType t1 t2 = do
@@ -162,15 +164,15 @@ instance TypeCheckable Syntax.Program where
     checkTypes (Syntax.Program pos defs) = mapM checkTypes defs >>= return . Syntax.Program pos
 
 instance TypeCheckable Syntax.Definition where
-    checkTypes (Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
-        checkTypeExists Type.AllowVoid tret
-        mapM typeFromArg args >>= mapM_ (checkTypeExists NoVoid)
+    checkTypes fn@(Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
+        checkTypeExists Type.AllowVoid (Errors.TypeInFunctionReturn fn) tret
+        mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInFunctionArgDecl fn arg) t)
         checkArgsRedeclaration args
         --checkedBody <- local (funEnv tret args) (checkTypes b)
         checkedBody <- withFunctionContext funName (checkTypesFunctionBlock b)
         return $ Syntax.FunctionDef pos tret id args checkedBody
-    checkTypes (Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
-        checkTypeExists Type.NoVoid (Syntax.ClassT pos pid)
+    checkTypes cls@(Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
+        checkTypeExists Type.NoVoid (Errors.TypeInClassParent cls) (Syntax.ClassT pos pid)
         checkedDecls <- withClassContext className (mapM checkTypes decls)
         return $ Syntax.ClassDef pos id (Syntax.justName pid) checkedDecls
         where
@@ -181,11 +183,11 @@ instance TypeCheckable Syntax.Definition where
 
 instance TypeCheckable Syntax.ClassDecl where
     checkTypes f@(Syntax.FieldDecl pos t id) = do
-        checkTypeExists Type.NoVoid t
+        checkTypeExists Type.NoVoid (Errors.TypeInClassField f) t
         return f
-    checkTypes (Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
-        checkTypeExists AllowVoid tret
-        mapM typeFromArg args >>= mapM_ (checkTypeExists NoVoid)
+    checkTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
+        checkTypeExists AllowVoid (Errors.TypeInMethodReturn method) tret
+        mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
         checkArgsRedeclaration args
         -- TODO: should be separate function not withFunctionContext
         checkedBody <- withFunctionContext methodName (checkTypes b)
@@ -220,18 +222,18 @@ checkTypesFunctionBlock (Syntax.Block pos stmts) = do
 instance TypeCheckable Syntax.Stmt where
     checkTypes (Syntax.Empty pos) = return $ Syntax.Empty pos
     checkTypes (Syntax.BlockStmt pos b) = checkTypes b >>= \b -> return $ Syntax.BlockStmt pos b
-    checkTypes (Syntax.VarDecl pos decls) = do
+    checkTypes decl@(Syntax.VarDecl pos decls) = do
         ndecls <- checkDecls pos decls -- TODO: Handle f correctly Env -> Env?
         return $ Syntax.VarDecl pos ndecls
         where
             checkDecls :: Position -> [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)]
-            checkDecls srcPos (d@(t, Syntax.NoInit pos id):ds) = do
+            checkDecls srcPos (d@(t, declItem@(Syntax.NoInit pos id)):ds) = do
                 --checkRedeclaration id
                 assureProperType t
-                checkTypeExists NoVoid t
+                checkTypeExists NoVoid (Errors.TypeInVarDecl declItem) t
                 nds <- withVar srcPos Errors.VariableRedeclared id t (checkDecls srcPos ds)
                 return (d:nds) -- TODO Handle env -> env? f . addVar id t
-            checkDecls srcPos (d@(t, Syntax.Init pos id e):ds) = do
+            checkDecls srcPos (d@(t, declItem@(Syntax.Init pos id e)):ds) = do
                 --checkRedeclaration id
                 (ne, et) <- inferType e
                 (nt, nne) <- case t of
@@ -239,7 +241,7 @@ instance TypeCheckable Syntax.Stmt where
                                         Syntax.InfferedT _ -> todoImplementError $ "Type cannot be inffered from null"
                                         _ -> return (et, ne)
                         _ -> do
-                            checkTypeExists NoVoid t
+                            checkTypeExists NoVoid (Errors.TypeInVarDecl declItem) t
                             checkCastUpErr (\env -> Errors.IncompatibleTypesInit env (snd d)) pos et t
                             b <- equivalentType t et
                             if b then return (t, ne)
@@ -363,8 +365,8 @@ instance TypeCheckable Syntax.Expr where
                 mapM_ (\(l,(e,r)) -> checkCastUp (Syntax.getPosE e) r l) $ zip args nes
                 return (Syntax.App pos nef (map fst nes), ret)
             _ -> todoImplementError ("Expected a function or a method, given"++printi 0 eft)
-    inferType (Syntax.Cast pos t e) = do
-        checkTypeExists Type.NoVoid t
+    inferType cast@(Syntax.Cast pos t e) = do
+        checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
         case t of
             Syntax.InfferedT _ -> todoImplementError ("Invalid type in cast expression")
             _ -> do
@@ -386,8 +388,8 @@ instance TypeCheckable Syntax.Expr where
                     Syntax.ByteT _ -> return (Syntax.ArrAccess pos nearr (Syntax.Cast pos int nein) (Just t), t)
                     _ -> todoImplementError ("Expected a numerical index, given "++printi 0 et)
             _ -> todoImplementError ("Expected array type, given "++printi 0 art)
-    inferType (Syntax.NewObj pos t m) = do
-        checkTypeExists NoVoid t
+    inferType stmt@(Syntax.NewObj pos t m) = do
+        checkTypeExists NoVoid (Errors.TypeInNew stmt) t
         case m of
             Nothing -> do
                 case t of

@@ -1,9 +1,8 @@
-int foo(int a, int b) {
-    void u = "e";
+int foo(int a, int b, int q) {
+    string u = "e";
     if (true) {
         int c = 9;
     }
-    return;
     return a+b;
 }
 

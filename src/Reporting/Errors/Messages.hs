@@ -15,6 +15,41 @@ import Reporting.Errors.Position
 
 import Typings.Debug
 
+decodeTypeContext :: Reporting.Errors.Def.TypeContext -> Maybe (String, Position, [(String, Maybe Position)])
+decodeTypeContext (TypeInFunctionReturn (Syntax.FunctionDef pos tret (Syntax.Ident _ funName) args b)) =
+    Just $ ("Function '" ++ funName ++ "' return type", pos, [
+        ("Function '" ++ funName ++ "' was defined here", Just $ pos)
+    ])
+decodeTypeContext (TypeInClassParent (Syntax.ClassDef pos (Syntax.Ident namePos className) (Syntax.Name parentPos _) decls)) =
+    Just $ ("Parent class of '" ++ className ++ "'", parentPos, [
+        ("Class '" ++ className ++ "' was defined here", Just $ namePos)
+    ])
+decodeTypeContext (TypeInClassField (Syntax.FieldDecl pos t id)) =
+    Just $ (
+        "Class field '" ++ printi 0 id ++ "'", pos, []
+    )
+decodeTypeContext (TypeInMethodReturn (Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b)) =
+    Just $ ("Class method '" ++ methodName ++ "' return type", pos, [
+        ("Method '" ++ methodName ++ "' was defined here", Just $ pos)
+    ])
+decodeTypeContext (TypeInVarDecl (Syntax.NoInit pos id)) = 
+    Just $ ("Variable declaration for '" ++ printi 0 id ++ "'", pos, [])
+decodeTypeContext (TypeInVarDecl (Syntax.Init pos id e)) = 
+    Just $ ("Variable declaration for '" ++ printi 0 id ++ "'", pos, [])
+decodeTypeContext (TypeInFunctionArgDecl (Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) (Syntax.Arg argPos _ argID)) = 
+    Just $ ("Function '" ++ funName ++ "' parameter declaration '" ++ printi 0 argID ++ "'", argPos, [
+        ("Function '" ++ funName ++ "' was defined here", Just $ pos)
+    ])
+decodeTypeContext (TypeInMethodArgDecl (Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) (Syntax.Arg argPos _ argID)) =
+    Just $ ("Class method '" ++ methodName ++ "' parameter declaration '" ++ printi 0 argID ++ "'", argPos, [
+        ("Method '" ++ methodName ++ "' was defined here", Just $ pos)
+    ])
+decodeTypeContext (TypeInCast (Syntax.Cast pos t e)) = 
+    Just $ ("Explicit cast expression", pos, [])
+decodeTypeContext (TypeInNew (Syntax.NewObj pos t m)) = 
+    Just $ ("New object constructor", pos, [])
+decodeTypeContext _ = Nothing
+
 decodeError :: Error -> SimpleError
 decodeError (UnknownFailure env msg) = SimpleError {
     _errorName = "Unknown fatal error"
@@ -29,6 +64,28 @@ decodeError (UnknownFailure env msg) = SimpleError {
     , _errorHelp = Nothing
 }
 -- UnknownVariable
+decodeError (IllegalTypeUsed env typeContext typeName) = 
+    case decodeTypeContext typeContext of
+        (Just (msg, pos, contexts)) -> SimpleError {
+            _errorName = "Invalid type"
+            , _errorDescription = msg ++ " requires usage of valid type. Type that you've used i.e. " ++ printi 0 typeName ++ " is not valid in this context."
+            , _errorSugestions = [
+                "Change the used type '" ++ printi 0 typeName ++ "' to some other valid type"
+            ]
+            , _errorLocation = Just $ pos
+            , _errorContexts = contexts
+            , _errorHelp = Nothing
+        }
+        Nothing -> SimpleError {
+            _errorName = "Invalid type"
+            , _errorDescription = "Type " ++ printi 0 typeName ++ " cannot be used in this context."
+            , _errorSugestions = [
+                "Change the used type '" ++ printi 0 typeName ++ "' to some other valid type"
+            ]
+            , _errorLocation = Nothing
+            , _errorContexts = []
+            , _errorHelp = Nothing
+        }
 decodeError (MissingReturnValue env pos expectedReturnType fn) =
     SimpleError {
         _errorName = "Invalid return"

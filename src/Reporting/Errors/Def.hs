@@ -10,12 +10,23 @@ import Prelude hiding ((<>))
 import Reporting.Errors.Position
 import Typings.Env(TypeCheckerEnv)
 
+data TypeContext =
+  TypeInFunctionReturn (Syntax.Definition Position)
+  | TypeInClassParent (Syntax.Definition Position)
+  | TypeInClassField (Syntax.ClassDecl Position)
+  | TypeInMethodReturn (Syntax.ClassDecl Position)
+  | TypeInVarDecl (Syntax.DeclItem Position)
+  | TypeInFunctionArgDecl (Syntax.Definition Position) (Syntax.Arg Position)
+  | TypeInMethodArgDecl (Syntax.ClassDecl Position) (Syntax.Arg Position)
+  | TypeInCast (Syntax.Expr Position)
+  | TypeInNew (Syntax.Expr Position)
+
 data Error
   =
    UnknownFailure TypeCheckerEnv String
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
-   | VariableIllegalType TypeCheckerEnv Type.Name Type.Type
+   | IllegalTypeUsed TypeCheckerEnv TypeContext Type.Type
    | MissingReturnValue TypeCheckerEnv Position Type.Type Type.Function
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
