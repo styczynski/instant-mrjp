@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module Typings.TypeChecking where
 
 import qualified Program.Syntax as Syntax
@@ -12,6 +13,8 @@ import Typings.InheritanceHierarchy
 import Typings.Env
 
 import Control.Lens
+import Data.Generics.Product
+import GHC.Generics
 import qualified Data.Map as M
 import qualified Reporting.Errors.Def as Errors
 
@@ -25,10 +28,23 @@ array = Syntax.ArrayT BuiltIn
 object = class_ "Object"
 class_ s = Syntax.ClassT BuiltIn (name s)
 
-class TypeCheckable a where
+class (Syntax.IsSyntax a Position) => TypeCheckable a where
+    doCheckTypes :: a Position -> TypeChecker (a Position)
+    doInferType :: a Position -> TypeChecker (a Position, Type.Type)
+    doInferType ast = (\newAst -> return (newAst, Syntax.VoidT Undefined)) =<< checkTypes ast
+
     checkTypes :: a Position -> TypeChecker (a Position)
+    checkTypes ast = do
+        tcEnvSet (\env -> env & debugTypings .~ M.empty)
+        doCheckTypes ast
+        --withStateT (\env -> env^.debugTypings %~ M.insert pos ) (doCheckTypes ast)
+
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
-    inferType ast = (\newAst -> return (newAst, Syntax.VoidT Undefined)) =<< checkTypes ast
+    inferType ast = do
+        (newAst, astType) <- doInferType ast
+        tcEnvSet (\env -> env & debugTypings %~ M.insert (Syntax.getPos ast) astType)
+        return (newAst, astType)
+
 
 withVar :: Position -> (TypeCheckerEnv -> Position -> (Type.Name, Type.Type) -> (Type.Name, Type.Type) -> Errors.Error) -> Type.Name -> Type.Type -> TypeChecker x -> TypeChecker x
 withVar sourcePosition errorHandler name t m = do
@@ -183,16 +199,16 @@ assureProperType (Syntax.InfferedT pos) = todoImplementError "Inffered type inst
 assureProperType _ = return ()
 
 instance TypeCheckable Syntax.Program where
-    checkTypes (Syntax.Program pos defs) = mapM checkTypes defs >>= return . Syntax.Program pos
+    doCheckTypes (Syntax.Program pos defs) = mapM checkTypes defs >>= return . Syntax.Program pos
 
 instance TypeCheckable Syntax.Definition where
-    checkTypes fn@(Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
+    doCheckTypes fn@(Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
         checkTypeExists Type.AllowVoid (Errors.TypeInFunctionReturn fn) tret
         mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInFunctionArgDecl fn arg) t)
         --checkedBody <- local (funEnv tret args) (checkTypes b)
         checkedBody <- withFunctionContext funName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
         return $ Syntax.FunctionDef pos tret id args checkedBody
-    checkTypes cls@(Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
+    doCheckTypes cls@(Syntax.ClassDef pos id@(Syntax.Ident namePos className) parent decls) = do
         checkTypeExists Type.NoVoid (Errors.TypeInClassParent cls) (Syntax.ClassT pos pid)
         checkedDecls <- withClassContext className (mapM checkTypes decls)
         return $ Syntax.ClassDef pos id (Syntax.justName pid) checkedDecls
@@ -203,10 +219,10 @@ instance TypeCheckable Syntax.Definition where
             pos = let (Syntax.Ident p _) = pid in p
 
 instance TypeCheckable Syntax.ClassDecl where
-    checkTypes f@(Syntax.FieldDecl pos t id) = do
+    doCheckTypes f@(Syntax.FieldDecl pos t id) = do
         checkTypeExists Type.NoVoid (Errors.TypeInClassField f) t
         return f
-    checkTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
+    doCheckTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
         checkTypeExists AllowVoid (Errors.TypeInMethodReturn method) tret
         mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
         --checkArgsRedeclaration args
@@ -216,7 +232,7 @@ instance TypeCheckable Syntax.ClassDecl where
         return $ Syntax.MethodDecl pos tret id args checkedBody
 
 instance TypeCheckable Syntax.Block where
-    checkTypes (Syntax.Block pos stmts) = do
+    doCheckTypes (Syntax.Block pos stmts) = do
         newStmts <- withSeparateScope pos (mapM checkTypes stmts)
         return $ Syntax.Block pos newStmts
 
@@ -242,9 +258,9 @@ checkTypesFunctionBlock (Syntax.Block pos stmts) = do
 
 --checkTypes :: Stmt Position -> OuterMonad (Stmt Position, Environment -> Environment)
 instance TypeCheckable Syntax.Stmt where
-    checkTypes (Syntax.Empty pos) = return $ Syntax.Empty pos
-    checkTypes (Syntax.BlockStmt pos b) = checkTypes b >>= \b -> return $ Syntax.BlockStmt pos b
-    checkTypes decl@(Syntax.VarDecl pos decls) = do
+    doCheckTypes (Syntax.Empty pos) = return $ Syntax.Empty pos
+    doCheckTypes (Syntax.BlockStmt pos b) = checkTypes b >>= \b -> return $ Syntax.BlockStmt pos b
+    doCheckTypes decl@(Syntax.VarDecl pos decls) = do
         ndecls <- checkDecls pos decls -- TODO: Handle f correctly Env -> Env?
         return $ Syntax.VarDecl pos ndecls
         where
@@ -271,7 +287,7 @@ instance TypeCheckable Syntax.Stmt where
                 nds <- withVar srcPos Errors.VariableRedeclared id nt (checkDecls srcPos ds)
                 return ((nt, Syntax.Init pos id nne):nds)
             checkDecls _ [] = return []
-    checkTypes stmt@(Syntax.Assignment pos ase e) = do
+    doCheckTypes stmt@(Syntax.Assignment pos ase e) = do
         (nase, aset) <- inferType ase
         checkEisLValue pos nase
         (ne, et) <- inferType e
@@ -282,7 +298,7 @@ instance TypeCheckable Syntax.Stmt where
                 Syntax.IntT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 Syntax.ByteT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 _ -> return $ Syntax.Assignment pos nase ne
-    checkTypes stmt@(Syntax.ReturnValue pos e) = do
+    doCheckTypes stmt@(Syntax.ReturnValue pos e) = do
         rt <- getContextFunctionReturnType
         fn <- getContextFunction
         (ne, et) <- inferType e
@@ -290,7 +306,7 @@ instance TypeCheckable Syntax.Stmt where
         b <- equivalentType et rt
         if b then return $ Syntax.ReturnValue pos ne
         else return $ Syntax.ReturnValue pos (Syntax.Cast pos rt ne)
-    checkTypes (Syntax.ReturnVoid pos) = do
+    doCheckTypes (Syntax.ReturnVoid pos) = do
         rt <- getContextFunctionReturnType
         case rt of
             Syntax.VoidT _ -> return $ Syntax.ReturnVoid pos
@@ -298,7 +314,7 @@ instance TypeCheckable Syntax.Stmt where
                 fn <- getContextFunction
                 env <- tcEnv
                 failure $ Errors.MissingReturnValue env pos rt fn
-    checkTypes (Syntax.IfElse pos econd strue sfalse) = do
+    doCheckTypes (Syntax.IfElse pos econd strue sfalse) = do
         (necond, econdt) <- inferType econd
         case econdt of
             Syntax.BoolT _ -> case strue of
@@ -311,7 +327,7 @@ instance TypeCheckable Syntax.Stmt where
                                     nsf <- checkTypes sfalse
                                     return $ Syntax.IfElse pos necond nst nsf
             _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
-    checkTypes (Syntax.While pos econd stmt) = do
+    doCheckTypes (Syntax.While pos econd stmt) = do
         (necond, econdt) <- inferType econd
         case econdt of
             Syntax.BoolT _ -> case stmt of
@@ -320,7 +336,7 @@ instance TypeCheckable Syntax.Stmt where
                             nst <- checkTypes stmt
                             return $ Syntax.While pos necond nst
             _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
-    checkTypes (Syntax.ExprStmt pos e) = do
+    doCheckTypes (Syntax.ExprStmt pos e) = do
         (ne, _) <- inferType e
         return $ Syntax.ExprStmt pos ne
 
@@ -329,17 +345,17 @@ checkEisLValue :: Position -> Syntax.Expr Position -> TypeChecker ()
 checkEisLValue pos _ = return ()
 
 instance TypeCheckable Syntax.Expr where
-    checkTypes expr = (return . fst) =<< inferType expr
+    doCheckTypes expr = (return . fst) =<< inferType expr
 
-    inferType (Syntax.Lit pos l@(Syntax.Int _ i)) =
+    doInferType (Syntax.Lit pos l@(Syntax.Int _ i)) =
         if i < 256 && i >= 0 then return (Syntax.Lit pos (Syntax.Byte pos i), Syntax.ByteT pos)
         else if i < 2^31 && i >= -(2^31) then return (Syntax.Lit pos l, Syntax.IntT pos)
         else todoImplementError "Constant exceeds the size of int"
-    inferType (Syntax.Lit pos l@(Syntax.String _ _)) = return (Syntax.Lit pos l, Syntax.StringT pos)
-    inferType (Syntax.Lit pos l@(Syntax.Bool _ _)) = return (Syntax.Lit pos l, Syntax.BoolT pos)
-    inferType (Syntax.Lit pos l@(Syntax.Byte _ _)) = return (Syntax.Lit pos l, Syntax.ByteT pos)
-    inferType (Syntax.Lit pos l@(Syntax.Null _)) = return (Syntax.Lit pos l, Syntax.InfferedT pos)
-    inferType (Syntax.Var pos id@(Syntax.Ident _ varName)) = do
+    doInferType (Syntax.Lit pos l@(Syntax.String _ _)) = return (Syntax.Lit pos l, Syntax.StringT pos)
+    doInferType (Syntax.Lit pos l@(Syntax.Bool _ _)) = return (Syntax.Lit pos l, Syntax.BoolT pos)
+    doInferType (Syntax.Lit pos l@(Syntax.Byte _ _)) = return (Syntax.Lit pos l, Syntax.ByteT pos)
+    doInferType (Syntax.Lit pos l@(Syntax.Null _)) = return (Syntax.Lit pos l, Syntax.InfferedT pos)
+    doInferType (Syntax.Var pos id@(Syntax.Ident _ varName)) = do
         mv <- getVar varName
         case mv of
             Just t -> return (Syntax.Var pos id, t)
@@ -373,7 +389,7 @@ instance TypeCheckable Syntax.Expr where
                 if name == n then Just f
                 else elemF i xs
             elemF _ [] = Nothing
-    inferType (Syntax.App pos efun es) = do
+    doInferType (Syntax.App pos efun es) = do
         (nef, eft) <- inferType efun
         case eft of
             Syntax.FunT _ ret args -> do
@@ -384,10 +400,10 @@ instance TypeCheckable Syntax.Expr where
                 else if length efts < length args then
                     todoImplementError ("Too few arguments")
                 else return ()
-                mapM_ (\(l,(e,r)) -> checkCastUp (Syntax.getPosE e) r l) $ zip args nes
+                mapM_ (\(l,(e,r)) -> checkCastUp (e ^. position @1) r l) $ zip args nes
                 return (Syntax.App pos nef (map fst nes), ret)
             _ -> todoImplementError ("Expected a function or a method, given"++printi 0 eft)
-    inferType cast@(Syntax.Cast pos t e) = do
+    doInferType cast@(Syntax.Cast pos t e) = do
         checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
         case t of
             Syntax.InfferedT _ -> todoImplementError ("Invalid type in cast expression")
@@ -400,7 +416,7 @@ instance TypeCheckable Syntax.Expr where
                         (Syntax.Lit _ (Syntax.Null _)) -> return (ne, t)
                         _ -> return (Syntax.Cast pos t ne, t)
                 else todoImplementError ("Illegal cast of "++printi 0 et++" to "++printi 0 t)
-    inferType (Syntax.ArrAccess pos earr ein _) = do
+    doInferType (Syntax.ArrAccess pos earr ein _) = do
         (nearr, art) <- inferType earr
         case art of
             Syntax.ArrayT _ t -> do
@@ -410,7 +426,7 @@ instance TypeCheckable Syntax.Expr where
                     Syntax.ByteT _ -> return (Syntax.ArrAccess pos nearr (Syntax.Cast pos int nein) (Just t), t)
                     _ -> todoImplementError ("Expected a numerical index, given "++printi 0 et)
             _ -> todoImplementError ("Expected array type, given "++printi 0 art)
-    inferType stmt@(Syntax.NewObj pos t m) = do
+    doInferType stmt@(Syntax.NewObj pos t m) = do
         checkTypeExists NoVoid (Errors.TypeInNew stmt) t
         case m of
             Nothing -> do
@@ -425,7 +441,7 @@ instance TypeCheckable Syntax.Expr where
                 b <- canBeCastUp et int
                 if b then return (Syntax.NewObj pos t (Just ne), Syntax.ArrayT pos t)
                 else todoImplementError ("Expected a numerical size in array constructor, given "++printi 0 et)
-    inferType (Syntax.Member pos e id _) = do
+    doInferType (Syntax.Member pos e id _) = do
         (ne, et) <- inferType e
         case et of
             Syntax.StringT _ -> cont pos ne id (name "String")
@@ -442,7 +458,7 @@ instance TypeCheckable Syntax.Expr where
                     case mem of
                         Just t -> return (Syntax.Member pos e id (Just clsName), t)
                         Nothing -> todoImplementError ("Undefined member "++i)
-    inferType (Syntax.UnaryOp pos op e) = do
+    doInferType (Syntax.UnaryOp pos op e) = do
         (ne, et) <- inferType e
         case (op, et) of
             (Syntax.Not _, Syntax.BoolT _) -> return (Syntax.UnaryOp pos op ne, et)
@@ -450,7 +466,7 @@ instance TypeCheckable Syntax.Expr where
             (Syntax.Neg _, Syntax.ByteT _) -> return (Syntax.UnaryOp pos op ne, et)
             (Syntax.Not _, _) -> todoImplementError ("Expected boolean expression, given "++printi 0 et)
             _ -> todoImplementError ("Expected a number, given "++printi 0 et)
-    inferType (Syntax.BinaryOp pos op el er) = do
+    doInferType (Syntax.BinaryOp pos op el er) = do
         (nel, elt) <- inferType el
         (ner, ert) <- inferType er
         let err = todoImplementError ("Incompatible operands' types: "++printi 0 elt++" and "++printi 0 ert)

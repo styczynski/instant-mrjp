@@ -45,6 +45,7 @@ data TypeCheckerEnv = TypeCheckerEnv
   , _teCurrentScopeVars :: VarEnv
   , _teParentScopes     :: [(Position, VarEnv)]
   , _tePreviousScopes   :: [(Position, VarEnv)]
+  , _teDebugTypings     :: M.Map Position Type.Type
   }
 
 makeLensesWith abbreviatedFields ''TypeCheckerEnv
@@ -78,6 +79,7 @@ initialEnv = TypeCheckerEnv
   , _teCurrentScopeVars = M.empty
   , _teParentScopes     = []
   , _tePreviousScopes   = []
+  , _teDebugTypings      = M.empty
   }
 
 

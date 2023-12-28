@@ -41,3 +41,6 @@ tcEnv = get
 
 tcEnvGet :: (TypeCheckerEnv -> t) -> TypeChecker t
 tcEnvGet = (flip (<$>)) tcEnv
+
+tcEnvSet :: (TypeCheckerEnv -> TypeCheckerEnv) -> TypeChecker ()
+tcEnvSet = modify 

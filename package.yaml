@@ -37,6 +37,7 @@ library:
     - fuzzyset
     - monad-extras
     - tuple-append
+    - generic-lens
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

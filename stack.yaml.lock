@@ -61,6 +61,13 @@ packages:
   original:
     hackage: tuple-append-0.3.0.0
 - completed:
+    hackage: generic-lens-2.2.2.0@sha256:7e2e9fb6af836c31f7b7fe9ad4d54974acb44f8f2f8b507ca8866c4ccc060f16,3962
+    pantry-tree:
+      sha256: d689de290e2e51b207e78e65378b1142f0617a6ae3ce04d278561100e5ded4f6
+      size: 2470
+  original:
+    hackage: generic-lens-2.2.2.0
+- completed:
     name: jvm-parser
     pantry-tree:
       sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93

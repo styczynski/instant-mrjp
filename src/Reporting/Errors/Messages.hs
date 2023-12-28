@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Reporting.Errors.Messages where
 
@@ -14,6 +15,9 @@ import Program.Syntax as Syntax
 import Reporting.Errors.Position
 
 import Typings.Debug
+import Control.Lens
+import Data.Generics.Product
+
 
 decodeTypeContext :: Reporting.Errors.Def.TypeContext -> Maybe (String, Position, [(String, Maybe Position)])
 decodeTypeContext (TypeInFunctionReturn (Syntax.FunctionDef pos tret (Syntax.Ident _ funName) args b)) =
@@ -189,7 +193,7 @@ decodeError (IncompatibleTypesInit env (Syntax.Init pos id e) rightType leftType
     , _errorSugestions = []
     , _errorLocation = Just $ pos
     , _errorContexts = [
-        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPosE e)
+        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPos e)
     ]
     , _errorHelp = Nothing
 }
@@ -199,7 +203,7 @@ decodeError (IncompatibleTypesAssign env (Syntax.Assignment pos _ right) rightTy
     , _errorSugestions = []
     , _errorLocation = Just $ pos
     , _errorContexts = [
-        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPosE right)
+        ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPos right)
     ]
     , _errorHelp = Nothing
 }
