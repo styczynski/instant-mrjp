@@ -39,6 +39,7 @@ library:
     - tuple-append
     - generic-lens
     - prettyprinter
+    - prettyprinter-ansi-terminal
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

@@ -20,7 +20,19 @@ data DebugContextMarker =
     MarkSegment String [(Position, Position, String)]
     | MarkMultiple String [DebugContextMarker]
     | MarkNothing String
+    | NoMarker
+    | MarkerGroup [DebugContextMarker]
   deriving (Eq, Show)
+
+_combineMarkers :: DebugContextMarker -> DebugContextMarker -> DebugContextMarker
+_combineMarkers marker NoMarker = marker
+_combineMarkers NoMarker marker = marker
+_combineMarkers (MarkerGroup markers) marker = MarkerGroup $ markers ++ [marker]
+_combineMarkers marker (MarkerGroup markers) = MarkerGroup (marker:markers)
+_combineMarkers markerA markerB = MarkerGroup [markerA, markerB]
+
+combineMarkers :: [DebugContextMarker] -> DebugContextMarker
+combineMarkers = foldl _combineMarkers NoMarker
 
 data SimpleError = SimpleError {
     _errorName :: String
@@ -29,7 +41,7 @@ data SimpleError = SimpleError {
     , _errorLocation :: Maybe Position
     , _errorContexts :: [(String, Maybe Position)]
     , _errorHelp :: Maybe (String, Position)
-    , _errorMarkers :: Maybe (DebugContextMarker)
+    , _errorMarkers :: DebugContextMarker
 }
 
 makeLensesWith abbreviatedFields ''SimpleError

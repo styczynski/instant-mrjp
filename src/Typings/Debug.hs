@@ -66,9 +66,14 @@ printVars header vars = showVars 0 header vars
             "'" ++ Type.stringName id ++ "' declared at " ++ (show id) ++ " :: " ++ (printi 0 varType)
 
 
-formatInferenceTrace :: TypeCheckerEnv -> Maybe Errors.DebugContextMarker
+formatFunctionContext :: TypeCheckerEnv -> Errors.DebugContextMarker
+formatFunctionContext env = case env^.currentFunction of
+    Nothing -> Errors.NoMarker
+    (Just fn) -> let p = Type.location fn in Errors.MarkMultiple "Function context" [Errors.MarkSegment ("The error occurred in function '" ++ Type.stringName fn ++ "'") [(p, p, "Location of function '" ++ Type.stringName fn ++ "'")]]
+
+formatInferenceTrace :: TypeCheckerEnv -> Errors.DebugContextMarker
 formatInferenceTrace env =
-    if null $ env^.inferTrace.inferStack then Nothing else formatTraceFrom (env^.inferTrace) (last $ env^.inferTrace.inferStack)
+    if null $ env^.inferTrace.inferStack then Errors.NoMarker else maybe NoMarker id $ formatTraceFrom (env^.inferTrace) (last $ env^.inferTrace.inferStack)
     where
         formatTraceFrom :: InferTrace -> Position -> Maybe Errors.DebugContextMarker
         formatTraceFrom tr currentRoot =
@@ -79,7 +84,7 @@ formatInferenceTrace env =
                     if null traceLayers then Nothing else (
                         let markers = map (normalizeTraceLayer tr endPositions) traceLayers in
                         let allMarkers = markers ++ (maybe [] (\msg -> [MarkNothing msg]) limitMsg) in
-                        Just $ MarkMultiple ("Inference trace: ") $ allMarkers
+                        Just $ MarkMultiple ("Type context") $ allMarkers
                     )
                 _ -> Nothing
         limitLayers :: [[(Position, Type.Type)]] -> ([[(Position, Type.Type)]], Maybe String)

@@ -4,10 +4,15 @@ class QQ {
     }
 }
 
+string lel(string l, int q) {
+    return l;
+}
+
 int foo(int a, int b) {
     string u = "e";
     if (true) {
-        string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
+        //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
+        int c = "ala" + "ma" + lel("kota", 5+5);
     }
     return a+b;
 }
