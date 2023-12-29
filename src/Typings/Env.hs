@@ -31,6 +31,15 @@ type FunctEnv = M.Map String Type.Function
 type ClassEnv = M.Map String Type.Class
 type VarEnv = M.Map String (Type.Name, Type.Type)
 
+--data InferDebug = InferDebug (M.Map Position (Type.Type, [Position])) ([Position])
+
+data InferTrace = InferTrace
+  {
+    _infInferTypes :: M.Map Position Type.Type
+    , _infInferChildren :: M.Map Position [Position]
+    , _infInferStack :: [Position]
+  } deriving (Show)
+
 data TypeCheckerEnv = TypeCheckerEnv
   {
   _teDefinedFuns      :: FunctEnv
@@ -45,10 +54,11 @@ data TypeCheckerEnv = TypeCheckerEnv
   , _teCurrentScopeVars :: VarEnv
   , _teParentScopes     :: [(Position, VarEnv)]
   , _tePreviousScopes   :: [(Position, VarEnv)]
-  , _teDebugTypings     :: M.Map Position Type.Type
+  , _teInferTrace     :: InferTrace
   }
 
 makeLensesWith abbreviatedFields ''TypeCheckerEnv
+makeLensesWith abbreviatedFields ''InferTrace
 
 instance Show TypeCheckerEnv where
   show env =
@@ -65,6 +75,13 @@ instance Show TypeCheckerEnv where
         indent ++ "Scope " ++ label ++ " defined at " ++ show pos ++ " {\n" ++ indent ++ scopeStr ++ "\n" ++ indent ++ "}"
         --M.foldWithKey (\name (id, varType) -> showVar name id varType) "" env
 
+initialTrace :: InferTrace 
+initialTrace = InferTrace {
+  _infInferTypes = M.empty
+  , _infInferChildren = M.empty
+  , _infInferStack = []
+}
+
 initialEnv :: TypeCheckerEnv
 initialEnv = TypeCheckerEnv
   { _teDefinedFuns      = M.empty
@@ -79,7 +96,7 @@ initialEnv = TypeCheckerEnv
   , _teCurrentScopeVars = M.empty
   , _teParentScopes     = []
   , _tePreviousScopes   = []
-  , _teDebugTypings      = M.empty
+  , _teInferTrace       = initialTrace
   }
 
 
@@ -118,3 +135,27 @@ revertScope env = let currentParentScopes = env^.parentScopes in env
   & previousScopes %~ (:) (fst $ head currentParentScopes, env^.currentScopeVars)
   & parentScopes .~ (tail currentParentScopes)
   & currentScopeVars .~ (snd $ head currentParentScopes)
+
+
+-- data InferTrace = InferTrace
+--   {
+--     _infTypes :: M.Map Position Type.Type
+--     , _infChildren :: M.Map Position [Position]
+--     , _infStack :: [Position]
+--   }
+
+inferTraceEnter :: Position -> TypeCheckerEnv -> TypeCheckerEnv
+inferTraceEnter pos env =
+  env
+  & inferTrace . inferChildren %~ (\p -> maybe p (mapAppend pos p) $ listToMaybe $ env^.inferTrace.inferStack)
+  & inferTrace . inferStack %~ (:) pos
+  where
+    mapAppend :: (Ord k) => a -> M.Map k [a] -> k -> M.Map k [a]
+    mapAppend val m key = M.insert key (val:M.findWithDefault [] key m) m
+
+inferTraceQuit :: Position -> Type.Type -> TypeCheckerEnv -> TypeCheckerEnv
+inferTraceQuit pos varType env =
+  env
+  & inferTrace . inferTypes %~ M.insert pos varType
+  & inferTrace . inferStack %~ (\stack -> if length stack <= 1 then stack else tail stack)
+

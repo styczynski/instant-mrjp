@@ -11,6 +11,8 @@ import qualified Parser.Gen.AbsLatte as A
 import qualified Program.Syntax as B
 import qualified Reporting.Errors.Position as P
 
+import Control.Monad.State hiding (void)
+
 class RawAST ma mb where
     transform :: ma a -> mb a
     over :: [ma a] -> [mb a]
@@ -165,5 +167,22 @@ instance RawAST A.MIdent' B.Type where
             "boolean" -> B.BoolT a
             _ -> B.ClassT a (B.Ident a s)
 
-transformAST :: String -> RawProgram -> (B.Program P.Position)
-transformAST file (RawProgram prog _) = let ast = (transform prog) :: (B.Program A.BNFC'Position) in fmap ((\(Just (l,c)) -> P.Position file l c)) ast
+type ASTTransformerState = Int
+type ASTTransformer a = (StateT ASTTransformerState LattePipeline) a
+
+_transformAST :: String -> RawProgram -> ASTTransformer (B.Program P.Position)
+_transformAST file (RawProgram prog _) =
+    let ast = (transform prog) :: (B.Program A.BNFC'Position) in
+    mapM (postTransform file) ast
+    --return $ fmap ((\(Just (l,c)) -> P.Position (P.TokenUID 0) file l c)) ast
+    where
+        postTransform :: String -> A.BNFC'Position -> ASTTransformer P.Position
+        postTransform file (Just (l, c)) = do
+            modify (+1)
+            uid <- get
+            return $ P.Position (P.TokenUID uid) file l c
+        postTransform _ _ = return $ P.Undefined
+
+transformAST :: String -> RawProgram -> LattePipeline (B.Program P.Position)
+transformAST file prog =
+    evalStateT (_transformAST file prog) 0

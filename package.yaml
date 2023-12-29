@@ -38,6 +38,7 @@ library:
     - monad-extras
     - tuple-append
     - generic-lens
+    - prettyprinter
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

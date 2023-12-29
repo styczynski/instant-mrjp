@@ -13,5 +13,6 @@ data ParseError
 
 findTokenEnd :: RawProgram -> P.Position -> P.Position
 findTokenEnd (ProgramParseError _) p = p
-findTokenEnd (RawProgram _ tokens) (P.Position filename line col) =
-  (uncurry (P.Position filename)) (Syntax.tokenLineCol . head . (filter (\t -> let (l, c) = Syntax.tokenLineCol t in (l > line || (l == line && c > col)))) $ tokens)
+findTokenEnd (RawProgram _ tokens) (P.Position tid filename line col) =
+  (uncurry (P.Position tid filename)) (Syntax.tokenLineCol . head . (filter (\t -> let (l, c) = Syntax.tokenLineCol t in (l > line || (l == line && c > col)))) $ tokens)
+findTokenEnd _ p = p

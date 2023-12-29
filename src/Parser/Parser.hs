@@ -21,7 +21,7 @@ instance Errorable ParseError where
         , _errorContexts = []
         , _errorLocation = case loc of 
           Nothing -> Nothing
-          Just (l, c) -> Just $ P.Position src l c
+          Just (l, c) -> Just $ P.Position P.NoUID src l c
         , _errorHelp = Nothing
     }
   -- getOrigin (ParseError _ _ loc) = loc

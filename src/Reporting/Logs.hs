@@ -71,3 +71,6 @@ evaluateLattePipeline :: LattePipeline t -> IO t
 evaluateLattePipeline pipeline = do
   k <- usingLoggerT logStdoutAction pipeline
   return $ k
+
+printLogInfoStr :: String -> LattePipeline ()
+printLogInfoStr = printLogInfo . Text.pack 

@@ -42,7 +42,7 @@ runPipeline backend = do
             latteError "Failed to parse input files"
         ast -> do
           printLogInfo $ "Parsed: " <> (T.pack file)
-          prog <- return $ transformAST file ast
+          prog <- transformAST file ast
           printLogInfo $ "Transformed: " <> (T.pack file) 
           typingResult <- TypeChecker.checkTypes prog
           case typingResult of

@@ -17,6 +17,7 @@ import Data.Generics.Product
 import GHC.Generics
 import qualified Data.Map as M
 import qualified Reporting.Errors.Def as Errors
+import Reporting.Logs
 
 void = Syntax.VoidT BuiltIn
 bool = Syntax.BoolT BuiltIn
@@ -35,14 +36,19 @@ class (Syntax.IsSyntax a Position) => TypeCheckable a where
 
     checkTypes :: a Position -> TypeChecker (a Position)
     checkTypes ast = do
-        tcEnvSet (\env -> env & debugTypings .~ M.empty)
+        tcEnvSet (\env -> env & inferTrace .~ initialTrace)
         doCheckTypes ast
         --withStateT (\env -> env^.debugTypings %~ M.insert pos ) (doCheckTypes ast)
 
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
     inferType ast = do
+        e <- tcEnv
+        liftPipelineTC $ printLogInfoStr $ "-> " ++ (show $ Syntax.getPos ast) ++ " " ++ (show $ e^.inferTrace.inferStack) ++ (show $ e^.inferTrace.inferChildren)
+        tcEnvSet (inferTraceEnter (Syntax.getPos ast))
         (newAst, astType) <- doInferType ast
-        tcEnvSet (\env -> env & debugTypings %~ M.insert (Syntax.getPos ast) astType)
+        --tcEnvSet (\env -> env & debugTypings %~ M.insert (Syntax.getPos ast) astType)
+        tcEnvSet (inferTraceQuit (Syntax.getPos ast) astType)
+        liftPipelineTC $ printLogInfoStr $ "<- " ++ (show $ Syntax.getPos ast)
         return (newAst, astType)
 
 
@@ -215,7 +221,7 @@ instance TypeCheckable Syntax.Definition where
         where
             pid = case parent of
                     (Syntax.Name _ x) -> x
-                    (Syntax.NoName _) -> let (Syntax.Ident (Position f l c) s) = id in Syntax.Ident (Position f l (c+length s)) "Object"
+                    (Syntax.NoName _) -> let (Syntax.Ident (Position tid f l c) s) = id in Syntax.Ident (Position tid f l (c+length s)) "Object"
             pos = let (Syntax.Ident p _) = pid in p
 
 instance TypeCheckable Syntax.ClassDecl where

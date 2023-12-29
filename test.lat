@@ -1,5 +1,5 @@
 class QQ {
-    int foo(int a, int b, string b) {
+    int foo(int a, int b) {
         return b+a;
     }
 }
@@ -7,7 +7,7 @@ class QQ {
 int foo(int a, int b) {
     string u = "e";
     if (true) {
-        int c = 9;
+        string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
     }
     return a+b;
 }

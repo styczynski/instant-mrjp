@@ -12,6 +12,7 @@ import Reporting.Errors.Base as Err
 import Reporting.Logs
 
 import Parser.Types
+import Control.Monad.IO.Class (MonadIO, liftIO)
 
 import qualified Reporting.Errors.Position as P
 
@@ -21,6 +22,9 @@ import qualified Data.List as L
 import qualified Data.List.NonEmpty as NEL
 
 import Error.Diagnose
+import Data.Maybe
+import Prettyprinter.Render.Text
+import Prettyprinter (Doc, Pretty, hardline, pretty, defaultLayoutOptions, reAnnotateS, layoutPretty)
 
 import Prelude hiding ((<>))
 import qualified Reporting.Errors.Position as P
@@ -57,7 +61,12 @@ printErrors errorable filename inp ast = do
     lines -> [Note $ "This that can potentially help:\n" ++ lineMap lines id]
   diagnostic <- return $ addReport (addFile mempty filename inp :: Diagnostic String) (Err Nothing title (getMarkers simpleError filename origin) ([] ++ suggestions))
   printDiagnostic stdout WithUnicode (TabSize 4) defaultStyle diagnostic
+  case (simpleError^.Err.markers) of
+    Nothing -> return ()
+    (Just markers) -> printDebugContextMarkers filename inp ast markers
   where
+    printDebugContextMarkers :: String -> String -> RawProgram -> DebugContextMarker -> LattePipeline ()
+    printDebugContextMarkers filename inp ast marker = liftIO $ putStrLn (formatDebugContextMarker filename inp ast marker)
     --getMarkers :: String -> (Maybe Position) -> ([])
     getMarkers :: SimpleError -> String -> (Maybe P.Position) -> [(Position, Marker String)]
     getMarkers simpleError filename Nothing =
@@ -82,4 +91,18 @@ printErrors errorable filename inp ast = do
       Nothing -> (Position (1, 1) (1, 1) origFilename, Where label)
       Just p -> (Position (P.positionLC p) (P.positionLC $ findTokenEnd ast p) (P.positionSrc p), Where label)
 
-  
+formatDebugContextMarker :: String -> String -> RawProgram -> DebugContextMarker -> String
+formatDebugContextMarker filename inp ast m@(MarkNothing msg) =
+  msg 
+formatDebugContextMarker filename inp ast m@(MarkMultiple msg markers) = 
+  L.intercalate "\n" $ map (\line -> "          " ++ line) $ lines $ msg ++ "\n" ++ L.intercalate "\n" (map (formatDebugContextMarker filename inp ast) markers)
+formatDebugContextMarker filename inp ast (MarkSegment msg debugMarkers) =
+  let markers = mapMaybe (getMarker filename) debugMarkers in
+  let diagnostic = addReport (addFile mempty filename inp :: Diagnostic String) (Err Nothing msg markers []) in
+  let doc = prettyDiagnostic WithUnicode (TabSize 4) diagnostic in
+  L.intercalate "\n" $ drop 2 $ map (drop 10) $ lines $ show doc
+  where 
+    getMarker :: String -> (P.Position, P.Position, String) -> Maybe (Position, Marker String)
+    getMarker filename (start, end, msg) = 
+      let (startSrc, endSrc) = (P.positionSrc start, P.positionSrc end) in
+      if startSrc /= endSrc || startSrc /= filename then Nothing else Just $ ((Position (P.positionLC start) (P.positionLC $ findTokenEnd ast end) startSrc), Where msg)

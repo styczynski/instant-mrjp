@@ -68,6 +68,13 @@ packages:
   original:
     hackage: generic-lens-2.2.2.0
 - completed:
+    hackage: prettyprinter-1.7.1@sha256:9c43c9d8c3cd9f445596e5a2379574bba87f935a4d1fa41b5407ee3cf4edc743,6987
+    pantry-tree:
+      sha256: cd6f393bf7cba603a1958a139915fc343efd5488e36fd7b3b5c6956c002d04fa
+      size: 3460
+  original:
+    hackage: prettyprinter-1.7.1
+- completed:
     name: jvm-parser
     pantry-tree:
       sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93

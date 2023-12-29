@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE OverlappingInstances #-}
-{-# LANGUAGE DeriveFunctor, DeriveFoldable, DeriveTraversable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE AllowAmbiguousTypes       #-}
 {-# LANGUAGE DataKinds                 #-}
@@ -44,7 +44,6 @@ data OptionalName a = Name a (Ident a)
                 | NoName a
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
 instance IsSyntax OptionalName a
-
 
 justName :: Ident a -> OptionalName a
 justName id@(Ident pos _) = Name pos id

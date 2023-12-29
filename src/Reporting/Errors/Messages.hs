@@ -66,6 +66,7 @@ decodeError (UnknownFailure env msg) = SimpleError {
         ("Details:\n" ++ msg, Nothing)
     ]
     , _errorHelp = Nothing
+    , _errorMarkers = Nothing
 }
 -- UnknownVariable
 decodeError (IllegalTypeUsed env typeContext typeName) = 
@@ -79,6 +80,7 @@ decodeError (IllegalTypeUsed env typeContext typeName) =
             , _errorLocation = Just $ pos
             , _errorContexts = contexts
             , _errorHelp = Nothing
+            , _errorMarkers = Nothing
         }
         Nothing -> SimpleError {
             _errorName = "Invalid type"
@@ -89,6 +91,7 @@ decodeError (IllegalTypeUsed env typeContext typeName) =
             , _errorLocation = Nothing
             , _errorContexts = []
             , _errorHelp = Nothing
+            , _errorMarkers = Nothing
         }
 decodeError (MissingReturnValue env pos expectedReturnType fn) =
     SimpleError {
@@ -103,6 +106,7 @@ decodeError (MissingReturnValue env pos expectedReturnType fn) =
             ("'" ++ stringName fn ++ "' return type was declared here", Just $ Type.location fn)
         ]
         , _errorHelp = Just $ ("Maybe you wanted to change return type of '" ++ stringName fn ++ "' to void?", Type.location fn)
+        , _errorMarkers = Nothing
     }
 decodeError (UnknownType env name) =
     SimpleError {
@@ -114,6 +118,7 @@ decodeError (UnknownType env name) =
         , _errorLocation = Just $ Type.location name
         , _errorContexts = []
         , _errorHelp = Nothing
+        , _errorMarkers = Nothing
     }
 decodeError (UnknownVariable env name) = let
         candidates = (env <--? QueryVarExact (stringName name)) ++ []
@@ -131,6 +136,7 @@ decodeError (UnknownVariable env name) = let
                         , _errorLocation = Just $ Type.location name
                         , _errorContexts = []
                         , _errorHelp = Nothing
+                        , _errorMarkers = Nothing
                     }
                 l ->
                     SimpleError {
@@ -142,6 +148,7 @@ decodeError (UnknownVariable env name) = let
                         , _errorLocation = Just $ Type.location name
                         , _errorContexts = []
                         , _errorHelp = Just ("Maybe that was a typo? Similar variable names in this context are:" ++ (printVars "" $ map (\(_, _, varName, varType) -> (varName, varType)) l), Type.location name)
+                        , _errorMarkers = Nothing
                     }
         l -> let (False, blockPos, varName, varType) = head l in
             SimpleError {
@@ -156,6 +163,7 @@ decodeError (UnknownVariable env name) = let
                      , ("The visibility scope of mentioned variable starts here", Just $ blockPos)
                 ]
                 , _errorHelp = Just $ ("Maybe you want to use variable '" ++ stringName varName ++ "', but the variable was declared in nested scope inaccessible in the place of usage. Did you wanted to move the variable to upper scope?", Type.location varName)
+                , _errorMarkers = Nothing
             }
 decodeError (InvalidMainReturn main@(Type.Fun _ retType _ _) _) = SimpleError {
     _errorName = "Invalid entrypoint"
@@ -166,6 +174,7 @@ decodeError (InvalidMainReturn main@(Type.Fun _ retType _ _) _) = SimpleError {
     , _errorLocation = Just $ Type.location main
     , _errorContexts = []
     , _errorHelp = Just $ ("Change main() return type from '" ++ (printi 0 retType) ++ "' to 'int'", Type.location main)
+    , _errorMarkers = Nothing
 }
 decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
     _errorName = "Invalid entrypoint"
@@ -176,6 +185,7 @@ decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
     , _errorLocation = Just $ Type.location main
     , _errorContexts = []
     , _errorHelp = Just $ ("Remove all main parameters", Type.location main)
+    , _errorMarkers = Nothing
 }
 -- decodeError MainType = SimpleError {
 --     _errorName = "Invalid main type"
@@ -196,6 +206,7 @@ decodeError (IncompatibleTypesInit env (Syntax.Init pos id e) rightType leftType
         ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPos e)
     ]
     , _errorHelp = Nothing
+    , _errorMarkers = formatInferenceTrace env
 }
 decodeError (IncompatibleTypesAssign env (Syntax.Assignment pos _ right) rightType leftType) = SimpleError {
     _errorName = "Incompatible type"
@@ -206,6 +217,7 @@ decodeError (IncompatibleTypesAssign env (Syntax.Assignment pos _ right) rightTy
         ("The value on the right side has different type " ++ printi 0 rightType, Just $ Syntax.getPos right)
     ]
     , _errorHelp = Nothing
+    , _errorMarkers = formatInferenceTrace env
 }
 decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn actualType expectedType) = SimpleError {
     _errorName = "Incompatible type"
@@ -216,6 +228,7 @@ decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn ac
         ("Defintion of function '" ++ stringName contextFn ++ "'", Just $ Type.location contextFn)
     ]
     , _errorHelp = Nothing
+    , _errorMarkers = formatInferenceTrace env
 }
 decodeError (DuplicateFunctionArgument env fn (Syntax.Arg pos argType argID) otherArgs) =
     let argMessages = map (argMessage argType) otherArgs in
@@ -236,6 +249,7 @@ decodeError (DuplicateFunctionArgument env fn (Syntax.Arg pos argType argID) oth
                 (c, 0) -> Just $ ("Remove " ++ (show c) ++ " copied duplicate parameter declarations", Type.location argID)
                 (_, _) -> Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else and remove " ++ (show duplciatesCount) ++ " conflicting parameters with the same name", Type.location argID)
                 --Just $ ("Rename parameter '" ++ printi 0 argID ++ "' to something else", Type.location argID)
+            , _errorMarkers = Nothing
         }
     where
         argMessage :: (Syntax.Type Position) -> (Syntax.Arg Position) -> ((String, Maybe Position), Bool)
@@ -252,6 +266,7 @@ decodeError (VariableRedeclared env sourcePos (newName, newType) (oldName, oldTy
         ("Previous conflicting definition of variable '" ++ stringName oldName ++ "' of type " ++ printi 0 oldType ++ " ", Just $ Type.location oldName)
     ]
     , _errorHelp = Just $ ("Rename new variable to something else", Type.location newName)
+    , _errorMarkers = Nothing
 }
 decodeError (NoMain env) = let
         candidates = (env <--? QueryFn "main" (Just ((Syntax.IntT Undefined), []))) ++ (env <--? QueryFn "main" Nothing)
@@ -266,6 +281,7 @@ decodeError (NoMain env) = let
                 , _errorLocation = Nothing
                 , _errorContexts = []
                 , _errorHelp = Nothing
+                , _errorMarkers = Nothing
             }
         firstCandidate:_ ->
             SimpleError {
@@ -278,6 +294,7 @@ decodeError (NoMain env) = let
                 , _errorLocation = Nothing
                 , _errorContexts = []
                 , _errorHelp = Just $ ("Probably you made misspelling and this function should be called 'main'?", Type.namePosition firstCandidate)
+                , _errorMarkers = Nothing
             }
 --InheritanceLinearizationProblem
 decodeError (InheritanceLinearizationProblem cls msg) = SimpleError {
@@ -291,6 +308,7 @@ decodeError (InheritanceLinearizationProblem cls msg) = SimpleError {
         (msg, Just $ Type.extendsPosition cls)
     ]
     , _errorHelp = Nothing
+    , _errorMarkers = Nothing
 }
 decodeError (CyclicInheritance cls chain msg) = SimpleError {
     _errorName = "Invalid inheritance"
@@ -301,6 +319,7 @@ decodeError (CyclicInheritance cls chain msg) = SimpleError {
     , _errorLocation = Just $ Type.location cls
     , _errorContexts = map (\other -> ("Class '" ++ (stringName other) ++ "' forming a cycle " ++ (intercalate " <- " $ map (\c -> if stringName c == stringName other then "[" ++ stringName c ++ "]" else stringName c) (cls:chain ++ [cls])), Just $ Type.location other)) chain
     , _errorHelp = Just ("Specify other class to extend or remove 'extends' clause", Type.extendsPosition cls)
+    , _errorMarkers = Nothing
 }
 decodeError (CyclicInheritanceSelf cls) = SimpleError {
     _errorName = "Invalid inheritance"
@@ -311,6 +330,7 @@ decodeError (CyclicInheritanceSelf cls) = SimpleError {
     , _errorLocation = Just $ Type.location cls
     , _errorContexts = []
     , _errorHelp = Just ("Remove '" ++ (stringName cls) ++ "' from the inheritance list", Type.extendsPosition cls)
+    , _errorMarkers = Nothing
 }
 decodeError (UnknownParent cls parent) = SimpleError {
     _errorName = "Unknown symbol"
@@ -321,6 +341,7 @@ decodeError (UnknownParent cls parent) = SimpleError {
     , _errorLocation = Just $ Type.location cls
     , _errorContexts = []
     , _errorHelp = Nothing
+    , _errorMarkers = Nothing
 }
 decodeError (DuplicateMembersInChain cls member others) = SimpleError {
     _errorName = "Duplicate definition"
@@ -329,6 +350,7 @@ decodeError (DuplicateMembersInChain cls member others) = SimpleError {
     , _errorLocation = Just $ Type.location member
     , _errorContexts = map (uncurry $ getContext (stringName cls) member) others
     , _errorHelp = Nothing
+    , _errorMarkers = Nothing
 }
     where
         getContext originalClassName (Type.Method _ _ _ _) parentCls parentMember@(Type.Method _ _ _ _) =
@@ -413,6 +435,7 @@ decodeError (DuplicateClass cls others) = SimpleError {
     , _errorHelp = case cls <? others of
         (Just same) -> Just $ ("Those class definitions are exactly the same, you can remove it", Type.location cls)
         Nothing -> Just $ ("Two classes differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition cls)
+    , _errorMarkers = Nothing
 }
 decodeError (DuplicateMember cls member others) = SimpleError {
     _errorName = "Duplicate definition"
@@ -423,6 +446,7 @@ decodeError (DuplicateMember cls member others) = SimpleError {
     , _errorHelp = case member <? others of
         (Just same) -> Just $ ("Those member definitions are exactly the same, you can remove it", Type.location member)
         Nothing -> Just $ ("Two member differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition member)
+    , _errorMarkers = Nothing
 }
 decodeError (DuplicateFun fn others) = SimpleError {
     _errorName = "Duplicate definition"
@@ -433,6 +457,7 @@ decodeError (DuplicateFun fn others) = SimpleError {
     , _errorHelp = case fn <? others of
         (Just same) -> Just $ ("Those function definitions are exactly the same, you can remove it", Type.location fn)
         Nothing -> Just $ ("Two function differ, you can rename one to '" ++ "ABC" ++ "'", Type.namePosition fn)
+    , _errorMarkers = Nothing
 }
 -- decodeError (DuplicateConstructor cls (Just constr)) = SimpleError {
 --     _errorName = "Duplicate definition"

@@ -16,5 +16,6 @@ extra-deps:
   - monad-extras-0.6.0
   - tuple-append-0.3.0.0
   - generic-lens-2.2.2.0
+  - prettyprinter-1.7.1
   - github: GaloisInc/jvm-parser
     commit: 6cb3fce6c390d8b4963ca211d0a3ca88fb6ec2ca

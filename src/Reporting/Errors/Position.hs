@@ -1,18 +1,34 @@
 
 module Reporting.Errors.Position where
 
-data Position = Position String Int Int 
+data TokenUID =
+    TokenUID Int
+    | NoUID 
+  deriving (Eq, Ord)
+
+data Position = Position TokenUID String Int Int 
               | BuiltIn
               | Undefined
   deriving (Eq, Ord)
 
+instance Show TokenUID where
+  show NoUID = "#?"
+  show (TokenUID id) = "#" ++ (show id)
+
 instance Show Position where
-    show (Position file line col) = "\""++file++"\", line: "++ show line++", column: "++show col
+    show (Position id file line col) = show id --"{" ++ show line ++ "," ++ show col ++ "}"--"\""++file++"\", line: "++ show line++", column: "++show col
     show BuiltIn = "inside standard library"
     show Undefined = "(undefined)"
 
 positionLC :: Position -> (Int, Int)
-positionLC (Position _ l c) = (l, c)
+positionLC (Position _ _ l c) = (l, c)
+positionLC _ = (0, 0)
 
 positionSrc :: Position -> String
-positionSrc (Position src _ _) = src
+positionSrc (Position _ src _ _) = src
+positionSrc _ = ""
+
+isPositionFrom :: Maybe String -> Position -> Bool
+isPositionFrom (Just expectedSrc) (Position _ src _ _) = expectedSrc == src
+isPositionFrom Nothing (Position _ src _ _) = True
+isPositionFrom _ _ = False
