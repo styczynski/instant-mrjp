@@ -26,6 +26,7 @@ data Error
    UnknownFailure TypeCheckerEnv String
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
+   | CallTooManyParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
    | IllegalTypeUsed TypeCheckerEnv TypeContext Type.Type
    | MissingReturnValue TypeCheckerEnv Position Type.Type Type.Function
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)

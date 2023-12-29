@@ -12,7 +12,8 @@ int foo(int a, int b) {
     string u = "e";
     if (true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
-        int c = "ala" + "ma" + lel("kota", 5+5);
+        //int c = "ala" + "ma" + lel("kota", 5+5);
+        int c = lel("kota", 5+5, "lewd" + "!");
     }
     return a+b;
 }

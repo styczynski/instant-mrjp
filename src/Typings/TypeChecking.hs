@@ -398,11 +398,13 @@ instance TypeCheckable Syntax.Expr where
     doInferType (Syntax.App pos efun es) = do
         (nef, eft) <- inferType efun
         case eft of
-            Syntax.FunT _ ret args -> do
+            fn@(Syntax.FunT _ ret args) -> do
                 nes <- mapM inferType es
                 let efts = map snd nes
+                env <- tcEnv
                 if length efts > length args then
-                    todoImplementError ("Too many arguments")
+                    failure $ Errors.CallTooManyParameters env nef fn nes
+                    --todoImplementError ("Too many arguments")
                 else if length efts < length args then
                     todoImplementError ("Too few arguments")
                 else return ()

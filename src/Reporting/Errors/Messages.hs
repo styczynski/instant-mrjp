@@ -197,6 +197,18 @@ decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
 -- }
 --IncompatibleTypesAssign
 --Syntax.Init pos id e
+--CallTooManyParameters
+decodeError (CallTooManyParameters env expr (Syntax.FunT _ ret args) actualArgs) = SimpleError {
+    _errorName = "Invalid call"
+    , _errorDescription = "Calling value that expects " ++ (show $ length args) ++ " parameters, but " ++ (show $ length actualArgs) ++ " were given"
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = [
+        ("Provide " ++ (show $ (length actualArgs) - (length args)) ++ " missing required parameters", Just $ Syntax.getPos $ fst $ last actualArgs)
+    ]
+    , _errorHelp = Nothing
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
 decodeError (IncompatibleTypesInit env (Syntax.Init pos id e) rightType leftType) = SimpleError {
     _errorName = "Incompatible type"
     , _errorDescription = "Declaration of variable '" ++ printi 0 id ++ "' has type " ++ printi 0 leftType ++ " which is incompatible with the value that is being assigned."
