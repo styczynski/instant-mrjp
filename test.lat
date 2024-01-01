@@ -8,12 +8,16 @@ string lel(string l, int q) {
     return l;
 }
 
+class c {}
+
 int foo(int a, int b) {
     string u = "e";
     if (true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
         //int c = "ala" + "ma" + lel("kota", 5+5);
-        int c = lel("kota", 5+5, "lewd" + "!");
+        string c = lel("kota", 5+5);
+        String[] q = new String[2];
+        String p = b.lol;
     }
     return a+b;
 }

@@ -197,8 +197,72 @@ decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
 -- }
 --IncompatibleTypesAssign
 --Syntax.Init pos id e
---CallTooManyParameters
-decodeError (CallTooManyParameters env expr (Syntax.FunT _ ret args) actualArgs) = SimpleError {
+--CallTooManyParameters]
+--IndexAccessNonCompatibleType
+decodeError (FieldAccessNonCompatibleType env actualType actualValue expr@(Syntax.Member _ e (Syntax.Ident _ fieldName) _)) = SimpleError {
+    _errorName = "Invalid object access"
+    , _errorDescription = "Object field (namely field '" ++ fieldName ++ "') access requires the object to be a valid instance of a class, but got value of '" ++ printi 0 actualType ++ "' instead."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use valid Object instance with field '" ++ fieldName ++ "'", Syntax.getPos actualValue)
+    , _errorMarkers = NoMarker
+}
+decodeError (IndexAccessNonCompatibleType env actualType actualValue expr) = SimpleError {
+    _errorName = "Invalid array access"
+    , _errorDescription = "Array index-based access require array-like value, but got value of '" ++ printi 0 actualType ++ "' instead."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use valid Array object that you want to access", Syntax.getPos actualValue)
+    , _errorMarkers = NoMarker
+}
+decodeError (ArrayAccessNonNumericIndex env actualType actualValue expr) = SimpleError {
+    _errorName = "Invalid array access"
+    , _errorDescription = "Array index-based access require numerical value to be given for the index. Got value of type '" ++ printi 0 actualType ++ "' instead."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use valid numerical indexn for the Array access", Syntax.getPos actualValue)
+    , _errorMarkers = NoMarker
+}
+decodeError (NewArrayNonNumericDimensions env actualType actualValue expr) = SimpleError {
+    _errorName = "Invalid object construction"
+    , _errorDescription = "Array construction requires numerical value to be given for dimensions. Got value of type '" ++ printi 0 actualType ++ "' instead."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use valid numerical dimension for the Array construction", Syntax.getPos actualValue)
+    , _errorMarkers = NoMarker
+}
+decodeError (NewUsageOnNonClass env actualType expr) = SimpleError {
+    _errorName = "Invalid object construction"
+    , _errorDescription = "Some non-class type was illegally given to the 'new' operator."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use valid class name with the 'new' keyword", Syntax.getPos actualType)
+    , _errorMarkers = NoMarker
+}
+decodeError (NewUsageOnString env expr@(Syntax.NewObj pos _ Nothing)) = SimpleError {
+    _errorName = "Invalid object construction"
+    , _errorDescription = "Cannot construct new String instance via 'new' keyword."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Use empty string literal i.e. \"\" instead", pos)
+    , _errorMarkers = NoMarker
+}
+decodeError (NewUsageOnString env expr@(Syntax.NewObj pos _ (Just init))) = SimpleError {
+    _errorName = "Invalid object construction"
+    , _errorDescription = "Cannot construct new String instance via 'new' keyword."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just ("Remove 'new String'", Syntax.getPos init)
+    , _errorMarkers = NoMarker
+}
+decodeError (CallIncompatibleNumberOfParameters env expr (Syntax.FunT _ ret args) actualArgs) = SimpleError {
     _errorName = "Invalid call"
     , _errorDescription = "Calling value that expects " ++ (show $ length args) ++ " parameters, but " ++ (show $ length actualArgs) ++ " were given"
     , _errorSugestions = []

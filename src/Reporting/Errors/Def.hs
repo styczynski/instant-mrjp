@@ -26,7 +26,14 @@ data Error
    UnknownFailure TypeCheckerEnv String
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
-   | CallTooManyParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
+   | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
+   | CallNotCallableType TypeCheckerEnv Type.Type [(Syntax.Expr Position, Type.Type)]
+   | NewUsageOnString TypeCheckerEnv (Syntax.Expr Position)
+   | NewUsageOnNonClass TypeCheckerEnv Type.Type (Syntax.Expr Position)
+   | NewArrayNonNumericDimensions TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
+   | ArrayAccessNonNumericIndex TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
+   | IndexAccessNonCompatibleType TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
+   | FieldAccessNonCompatibleType TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
    | IllegalTypeUsed TypeCheckerEnv TypeContext Type.Type
    | MissingReturnValue TypeCheckerEnv Position Type.Type Type.Function
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)

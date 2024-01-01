@@ -402,15 +402,15 @@ instance TypeCheckable Syntax.Expr where
                 nes <- mapM inferType es
                 let efts = map snd nes
                 env <- tcEnv
-                if length efts > length args then
-                    failure $ Errors.CallTooManyParameters env nef fn nes
-                    --todoImplementError ("Too many arguments")
-                else if length efts < length args then
-                    todoImplementError ("Too few arguments")
+                if length efts /= length args then
+                    failure $ Errors.CallIncompatibleNumberOfParameters env nef fn nes
                 else return ()
                 mapM_ (\(l,(e,r)) -> checkCastUp (e ^. position @1) r l) $ zip args nes
                 return (Syntax.App pos nef (map fst nes), ret)
-            _ -> todoImplementError ("Expected a function or a method, given"++printi 0 eft)
+            _ -> do
+                env <- tcEnv
+                nes <- mapM inferType es
+                failure $ Errors.CallNotCallableType env eft nes --todoImplementError ("Expected a function or a method, given"++printi 0 eft)
     doInferType cast@(Syntax.Cast pos t e) = do
         checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
         case t of
@@ -424,39 +424,41 @@ instance TypeCheckable Syntax.Expr where
                         (Syntax.Lit _ (Syntax.Null _)) -> return (ne, t)
                         _ -> return (Syntax.Cast pos t ne, t)
                 else todoImplementError ("Illegal cast of "++printi 0 et++" to "++printi 0 t)
-    doInferType (Syntax.ArrAccess pos earr ein _) = do
+    doInferType stmt@(Syntax.ArrAccess pos earr ein _) = do
         (nearr, art) <- inferType earr
+        env <- tcEnv
         case art of
             Syntax.ArrayT _ t -> do
                 (nein, et) <- inferType ein
                 case et of
                     Syntax.IntT _ -> return (Syntax.ArrAccess pos nearr nein (Just t), t)
                     Syntax.ByteT _ -> return (Syntax.ArrAccess pos nearr (Syntax.Cast pos int nein) (Just t), t)
-                    _ -> todoImplementError ("Expected a numerical index, given "++printi 0 et)
-            _ -> todoImplementError ("Expected array type, given "++printi 0 art)
+                    _ -> failure $ Errors.ArrayAccessNonNumericIndex env et nein stmt --todoImplementError ("Expected a numerical index, given "++printi 0 et)
+            _ -> failure $ Errors.IndexAccessNonCompatibleType env art nearr stmt
     doInferType stmt@(Syntax.NewObj pos t m) = do
         checkTypeExists NoVoid (Errors.TypeInNew stmt) t
+        env <- tcEnv
         case m of
             Nothing -> do
                 case t of
                     Syntax.ClassT _ (Syntax.Ident _ n) -> if n /= "String" then return ()
-                    else todoImplementError ("Cannot instantiate an empty String")
-                    Syntax.StringT _ -> todoImplementError ("Cannot instantiate an empty String")
-                    _ -> todoImplementError ("Expected a class")
+                    else failure $ Errors.NewUsageOnString env stmt
+                    _ -> failure $ Errors.NewUsageOnNonClass env t stmt
                 return (Syntax.NewObj pos t m, t)
             Just e -> do
                 (ne, et) <- inferType e
                 b <- canBeCastUp et int
                 if b then return (Syntax.NewObj pos t (Just ne), Syntax.ArrayT pos t)
-                else todoImplementError ("Expected a numerical size in array constructor, given "++printi 0 et)
-    doInferType (Syntax.Member pos e id _) = do
+                else failure $ Errors.NewArrayNonNumericDimensions env et ne stmt --todoImplementError ("Expected a numerical size in array constructor, given "++printi 0 et)
+    doInferType stmt@(Syntax.Member pos e id _) = do
         (ne, et) <- inferType e
+        env <- tcEnv
         case et of
             Syntax.StringT _ -> cont pos ne id (name "String")
             Syntax.ArrayT _ _ -> cont pos ne id (name "Array")
             Syntax.ClassT _ name -> cont pos ne id name
             Syntax.InfferedT _ -> cont pos ne id (name "Object")
-            _ -> todoImplementError ("Expected an object, given "++printi 0 et)
+            _ -> failure $ Errors.FieldAccessNonCompatibleType env et ne stmt
         where
             cont pos e id@(Syntax.Ident p i) cls@(Syntax.Ident _ clsName) = do
                 if clsName == "Array" && (i == "elements" || i == "elementSize") then
