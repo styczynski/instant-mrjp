@@ -128,13 +128,14 @@ checkArgsRedeclaration errorHandler args =
         checkError errorHandler arg [] = return ()
         checkError errorHandler arg duplicates = failure =<< tcEnvGet (\env -> maybe (Errors.InternalTypecheckerFailure env "checkArgsRedeclaration" $ Errors.ITCEFunctionContextNotAvailable Nothing) (\fn -> errorHandler env fn arg duplicates) $ env^.currentFunction)
 
-getMemberType :: Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
-getMemberType className@(Syntax.Ident _ classId) memberName@(Syntax.Ident _ memberId) = do
+getMemberType :: Bool -> (Type.Class -> Bool) -> Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
+getMemberType isOptional checkClass className@(Syntax.Ident _ classId) memberName@(Syntax.Ident _ memberId) = do
     env <- tcEnv
     cls <- maybe (failure $ Errors.UnknownType env className) return =<< findClass classId
     chain <- maybe (failure $ Errors.UnknownType env className) return $ findClassInheritanceChain env classId
-    member <- maybe (failure $ Errors.UnknownClassMember env cls memberName chain) return $ listToMaybe $ mapMaybe (Type.findClassMember memberId) chain
-    return $ Just $ Type.memberType member
+    if not $ checkClass cls then failure $ Errors.UnknownClassMember env cls memberName chain else return ()
+    maybe (if not isOptional then failure $ Errors.UnknownClassMember env cls memberName chain else return $ Nothing) (return . Just . Type.memberType) $ listToMaybe $ mapMaybe (Type.findClassMember memberId) chain
+
 
 
 canBeCastUp :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
@@ -334,28 +335,30 @@ instance TypeCheckable Syntax.Stmt where
                 fn <- getContextFunction
                 env <- tcEnv
                 failure $ Errors.MissingReturnValue env pos rt fn
-    doCheckTypes (Syntax.IfElse pos econd strue sfalse) = do
+    doCheckTypes ifelse@(Syntax.IfElse pos econd strue sfalse) = do
         (necond, econdt) <- inferType econd
+        env <- tcEnv
         case econdt of
             Syntax.BoolT _ -> case strue of
-                        Syntax.VarDecl pv _ -> todoImplementError $ "Value declaration cannot be a single statement"
+                        Syntax.VarDecl pv _ -> failure $ Errors.ConditionSingleVarDeclaration env ifelse $ Errors.IfTrueBranch strue
                         _ -> do
                             nst <- checkTypes strue
                             case sfalse of
-                                Syntax.VarDecl pv _ -> todoImplementError $ "Value declaration cannot be a single statement"
+                                Syntax.VarDecl pv _ -> failure $ Errors.ConditionSingleVarDeclaration env ifelse $ Errors.IfTrueBranch sfalse
                                 _ -> do
                                     nsf <- checkTypes sfalse
                                     return $ Syntax.IfElse pos necond nst nsf
-            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
-    doCheckTypes (Syntax.While pos econd stmt) = do
+            _ -> failure $ Errors.ConditionNonLogicalValue env ifelse econdt $ Errors.IfConditionPredicate necond
+    doCheckTypes while@(Syntax.While pos econd stmt) = do
         (necond, econdt) <- inferType econd
+        env <- tcEnv
         case econdt of
             Syntax.BoolT _ -> case stmt of
-                        Syntax.VarDecl pv _ -> todoImplementError $ "Value declaration cannot be a single statement"
+                        Syntax.VarDecl pv _ -> failure $ Errors.ConditionSingleVarDeclaration env while $ Errors.WhileBodyBlock stmt
                         _ -> do
                             nst <- checkTypes stmt
                             return $ Syntax.While pos necond nst
-            _ -> todoImplementError $ "Expected boolean expression in condition, given " -- ++printi 0 econdt
+            _ -> failure $ Errors.ConditionNonLogicalValue env while econdt $ Errors.WhileConditionPredicate necond
     doCheckTypes (Syntax.ExprStmt pos e) = do
         (ne, _) <- inferType e
         return $ Syntax.ExprStmt pos ne
@@ -385,7 +388,7 @@ instance TypeCheckable Syntax.Expr where
                 mc <- getContextClassType
                 case mc of
                     Just (Syntax.ClassT _ idc@(Syntax.Ident _ clsName)) -> do
-                        mm <- getMemberType idc id
+                        mm <- getMemberType True (\_ -> True) idc id
                         case mm of
                             Just t -> return (Syntax.Member pos (Syntax.Var pos (Syntax.Ident pos "this")) id (Just clsName), t)
                             Nothing -> do
@@ -478,13 +481,10 @@ instance TypeCheckable Syntax.Expr where
         where
             getInnerMemberType pos e id@(Syntax.Ident p i) cls@(Syntax.Ident _ clsName) = do
                 env <- tcEnv
-                if clsName == "Array" && (i == "elements" || i == "elementSize") then
-                    todoImplementError ("Undefined member "++i)
-                else do
-                    mem <- getMemberType cls id
-                    case mem of
-                        Just t -> return (Syntax.Member pos e id (Just clsName), t)
-                        Nothing -> failure $ Errors.InternalTypecheckerFailure env "getInnerMemberType" $ Errors.ITCEMissingMember clsName i
+                mem <- getMemberType False (\_ -> not $ clsName == "Array" && (i == "elements" || i == "elementSize")) cls id
+                case mem of
+                    Just t -> return (Syntax.Member pos e id (Just clsName), t)
+                    Nothing -> failure $ Errors.InternalTypecheckerFailure env "getInnerMemberType" $ Errors.ITCEMissingMember clsName i
     doInferType (Syntax.UnaryOp pos op e) = do
         (ne, et) <- inferType e
         case (op, et) of

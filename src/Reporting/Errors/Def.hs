@@ -33,6 +33,16 @@ data InternalTCError =
   | ITCEMissingMember String String
   deriving (Show, Typeable)
 
+data ConditionBodyLocation = 
+  IfTrueBranch (Syntax.Stmt Position)
+  | IfFalseBranch (Syntax.Stmt Position)
+  | WhileBodyBlock (Syntax.Stmt Position)
+  deriving (Show, Typeable)
+
+data ConditionPredicateLocation = 
+  IfConditionPredicate (Syntax.Expr Position)
+  | WhileConditionPredicate (Syntax.Expr Position)
+  deriving (Show, Typeable)
 
 data Error
   =
@@ -61,6 +71,8 @@ data Error
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
    | MainHasArgs Type.Function TypeCheckerEnv
+   | ConditionSingleVarDeclaration TypeCheckerEnv (Syntax.Stmt Position) (ConditionBodyLocation)
+   | ConditionNonLogicalValue TypeCheckerEnv (Syntax.Stmt Position) Type.Type ConditionPredicateLocation
   -- = MainType
   -- | NoMain
   -- | TypeMatch Type Type

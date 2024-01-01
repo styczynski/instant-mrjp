@@ -21,6 +21,15 @@ import Data.Generics.Product
 import Data.Typeable
 
 
+decodeConditionBodyLocation :: ConditionBodyLocation -> (String, Syntax.Stmt Position)
+decodeConditionBodyLocation (IfTrueBranch strue) = ("if truethful branch", strue)
+decodeConditionBodyLocation (IfFalseBranch sfalse) = ("if falsy branch", sfalse)
+decodeConditionBodyLocation (WhileBodyBlock body) = ("while body block", body)
+
+decodeConditionPredicateLocation :: ConditionPredicateLocation -> (String, Syntax.Expr Position)
+decodeConditionPredicateLocation (IfConditionPredicate expr) = ("if condition predicate", expr)
+decodeConditionPredicateLocation (WhileConditionPredicate expr) = ("while condition predicate", expr)
+
 decodeTypeContext :: Reporting.Errors.Def.TypeContext -> Maybe (String, Position, [(String, Maybe Position)])
 decodeTypeContext (TypeInFunctionReturn (Syntax.FunctionDef pos tret (Syntax.Ident _ funName) args b)) =
     Just $ ("Function '" ++ funName ++ "' return type", pos, [
@@ -271,6 +280,34 @@ decodeError (MainHasArgs main@(Type.Fun _ _ _ _) _) = SimpleError {
 --Syntax.Init pos id e
 --CallTooManyParameters]
 --IndexAccessNonCompatibleType
+decodeError (ConditionNonLogicalValue env branchStmt actualType predLoc) =
+    let (branchDescription, expr) = decodeConditionPredicateLocation predLoc in
+    SimpleError {
+        _errorName = "Invalid type"
+        , _errorDescription = "Flow control statement, namely " ++ branchDescription ++ " excepts bool as a condition predicate, but got value of type: '" ++ printi 0 actualType ++ "'"
+        , _errorSugestions = []
+        , _errorLocation = Just $ Syntax.getPos expr
+        , _errorContexts = [
+            ("Location of the branching code", Just $ Syntax.getPos branchStmt)
+        ]
+        , _errorHelp = Just ("Change the condition to be of type bool.", Syntax.getPos branchStmt)
+        , _errorMarkers = NoMarker
+    }
+
+decodeError (ConditionSingleVarDeclaration env branchStmt loc) =
+    let (branchDescription, decl) = decodeConditionBodyLocation loc in
+    SimpleError {
+        _errorName = "Statement not allowed"
+        , _errorDescription = "The variable declaration statement is not allowed as only statement in " ++ branchDescription
+        , _errorSugestions = []
+        , _errorLocation = Just $ Syntax.getPos decl
+        , _errorContexts = [
+            ("Location of the branching code", Just $ Syntax.getPos branchStmt)
+        ]
+        , _errorHelp = Just ("Remove the branching code entirely or wrap the code in brackets.", Syntax.getPos branchStmt)
+        , _errorMarkers = NoMarker
+    }
+
 decodeError (FieldAccessNonCompatibleType env actualType actualValue expr@(Syntax.Member _ e (Syntax.Ident _ fieldName) _)) = SimpleError {
     _errorName = "Invalid object access"
     , _errorDescription = "Object field (namely field '" ++ fieldName ++ "') access requires the object to be a valid instance of a class, but got value of '" ++ printi 0 actualType ++ "' instead."
