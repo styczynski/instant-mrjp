@@ -15,6 +15,7 @@ import Typings.Env
 import Control.Lens
 import Data.Generics.Product
 import GHC.Generics
+import Data.Maybe
 import qualified Data.Map as M
 import qualified Reporting.Errors.Def as Errors
 import Reporting.Logs
@@ -128,7 +129,13 @@ checkArgsRedeclaration errorHandler args =
         checkError errorHandler arg duplicates = failure =<< tcEnvGet (\env -> maybe (Errors.InternalTypecheckerFailure env "checkArgsRedeclaration" $ Errors.ITCEFunctionContextNotAvailable Nothing) (\fn -> errorHandler env fn arg duplicates) $ env^.currentFunction)
 
 getMemberType :: Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
-getMemberType _ _ = return Nothing
+getMemberType className@(Syntax.Ident _ classId) memberName@(Syntax.Ident _ memberId) = do
+    env <- tcEnv
+    cls <- maybe (failure $ Errors.UnknownType env className) return =<< findClass classId
+    chain <- maybe (failure $ Errors.UnknownType env className) return $ findClassInheritanceChain env classId
+    member <- maybe (failure $ Errors.UnknownClassMember env cls memberName chain) return $ listToMaybe $ mapMaybe (Type.findClassMember memberId) chain
+    return $ Just $ Type.memberType member
+
 
 canBeCastUp :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 canBeCastUp tFrom tTo = do
@@ -170,8 +177,8 @@ checkCastUp pos tFrom tTo = do
     if c then return ()
     else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
-typeFromArg :: Syntax.Arg Position -> TypeChecker (Type.Type, Syntax.Arg Position)
-typeFromArg arg@(Syntax.Arg pos t id) = assureProperType t >> return (t, arg)
+typeFromArg :: Errors.TypeContext ->  Syntax.Arg Position -> TypeChecker (Type.Type, Syntax.Arg Position)
+typeFromArg typeContext arg@(Syntax.Arg pos t id) = assureProperType typeContext t >> return (t, arg)
 
 canBeCastDown :: Syntax.Type Position -> Syntax.Type Position -> TypeChecker Bool
 canBeCastDown tFrom tTo = do
@@ -204,9 +211,11 @@ equivalentType t1 t2 = do
     b <- canBeCastUp t2 t1
     return (a && b)
 
-assureProperType :: Syntax.Type Position -> TypeChecker ()
-assureProperType (Syntax.InfferedT pos) = todoImplementError "Inffered type instead of a proper type"
-assureProperType _ = return ()
+assureProperType :: Errors.TypeContext -> Syntax.Type Position -> TypeChecker ()
+assureProperType typeContext invalidType@(Syntax.InfferedT pos) = do
+    env <- tcEnv
+    failure $ Errors.ImpossibleInference env typeContext invalidType pos
+assureProperType _ _ = return ()
 
 instance TypeCheckable Syntax.Program where
     doCheckTypes (Syntax.Program pos defs) = mapM checkTypes defs >>= return . Syntax.Program pos
@@ -214,7 +223,7 @@ instance TypeCheckable Syntax.Program where
 instance TypeCheckable Syntax.Definition where
     doCheckTypes fn@(Syntax.FunctionDef pos tret id@(Syntax.Ident _ funName) args b) = do
         checkTypeExists Type.AllowVoid (Errors.TypeInFunctionReturn fn) tret
-        mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInFunctionArgDecl fn arg) t)
+        mapM (\arg -> typeFromArg (Errors.TypeInFunctionArgDecl fn arg) arg) args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInFunctionArgDecl fn arg) t)
         --checkedBody <- local (funEnv tret args) (checkTypes b)
         checkedBody <- withFunctionContext funName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
         return $ Syntax.FunctionDef pos tret id args checkedBody
@@ -234,7 +243,7 @@ instance TypeCheckable Syntax.ClassDecl where
         return f
     doCheckTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
         checkTypeExists AllowVoid (Errors.TypeInMethodReturn method) tret
-        mapM typeFromArg args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
+        mapM (\arg -> typeFromArg (Errors.TypeInMethodArgDecl method arg) arg) args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
         --checkArgsRedeclaration args
         -- TODO: should be separate function not withFunctionContext
         checkedBody <- withMethodContext methodName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
@@ -277,16 +286,17 @@ instance TypeCheckable Syntax.Stmt where
             checkDecls :: Position -> [(Syntax.Type Position, Syntax.DeclItem Position)] -> TypeChecker [(Syntax.Type Position, Syntax.DeclItem Position)]
             checkDecls srcPos (d@(t, declItem@(Syntax.NoInit pos id)):ds) = do
                 --checkRedeclaration id
-                assureProperType t
+                assureProperType (Errors.TypeInVarDecl declItem) t 
                 checkTypeExists NoVoid (Errors.TypeInVarDecl declItem) t
                 nds <- withVar srcPos Errors.VariableRedeclared id t (checkDecls srcPos ds)
                 return (d:nds) -- TODO Handle env -> env? f . addVar id t
             checkDecls srcPos (d@(t, declItem@(Syntax.Init pos id e)):ds) = do
                 --checkRedeclaration id
+                env <- tcEnv
                 (ne, et) <- inferType e
                 (nt, nne) <- case t of
                         Syntax.InfferedT _ -> case et of
-                                        Syntax.InfferedT _ -> todoImplementError $ "Type cannot be inffered from null"
+                                        invalidType@(Syntax.InfferedT _) -> failure $ Errors.ImpossibleInference env (Errors.TypeInVarDecl declItem) invalidType pos
                                         _ -> return (et, ne)
                         _ -> do
                             checkTypeExists NoVoid (Errors.TypeInVarDecl declItem) t
@@ -360,7 +370,9 @@ instance TypeCheckable Syntax.Expr where
     doInferType (Syntax.Lit pos l@(Syntax.Int _ i)) =
         if i < 256 && i >= 0 then return (Syntax.Lit pos (Syntax.Byte pos i), Syntax.ByteT pos)
         else if i < 2^31 && i >= -(2^31) then return (Syntax.Lit pos l, Syntax.IntT pos)
-        else todoImplementError "Constant exceeds the size of int"
+        else do
+            env <- tcEnv
+            failure $ Errors.NumericConstantExceedsTypeLimit env l i [("<256 >=0", Syntax.ByteT pos), ("<2^31 >=-2^31", Syntax.IntT pos)]
     doInferType (Syntax.Lit pos l@(Syntax.String _ _)) = return (Syntax.Lit pos l, Syntax.StringT pos)
     doInferType (Syntax.Lit pos l@(Syntax.Bool _ _)) = return (Syntax.Lit pos l, Syntax.BoolT pos)
     doInferType (Syntax.Lit pos l@(Syntax.Byte _ _)) = return (Syntax.Lit pos l, Syntax.ByteT pos)
@@ -394,7 +406,7 @@ instance TypeCheckable Syntax.Expr where
                     _ -> err id
             err id@(Syntax.Ident pos name) = do
                 env <- tcEnv
-                failure $ Errors.UnknownVariable env id --todoImplementError ("Undefined identifier: "++name)
+                failure $ Errors.UnknownVariable env id 
             elemF i@(Syntax.Ident _ name) (f@(Type.Fun (Syntax.Ident _ n) _ _ _):xs) =
                 if name == n then Just f
                 else elemF i xs
@@ -458,20 +470,21 @@ instance TypeCheckable Syntax.Expr where
         (ne, et) <- inferType e
         env <- tcEnv
         case et of
-            Syntax.StringT _ -> cont pos ne id (name "String")
-            Syntax.ArrayT _ _ -> cont pos ne id (name "Array")
-            Syntax.ClassT _ name -> cont pos ne id name
-            Syntax.InfferedT _ -> cont pos ne id (name "Object")
+            Syntax.StringT _ -> getInnerMemberType pos ne id (name "String")
+            Syntax.ArrayT _ _ -> getInnerMemberType pos ne id (name "Array")
+            Syntax.ClassT _ name -> getInnerMemberType pos ne id name
+            Syntax.InfferedT _ -> getInnerMemberType pos ne id (name "Object")
             _ -> failure $ Errors.FieldAccessNonCompatibleType env et ne stmt
         where
-            cont pos e id@(Syntax.Ident p i) cls@(Syntax.Ident _ clsName) = do
+            getInnerMemberType pos e id@(Syntax.Ident p i) cls@(Syntax.Ident _ clsName) = do
+                env <- tcEnv
                 if clsName == "Array" && (i == "elements" || i == "elementSize") then
                     todoImplementError ("Undefined member "++i)
                 else do
                     mem <- getMemberType cls id
                     case mem of
                         Just t -> return (Syntax.Member pos e id (Just clsName), t)
-                        Nothing -> todoImplementError ("Undefined member "++i)
+                        Nothing -> failure $ Errors.InternalTypecheckerFailure env "getInnerMemberType" $ Errors.ITCEMissingMember clsName i
     doInferType (Syntax.UnaryOp pos op e) = do
         (ne, et) <- inferType e
         case (op, et) of

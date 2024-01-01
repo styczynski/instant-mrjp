@@ -13,11 +13,12 @@ import Utils.Similarity
 
 import Program.Syntax as Syntax
 import Reporting.Errors.Position
-import Typings.Env(TypeCheckerEnv)
+import Typings.Env(TypeCheckerEnv, initialEnv)
 
 import Typings.Debug
 import Control.Lens
 import Data.Generics.Product
+import Data.Typeable
 
 
 decodeTypeContext :: Reporting.Errors.Def.TypeContext -> Maybe (String, Position, [(String, Maybe Position)])
@@ -103,6 +104,43 @@ decodeError (UnknownFailure env msg) = SimpleError {
     , _errorMarkers = NoMarker
 }
 -- UnknownVariable
+decodeError (NumericConstantExceedsTypeLimit env lit value supportedBoundaries) =
+    let typesMsg = intercalate "\n" $ map (\(boundary, t) -> "  - For values " ++ boundary ++ " infer type '" ++ printi 0 t ++ "'") supportedBoundaries in
+    SimpleError {
+        _errorName = "Data overflow"
+        , _errorDescription = "Provided initializer value '" ++ (show value) ++ "' exceeds all type limits and won't fit into the primitive type.\n" ++ typesMsg
+        , _errorSugestions = [
+            "Make sure the value is in correct boundaries"
+        ]
+        , _errorLocation = Just $ Syntax.getPos lit
+        , _errorContexts = []
+        , _errorHelp = Nothing
+        , _errorMarkers = NoMarker
+    }
+decodeError (ImpossibleInference env typeContext typeName _) = 
+    case decodeTypeContext typeContext of
+        (Just (msg, pos, contexts)) -> SimpleError {
+            _errorName = "Infrence not possible"
+            , _errorDescription = msg ++ " requires usage of valid type. Automated-inference type that you've used i.e. " ++ printi 0 typeName ++ " is not valid in this context, because it's not yet supported by the typechecking algorithm."
+            , _errorSugestions = [
+                "Change the automatic-inference type '" ++ printi 0 typeName ++ "' to some other valid type to provide hints to the infrence algorithm."
+            ]
+            , _errorLocation = Just $ pos
+            , _errorContexts = contexts
+            , _errorHelp = Nothing
+            , _errorMarkers = NoMarker
+        }
+        Nothing -> SimpleError {
+            _errorName = "Infrence not possible"
+            , _errorDescription = "Automated-inference type " ++ printi 0 typeName ++ " cannot be used in this context, because it's not supported by the typechecking algorithm and makes inference impossible."
+            , _errorSugestions = [
+                "Change the used type '" ++ printi 0 typeName ++ "' to some other valid type to provide hinds to the infrence algorithm."
+            ]
+            , _errorLocation = Nothing
+            , _errorContexts = []
+            , _errorHelp = Nothing
+            , _errorMarkers = NoMarker
+        }
 decodeError (IllegalTypeUsed env typeContext typeName) = 
     case decodeTypeContext typeContext of
         (Just (msg, pos, contexts)) -> SimpleError {
@@ -453,6 +491,15 @@ decodeError (UnknownParent cls parent) = SimpleError {
     , _errorHelp = Nothing
     , _errorMarkers = NoMarker
 }
+decodeError (UnknownClassMember env cls member chain) = SimpleError {
+    _errorName = "Unknown ymbol"
+    , _errorDescription = "Class '" ++ stringName cls ++ "' does not contain member '" ++ stringName member ++ "' in its inheritance chain."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Type.location member
+    , _errorContexts = [("There is no such thing as '" ++ stringName member ++ "' declared in class '" ++ stringName cls ++ "' itself.", Just $ Type.location cls)] ++ map (\parentCls -> ("Nor there is no such thing as '" ++ stringName member ++ "' declared in parent class '" ++ stringName parentCls ++ "' of class '" ++ stringName cls ++ "'", Just $ Type.location parentCls)) (tail chain)
+    , _errorHelp = Nothing
+    , _errorMarkers = NoMarker
+}
 decodeError (DuplicateMembersInChain cls member others) = SimpleError {
     _errorName = "Duplicate definition"
     , _errorDescription = "Class '" ++ stringName cls ++ "' has duplicate defition for member '" ++ stringName member ++ "' in its inheritance chain."
@@ -696,3 +743,4 @@ decodeError (DuplicateFun fn others) = SimpleError {
 --     , _errorOocontext = Nothing
 -- }
 
+decodeError err = decodeError $ UnknownFailure initialEnv $ "There is a case of unhandled type of error in Messages.hs. The type of error was: " ++ (show $ typeOf $ err) ++ "\n\n. The full error payload was:\n" ++ (show err)

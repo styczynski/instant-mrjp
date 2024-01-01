@@ -96,3 +96,12 @@ funcArgsTypes (Fun _ _ args _) = map snd $ M.elems args
 methodArgsTypes :: Member -> [Type]
 methodArgsTypes (Method _ _ args _) = map snd $ M.elems args
 methodArgsTypes _ = []
+
+memberType :: Member -> Type
+memberType (Method (Syntax.Ident p _) t ts _) = Syntax.FunT p t $ map (snd . snd) $ M.toList ts
+memberType (Field _ t _) = t
+
+-- named n (Method (Ident _ nn) _ _) = n == nn
+-- named n (Field (Ident _ nn) _) = n == nn
+-- memberType (Method (Ident p _) t ts) = FunT p t ts
+-- memberType (Field (Ident p _) t) = t

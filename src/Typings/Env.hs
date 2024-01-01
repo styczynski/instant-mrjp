@@ -106,6 +106,10 @@ findFunction env = (flip M.lookup) (env^.definedFuns)
 findMember :: TypeCheckerEnv -> String -> Maybe Type.Member
 findMember env name = (Type.findClassMember name) =<< env^.currentClass
 
+findClassInheritanceChain :: TypeCheckerEnv -> String -> Maybe [Type.Class]
+findClassInheritanceChain env className = 
+  let (Hierarchy _ m) = env^.definedClasses in M.lookup className m
+
 setupDefEnv :: FunctEnv -> ClassEnv -> Hierarchy -> TypeCheckerEnv -> TypeCheckerEnv
 setupDefEnv fns cls classHierarchy env =
     env {
@@ -113,6 +117,7 @@ setupDefEnv fns cls classHierarchy env =
         , _teDefinedFunsFuzz = Fuzz.fromList $ map T.pack $ M.keys fns
         , _teDefinedClasses = classHierarchy
     }
+
 
 --addVar :: Type.Name -> Type.Type -> TypeCheckerEnv -> TypeCheckerEnv
 --addVar name t env = env & currentScopeVars %~ M.insert (Type.stringName name) (name, t)

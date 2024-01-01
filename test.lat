@@ -8,10 +8,17 @@ string lel(string l, int q) {
     return l;
 }
 
-class c {}
+class class1 {
+    int foo;
+}
+
+class class2 extends class1 {
+    int bar;
+}
 
 int foo(int a, int b) {
     string u = "e";
+    var t = 9999999;
     if (true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
         //int c = "ala" + "ma" + lel("kota", 5+5);
@@ -19,6 +26,8 @@ int foo(int a, int b) {
         String[] q = new String[2];
         String p = b.lol;
     }
+    class2 f;
+    // int r = f.bar;
     return a+b;
 }
 

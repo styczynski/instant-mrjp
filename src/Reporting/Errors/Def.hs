@@ -1,12 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Reporting.Errors.Def where
 import qualified Program.Syntax as Syntax
 import qualified Typings.Types as Type
 import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
+import Data.Typeable
 import Reporting.Errors.Position
 import Typings.Env(TypeCheckerEnv)
 
@@ -20,6 +22,7 @@ data TypeContext =
   | TypeInMethodArgDecl (Syntax.ClassDecl Position) (Syntax.Arg Position)
   | TypeInCast (Syntax.Expr Position)
   | TypeInNew (Syntax.Expr Position)
+  deriving (Show, Typeable)
 
 data InternalTCError =
   ITCEClassContextNotAvailable (Maybe String)
@@ -27,11 +30,14 @@ data InternalTCError =
   | ITCEMissingClassMember String String
   | ITCEDuplicateMethodArg Type.Name Type.Name Type.Type
   | ITCEDuplicateFunctionArg Type.Name Type.Name Type.Type
+  | ITCEMissingMember String String
+  deriving (Show, Typeable)
 
 
 data Error
   =
    UnknownFailure TypeCheckerEnv String
+   | NumericConstantExceedsTypeLimit TypeCheckerEnv (Syntax.Lit Position) Integer [(String, Syntax.Type Position)]
    | InternalTypecheckerFailure TypeCheckerEnv String InternalTCError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
@@ -43,7 +49,9 @@ data Error
    | ArrayAccessNonNumericIndex TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
    | IndexAccessNonCompatibleType TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
    | FieldAccessNonCompatibleType TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
+   | UnknownClassMember TypeCheckerEnv Type.Class (Syntax.Ident Position) [Type.Class]
    | IllegalTypeUsed TypeCheckerEnv TypeContext Type.Type
+   | ImpossibleInference TypeCheckerEnv TypeContext Type.Type Position
    | MissingReturnValue TypeCheckerEnv Position Type.Type Type.Function
    | VariableRedeclared TypeCheckerEnv Position (Type.Name, Type.Type) (Type.Name, Type.Type)
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
@@ -69,6 +77,7 @@ data Error
   | DuplicateClass Type.Class [Type.Class]
   | DuplicateMember Type.Class Type.Member [Type.Member]
   | DuplicateMembersInChain Type.Class Type.Member [(Type.Class, Type.Member)]
+  deriving (Typeable, Show)
   -- | DuplicateMethod ClassId MethodId
   -- | DuplicateConstructor ClassId (Maybe ConstructorId)
   -- | ClassMatch ClassId ClassId
