@@ -430,8 +430,9 @@ instance TypeCheckable Syntax.Expr where
                 failure $ Errors.CallNotCallableType env eft nes
     doInferType cast@(Syntax.Cast pos t e) = do
         checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
+        env <- tcEnv
         case t of
-            Syntax.InfferedT _ -> todoImplementError ("Invalid type in cast expression")
+            Syntax.InfferedT _ -> failure $ Errors.IllegalTypeUsed env (Errors.TypeInCast cast) t
             _ -> do
                 (ne, et) <- inferType e
                 c <- canBeCastDown et t
@@ -440,7 +441,7 @@ instance TypeCheckable Syntax.Expr where
                         (Syntax.Cast _ _ ie) -> return (Syntax.Cast pos t ie, t)
                         (Syntax.Lit _ (Syntax.Null _)) -> return (ne, t)
                         _ -> return (Syntax.Cast pos t ne, t)
-                else todoImplementError ("Illegal cast of "++printi 0 et++" to "++printi 0 t)
+                else failure $ Errors.IncompatibleTypesCast env cast ne et t
     doInferType stmt@(Syntax.ArrAccess pos earr ein _) = do
         (nearr, art) <- inferType earr
         env <- tcEnv
@@ -485,16 +486,17 @@ instance TypeCheckable Syntax.Expr where
                     Nothing -> failure $ Errors.InternalTypecheckerFailure env "getInnerMemberType" $ Errors.ITCEMissingMember clsName i
     doInferType (Syntax.UnaryOp pos op e) = do
         (ne, et) <- inferType e
+        env <- tcEnv
         case (op, et) of
             (Syntax.Not _, Syntax.BoolT _) -> return (Syntax.UnaryOp pos op ne, et)
             (Syntax.Neg _, Syntax.IntT _) -> return (Syntax.UnaryOp pos op ne, et)
             (Syntax.Neg _, Syntax.ByteT _) -> return (Syntax.UnaryOp pos op ne, et)
-            (Syntax.Not _, _) -> todoImplementError ("Expected boolean expression, given "++printi 0 et)
-            _ -> todoImplementError ("Expected a number, given "++printi 0 et)
+            (_, _) -> failure $ Errors.IncompatibleTypesUnaryOp env op (ne, et)
     doInferType (Syntax.BinaryOp pos op el er) = do
         (nel, elt) <- inferType el
         (ner, ert) <- inferType er
-        let err = todoImplementError ("Incompatible operands' types: "++printi 0 elt++" and "++printi 0 ert)
+        env <- tcEnv
+        let err = failure $ Errors.IncompatibleTypesBinaryOp env op (nel, elt) (ner, ert)
         case (op, fmap (\_->()) elt, fmap (\_->()) ert) of
             (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
             (Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)

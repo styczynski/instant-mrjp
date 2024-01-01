@@ -415,6 +415,51 @@ decodeError (IncompatibleTypesReturn env (Syntax.ReturnValue pos _) contextFn ac
     , _errorHelp = Nothing
     , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
 }
+decodeError (IncompatibleTypesCast env castExpr expr originalType castedType) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Cannot explicitly cast type " ++ printi 0 originalType ++ " to requested type " ++ printi 0 castedType
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos castExpr
+    , _errorContexts = [
+        ("The casted expression has type " ++ printi 0 originalType ++ " which is incompatible with " ++ printi 0 castedType, Just $ Syntax.getPos expr)
+    ]
+    , _errorHelp = Nothing
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
+decodeError(IncompatibleTypesUnaryOp env unOp@(Syntax.Neg _) (expr, exprType)) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Numeric negation operator '" ++ printi 0 unOp ++ "' was applied to incompatible type i.e. " ++ printi 0 exprType
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos unOp
+    , _errorContexts = [
+        ("Right side of '" ++ printi 0 unOp ++ "' has type " ++ printi 0 exprType, Just $ Syntax.getPos expr)
+    ]
+    , _errorHelp = Just ("Modify the parameter of '" ++ printi 0 unOp ++ "' to be a numeric value", Syntax.getPos unOp)
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
+decodeError(IncompatibleTypesUnaryOp env unOp@(Syntax.Not _) (expr, exprType)) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Logic negation operator '" ++ printi 0 unOp ++ "' was applied to incompatible type i.e. " ++ printi 0 exprType
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos unOp
+    , _errorContexts = [
+        ("Right side of '" ++ printi 0 unOp ++ "' has type " ++ printi 0 exprType, Just $ Syntax.getPos expr)
+    ]
+    , _errorHelp = Just ("Modify the parameter of '" ++ printi 0 unOp ++ "' to be a boolean value", Syntax.getPos unOp)
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
+decodeError (IncompatibleTypesBinaryOp env binOp (leftExpr, leftType) (rightExpr, rightType)) = SimpleError {
+    _errorName = "Incompatible type"
+    , _errorDescription = "Operator '" ++ printi 0 binOp ++ "' was applied to incompatible types, namely " ++ printi 0 leftType ++ " and " ++ printi 0 rightType
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos binOp
+    , _errorContexts = [
+        ("Left side of '" ++ printi 0 binOp ++ "' has type " ++ printi 0 leftType, Just $ Syntax.getPos leftExpr)
+        , ("Right side of '" ++ printi 0 binOp ++ "' has type " ++ printi 0 rightType, Just $ Syntax.getPos rightExpr)
+    ]
+    , _errorHelp = Just ("Modify parameters to be of compatible types. ", Syntax.getPos binOp)
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
 decodeError (DuplicateFunctionArgument env fn (Syntax.Arg pos argType argID) otherArgs) =
     let argMessages = map (argMessage argType) otherArgs in
     let duplciatesCount = length argMessages  in

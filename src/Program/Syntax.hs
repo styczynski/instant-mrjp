@@ -362,6 +362,10 @@ instance PrettyPrint (BinOp a) where
     printi _ (And _) = "&&"
     printi _ (Or _) = "||"
 
+instance PrettyPrint (UnOp a) where
+    printi _ (Not _) = "!"
+    printi _ (Neg _) = "-"
+
 instance PrettyPrint (Lit a) where
     printi _ (Int _ i) = show i
     printi _ (Byte _ i) = show i

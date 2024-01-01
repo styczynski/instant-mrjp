@@ -25,10 +25,11 @@ int foo(int a, int b) {
         string c = lel("kota", 5+5);
         String[] q = new String[2];
         //String p = b.lol;
-        if (c) int c = 2;
+        //if (c) int c = 2;
     }
     class2 f;
     // int r = f.bar;
+    int u = (int) f;
     return a+b;
 }
 

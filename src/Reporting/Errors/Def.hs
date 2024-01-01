@@ -67,6 +67,9 @@ data Error
    | IncompatibleTypesReturn TypeCheckerEnv (Syntax.Stmt Position) Type.Function Type.Type Type.Type
    | IncompatibleTypesAssign TypeCheckerEnv (Syntax.Stmt Position) Type.Type Type.Type
    | IncompatibleTypesInit TypeCheckerEnv (Syntax.DeclItem Position) Type.Type Type.Type
+   | IncompatibleTypesBinaryOp TypeCheckerEnv (Syntax.BinOp Position) (Syntax.Expr Position, Type.Type) (Syntax.Expr Position, Type.Type)
+   | IncompatibleTypesUnaryOp TypeCheckerEnv (Syntax.UnOp Position) (Syntax.Expr Position, Type.Type)
+   | IncompatibleTypesCast TypeCheckerEnv (Syntax.Expr Position) (Syntax.Expr Position) Type.Type Type.Type
    | DuplicateFunctionArgument TypeCheckerEnv Type.Function (Syntax.Arg Position) [(Syntax.Arg Position)]
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
