@@ -100,6 +100,36 @@ checkRedeclarationInClasses cls = do
                 walk (_, []) = return ()
                 walk (_, _) = return ()
 
+addBuiltinFunctions :: [Type.Function] -> TypeChecker [Type.Function]
+addBuiltinFunctions fns = return $ builtIn ++ fns
+    where
+        args types = M.fromList $ map (\t -> ("", (Ident Undefined "", t))) types
+        noargs = M.empty
+        void = VoidT BuiltIn
+        bool = BoolT BuiltIn
+        int = IntT BuiltIn
+        byte = ByteT BuiltIn
+        name = Ident BuiltIn
+        string = StringT BuiltIn
+        array = ArrayT BuiltIn
+        object = class_ "Object"
+        class_ s = ClassT BuiltIn (name s)
+        builtinFunctionDecl :: Definition Position
+        builtinFunctionDecl = FunctionDef BuiltIn (VoidT BuiltIn) (Ident BuiltIn "") [] (Block BuiltIn [])
+        builtIn = [
+                Type.Fun (name "printString") void (args [string]) builtinFunctionDecl,
+                Type.Fun (name "printInt") void (args [int]) builtinFunctionDecl,
+                Type.Fun (name "printBoolean") void (args [bool]) builtinFunctionDecl,
+                Type.Fun (name "printBinArray") void (args [array byte]) builtinFunctionDecl,
+                Type.Fun (name "byteToString") string (args [byte]) builtinFunctionDecl,
+                Type.Fun (name "boolToString") string (args [bool]) builtinFunctionDecl,
+                Type.Fun (name "intToString") string (args [int]) builtinFunctionDecl,
+                Type.Fun (name "print") void (args [object]) builtinFunctionDecl,
+                Type.Fun (name "error") void noargs builtinFunctionDecl,
+                Type.Fun (name "readInt") int noargs builtinFunctionDecl,
+                Type.Fun (name "readString") string noargs builtinFunctionDecl
+            ]
+
 addBuiltinClasses :: [Type.Class] -> TypeChecker [Type.Class]
 addBuiltinClasses cls = return $ builtIn ++ cls
     where
@@ -149,7 +179,7 @@ addBuiltinClasses cls = return $ builtIn ++ cls
 collectDefinitions :: [Definition Position] -> TypeChecker ()
 collectDefinitions defs = do
     cls <- checkDuplicates (\h l -> failure $ Errors.DuplicateClass h l) =<< return . groupByKey Type.stringName =<< addBuiltinClasses =<< collectClasses defs
-    fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< collectFunctions defs
+    fns <- checkDuplicates (\h l -> failure $ Errors.DuplicateFun h l) =<< return . groupByKey Type.stringName =<< addBuiltinFunctions =<< collectFunctions defs
     -- cls <- return $ M.map (replaceEmptyParent "Object") cls
     hierarchy <- Hierarchy.constructInheritanceHierarchy cls
     Hierarchy.checkLoops hierarchy cls

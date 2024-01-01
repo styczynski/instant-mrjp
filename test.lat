@@ -26,10 +26,10 @@ int foo(int a, int b) {
         String[] q = new String[2];
         //String p = b.lol;
         //if (c) int c = 2;
+        int u = c + 2;
     }
     class2 f;
     // int r = f.bar;
-    int u = (int) f;
     return a+b;
 }
 
