@@ -21,9 +21,18 @@ data TypeContext =
   | TypeInCast (Syntax.Expr Position)
   | TypeInNew (Syntax.Expr Position)
 
+data InternalTCError =
+  ITCEClassContextNotAvailable (Maybe String)
+  | ITCEFunctionContextNotAvailable (Maybe String)
+  | ITCEMissingClassMember String String
+  | ITCEDuplicateMethodArg Type.Name Type.Name Type.Type
+  | ITCEDuplicateFunctionArg Type.Name Type.Name Type.Type
+
+
 data Error
   =
    UnknownFailure TypeCheckerEnv String
+   | InternalTypecheckerFailure TypeCheckerEnv String InternalTCError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]

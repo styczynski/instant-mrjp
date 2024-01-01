@@ -65,6 +65,8 @@ printVars header vars = showVars 0 header vars
         showVar id varType =
             "'" ++ Type.stringName id ++ "' declared at " ++ (show id) ++ " :: " ++ (printi 0 varType)
 
+formatInternalErrorContext :: String -> Errors.DebugContextMarker
+formatInternalErrorContext msg = Errors.MarkMultiple "Internals context" [Errors.MarkNothing msg]
 
 formatFunctionContext :: TypeCheckerEnv -> Errors.DebugContextMarker
 formatFunctionContext env = case env^.currentFunction of

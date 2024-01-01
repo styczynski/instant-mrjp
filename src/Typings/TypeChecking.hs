@@ -65,6 +65,11 @@ getFunction name = tcEnvGet ((flip findFunction) name)
 getVar :: String -> TypeChecker (Maybe Type.Type)
 getVar name = (maybe (return Nothing) (return . Just . snd)) =<< (tcEnvGet $ lookupVar name)
 
+internalTCFailure :: String -> Errors.InternalTCError -> TypeChecker a
+internalTCFailure src err = do
+    env <- tcEnv
+    failure $ Errors.InternalTypecheckerFailure env src err
+
 withSeparateScope :: Position -> TypeChecker x -> TypeChecker x
 withSeparateScope pos m =
     withStateT revertScope . return =<< withStateT (separateScope pos) m
@@ -72,33 +77,33 @@ withSeparateScope pos m =
 withClassContext :: String -> TypeChecker x -> TypeChecker x
 withClassContext className m = do
     -- TODO: Add class this to env here!! (see classEnv)
-    (\cls -> withStateT (\env -> env & currentClass %~ (\_ -> Just cls)) m) =<< maybe (todoImplementError "Unknown class was used") return =<< findClass className
+    (\cls -> withStateT (\env -> env & currentClass %~ (\_ -> Just cls)) m) =<< maybe (internalTCFailure "withClassContext" $ Errors.ITCEClassContextNotAvailable $ Just className) return =<< findClass className
 
 withMethodContext :: String -> TypeChecker x -> TypeChecker x
 withMethodContext methodName m = do
         env <- tcEnv
+        (Type.Class (Syntax.Ident pos currentClassName) _ _ currentClassDecl) <- maybe (internalTCFailure "withMethodContext" $ Errors.ITCEClassContextNotAvailable Nothing) (return) $ env^.currentClass
         member <- tcEnvGet ((flip findMember) methodName)
         case member of
                 (Just (Type.Method methodName methodType args (Syntax.MethodDecl a t id as b))) -> do
-                    (Type.Class (Syntax.Ident pos _) _ _ currentClassDecl) <- maybe (todoImplementError "withMethodContext: missing current class") (return) $ env^.currentClass
                     withSeparateScope pos (methodContext methodName methodType args (Syntax.FunctionDef a t id as b) m)
-                _ -> todoImplementError "withMethodContext: Missing member?"
+                _ -> internalTCFailure "withMethodContext" $ Errors.ITCEMissingClassMember currentClassName methodName
     where
         methodContext :: Type.Name -> Type.Type -> (M.Map String (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
         methodContext methodName methodType args currentClassDecl m = do
             env <- tcEnv
-            newEnv <- foldM (\accEnv (varName, varType) -> either (\_ -> todoImplementError "withMethodContext: duplicate arg?") (return) $ addVar varName varType accEnv) env args
+            newEnv <- foldM (\accEnv (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withMethodContext" $ Errors.ITCEDuplicateMethodArg n1 n2 t) (return) $ addVar varName varType accEnv) env args
             withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just $ (Type.Fun methodName methodType args currentClassDecl))) m 
  
 
 withFunctionContext :: String -> TypeChecker x -> TypeChecker x
 withFunctionContext funcName m = do
     -- TODO: Add args to env here!!! (see funEnv)
-    fn@(Type.Fun _ _ args _) <- maybe (todoImplementError $ "Unknown function was used: " ++ funcName) return =<< tcEnvGet (flip findFunction funcName)
+    fn@(Type.Fun _ _ args _) <- maybe (internalTCFailure "withFunctionContext" $ Errors.ITCEFunctionContextNotAvailable $ Just funcName) return =<< tcEnvGet (flip findFunction funcName)
     --withStateT (\env -> env & currentFunction %~ (\_ -> Just fn)) m
     env <- tcEnv
     -- either (\_ -> return env) (return) $ addVar varName varType env
-    newEnv <- foldM (\env (varName, varType) -> either (\_ -> todoImplementError "withFunctionContext: Duplicate arg?") (return) $ addVar varName varType env) env args
+    newEnv <- foldM (\env (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withFunctionContext" $ Errors.ITCEDuplicateFunctionArg n1 n2 t) (return) $ addVar varName varType env) env args
     withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
     --withStateT (\env -> M.fold (\(varName, varType) env -> addVar varName varType env) env args)
 
@@ -108,11 +113,11 @@ getContextClassType =
 
 getContextFunction :: TypeChecker Type.Function
 getContextFunction =
-    maybe (todoImplementError "Invalid usage ??? out of function context") (return) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
+    maybe (internalTCFailure "getContextFunction" $ Errors.ITCEFunctionContextNotAvailable Nothing) (return) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
 getContextFunctionReturnType :: TypeChecker Type.Type
 getContextFunctionReturnType =
-    maybe (todoImplementError "Invalid usage ??? out of function context") (\(Type.Fun _ retType _ _) -> return retType) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
+    maybe (internalTCFailure "getContextFunction" $ Errors.ITCEFunctionContextNotAvailable Nothing) (\(Type.Fun _ retType _ _) -> return retType) =<< ((tcEnvGet $ (\env -> env^.currentFunction)))
 
 checkArgsRedeclaration :: (TypeCheckerEnv -> (Type.Function) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> Errors.Error) -> [Syntax.Arg Position] -> TypeChecker ()
 checkArgsRedeclaration errorHandler args = 
@@ -120,7 +125,7 @@ checkArgsRedeclaration errorHandler args =
     where
         checkError :: (TypeCheckerEnv -> (Type.Function) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> Errors.Error) -> (Syntax.Arg Position) -> [(Syntax.Arg Position)] -> TypeChecker ()
         checkError errorHandler arg [] = return ()
-        checkError errorHandler arg duplicates = failure =<< tcEnvGet (\env -> maybe (Errors.UnknownFailure env "checkArgsRedeclaration: No current function") (\fn -> errorHandler env fn arg duplicates) $ env^.currentFunction)
+        checkError errorHandler arg duplicates = failure =<< tcEnvGet (\env -> maybe (Errors.InternalTypecheckerFailure env "checkArgsRedeclaration" $ Errors.ITCEFunctionContextNotAvailable Nothing) (\fn -> errorHandler env fn arg duplicates) $ env^.currentFunction)
 
 getMemberType :: Syntax.Ident Position -> Syntax.Ident Position -> TypeChecker (Maybe (Type.Type))
 getMemberType _ _ = return Nothing
@@ -158,8 +163,7 @@ checkCastUpErr errorHandler pos tFrom tTo = do
     c <- canBeCastUp tFrom tTo
     if c then return ()
     else (\env -> failure $ errorHandler env tFrom tTo) =<< tcEnv
-    --else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
-
+    
 checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
 checkCastUp pos tFrom tTo = do
     c <- canBeCastUp tFrom tTo
@@ -410,7 +414,7 @@ instance TypeCheckable Syntax.Expr where
             _ -> do
                 env <- tcEnv
                 nes <- mapM inferType es
-                failure $ Errors.CallNotCallableType env eft nes --todoImplementError ("Expected a function or a method, given"++printi 0 eft)
+                failure $ Errors.CallNotCallableType env eft nes
     doInferType cast@(Syntax.Cast pos t e) = do
         checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
         case t of
@@ -433,7 +437,7 @@ instance TypeCheckable Syntax.Expr where
                 case et of
                     Syntax.IntT _ -> return (Syntax.ArrAccess pos nearr nein (Just t), t)
                     Syntax.ByteT _ -> return (Syntax.ArrAccess pos nearr (Syntax.Cast pos int nein) (Just t), t)
-                    _ -> failure $ Errors.ArrayAccessNonNumericIndex env et nein stmt --todoImplementError ("Expected a numerical index, given "++printi 0 et)
+                    _ -> failure $ Errors.ArrayAccessNonNumericIndex env et nein stmt
             _ -> failure $ Errors.IndexAccessNonCompatibleType env art nearr stmt
     doInferType stmt@(Syntax.NewObj pos t m) = do
         checkTypeExists NoVoid (Errors.TypeInNew stmt) t
@@ -449,7 +453,7 @@ instance TypeCheckable Syntax.Expr where
                 (ne, et) <- inferType e
                 b <- canBeCastUp et int
                 if b then return (Syntax.NewObj pos t (Just ne), Syntax.ArrayT pos t)
-                else failure $ Errors.NewArrayNonNumericDimensions env et ne stmt --todoImplementError ("Expected a numerical size in array constructor, given "++printi 0 et)
+                else failure $ Errors.NewArrayNonNumericDimensions env et ne stmt
     doInferType stmt@(Syntax.Member pos e id _) = do
         (ne, et) <- inferType e
         env <- tcEnv

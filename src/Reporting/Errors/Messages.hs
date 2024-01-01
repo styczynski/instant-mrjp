@@ -13,6 +13,7 @@ import Utils.Similarity
 
 import Program.Syntax as Syntax
 import Reporting.Errors.Position
+import Typings.Env(TypeCheckerEnv)
 
 import Typings.Debug
 import Control.Lens
@@ -54,7 +55,40 @@ decodeTypeContext (TypeInNew (Syntax.NewObj pos t m)) =
     Just $ ("New object constructor", pos, [])
 decodeTypeContext _ = Nothing
 
+decodeInternalTCError :: TypeCheckerEnv -> InternalTCError -> Maybe (String, Maybe Position)
+decodeInternalTCError env (ITCEClassContextNotAvailable Nothing) =
+    Just $ ("Used a functionality that can only be used in the context of the class outside any class context", Nothing)
+decodeInternalTCError env (ITCEClassContextNotAvailable (Just className)) =
+    Just $ ("Used a functionality that can only be used in the context of the class outside any class context (looked for class '" ++ className ++ "')", Nothing)
+decodeInternalTCError env (ITCEFunctionContextNotAvailable Nothing) =
+    Just $ ("Used a functionality that can only be used in the context of the function outside any function context", Nothing)
+decodeInternalTCError env (ITCEFunctionContextNotAvailable (Just funcName)) =
+    Just $ ("Used a functionality that can only be used in the context of the function outside any function context (looked for function '" ++ funcName ++ "')", Nothing)
+decodeInternalTCError env (ITCEMissingClassMember className memberName) =
+    Just $ ("Cannot find member '" ++ memberName ++ "' of the class '" ++ className ++ "'. Are both the class and member well defined?", Nothing)
+decodeInternalTCError env (ITCEDuplicateMethodArg name1 name2 varType) =
+    Just $ ("There are duplicated method parameters: '" ++ stringName name1 ++ "' and '" ++ stringName name2 ++ "' of type '" ++ printi 0 varType ++ "'", Just $ Syntax.getPos name1)
+decodeInternalTCError env (ITCEDuplicateFunctionArg name1 name2 varType) =
+    Just $ ("There are duplicated function parameters: '" ++ stringName name1 ++ "' and '" ++ stringName name2 ++ "' of type '" ++ printi 0 varType ++ "'", Just $ Syntax.getPos name1)
+decodeInternalTCError _ _ = Nothing
+
 decodeError :: Error -> SimpleError
+decodeError (InternalTypecheckerFailure env srcLabel err) =
+    case decodeInternalTCError env err of
+        Nothing -> decodeError (UnknownFailure env $ "Typechecking failed because of unknown reason")
+        (Just (msg, contextPosition)) -> SimpleError {
+            _errorName = "Internal typechecking problem"
+            , _errorDescription = "Internals of a typechecker failed some assertions. This means there's a very minor bug within the typechecker system, that cannot handle some error case scenario correctly. However the typechecker terminated gracefully and this is probably caused by incorrect user input somewhere else."
+            , _errorSugestions = [
+                "Check if all the code is provided correctly. If you are sure that it is, there's probability of a big within the typechecking system itself."
+            ]
+            , _errorLocation = Nothing
+            , _errorContexts = [
+                (msg, contextPosition)
+            ]
+            , _errorHelp = Nothing
+            , _errorMarkers = combineMarkers [formatInternalErrorContext $ "Problem occurred in internal component '" ++ srcLabel ++ "'", formatInferenceTrace env, formatFunctionContext env]
+        }
 decodeError (UnknownFailure env msg) = SimpleError {
     _errorName = "Unknown fatal error"
     , _errorDescription = "This is a generic case for an error. It should never ever happen in practice. It's likely a problem with compiler itself. Oopsie!\n\n" ++ show env
