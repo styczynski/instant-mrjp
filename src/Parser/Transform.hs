@@ -80,9 +80,8 @@ instance RawAST A.Expr' B.Expr where
             _ -> B.NewObj a nt Nothing
     transform (A.ENewArray a t e) = B.NewObj a (transform t) (Just $ transform e)
     transform (A.EArr a e1 e2) = B.ArrAccess a (transform e1) (transform e2) Nothing
-    transform (A.EString a str) = B.Lit a (B.String a (delim $ trim str))
+    transform (A.EString a str) = B.Lit a (B.String a (delim str))
         where
-            trim s = let l = length s in take (l-2) (drop 1 s)
             delim ('\\':'n':xs) = '\n' : delim xs
             delim ('\\':'t':xs) = '\t' : delim xs
             delim ('\\':'\"':xs) = '\"' : delim xs
