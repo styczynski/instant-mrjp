@@ -79,7 +79,7 @@ withSeparateScope pos m =
 withClassContext :: String -> TypeChecker x -> TypeChecker x
 withClassContext className m = do
     -- TODO: Add class this to env here!! (see classEnv)
-    (\cls -> withStateT (\env -> env & currentClass %~ (\_ -> Just cls)) m) =<< maybe (internalTCFailure "withClassContext" $ Errors.ITCEClassContextNotAvailable $ Just className) return =<< findClass className
+    withStateT (\env -> env & currentClass .~ Nothing) . return =<< (\cls -> withStateT (\env -> env & currentClass %~ (\_ -> Just cls)) m) =<< maybe (internalTCFailure "withClassContext" $ Errors.ITCEClassContextNotAvailable $ Just className) return =<< findClass className
 
 withMethodContext :: String -> TypeChecker x -> TypeChecker x
 withMethodContext methodName m = do
@@ -427,7 +427,7 @@ instance TypeCheckable Syntax.Expr where
             _ -> do
                 env <- tcEnv
                 nes <- mapM inferType es
-                failure $ Errors.CallNotCallableType env eft nes
+                failure $ Errors.CallNotCallableType env nef eft nes
     doInferType cast@(Syntax.Cast pos t e) = do
         checkTypeExists Type.NoVoid (Errors.TypeInCast cast) t
         env <- tcEnv

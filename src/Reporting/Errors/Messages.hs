@@ -371,6 +371,15 @@ decodeError (NewUsageOnString env expr@(Syntax.NewObj pos _ (Just init))) = Simp
     , _errorHelp = Just ("Remove 'new String'", Syntax.getPos init)
     , _errorMarkers = NoMarker
 }
+decodeError (CallNotCallableType env calledExpr calledType args) = SimpleError {
+    _errorName = "Invalid call"
+    , _errorDescription = "Trying to call value that is not a function, but value of type: " ++ printi 0 calledType
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos calledExpr
+    , _errorContexts = map (\(index, (arg, argType)) -> ("# " ++ show index ++ ". parameter to this call is of type: " ++ printi 0 argType, Just $ Syntax.getPos arg)) $ zip [1..] args
+    , _errorHelp = Nothing
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
 decodeError (CallIncompatibleNumberOfParameters env expr (Syntax.FunT _ ret args) actualArgs) = SimpleError {
     _errorName = "Invalid call"
     , _errorDescription = "Calling value that expects " ++ (show $ length args) ++ " parameters, but " ++ (show $ length actualArgs) ++ " were given"

@@ -67,9 +67,7 @@ performTypeCheck prog@(Program pos defs) = do
 
 checkTypes :: Program Position -> LattePipeline TypeCheckingResult
 checkTypes prog@(Program pos defs) = do
-    result <- return $ runExceptT (evalStateT (performTypeCheck prog) initialEnv)
-    result
-
+    either (return . Left) (\((result, cls), env) -> return $ Right (env, result, cls)) =<< runExceptT (runStateT (performTypeCheck prog) initialEnv)
     -- let classes = addBuiltInTypes $ map changeEmptyParent classDefs
     -- checkCyclesInClasses classes
     -- checkRedeclarationInClasses classes

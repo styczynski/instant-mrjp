@@ -15,6 +15,7 @@ import Parser.Parser
 import Parser.Types
 import Parser.Transform
 import Typings.Checker as TypeChecker
+import Optimizer.Optimizer as Optimizer
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -49,6 +50,13 @@ runPipeline backend = do
             Left err -> do
               printLogInfo $ "Typecheck failed"
               printErrors err file contents parsedAST
-            Right (prog, _) -> do
+            Right (tcEnv, prog, _) -> do
               printLogInfo $ "Typecheck done" <> (T.pack file)
+              optimizerResult <- Optimizer.optimize tcEnv prog
+              case optimizerResult of
+                Left err -> do
+                  printLogInfo $ "Optimizer failed"
+                  printErrors err file contents parsedAST
+                Right (prog) -> do
+                  printLogInfo $ "Optimization done" <> (T.pack file)
     _ -> latteError "BAD ARGS"

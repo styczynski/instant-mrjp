@@ -23,7 +23,7 @@ import Control.Monad.Trans.Class
 
 type TypeChecker a = (StateT TypeCheckerEnv (ExceptT Errors.Error LattePipeline)) a
 
-type TypeCheckingResult = Either Errors.Error (Syntax.Program Position, [Type.Class])
+type TypeCheckingResult = Either Errors.Error (TypeCheckerEnv, Syntax.Program Position, [Type.Class])
 
 liftPipelineTC :: LattePipeline a -> TypeChecker a
 liftPipelineTC = lift . lift

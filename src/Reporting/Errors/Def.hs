@@ -52,7 +52,7 @@ data Error
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
-   | CallNotCallableType TypeCheckerEnv Type.Type [(Syntax.Expr Position, Type.Type)]
+   | CallNotCallableType TypeCheckerEnv (Syntax.Expr Position) Type.Type [(Syntax.Expr Position, Type.Type)]
    | NewUsageOnString TypeCheckerEnv (Syntax.Expr Position)
    | NewUsageOnNonClass TypeCheckerEnv Type.Type (Syntax.Expr Position)
    | NewArrayNonNumericDimensions TypeCheckerEnv Type.Type (Syntax.Expr Position) (Syntax.Expr Position)
