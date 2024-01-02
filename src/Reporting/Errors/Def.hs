@@ -37,6 +37,7 @@ data InternalTCError =
 data InternalOPTError =
   IOPTEFailedAssertion String
   | IOPTECheckConstUnexpectedLiterals (Syntax.Lit Position) (Syntax.Lit Position)
+  | IOPTECannotFindFunctionOrClass String
   deriving (Show, Typeable)
 
 data ConditionBodyLocation = 
@@ -80,6 +81,10 @@ data Error
    | DuplicateFunctionArgument TypeCheckerEnv Type.Function (Syntax.Arg Position) [(Syntax.Arg Position)]
    | IndexAlwaysNegative TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position)
    | ExpressionAlwaysNull TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position)
+   | DivisionByZero TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position) (Syntax.BinOp Position)
+   | ModuloByZero TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position) (Syntax.BinOp Position)
+   | FunctionLacksReturn TypeCheckerEnv (OptimizerEnv ()) Type.Function (Syntax.Stmt Position)
+   | MethodLacksReturn TypeCheckerEnv (OptimizerEnv ()) Type.Class Type.Member (Syntax.Stmt Position)
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
    | MainHasArgs Type.Function TypeCheckerEnv

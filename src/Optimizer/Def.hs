@@ -13,6 +13,9 @@ import Optimizer.Env
 
 type Optimizer s a = (StateT (OptimizerEnv s) (ExceptT Errors.Error LattePipeline)) a
 
+tcState :: Optimizer s (TypeChecker.TypeCheckerEnv)
+tcState = (\env -> env^.tCEnv) <$> get
+
 oState :: Optimizer s s
 oState = (\env -> env^.internalState) <$> get
 

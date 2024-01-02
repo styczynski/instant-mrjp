@@ -591,7 +591,7 @@ instance ConstFoldable Syntax.Expr where
             Syntax.Not _ -> case ne of
                         Syntax.Lit _ (Syntax.Bool _ b) -> return (Syntax.Lit p (Syntax.Bool p (not b)))
                         _ -> return (Syntax.UnaryOp p op ne)
-    doFoldConst (Syntax.BinaryOp p op el er) = do 
+    doFoldConst parent@(Syntax.BinaryOp p op el er) = do 
         nel <- foldConst el
         ner <- foldConst er
         let ne = (Syntax.BinaryOp p op nel ner)
@@ -610,18 +610,15 @@ instance ConstFoldable Syntax.Expr where
                 let lin = linearize (Syntax.BinaryOp p op nel ner)
                     nop = fmap nill op
                 if nop == Syntax.Div () || nop == Syntax.Mod () || nop == Syntax.Sub () || nop == Syntax.And () || nop == Syntax.Or () then do
-                    let fslin = foldconsts op lin
-                        foldBack = foldl1 (Syntax.BinaryOp p op) fslin
-                    return foldBack
+                    fslin <- foldconsts parent op lin
+                    return $ foldl1 (Syntax.BinaryOp p op) fslin
                 else do
-                    let slin = sort lin
-                        fslin = foldconsts op slin
-                        foldBack = foldl1 (Syntax.BinaryOp p op) fslin
-                    return foldBack
+                    fslin <- foldconsts parent op $ sort lin
+                    return $ foldl1 (Syntax.BinaryOp p op) fslin
         where
             true p = (Syntax.Lit p (Syntax.Bool p True))
             false p = (Syntax.Lit p (Syntax.Bool p False))
-            checkConst :: (Ordering->Bool) -> Syntax.Expr Position -> Syntax.Expr Position -> Syntax.Expr Position -> Optimizer ConstPropagationEnv (Syntax.Expr Position)
+            checkConst :: (Ordering -> Bool) -> Syntax.Expr Position -> Syntax.Expr Position -> Syntax.Expr Position -> Optimizer ConstPropagationEnv (Syntax.Expr Position)
             checkConst f (Syntax.Lit _ x) (Syntax.Lit _ y) r =
                 case (x,y) of
                     (Syntax.Int p i, Syntax.Int _ j) -> if f $ compare i j then return (true p)
@@ -641,26 +638,30 @@ instance ConstFoldable Syntax.Expr where
                         reverseSide (Syntax.Ge p) = (Syntax.Le p)
                         reverseSide op = op
             checkConst _ _ _ r = return r
-            foldconsts :: Syntax.BinOp Position -> [Syntax.Expr Position] -> [Syntax.Expr Position]
-            foldconsts op@(Syntax.Add _) ((Syntax.Lit p (Syntax.String _ i)):(Syntax.Lit _ (Syntax.String _ j)):xs) = foldconsts op $ (Syntax.Lit p (Syntax.String p (i ++ j))):xs
-            foldconsts op@(Syntax.Add _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i+j) = foldconsts op $ (Syntax.Lit p (Syntax.Int p (i+j))):xs
-            foldconsts op@(Syntax.Sub _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i-j) = foldconsts op $ (Syntax.Lit p (Syntax.Int p (i-j))):xs
-            foldconsts op@(Syntax.Mul _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i*j) = foldconsts op $ (Syntax.Lit p (Syntax.Int p (i*j))):xs
-            foldconsts op@(Syntax.Div _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i `div` j) = foldconsts op $ (Syntax.Lit p (Syntax.Int p (i `div` j))):xs
-            foldconsts op@(Syntax.Add _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i+j) = foldconsts op $ (Syntax.Lit p (Syntax.Byte p (i+j))):xs
-            foldconsts op@(Syntax.Sub _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i-j) = foldconsts op $ (Syntax.Lit p (Syntax.Byte p (i-j))):xs
-            foldconsts op@(Syntax.Mul _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i*j) = foldconsts op $ (Syntax.Lit p (Syntax.Byte p (i*j))):xs
-            foldconsts op@(Syntax.Mod _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i `mod` j) = foldconsts op $ (Syntax.Lit p (Syntax.Int p (i `mod` j))):xs
-            foldconsts op@(Syntax.And _) ((Syntax.Lit p (Syntax.Bool _ i)):(Syntax.Lit _ (Syntax.Bool _ j)):xs) = foldconsts op $ (Syntax.Lit p (Syntax.Bool p (i && j))):xs
-            foldconsts (Syntax.And _) (f@(Syntax.Lit _ (Syntax.Bool _ True)):[]) = [f]
-            foldconsts op@(Syntax.And _) ((Syntax.Lit _ (Syntax.Bool _ True)):xs) = foldconsts op xs
-            foldconsts (Syntax.And _) (f@(Syntax.Lit _ (Syntax.Bool _ False)):xs) = [f]
-            foldconsts op@(Syntax.Or _) ((Syntax.Lit p (Syntax.Bool _ i)):(Syntax.Lit _ (Syntax.Bool _ j)):xs) = foldconsts op $ (Syntax.Lit p (Syntax.Bool p (i || j))):xs
-            foldconsts (Syntax.Or _) (f@(Syntax.Lit _ (Syntax.Bool _ True)):xs) = [f]
-            foldconsts (Syntax.Or _) (f@(Syntax.Lit _ (Syntax.Bool _ False)):[]) = [f]
-            foldconsts op@(Syntax.Or _) ((Syntax.Lit _ (Syntax.Bool _ False)):xs) = foldconsts op xs
-            foldconsts op (x:xs) = x:foldconsts op xs
-            foldconsts _ [] = []
+            foldconsts :: Syntax.Expr Position -> Syntax.BinOp Position -> [Syntax.Expr Position] -> Optimizer ConstPropagationEnv [Syntax.Expr Position]
+            foldconsts parent op@(Syntax.Add _) ((Syntax.Lit p (Syntax.String _ i)):(Syntax.Lit _ (Syntax.String _ j)):xs) = foldconsts parent op $ (Syntax.Lit p (Syntax.String p (i ++ j))):xs
+            foldconsts parent op@(Syntax.Add _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i+j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Int p (i+j))):xs
+            foldconsts parent op@(Syntax.Sub _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i-j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Int p (i-j))):xs
+            foldconsts parent op@(Syntax.Mul _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i*j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Int p (i*j))):xs
+            foldconsts parent op@(Syntax.Div _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | j == 0 = failure (\(tcEnv, oEnv) -> Errors.DivisionByZero tcEnv oEnv parent op) 
+            foldconsts parent op@(Syntax.Div _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i `div` j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Int p (i `div` j))):xs
+            foldconsts parent op@(Syntax.Add _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i+j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Byte p (i+j))):xs
+            foldconsts parent op@(Syntax.Sub _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i-j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Byte p (i-j))):xs
+            foldconsts parent op@(Syntax.Mul _) ((Syntax.Lit p (Syntax.Byte _ i)):(Syntax.Lit _ (Syntax.Byte _ j)):xs) | boundB (i*j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Byte p (i*j))):xs
+            foldconsts parent op@(Syntax.Mod _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | j == 0 = failure (\(tcEnv, oEnv) -> Errors.ModuloByZero tcEnv oEnv parent op) 
+            foldconsts parent op@(Syntax.Mod _) ((Syntax.Lit p (Syntax.Int _ i)):(Syntax.Lit _ (Syntax.Int _ j)):xs) | boundI (i `mod` j) = foldconsts parent op $ (Syntax.Lit p (Syntax.Int p (i `mod` j))):xs
+            foldconsts parent op@(Syntax.And _) ((Syntax.Lit p (Syntax.Bool _ i)):(Syntax.Lit _ (Syntax.Bool _ j)):xs) = foldconsts parent op $ (Syntax.Lit p (Syntax.Bool p (i && j))):xs
+            foldconsts parent (Syntax.And _) (f@(Syntax.Lit _ (Syntax.Bool _ True)):[]) = return [f]
+            foldconsts parent op@(Syntax.And _) ((Syntax.Lit _ (Syntax.Bool _ True)):xs) = foldconsts parent op xs
+            foldconsts parent (Syntax.And _) (f@(Syntax.Lit _ (Syntax.Bool _ False)):xs) = return [f]
+            foldconsts parent op@(Syntax.Or _) ((Syntax.Lit p (Syntax.Bool _ i)):(Syntax.Lit _ (Syntax.Bool _ j)):xs) = foldconsts parent op $ (Syntax.Lit p (Syntax.Bool p (i || j))):xs
+            foldconsts parent (Syntax.Or _) (f@(Syntax.Lit _ (Syntax.Bool _ True)):xs) = return [f]
+            foldconsts parent (Syntax.Or _) (f@(Syntax.Lit _ (Syntax.Bool _ False)):[]) = return [f]
+            foldconsts parent op@(Syntax.Or _) ((Syntax.Lit _ (Syntax.Bool _ False)):xs) = foldconsts parent op xs
+            foldconsts parent op (x:xs) = do
+                xxs <- foldconsts parent op xs
+                return $ x:xxs
+            foldconsts _ _ [] = return []
             specialExp :: Syntax.Expr Position -> Syntax.Expr Position
             specialExp (Syntax.BinaryOp p (Syntax.Div pop) (Syntax.BinaryOp _ (Syntax.Div _) el er) e) = (Syntax.BinaryOp p (Syntax.Div pop) el (Syntax.BinaryOp p (Syntax.Mul p) er e))
             specialExp e = e

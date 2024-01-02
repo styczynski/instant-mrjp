@@ -19,7 +19,7 @@ class class2 extends class1 {
 int foo(int a, int b) {
     string u = "e";
     boolean qq = 1==1;
-    var t = 9999999+1+1+1+1;
+    var t = (9999999+1+1+1+1) / (0+0+0+0+0*0+0*0*0+1-1+1-1+1);
     if (qq==true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
         //int c = "ala" + "ma" + lel("kota", 5+5);
@@ -28,13 +28,22 @@ int foo(int a, int b) {
         //String p = b.lol;
         //if (c) int c = 2;
         string u = c + 2;
+        return a+b;
     }
-    class2 f;
+    class2 f = new class2;
+    int extract = f.foo;
     // int r = f.bar;
-    return a+b;
+    //return a+b;
+}
+
+int invalid(int a, int b) {
+    if (true) {
+        return a*b;
+    }
 }
 
 int main() {
     // Problem with calls
     int r = foo(2, 5);
+    return 0;
 }

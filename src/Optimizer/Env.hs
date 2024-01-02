@@ -22,6 +22,9 @@ optimizerEnter pos env = env & positionTrace %~ (:) pos
 optimizerQuit :: Position -> OptimizerEnv s -> OptimizerEnv s
 optimizerQuit pos env = env & positionTrace %~ tail
 
+nextInternalState :: s -> OptimizerEnv t -> OptimizerEnv s
+nextInternalState st env = env { _oeInternalState = st }
+
 createInitialState :: TypeChecker.TypeCheckerEnv -> s -> OptimizerEnv s
 createInitialState tcEnv internalState = OptimizerEnv {
     _oeInternalState = internalState

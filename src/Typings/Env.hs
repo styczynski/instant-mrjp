@@ -110,6 +110,12 @@ findClassInheritanceChain :: TypeCheckerEnv -> String -> Maybe [Type.Class]
 findClassInheritanceChain env className = 
   let (Hierarchy _ m) = env^.definedClasses in M.lookup className m
 
+findMemberOf :: TypeCheckerEnv ->  Bool -> String -> String -> Either String (Maybe (Type.Class, Type.Member))
+findMemberOf env isOptional classId memberId = do
+    chain <- maybe (Left "No such class") return $ findClassInheritanceChain env classId
+    cls <- maybe (Left "No such class") return $ listToMaybe chain
+    maybe (if not isOptional then Left "No such member" else return $ Nothing) (\member -> return $ Just $ (cls, member)) $ listToMaybe $ mapMaybe (Type.findClassMember memberId) chain
+
 setupDefEnv :: FunctEnv -> ClassEnv -> Hierarchy -> TypeCheckerEnv -> TypeCheckerEnv
 setupDefEnv fns cls classHierarchy env =
     env {

@@ -412,6 +412,80 @@ decodeError (CallIncompatibleNumberOfParameters env expr (Syntax.FunT _ ret args
     , _errorHelp = Nothing
     , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
 }
+decodeError (DivisionByZero env oEnv expr binOp) = SimpleError {
+    _errorName = "Illegal numerical action"
+    , _errorDescription = "You are trying to divide numeric value by zero."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = [
+        ("The divisor of '/' has value equal to zero", Just $ Syntax.getPos binOp)
+    ]
+    , _errorHelp = Just (
+        "Check the code and change the value to be non-zero.", Syntax.getPos binOp
+    )
+    , _errorMarkers = NoMarker
+}
+decodeError (ModuloByZero env oEnv expr binOp) = SimpleError {
+    _errorName = "Illegal numerical action"
+    , _errorDescription = "You are trying to take modulo of numeric value by zero."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = [
+        ("The divisor of '%' has value equal to zero", Just $ Syntax.getPos binOp)
+    ]
+    , _errorHelp = Just (
+        "Check the code and change the value to be non-zero.", Syntax.getPos binOp
+    )
+    , _errorMarkers = NoMarker
+}
+decodeError (IndexAlwaysNegative env oEnv expr) = SimpleError {
+    _errorName = "Illegal access"
+    , _errorDescription = "The index of the value you are trying to access is always negative."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just (
+        "Check the code and change the value of the index not to be a negative constant at all times", Syntax.getPos expr
+    )
+    , _errorMarkers = NoMarker
+}
+decodeError (ExpressionAlwaysNull env oEnv expr) = SimpleError {
+    _errorName = "Illegal access"
+    , _errorDescription = "The value you're trying to access is always null"
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = []
+    , _errorHelp = Just (
+        "Check the code and change the value of the access object not to be a null constant at all times", Syntax.getPos expr
+    )
+    , _errorMarkers = NoMarker
+}
+decodeError (FunctionLacksReturn env oEnv fn@(Type.Fun _ retType _ decl) stmt) = SimpleError {
+    _errorName = "Missing return"
+    , _errorDescription = "Function '" ++ stringName fn ++ "' is missing return statement. Control flow reached end of its body."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos stmt
+    , _errorContexts = [
+        ("The function '" ++ stringName fn ++ "' declares return type of " ++ printi 0 retType ++ " but the return statement is missing in one of the control flow branches.", Just $ Syntax.getPos decl)
+    ]
+    , _errorHelp = Just (
+        "Provide return statement of type " ++ printi 0 retType ++ " here.", Syntax.getPos stmt
+    )
+    , _errorMarkers = combineMarkers []
+}
+decodeError (MethodLacksReturn env oEnv cls method@(Type.Method _ retType _ decl) stmt) = SimpleError {
+    _errorName = "Missing return"
+    , _errorDescription = "Method '" ++ stringName method ++ "' is missing return statement. Control flow reached end of its body."
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos stmt
+    , _errorContexts = [
+        ("The method '" ++ stringName method ++ "' declares return type of " ++ printi 0 retType ++ " but the return statement is missing in one of the control flow branches.", Just $ Syntax.getPos decl)
+    ]
+    , _errorHelp = Just (
+        "Provide return statement of type " ++ printi 0 retType ++ " here.", Syntax.getPos stmt
+    )
+    , _errorMarkers = combineMarkers []
+}
 decodeError (IncompatibleTypesInit env (Syntax.Init pos id e) rightType leftType) = SimpleError {
     _errorName = "Incompatible type"
     , _errorDescription = "Declaration of variable '" ++ printi 0 id ++ "' has type " ++ printi 0 leftType ++ " which is incompatible with the value that is being assigned."

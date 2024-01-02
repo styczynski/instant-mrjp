@@ -44,7 +44,7 @@ class (Syntax.IsSyntax a Position) => TypeCheckable a where
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
     inferType ast = do
         e <- tcEnv
-        --liftPipelineTC $ printLogInfoStr $ "-> " ++ (show $ Syntax.getPos ast) ++ " " ++ (show $ e^.inferTrace.inferStack) ++ (show $ e^.inferTrace.inferChildren)
+        liftPipelineTC $ printLogInfoStr $ "-> " ++ (show $ Syntax.getPos ast) ++ " " ++ (show $ e^.inferTrace.inferStack) ++ (show $ e^.inferTrace.inferChildren) ++ (show e)
         tcEnvSet (inferTraceEnter (Syntax.getPos ast))
         (newAst, astType) <- doInferType ast
         --tcEnvSet (\env -> env & debugTypings %~ M.insert (Syntax.getPos ast) astType)
@@ -101,10 +101,15 @@ withMethodContext methodName m = do
 
 withFunctionContext :: String -> TypeChecker x -> TypeChecker x
 withFunctionContext funcName m = do
-    fn@(Type.Fun _ _ args _) <- maybe (internalTCFailure "withFunctionContext" $ Errors.ITCEFunctionContextNotAvailable $ Just funcName) return =<< tcEnvGet (flip findFunction funcName)
-    env <- tcEnv
-    newEnv <- foldM (\env (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withFunctionContext" $ Errors.ITCEDuplicateFunctionArg n1 n2 t) (return) $ addVar varName varType env) env args
-    withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
+    fn@(Type.Fun (Syntax.Ident pos _) _ _ _) <- maybe (internalTCFailure "withFunctionContext" $ Errors.ITCEFunctionContextNotAvailable $ Just funcName) return =<< tcEnvGet (flip findFunction funcName)
+    withSeparateScope pos (functContext fn m)
+    where 
+        functContext :: Type.Function -> TypeChecker x -> TypeChecker x
+        functContext fn@(Type.Fun (Syntax.Ident pos _) _ args _) m = do
+            env <- tcEnv
+            newEnv <- foldM (\env (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withFunctionContext" $ Errors.ITCEDuplicateFunctionArg n1 n2 t) (return) $ addVar varName varType env) env args
+            withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just fn)) m
+
 
 getContextClassType :: TypeChecker (Maybe Type.Type)
 getContextClassType =
