@@ -18,8 +18,9 @@ class class2 extends class1 {
 
 int foo(int a, int b) {
     string u = "e";
-    var t = 9999999;
-    if (true) {
+    boolean qq = 1==1;
+    var t = 9999999+1+1+1+1;
+    if (qq==true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
         //int c = "ala" + "ma" + lel("kota", 5+5);
         string c = lel("kota", 5+5);

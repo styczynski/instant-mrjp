@@ -40,6 +40,7 @@ library:
     - generic-lens
     - prettyprinter
     - prettyprinter-ansi-terminal
+    - time
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

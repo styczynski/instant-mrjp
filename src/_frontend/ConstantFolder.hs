@@ -262,20 +262,20 @@ foldE (BinaryOp p op el er) = do
                     foldBack = foldl1 (BinaryOp p op) fslin
                 return foldBack
   where
-    true p = (Lit p (Bool p True))
-    false p = (Lit p (Bool p False))
-    checkConst :: (Ordering->Bool) -> Expr Position -> Expr Position -> Expr Position -> OuterMonad (Expr Position)
-    checkConst f (Lit _ x) (Lit _ y) r =
+    true p = (Syntax.Lit p (Syntax.Bool p True))
+    false p = (Syntax.Lit p (Syntax.Bool p False))
+    checkConst :: (Ordering->Bool) -> Syntax.Expr Position -> Syntax.Expr Position -> Syntax.Expr Position -> OuterMonad (Expr Position)
+    checkConst f (Syntax.Lit _ x) (Syntax.Lit _ y) r =
         case (x,y) of
-            (Int p i, Int _ j) -> if f $ compare i j then return (true p)
+            (Syntax.Int p i, Syntax.Int _ j) -> if f $ compare i j then return (true p)
                                   else return (false p)
-            (Byte p i, Byte _ j) -> if f $ compare i j then return (true p)
+            (Syntax.Byte p i, Syntax.Byte _ j) -> if f $ compare i j then return (true p)
                                     else return (false p)
-            (Bool p i, Bool _ j) -> if f $ compare i j then return (true p)
+            (Syntax.Bool p i, Syntax.Bool _ j) -> if f $ compare i j then return (true p)
                                  else return (false p)
-            (String p i, String _ j) -> if f $ compare i j then return (true p)
+            (Syntax.String p i, Syntax.String _ j) -> if f $ compare i j then return (true p)
                                  else return (false p)
-            _ -> throw ("WTF\n"++show r, BuiltIn)
+            (l1, l2) -> failure (\(tcEnv, oEnv) -> Errors.InternalOptimizerFailure tcEnv oEnv "checkConst" $ Errors.IOPTECheckConstUnexpectedLiterals l1 l2)
     checkConst _ _ _ (BinaryOp p op l@(Lit _ _) e) = return (BinaryOp p (reverseSide op) e l)
             where
                 reverseSide (Lt p) = (Gt p)

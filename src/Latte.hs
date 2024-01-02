@@ -24,6 +24,8 @@ import System.FilePath
 import System.IO
 import System.Process
 
+import Utils.Similarity
+
 runCLI :: () -> IO ()
 runCLI backend = evaluateLattePipeline $ runPipeline backend
 
@@ -51,12 +53,12 @@ runPipeline backend = do
               printLogInfo $ "Typecheck failed"
               printErrors err file contents parsedAST
             Right (tcEnv, prog, _) -> do
-              printLogInfo $ "Typecheck done" <> (T.pack file)
+              printLogInfo $ "Typecheck done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
               optimizerResult <- Optimizer.optimize tcEnv prog
               case optimizerResult of
                 Left err -> do
                   printLogInfo $ "Optimizer failed"
                   printErrors err file contents parsedAST
                 Right (prog) -> do
-                  printLogInfo $ "Optimization done" <> (T.pack file)
+                  printLogInfo $ "Optimization done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
     _ -> latteError "BAD ARGS"

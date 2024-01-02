@@ -32,10 +32,10 @@ import Utils.Similarity
 -- class WithPos a b where
 --     pos :: a b -> b
 
-class (HasPosition 1 (s t) (s t) t t) => IsSyntax (s :: * -> *) t
+class (HasPosition 1 (s t) (s t) t t, Show (s t)) => IsSyntax (s :: * -> *) t
 
 data Ident a = Ident a String deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Ident a
+instance (Show a) => IsSyntax Ident a
 
 -- instance WithPos Ident a where
 --     pos = view $ position @1
@@ -43,36 +43,36 @@ instance IsSyntax Ident a
 data OptionalName a = Name a (Ident a)
                 | NoName a
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax OptionalName a
+instance (Show a) => IsSyntax OptionalName a
 
 justName :: Ident a -> OptionalName a
 justName id@(Ident pos _) = Name pos id
 
 data Program a = Program a [Definition a]
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Program a
+instance (Show a) => IsSyntax Program a
 
 
 data Definition a = FunctionDef a (Type a) (Ident a) [Arg a] (Block a)
                   | ClassDef a (Ident a) (OptionalName a) [ClassDecl a]
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Definition a
+instance (Show a) => IsSyntax Definition a
 
 
 data Arg a = Arg a (Type a) (Ident a)
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Arg a
+instance (Show a) => IsSyntax Arg a
 
 
 data Block a = Block a [Stmt a]
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Block a
+instance (Show a) => IsSyntax Block a
 
 
 data ClassDecl a = FieldDecl a (Type a) (Ident a)
                  | MethodDecl a (Type a) (Ident a) [Arg a] (Block a)
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax ClassDecl a
+instance (Show a) => IsSyntax ClassDecl a
 
 
 data Stmt a = Empty a
@@ -85,13 +85,13 @@ data Stmt a = Empty a
             | While a (Expr a) (Stmt a)
             | ExprStmt a (Expr a)
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Stmt a
+instance (Show a) => IsSyntax Stmt a
 
 
 data DeclItem a = NoInit a (Ident a)
                 | Init a (Ident a) (Expr a)
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax DeclItem a
+instance (Show a) => IsSyntax DeclItem a
 
 
 data Type a = VoidT a
@@ -104,7 +104,7 @@ data Type a = VoidT a
             | ArrayT a (Type a)
             | FunT a (Type a) [Type a]
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Type a
+instance (Show a) => IsSyntax Type a
 
 
 data Expr a = Lit a (Lit a)
@@ -117,7 +117,7 @@ data Expr a = Lit a (Lit a)
             | ArrAccess a (Expr a) (Expr a) (Maybe (Type a))   -- e1[e2]
             | Cast a (Type a) (Expr a)         -- (T)e1
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Expr a
+instance (Show a) => IsSyntax Expr a
 
 
 type TypeName = String
@@ -125,7 +125,7 @@ type TypeName = String
 data UnOp a = Neg a   --  -
             | Not a   --  !
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax UnOp a
+instance (Show a) => IsSyntax UnOp a
 
 
 data BinOp a = Add a
@@ -142,7 +142,7 @@ data BinOp a = Add a
              | And a
              | Or a
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax BinOp a
+instance (Show a) => IsSyntax BinOp a
 
 
 data Lit a = Int a Integer
@@ -151,7 +151,7 @@ data Lit a = Int a Integer
            | Byte a Integer
            | Null a
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
-instance IsSyntax Lit a
+instance (Show a) => IsSyntax Lit a
 
 
 makePrisms ''Ident

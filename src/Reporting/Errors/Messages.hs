@@ -13,6 +13,7 @@ import Utils.Similarity
 
 import Program.Syntax as Syntax
 import Reporting.Errors.Position
+import Optimizer.Env(OptimizerEnv)
 import Typings.Env(TypeCheckerEnv, initialEnv)
 
 import Typings.Debug
@@ -82,7 +83,27 @@ decodeInternalTCError env (ITCEDuplicateFunctionArg name1 name2 varType) =
     Just $ ("There are duplicated function parameters: '" ++ stringName name1 ++ "' and '" ++ stringName name2 ++ "' of type '" ++ printi 0 varType ++ "'", Just $ Syntax.getPos name1)
 decodeInternalTCError _ _ = Nothing
 
+decodeInternalOPTError :: TypeCheckerEnv -> (OptimizerEnv ()) -> InternalOPTError -> Maybe (String, Maybe Position)
+decodeInternalOPTError _ _ (IOPTECheckConstUnexpectedLiterals l1 l2) = Just $ ("Unexpected combination of literals of incompatible types: " ++ printi 0 l1 ++ " and " ++ printi 0 l2, Just $ Syntax.getPos l1)
+decodeInternalOPTError _ _ _ = Nothing
+
 decodeError :: Error -> SimpleError
+decodeError (InternalOptimizerFailure env oEnv srcLabel err) =
+    case decodeInternalOPTError env oEnv err of
+        Nothing -> decodeError (UnknownFailure env $ "AST optimizer failed because of unknown reason")
+        (Just (msg, contextPosition)) -> SimpleError {
+            _errorName = "Internal optimizer problem"
+            , _errorDescription = "Internals of a AST optimizer failed some assertions. This means there's a very minor bug within the optimizer system, that cannot handle some error case scenario correctly. However the optimizer terminated gracefully and this is probably caused by incorrect user input somewhere else."
+            , _errorSugestions = [
+                "Check if all the code is provided correctly. If you are sure that it is, there's probability of a big within the optimizer system itself."
+            ]
+            , _errorLocation = Nothing
+            , _errorContexts = [
+                (msg, contextPosition)
+            ]
+            , _errorHelp = Nothing
+            , _errorMarkers = combineMarkers [formatInternalErrorContext $ "Problem occurred in internal component '" ++ srcLabel ++ "'"]
+        }
 decodeError (InternalTypecheckerFailure env srcLabel err) =
     case decodeInternalTCError env err of
         Nothing -> decodeError (UnknownFailure env $ "Typechecking failed because of unknown reason")

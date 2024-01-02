@@ -10,6 +10,7 @@ import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
 import Data.Typeable
 import Reporting.Errors.Position
+import Optimizer.Env(OptimizerEnv)
 import Typings.Env(TypeCheckerEnv)
 
 data TypeContext =
@@ -33,6 +34,11 @@ data InternalTCError =
   | ITCEMissingMember String String
   deriving (Show, Typeable)
 
+data InternalOPTError =
+  IOPTEFailedAssertion String
+  | IOPTECheckConstUnexpectedLiterals (Syntax.Lit Position) (Syntax.Lit Position)
+  deriving (Show, Typeable)
+
 data ConditionBodyLocation = 
   IfTrueBranch (Syntax.Stmt Position)
   | IfFalseBranch (Syntax.Stmt Position)
@@ -49,6 +55,7 @@ data Error
    UnknownFailure TypeCheckerEnv String
    | NumericConstantExceedsTypeLimit TypeCheckerEnv (Syntax.Lit Position) Integer [(String, Syntax.Type Position)]
    | InternalTypecheckerFailure TypeCheckerEnv String InternalTCError
+   | InternalOptimizerFailure TypeCheckerEnv (OptimizerEnv ()) String InternalOPTError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
@@ -71,6 +78,8 @@ data Error
    | IncompatibleTypesUnaryOp TypeCheckerEnv (Syntax.UnOp Position) (Syntax.Expr Position, Type.Type)
    | IncompatibleTypesCast TypeCheckerEnv (Syntax.Expr Position) (Syntax.Expr Position) Type.Type Type.Type
    | DuplicateFunctionArgument TypeCheckerEnv Type.Function (Syntax.Arg Position) [(Syntax.Arg Position)]
+   | IndexAlwaysNegative TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position)
+   | ExpressionAlwaysNull TypeCheckerEnv (OptimizerEnv ()) (Syntax.Expr Position)
    | NoMain TypeCheckerEnv
    | InvalidMainReturn Type.Function TypeCheckerEnv
    | MainHasArgs Type.Function TypeCheckerEnv
