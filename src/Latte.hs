@@ -16,6 +16,7 @@ import Parser.Types
 import Parser.Transform
 import Typings.Checker as TypeChecker
 import Optimizer.Optimizer as Optimizer
+import Linearized.Linearizer as Linearizer
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -61,4 +62,11 @@ runPipeline backend = do
                   printErrors err file contents parsedAST
                 Right (prog) -> do
                   printLogInfo $ "Optimization done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
+                  irResult <- Linearizer.linearizeToIR prog
+                  case irResult of
+                    Left err -> do
+                      printLogInfo $ "IR conversion failed"
+                      printErrors err file contents parsedAST
+                    Right (_, ir) -> do
+                      printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ show ir)
     _ -> latteError "BAD ARGS"

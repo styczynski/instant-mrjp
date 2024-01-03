@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE IncoherentInstances #-}
 module Linearized.Syntax where
 
 import Data.List (intercalate)
@@ -11,25 +13,40 @@ import Data.Generics.Sum
 import GHC.Generics (Generic)
 import Reporting.Errors.Position
 
-data IRPosition = IRPosition Int (Position, Position)
+class (HasPosition 1 (s Position) (s Position) Position Position
+    , HasPosition 1 (s IRPosition) (s IRPosition) IRPosition IRPosition
+    --, HasPosition 1 (s Position) (s IRPosition) Position IRPosition
+    , Show (s Position)
+    , Show (s IRPosition)
+    ) => IsIR (s :: * -> *)
+
+data IRPosition = 
+    IRPosition Int (Position, Position)
+    
 
 data Program a = Program a [Structure a] [Function a] [(Label a, String)]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Program
 
 data Structure a = Struct a (Label a) (Maybe (Label a)) Size [(Label a, Type a, Offset)] [{-method-}Label a]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Structure
 
 data Type a = IntT a | ByteT a | Reference a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Type
 
 data Function a = Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Function
 
 data Label a = Label a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Label
 
 data Name a = Name a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Name
 
 type Size = Integer
 type Index = Integer
@@ -45,12 +62,15 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | Jump a (Label a)
           | JumpCmp a (Cmp a) (Label a) (Value a) (Value a)
           deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Stmt
 
 data Cmp a = Eq a | Ne a | Le a | Lt a | Ge a | Gt a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Cmp
 
 data Target a = Variable a (Name a) | Array a (Name a) (Value a) | Member a (Name a) Offset
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Target
 
 data Expr a = NewObj a (Label a)
           | NewArray a (Type a) (Value a)
@@ -66,15 +86,19 @@ data Expr a = NewObj a (Label a)
           | BinOp a (Op a) (Value a) (Value a)
           | Cast a (Label a) (Value a)
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Expr
 
 data Value a = Const a (Constant a) | Var a (Name a)
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Value
 
 data Op a = Add a | Sub a | Mul a | Div a | Mod a | And a | Or a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Op
 
 data Constant a = IntC a Integer | ByteC a Integer | StringC a (Label a)| Null a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Constant
 
 instance Show (Constant a) where
     show (IntC _ i) = "<int>"++show i
@@ -147,3 +171,13 @@ instance Show (Cmp a) where
     show (Gt _) = ">"
     show (Le _) = "<="
     show (Ge _) = ">="
+
+getPos :: IsIR s => (s Position) -> Position
+getPos ast = view (position @1) ast
+
+-- --setPos :: (IsIR s t) => (s t) -> a -> (s a)
+-- setPos :: (IsIR s) => IRPosition -> (s Position) -> (s IRPosition)
+-- setPos p ast = set (position @1) p ast
+
+-- modifyPos :: (IsIR s) => (Position -> IRPosition) -> (s Position) -> (s IRPosition)
+-- modifyPos fn ast = let setPos p ast = set (position @1) p ast in ((setPos . fn . getPos) ast) ast
