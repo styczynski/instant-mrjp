@@ -10,6 +10,10 @@ import qualified Reporting.Errors.Def as Errors
 import Reporting.Logs
 import Linearized.Env
 
+import Reporting.Errors.Position
+import qualified Linearized.Syntax as LS
+import qualified Data.Map as M
+
 type LinearConverter a = (StateT LinearTranslatorEnv (ExceptT Errors.Error LattePipeline)) a
 
 lcState :: LinearConverter LinearTranslatorEnv
@@ -26,3 +30,7 @@ withLCState modifyFn = withStateT modifyFn
 
 liftPipelineOpt :: LattePipeline a -> LinearConverter a
 liftPipelineOpt = lift . lift
+
+setFunction :: LS.Function Position -> LinearConverter ()
+setFunction fn@(LS.Fun _ (LS.Label _ id) _ _ _) = lcStateSet (\env -> env & functions %~ M.insert id fn)
+

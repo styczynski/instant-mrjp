@@ -13,6 +13,7 @@ import Linearized.Syntax (IRPosition(..))
 import Linearized.Env
 import Linearized.Def
 import qualified Linearized.Converter as Converter
+import qualified Optimizer.Env as Optimizer
 
 type LinearizerResult = Either Errors.Error (LinearTranslatorEnv, B.Program IRPosition)
 
@@ -25,6 +26,6 @@ runLinearizer prog = do
     ir <- return $ fmap (posFrom) rawIR
     return ir
 
-linearizeToIR :: A.Program Position -> LattePipeline LinearizerResult
-linearizeToIR prog@(A.Program pos defs) = do
-    either (return . Left) (\((ir), env) -> return $ Right (env, ir)) =<< runExceptT (runStateT (runLinearizer prog) initialEnv)
+linearizeToIR ::  Optimizer.OptimizerEnv () -> A.Program Position -> LattePipeline LinearizerResult
+linearizeToIR oEnv prog@(A.Program pos defs) = do
+    either (return . Left) (\((ir), env) -> return $ Right (env, ir)) =<< runExceptT (runStateT (runLinearizer prog) $ createInitialEnv oEnv)

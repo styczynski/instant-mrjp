@@ -23,7 +23,6 @@ class (HasPosition 1 (s Position) (s Position) Position Position
 data IRPosition = 
     IRPosition Int (Position, Position)
     
-
 data Program a = Program a [Structure a] [Function a] [(Label a, String)]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Program
@@ -39,6 +38,17 @@ instance IsIR Type
 data Function a = Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Function
+
+data Entity a = FunEntity a String (Function a) | StructEntity a String (Structure a)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR Entity
+
+class IsEntity t where
+    toEntity :: t a -> Entity a
+instance IsEntity Function where
+    toEntity fn@(Fun p (Label _ name) _ _ _) = FunEntity p name fn
+instance IsEntity Structure where
+    toEntity struct@(Struct p (Label _ name) _ _ _ _) = StructEntity p name struct
 
 data Label a = Label a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
@@ -99,6 +109,10 @@ instance IsIR Op
 data Constant a = IntC a Integer | ByteC a Integer | StringC a (Label a)| Null a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Constant
+
+instance Show (Entity a) where
+    show (FunEntity _ name fn) = "entity<fn, name:"++show name++">"++show fn
+    show (StructEntity _ name s) = "entity<struct, name:"++show name++">"++show s
 
 instance Show (Constant a) where
     show (IntC _ i) = "<int>"++show i

@@ -28,9 +28,6 @@ oStateSet modifyFn = modify (\env -> env & internalState %~ modifyFn)
 withOState :: (s -> s) -> Optimizer s a -> Optimizer s a
 withOState modifyFn = withStateT (\env -> env & internalState %~ modifyFn)
 
-scrapInternalState :: OptimizerEnv a -> OptimizerEnv ()
-scrapInternalState env = env { _oeInternalState = () }
-
 failure :: ((TypeChecker.TypeCheckerEnv, OptimizerEnv ()) -> Errors.Error) -> Optimizer s a
 failure errorFactory = throwError . errorFactory . (\env -> (env^.tCEnv, scrapInternalState env)) =<< get
 

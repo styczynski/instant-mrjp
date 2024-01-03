@@ -60,9 +60,9 @@ runPipeline backend = do
                 Left err -> do
                   printLogInfo $ "Optimizer failed"
                   printErrors err file contents parsedAST
-                Right (prog) -> do
+                Right (optimizerEnv, prog) -> do
                   printLogInfo $ "Optimization done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
-                  irResult <- Linearizer.linearizeToIR prog
+                  irResult <- Linearizer.linearizeToIR optimizerEnv prog
                   case irResult of
                     Left err -> do
                       printLogInfo $ "IR conversion failed"
