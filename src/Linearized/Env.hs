@@ -3,6 +3,7 @@
 module Linearized.Env where
 
 import qualified Data.Map as M
+import qualified Utils.Containers.IDMap as IM
 import qualified Linearized.Syntax as LS
 import Control.Lens
 import qualified Optimizer.Env as Optimizer
@@ -15,9 +16,9 @@ data LinearTranslatorEnv = LinearTranslatorEnv
     _ltVarNameCounter :: Int
     , _ltVarMap :: M.Map String String
     , _ltVarType :: M.Map String (LS.Type Position)
-    , _ltStructures :: M.Map String (LS.Structure Position)
-    , _ltFunctions :: M.Map String (LS.Function Position)
-    , _ltStrings :: M.Map String (LS.Label Position)
+    , _ltStructures :: IM.Map (LS.Structure Position)
+    , _ltFunctions :: IM.Map (LS.Function Position)
+    , _ltStrings :: IM.Map (LS.Label Position)
     , _ltTypings :: TypeChecker.TypeCheckerEnv
   } deriving (Show)
 
@@ -28,8 +29,8 @@ createInitialEnv oEnv = LinearTranslatorEnv {
     _ltVarNameCounter = 0
     , _ltVarMap = M.empty
     , _ltVarType = M.empty
-    , _ltStructures = M.empty
-    , _ltFunctions = M.empty
-    , _ltStrings = M.empty
+    , _ltStructures = IM.empty
+    , _ltFunctions = IM.empty
+    , _ltStrings = IM.empty
     , _ltTypings = (oEnv^.Optimizer.tCEnv)
 }

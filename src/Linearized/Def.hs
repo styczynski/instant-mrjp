@@ -13,6 +13,8 @@ import Linearized.Env
 import Reporting.Errors.Position
 import qualified Linearized.Syntax as LS
 import qualified Data.Map as M
+import qualified Utils.Containers.IDMap as IM
+import qualified Typings.Env as TypeChecker
 
 type LinearConverter a = (StateT LinearTranslatorEnv (ExceptT Errors.Error LattePipeline)) a
 
@@ -32,5 +34,16 @@ liftPipelineOpt :: LattePipeline a -> LinearConverter a
 liftPipelineOpt = lift . lift
 
 setFunction :: LS.Function Position -> LinearConverter ()
-setFunction fn@(LS.Fun _ (LS.Label _ id) _ _ _) = lcStateSet (\env -> env & functions %~ M.insert id fn)
+setFunction fn = ((\e -> lcStateSet (\env -> env & functions .~ e))) =<< (IM.insertM (idMapFailure "setFunction" (\i -> Errors.ILNEDuplicateFunction i fn)) fn) =<< (lcStateGet (^. functions))
 
+overrideFunction :: LS.Function Position -> LinearConverter ()
+overrideFunction fn = ((\e -> lcStateSet (\env -> env & functions .~ e))) =<< (IM.overrideM (idMapFailure "overrideFunction" Errors.ILNEUndefinedFunction) fn) =<< (lcStateGet (^. functions))
+
+getFunction :: String -> LinearConverter (LS.Function Position)
+getFunction n = (IM.findM (idMapFailure "getFunction" Errors.ILNEUndefinedFunction) n) =<< (lcStateGet (^. functions))
+
+failure :: ((TypeChecker.TypeCheckerEnv, LinearTranslatorEnv) -> Errors.Error) -> LinearConverter a
+failure errorFactory = throwError . errorFactory . (\env -> (env^.typings, env)) =<< get
+
+idMapFailure :: String -> (String -> Errors.InternalLNError) -> (String -> LinearConverter a)
+idMapFailure n fn = (\id -> failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv n $ fn id))

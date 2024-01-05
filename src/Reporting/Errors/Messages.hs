@@ -11,7 +11,8 @@ import Reporting.Errors.Base
 import Reporting.Errors.Def
 import Utils.Similarity
 
-import Program.Syntax as Syntax
+import qualified Program.Syntax as Syntax
+import qualified Linearized.Syntax as LSyntax
 import Reporting.Errors.Position
 import Optimizer.Env(OptimizerEnv)
 import Typings.Env(TypeCheckerEnv, initialEnv)
@@ -20,6 +21,7 @@ import Typings.Debug
 import Control.Lens
 import Data.Generics.Product
 import Data.Typeable
+import Linearized.Env (LinearTranslatorEnv)
 
 
 decodeConditionBodyLocation :: ConditionBodyLocation -> (String, Syntax.Stmt Position)
@@ -87,7 +89,33 @@ decodeInternalOPTError :: TypeCheckerEnv -> (OptimizerEnv ()) -> InternalOPTErro
 decodeInternalOPTError _ _ (IOPTECheckConstUnexpectedLiterals l1 l2) = Just $ ("Unexpected combination of literals of incompatible types: " ++ printi 0 l1 ++ " and " ++ printi 0 l2, Just $ Syntax.getPos l1)
 decodeInternalOPTError _ _ _ = Nothing
 
+decodeInternalLNError :: TypeCheckerEnv -> LinearTranslatorEnv -> InternalLNError -> Maybe (String, Maybe Position)
+decodeInternalLNError _ _ (ILNEMissingClass clsName def) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Syntax.getPos def)
+decodeInternalLNError _ _ (ILNEMissingClassDefinition clsName cls) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Type.location cls)
+decodeInternalLNError _ _ (ILNEEncounteredDuplicateStructureMember structLabel memberName) = Just $ ("Duplicate structure member for structure " ++ show structLabel ++ ", member " ++ show memberName, Just $ LSyntax.getPos structLabel)
+decodeInternalLNError _ _ (ILNEDuplicateFunction fnName fn) = Just $ ("Duplicate function: " ++ show fnName ++ ": " ++ show fn, Just $ LSyntax.getPos fn)
+decodeInternalLNError _ _ (ILNEDuplicateFunctionName fnName) = Just $ ("Duplicate function: " ++ show fnName, Nothing)
+decodeInternalLNError _ _ (ILNEUndefinedFunction fnName) = Just $ ("Missing definition for function: " ++ show fnName, Nothing)
+decodeInternalLNError _ _ (ILNEDuplicateStructure name) = Just $ ("Duplicate structure definition: " ++ show name, Nothing)
+decodeInternalLNError _ _ _ = Nothing
+
 decodeError :: Error -> SimpleError
+decodeError (InternalLinearizerFailure env lnEnv srcLabel err) =
+    case decodeInternalLNError env lnEnv err of
+        Nothing -> decodeError (UnknownFailure env $ "AST linealizer failed because of unknown reason")
+        (Just (msg, contextPosition)) -> SimpleError {
+            _errorName = "Internal linearizer problem"
+            , _errorDescription = "Internals of a AST linearizer failed some assertions. This means there's a very minor bug within the linearizer system, that cannot handle some error case scenario correctly. However the linearizer terminated gracefully and this is probably caused by incorrect user input somewhere else."
+            , _errorSugestions = [
+                "Check if all the code is provided correctly. If you are sure that it is, there's probability of a big within the linearizer system itself."
+            ]
+            , _errorLocation = Nothing
+            , _errorContexts = [
+                (msg, contextPosition)
+            ]
+            , _errorHelp = Nothing
+            , _errorMarkers = combineMarkers [formatInternalErrorContext $ "Problem occurred in internal component '" ++ srcLabel ++ "'"]
+        }
 decodeError (InternalOptimizerFailure env oEnv srcLabel err) =
     case decodeInternalOPTError env oEnv err of
         Nothing -> decodeError (UnknownFailure env $ "AST optimizer failed because of unknown reason")

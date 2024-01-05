@@ -5,6 +5,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Reporting.Errors.Def where
 import qualified Program.Syntax as Syntax
+import qualified Linearized.Syntax as LSyntax
 import qualified Typings.Types as Type
 import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
@@ -12,6 +13,7 @@ import Data.Typeable
 import Reporting.Errors.Position
 import Optimizer.Env(OptimizerEnv)
 import Typings.Env(TypeCheckerEnv)
+import Linearized.Env(LinearTranslatorEnv)
 
 data TypeContext =
   TypeInFunctionReturn (Syntax.Definition Position)
@@ -40,6 +42,16 @@ data InternalOPTError =
   | IOPTECannotFindFunctionOrClass String
   deriving (Show, Typeable)
 
+data InternalLNError = 
+  ILNEMissingClassDefinition String (Type.Class)
+  | ILNEMissingClass String (Syntax.Definition Position)
+  | ILNEEncounteredDuplicateStructureMember (LSyntax.Label Position) String
+  | ILNEDuplicateFunction String (LSyntax.Function Position)
+  | ILNEDuplicateFunctionName String
+  | ILNEUndefinedFunction String
+  | ILNEDuplicateStructure String
+  deriving (Show, Typeable)
+
 data ConditionBodyLocation = 
   IfTrueBranch (Syntax.Stmt Position)
   | IfFalseBranch (Syntax.Stmt Position)
@@ -57,6 +69,7 @@ data Error
    | NumericConstantExceedsTypeLimit TypeCheckerEnv (Syntax.Lit Position) Integer [(String, Syntax.Type Position)]
    | InternalTypecheckerFailure TypeCheckerEnv String InternalTCError
    | InternalOptimizerFailure TypeCheckerEnv (OptimizerEnv ()) String InternalOPTError
+   | InternalLinearizerFailure TypeCheckerEnv (LinearTranslatorEnv) String InternalLNError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]

@@ -3,6 +3,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE IncoherentInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Linearized.Syntax where
 
 import Data.List (intercalate)
@@ -12,6 +13,8 @@ import Data.Generics.Product
 import Data.Generics.Sum
 import GHC.Generics (Generic)
 import Reporting.Errors.Position
+
+import qualified Utils.Containers.IDMap as M
 
 class (HasPosition 1 (s Position) (s Position) Position Position
     , HasPosition 1 (s IRPosition) (s IRPosition) IRPosition IRPosition
@@ -27,7 +30,7 @@ data Program a = Program a [Structure a] [Function a] [(Label a, String)]
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Program
 
-data Structure a = Struct a (Label a) (Maybe (Label a)) Size [(Label a, Type a, Offset)] [{-method-}Label a]
+data Structure a = Struct a (Label a) (Maybe (Label a)) Size (M.Map (Label a, Type a, Offset)) (M.Map (Label a))
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Structure
 
@@ -53,6 +56,18 @@ instance IsEntity Structure where
 data Label a = Label a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Label
+
+instance M.Idable (Label a) where
+    getID (Label _ m) = m
+
+instance M.Idable (Function a) where
+    getID (Fun _ l _ _ _) = M.getID l
+
+instance M.Idable (Structure a) where
+    getID (Struct _ l _ _ _ _) = M.getID l
+
+instance M.Idable (Label a, Type a, Size) where
+    getID (l, _, _) = M.getID l
 
 data Name a = Name a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
@@ -130,7 +145,7 @@ instance Show (Program a) where
     show (Program _ ss fs strs) = intercalate "\n" (map show ss) ++"\n"++ intercalate "\n" (map show fs) ++ "\n" ++ (concat $ map (\(l,s) -> show l++": "++show s++"\n") strs)
 
 instance Show (Structure a) where
-    show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ map (\(l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ map (\l->"    "++show l++"(...)\n") ms)
+    show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ M.mapList (\_ (l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)
 
 instance Show (Function a) where
     show (Fun _ l t args body) = show t++" "++show l++"("++intercalate ", " (map (\(t,n)->show t++" "++show n) args)++")\n"++(concat $ map (\s->show s++"\n") body)

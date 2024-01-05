@@ -89,6 +89,13 @@ packages:
   original:
     hackage: time-1.12.2
 - completed:
+    hackage: ordered-containers-0.2.3@sha256:89e2aca36de1335c3464c0f4893cbf791cadf9df36b2fb5e07a0e2d92f1e0cb6,810
+    pantry-tree:
+      sha256: 7b3cafa50f564930339d8839bf8a7dcee7fb0e1590b8421f145e0150a3972c38
+      size: 526
+  original:
+    hackage: ordered-containers-0.2.3
+- completed:
     name: jvm-parser
     pantry-tree:
       sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93

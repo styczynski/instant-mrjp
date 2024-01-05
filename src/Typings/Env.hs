@@ -103,6 +103,9 @@ initialEnv = TypeCheckerEnv
 findFunction :: TypeCheckerEnv -> String -> Maybe Type.Function
 findFunction env = (flip M.lookup) (env^.definedFuns)
 
+findClassInEnv :: TypeCheckerEnv -> String -> Maybe Type.Class
+findClassInEnv env = let (Hierarchy g _) = env^.definedClasses in G.getNode g
+
 findMember :: TypeCheckerEnv -> String -> Maybe Type.Member
 findMember env name = (Type.findClassMember name) =<< env^.currentClass
 

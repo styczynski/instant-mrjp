@@ -41,6 +41,7 @@ library:
     - prettyprinter
     - prettyprinter-ansi-terminal
     - time
+    - ordered-containers
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures
