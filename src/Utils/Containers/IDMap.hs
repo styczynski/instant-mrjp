@@ -19,9 +19,9 @@ _unwrap :: Map v -> OM.OMap String v
 _unwrap (Map m) = m
 
 _wrap :: OM.OMap String v -> Map v
-_wrap m = Map m
+_wrap = Map
 
-instance Functor (Map) where
+instance Functor Map where
         fmap f = _wrap . fmap f . _unwrap
 
 empty :: Map v
@@ -40,7 +40,7 @@ fromM errHandler = flip (insertSequenceM errHandler (\m v -> v)) empty
 -- fromList = from
 
 findM :: (Monad m) => (String -> m ()) -> String -> Map v -> m v
-findM errHandler name (Map m) = let result = OM.lookup name m in (maybe (errHandler name) (const $ return ()) result) >> maybe undefined return result
+findM errHandler name (Map m) = let result = OM.lookup name m in maybe (errHandler name) (const $ return ()) result >> maybe undefined return result
 
 findElemM :: (Monad m) => (String -> m ()) -> String -> Map v -> m (String, v, Int)
 findElemM errHandler name (Map m) =
@@ -48,9 +48,12 @@ findElemM errHandler name (Map m) =
     let result = (\i (k, v) -> (k, v, i)) <$> index <*> (OM.elemAt m =<< index) in
     maybe (errHandler name) (const $ return ()) result >> maybe undefined return result
 
+provideM :: (Idable v, Monad m) => (String -> m v) -> String -> Map v -> m (v, Map v)
+provideM provider name (Map m) = maybe ((\newEl -> (newEl, Map $ m OM.|> (getID newEl, newEl))) <$> provider name) (\v -> return (v, Map m)) $ OM.lookup name m
+
 insertM :: (Idable v, Monad m) => (String -> m ()) -> v -> Map v -> m (Map v)
 --insertM v = _wrap . (flip (OM.|>)) ((getID v), v) . _unwrap
-insertM errHandler v (Map m) = let m' = _wrap . (flip (OM.|>)) ((getID v), v) in (if OM.member (getID v) m then (errHandler $ getID v) else return ()) >> (return . m') m
+insertM errHandler v (Map m) = let m' = _wrap . flip (OM.|>) (getID v, v) in (when (OM.member (getID v) m) $ errHandler $ getID v) >> (return . m') m
 
 insertManyM :: (Idable v, Monad m, Foldable t) => (String -> m ()) -> t v -> Map v -> m (Map v)
 insertManyM errHandler vals m = concatM errHandler m =<< fromM errHandler vals
@@ -65,16 +68,16 @@ concatM :: (Idable v, Monad m) => (String -> m ()) -> Map v -> Map v -> m (Map v
 concatM errHandler (Map m1) (Map m2) =
     let m' = _wrap . (OM.|<>) m1 in
     let common = OM.elemAt (m1 OM./\| m2) 0 in
-    (maybe (return ()) (\(id, _) -> errHandler id) common) >> (return . m') m2
+    maybe (return ()) (\(id, _) -> errHandler id) common >> (return . m') m2
 
 concatMapsM :: (Idable v, Monad m, Foldable t) => (String -> m ()) -> t (Map v) -> m (Map v)
 concatMapsM errHandler = foldM (concatM errHandler) empty
 
 first :: Map v -> Maybe v
-first = (return . snd) <=< (flip OM.elemAt) 0 . _unwrap
+first = return . snd <=< flip OM.elemAt 0 . _unwrap
 
 last :: Map v -> Maybe v
-last (Map m) = ((return . snd) <=< (flip OM.elemAt) ((OM.size m)-1)) m
+last (Map m) = (return . snd <=< flip OM.elemAt (OM.size m-1)) m
 
 mapList :: (String -> v -> t) -> Map v-> [t]
 mapList f = map (uncurry f) . OM.assocs . _unwrap
@@ -83,4 +86,5 @@ elems :: Map v -> [v]
 elems = mapList (\ _ x -> x)
 
 overrideM :: (Idable v, Monad m) => (String -> m ()) -> v -> Map v -> m (Map v)
-overrideM errHandler v (Map m) = let m' = _wrap . (flip (OM.>|)) ((getID v), v) in (if not $ OM.member (getID v) m then (errHandler $ getID v) else return ()) >> (return . m') m
+overrideM errHandler v (Map m) = let m' = _wrap . flip (OM.>|) (getID v, v) in (when (not $ OM.member (getID v) m) $ errHandler $ getID v) >> (return . m') m
+

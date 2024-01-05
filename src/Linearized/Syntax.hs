@@ -26,7 +26,7 @@ class (HasPosition 1 (s Position) (s Position) Position Position
 data IRPosition = 
     IRPosition Int (Position, Position)
     
-data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (Label a, String))
+data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Program
 
@@ -72,6 +72,9 @@ instance M.Idable (Label a, b, c) where
 instance M.Idable (Label a, b) where
     getID (l, _) = M.getID l
 
+instance M.Idable (DataDef a) where
+    getID (DataString _ content _) = content
+
 data Name a = Name a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Name
@@ -91,6 +94,10 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | JumpCmp a (Cmp a) (Label a) (Value a) (Value a)
           deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Stmt
+
+data DataDef a = DataString a (String) (Label a)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+instance IsIR DataDef
 
 data Cmp a = Eq a | Ne a | Le a | Lt a | Ge a | Gt a
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
@@ -145,13 +152,16 @@ instance Show (Name a) where
     show (Name _ n) = n
 
 instance Show (Program a) where
-    show (Program _ ss fs strs) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ (concat $ M.mapList (\_ (l,s) -> show l++": "++show s++"\n") strs)
+    show (Program _ ss fs datas) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ (concat $ M.mapList (\_ dataDef -> show dataDef++"\n") datas)
 
 instance Show (Structure a) where
     show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ M.mapList (\_ (l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)
 
 instance Show (Function a) where
     show (Fun _ l t args body) = show t++" "++show l++"("++intercalate ", " (map (\(t,n)->show t++" "++show n) args)++")\n"++(concat $ map (\s->show s++"\n") body)
+
+instance Show (DataDef a) where
+    show (DataString _ content label) = "data string " ++ show label ++ " = " ++ show content
 
 instance Show (Stmt a) where
     show (VarDecl _ t n e) = "    "++show t ++ " "++show n++" = "++show e

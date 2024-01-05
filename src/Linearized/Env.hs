@@ -18,7 +18,7 @@ data LinearTranslatorEnv = LinearTranslatorEnv
     , _ltVarType :: M.Map String (LS.Type Position)
     , _ltStructures :: IM.Map (LS.Structure Position)
     , _ltFunctions :: IM.Map (LS.Function Position)
-    , _ltStrings :: IM.Map (LS.Label Position)
+    , _ltDatas :: IM.Map (LS.DataDef Position)
     , _ltTypings :: TypeChecker.TypeCheckerEnv
   } deriving (Show)
 
@@ -31,6 +31,6 @@ createInitialEnv oEnv = LinearTranslatorEnv {
     , _ltVarType = M.empty
     , _ltStructures = IM.empty
     , _ltFunctions = IM.empty
-    , _ltStrings = IM.empty
+    , _ltDatas = IM.empty
     , _ltTypings = (oEnv^.Optimizer.tCEnv)
 }

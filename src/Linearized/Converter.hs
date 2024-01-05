@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 module Linearized.Converter where
 
 import qualified Program.Syntax as A
@@ -20,17 +22,31 @@ import qualified Typings.Env as TypeChecker
 import qualified Typings.Types as Types
 
 import Data.Maybe
+import Data.Bifunctor
 
 import Control.Monad
 
-class  (A.IsSyntax ma Position, B.IsIR mb) => IRAST ma mb where
-    doTransform :: ma Position -> LinearConverter [mb Position]
-    transformOver :: [ma Position] -> LinearConverter [mb Position]
-    transformOver = return . concat <=< mapM transform
+class  (A.IsSyntax ma Position, B.IsIR mb) => IRConvertable ma mb c | ma -> mb, ma -> c where
+    doTransform :: ma Position -> LinearConverter (c, [mb Position])
+    transformOver :: [ma Position] -> LinearConverter (c, [mb Position])
+    transformOver = return . (\(c, ast) -> (head c, concat ast)) . unzip <=< mapM transform
 
-    transform :: ma Position -> LinearConverter [mb Position]
+    transformOverOnly :: [ma Position] -> LinearConverter [mb Position]
+    transformOverOnly = return . snd <=< transformOver
+
+    transformOnly :: ma Position -> LinearConverter [mb Position]
+    transformOnly = return . snd <=< transform
+
+    transform :: ma Position -> LinearConverter (c, [mb Position])
     transform = doTransform
     -- return . B.modifyPos (\_ -> posFrom ast)  =<< 
+
+justEmit :: [mb Position] -> LinearConverter ((), [mb Position])
+justEmit = return . (,) ()
+
+noEmit :: LinearConverter ((), [mb Position])
+noEmit = justEmit []
+
 
 data FnProto = FnProto Position (B.Label Position) (B.Type Position) [A.Arg Position] [A.Stmt Position]
 
@@ -192,30 +208,155 @@ collectFunctions defs = do
             ]
 transformFunction :: FnProto -> LinearConverter (B.Function Position)
 transformFunction (FnProto pos name@(B.Label _ id) retType args stmts) = do
-    nstmts <- transformOver stmts
+    nstmts <- transformOverOnly stmts
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
     return $ B.Fun pos name retType nargs nstmts
 
 transformProgram :: (A.Program Position) -> LinearConverter (B.Program Position)
 transformProgram prog = do
-    nprogs <- transform prog
+    nprogs <- transformOnly prog
     let (poss, structs, fns, strs) = unzip4 $ map (\(B.Program pos structs fns strs) -> (pos, structs, fns, strs)) nprogs
     structsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) structs
     fnsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) fns
     strsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateLabelledString) strs
     return $ B.Program (head poss) structsMap fnsMap strsMap
 
-instance IRAST A.Program B.Program where
+instance IRConvertable A.Program B.Program () where
     doTransform (A.Program a tds) = do
         fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
         structs <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) =<<  collectStructures tds
-        strs <- return $ IM.empty
-        return [B.Program a structs fns strs]
+        datas <- return $ IM.empty
+        justEmit [B.Program a structs fns datas]
 
-transformExpr :: (A.Expr Position) -> LinearConverter (B.Name Position, [B.Stmt Position])
-transformExpr ast = do
-    n <- newName $ B.Reference $ A.getPos ast
-    return (n, [])
+instance IRConvertable A.Expr B.Stmt (B.Name Position) where
+    doTransform (A.Lit pos (A.String _ s)) = do
+        (B.DataString _ _ strLabel, newDatas) <- join $ lcStateGet (\env -> IM.provideM (\_ -> (\l -> B.DataString pos s l) <$> newLabel "_S") s $ env ^. datas)
+        lcStateSet (\env -> env & datas .~ newDatas)
+        n <- newName $ B.Reference pos
+        return (n, [B.VarDecl pos (B.Reference pos) n (B.NewString pos strLabel)])
+    doTransform (A.Lit p l) = do
+        n <- newName (litType l)
+        let c = litC l
+        return (n, [B.VarDecl p (litType l) n (B.Val p (B.Const p c))])
+        where
+            litType :: (A.Lit Position) -> (B.Type Position)
+            litType l = case l of 
+                            A.Null p -> B.Reference p
+                            A.Int p _ -> B.IntT p
+                            A.Byte p _ -> B.ByteT p
+                            A.Bool p _ -> B.ByteT p
+            litC :: (A.Lit Position) -> (B.Constant Position)
+            litC l = case l of                    
+                        A.Null p -> B.Null p
+                        A.Int p i -> B.IntC p i
+                        A.Byte p i -> B.ByteC p i
+                        A.Bool p True -> B.ByteC p 1
+                        A.Bool p False -> B.ByteC p 0
+    doTransform (A.Var p (A.Ident _ x)) = ((flip (,)) []) <$> nameOf p x
+    doTransform (A.Member p e (A.Ident _ field) (Just className)) = do
+        (enm, enmc) <- transform e
+        off <- getFieldOffset p className field
+        t <- getFieldType p className field
+        n <- newName t
+        return (n, enmc ++ [B.VarDecl p t n (B.MemberAccess p enm off)])
+    doTransform (A.NewObj p t m) = 
+        case m of
+            Nothing -> do
+                let (A.ClassT _ (A.Ident _ cls)) = t
+                n <- newName (ct t)
+                return (n, [B.VarDecl p (ct t) n (B.NewObj p $ B.Label p $ "_class_"++cls)])
+            Just e -> do
+                (en, enc) <- transform e
+                let tt = ct t
+                n <- newName $ B.Reference p
+                return (n, enc ++ [B.VarDecl p (B.Reference p) n (B.NewArray p tt (B.Var p en))])
+    doTransform (A.ArrAccess p el er (Just t)) = do
+        (enl, enlc) <- transform el
+        (enr, enrc) <- transform er
+        n <- newName (ct t)
+        return (n, enlc ++ enrc ++ [B.VarDecl p (ct t) n (B.ArrAccess p enl (B.Var p enr))])
+    doTransform (A.Cast p t e) = do
+        (en, enc) <- transform e
+        ent <- typeOf en
+        case (ct t, ent) of
+            (B.ByteT _, B.ByteT _) -> return (en, enc)
+            (B.IntT _, B.IntT _) -> return (en, enc)
+            (B.Reference _, B.Reference _) -> 
+                case t of
+                    A.ClassT p (A.Ident _ clsName) -> do
+                        n <- newName (B.Reference p)
+                        return (n, enc ++ [B.VarDecl p (B.Reference p) n (B.Cast p (B.Label p $ "_class_"++clsName) (B.Var p en))])
+            (B.ByteT p', B.IntT _) -> do
+                n <- newName $ B.ByteT p'
+                return (n, enc ++ [B.VarDecl p (B.ByteT p) n (B.IntToByte p (B.Var p en))])
+            (B.IntT p', B.ByteT _) -> do
+                n <- newName $ B.IntT p'
+                return (n, enc ++ [B.VarDecl p (B.IntT p) n (B.ByteToInt p (B.Var p en))])
+    doTransform (A.UnaryOp _ op e) = do
+        (en, enc) <- transform e
+        ent <- typeOf en
+        case op of
+            A.Neg p -> do
+                n <- newName ent
+                let zero = case ent of {(B.IntT p) -> (B.IntC p 0); (B.ByteT p) -> (B.ByteC p 0)}
+                return (n, enc ++ [B.VarDecl p ent n (B.BinOp p (B.Sub p) (B.Const p zero) (B.Var p en))])
+            A.Not p -> do
+                n <- newName ent
+                return (n, enc ++ [B.VarDecl p ent n (B.Not p (B.Var p en))])
+    doTransform (A.BinaryOp p (A.Add p2) (A.UnaryOp _ (A.Neg _) el) er) = transform (A.BinaryOp p (A.Sub p2) er el)
+    doTransform (A.BinaryOp p (A.Add p2) el (A.UnaryOp _ (A.Neg _) er)) = transform (A.BinaryOp p (A.Sub p2) el er)
+    doTransform e@(A.BinaryOp _ op el er) = 
+        case op of
+            A.Lt _ -> compare e
+            A.Le _ -> compare e
+            A.Equ _ -> compare e
+            A.Neq _ -> compare e
+            A.Gt _ -> compare e
+            A.Ge _ -> compare e
+            A.And _ -> compare e
+            A.Or _ -> compare e
+            innerOp -> do
+                let p = A.getPos innerOp
+                (enl, enlc) <- transform el
+                (enr, enrc) <- transform er
+                ent <- typeOf enl
+                n <- newName ent
+                let (bop, isReversed) = case op of
+                            A.Add p -> (B.Add p, False)
+                            A.Sub p -> (B.Sub p, True)
+                            A.Mul p -> (B.Mul p, False)
+                            A.Div p -> (B.Div p, True)
+                            A.Mod p -> (B.Mod p, True)
+                if isLit el && not isReversed then
+                    return (n, enlc ++ enrc ++ [B.VarDecl p ent n (B.BinOp p bop (B.Var p enr) (B.Var p enl))])
+                else
+                    return (n, enlc ++ enrc ++ [B.VarDecl p ent n (B.BinOp p bop (B.Var p enl) (B.Var p enr))])
+        where
+            compare :: (A.Expr Position) ->  LinearConverter (B.Name Position, [B.Stmt Position])
+            compare e = do
+                let p = A.getPos e
+                nb <- newName $ B.ByteT p
+                ltrue <- newLabel "_C"
+                lfalse <- newLabel "_C"
+                condc <- transformCondition e ltrue lfalse False
+                return (nb, [B.VarDecl p (B.ByteT p) nb (B.Val p (B.Const p (B.ByteC p 0)))] ++ condc ++ [B.SetLabel p ltrue, B.Assign p (B.ByteT p) (B.Variable p nb) (B.Val p (B.Const p (B.ByteC p 1))), B.SetLabel p lfalse])
+            isLit :: (A.Expr Position) -> Bool
+            isLit (A.Lit _ _) = True
+            isLit _ = False
+    doTransform (A.App _ el es) = do
+        (ens, ensc) <- second concat <$> unzip <$> mapM transform es
+        case el of
+            (A.Var p (A.Ident p' f)) -> do
+                let f' = B.Label p' f
+                t <- getFunctionType f'
+                n <- newName t
+                return (n, ensc ++ [B.VarDecl p t n (B.Call p f' (map (B.Var p) ens))])
+            (A.Member p e (A.Ident _ m) (Just clsName)) -> do
+                (en, enc) <- transform e
+                (l,i) <- getMethod p clsName m
+                t <- getFunctionType l
+                n <- newName t
+                return (n, ensc ++ enc ++ [B.VarDecl p t n (B.MCall p en i (map (B.Var p) (en:ens)))])
 
 opC :: A.BinOp Position -> B.Cmp Position
 opC (A.Equ p) = B.Eq p
@@ -239,8 +380,8 @@ transformCondition (A.UnaryOp p (A.Not _) e) ltrue lfalse neg =
     transformCondition e lfalse ltrue (not neg)
 transformCondition (A.BinaryOp p op el er) ltrue lfalse neg =
     if A.isAA op then do
-        (nl, nlc) <- transformExpr el
-        (nr, nrc) <- transformExpr er
+        (nl, nlc) <- transform el
+        (nr, nrc) <- transform er
         case neg of
             False -> return $ nlc ++ nrc ++ [B.JumpCmp p (opNeg (opC op)) lfalse (B.Var p nl) (B.Var p nr)]
             True -> return $ nlc ++ nrc ++ [B.JumpCmp p (opC op) ltrue (B.Var p nl) (B.Var p nr)]
@@ -256,73 +397,73 @@ transformCondition (A.BinaryOp p op el er) ltrue lfalse neg =
             return $ elc ++ [B.SetLabel p lnext] ++ erc
 transformCondition e ltrue lfalse neg = do
     case e of
-        A.Lit p (A.Bool _ True) -> 
+        A.Lit p (A.Bool _ True) ->
             case neg of
                 False -> return []
                 True -> return [B.Jump p ltrue]
-        A.Lit p (A.Bool _ False) -> 
+        A.Lit p (A.Bool _ False) ->
             case neg of
                 False -> return [B.Jump p lfalse]
                 True -> return []
         _ -> do
             let p = A.getPos e
-            (n, ec) <- transformExpr e
+            (n, ec) <- transform e
             case neg of
                 False -> return $ ec ++ [B.JumpCmp p (B.Eq p) lfalse (B.Var p n) (B.Const p $ B.ByteC p 0)]
                 True -> return $ ec ++ [B.JumpCmp p (B.Ne p) ltrue (B.Var p n) (B.Const p $ B.ByteC p 0)]
 
-instance IRAST A.Stmt B.Stmt where
+instance IRConvertable A.Stmt B.Stmt () where
     --doTransform ast = return [B.Return $ A.getPos ast]
 
-    doTransform (A.Empty _) = return []
-    doTransform (A.VarDecl _ decls) = concat <$> mapM transformVarDecl decls
+    doTransform (A.Empty _) = noEmit
+    doTransform (A.VarDecl _ decls) = justEmit =<< concat <$> mapM transformVarDecl decls
         where
             transformVarDecl :: (A.Type Position, A.DeclItem Position) -> LinearConverter [B.Stmt Position]
             transformVarDecl (t, A.NoInit pos name) = do
                 n <- newNameFor name (ct t)
-                return [B.VarDecl pos (ct t) n (B.Val pos (B.Const pos (B.Null pos)))]
+                return $ [B.VarDecl pos (ct t) n (B.Val pos (B.Const pos (B.Null pos)))]
             transformVarDecl (t, A.Init pos name@(A.Ident varpos x) e) = do
-                (en, ecode) <- transformExpr e
+                (en, ecode) <- transform e
                 n <- newNameFor name (ct t)
                 return $ ecode ++ [B.VarDecl pos (ct t) n (B.Val pos (B.Var varpos en))]
     doTransform (A.Assignment _ el er) = do
-        (en, enc) <- transformExpr er
+        (en, enc) <- transform er
         case el of
             A.Var p (A.Ident _ x) -> do
                 x' <- nameOf p x
                 t <- typeOf x'
-                return $ enc ++ [B.Assign p t (B.Variable p x') (B.Val p (B.Var p en))]
+                justEmit $ enc ++ [B.Assign p t (B.Variable p x') (B.Val p (B.Var p en))]
             A.ArrAccess p earr eidx _ -> do
-                (enarr, enarrc) <- transformExpr earr
-                (enidx, enidxc) <- transformExpr eidx
+                (enarr, enarrc) <- transform earr
+                (enidx, enidxc) <- transform eidx
                 t <- typeOf en
-                return $ enc ++ enarrc ++ enidxc ++ [B.Assign p t (B.Array p enarr (B.Var p enidx)) (B.Val p (B.Var p en))]
+                justEmit $ enc ++ enarrc ++ enidxc ++ [B.Assign p t (B.Array p enarr (B.Var p enidx)) (B.Val p (B.Var p en))]
             A.Member p em (A.Ident _ field) (Just className) -> do
-                (enm, enmc) <- transformExpr em
+                (enm, enmc) <- transform em
                 off <- getFieldOffset p className field
                 t <- getFieldType p className field
-                return $ enc ++ enmc ++ [B.Assign p t (B.Member p enm off) (B.Val p (B.Var p en))]
+                justEmit $ enc ++ enmc ++ [B.Assign p t (B.Member p enm off) (B.Val p (B.Var p en))]
     doTransform (A.ReturnValue p e) = do
-        (en, enc) <- transformExpr e
+        (en, enc) <- transform e
         t <- typeOf en
-        return $ enc ++ [B.ReturnVal p t (B.Val p (B.Var p en))]
-    doTransform (A.ReturnVoid p) = return [B.Return p]
+        justEmit $ enc ++ [B.ReturnVal p t (B.Val p (B.Var p en))]
+    doTransform (A.ReturnVoid p) = justEmit $ [B.Return p]
     doTransform (A.ExprStmt _ e) = do
-        (_, enc) <- transformExpr e
-        return enc
-    doTransform (A.BlockStmt _ (A.Block _ stmts)) = concat <$> mapM transform stmts
+        (_, enc) <- transform e
+        justEmit $ enc
+    doTransform (A.BlockStmt _ (A.Block _ stmts)) = justEmit =<< concat <$> mapM transformOnly stmts
     doTransform (A.IfElse p ec st sf) = do
         lif <- newLabel "_IIF"
         lelse <- newLabel "_IELSE"
         lend <- newLabel "_IEND"
         condc <- transformCondition ec lif lelse False
-        stc <- transform st
-        sfc <- transform sf
-        return $ condc ++ [B.SetLabel p lif] ++ stc ++ [B.Jump p lend, B.SetLabel p lelse] ++ sfc ++ [B.SetLabel p lend]
+        stc <- transformOnly st
+        sfc <- transformOnly sf
+        justEmit $ condc ++ [B.SetLabel p lif] ++ stc ++ [B.Jump p lend, B.SetLabel p lelse] ++ sfc ++ [B.SetLabel p lend]
     doTransform (A.While p ec s) = do
         lcond <- newLabel "_WCOND"
         lbegin <- newLabel "_WBEG"
         lend <- newLabel "_WEND"
-        sc <- transform s
+        sc <- transformOnly s
         ecc <- transformCondition ec lbegin lend True
-        return $ [B.Jump p lcond, B.SetLabel p lbegin] ++ sc ++ [B.SetLabel p lcond] ++ ecc
+        justEmit $ [B.Jump p lcond, B.SetLabel p lbegin] ++ sc ++ [B.SetLabel p lcond] ++ ecc
