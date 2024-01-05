@@ -1,15 +1,21 @@
 
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveAnyClass #-}
 module Reporting.Errors.Position where
+
+import GHC.Generics (Generic)
+import Control.DeepSeq
 
 data TokenUID =
     TokenUID Int
     | NoUID 
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Generic, NFData)
 
 data Position = Position TokenUID String Int Int 
               | BuiltIn
               | Undefined
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Generic, NFData)
 
 instance Show TokenUID where
   show NoUID = "#?"

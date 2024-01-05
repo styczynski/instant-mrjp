@@ -20,6 +20,7 @@ import Control.Monad.Reader hiding (void)
 import qualified Data.Map as M
 import qualified Data.List.NonEmpty as NE
 import qualified Utils.Graphs as G
+import Control.DeepSeq
 
 import Control.Monad.Trans.Class
 
@@ -56,6 +57,8 @@ data TypeCheckerEnv = TypeCheckerEnv
   , _tePreviousScopes   :: [(Position, VarEnv)]
   , _teInferTrace     :: InferTrace
   }
+
+instance NFData (TypeCheckerEnv) where rnf x = seq x ()
 
 makeLensesWith abbreviatedFields ''TypeCheckerEnv
 makeLensesWith abbreviatedFields ''InferTrace

@@ -11,6 +11,7 @@ import qualified Data.List.NonEmpty as NEL
 import Prelude hiding ((<>))
 import Data.Typeable
 import Reporting.Errors.Position
+import Control.DeepSeq
 import Optimizer.Env(OptimizerEnv)
 import Typings.Env(TypeCheckerEnv)
 import Linearized.Env(LinearTranslatorEnv)
@@ -52,7 +53,7 @@ data InternalLNError =
   | ILNEDuplicateStructure String
   | ILNEMissingMethod String (LSyntax.Structure Position)
   | ILNEMissingVariable String
-  | ILNEDuplicateLabelledString String
+  | ILNEDuplicateLabelledData String
   deriving (Show, Typeable)
 
 data ConditionBodyLocation = 
@@ -143,3 +144,4 @@ data Error
   -- | BadSuperUse
 
 
+instance NFData (Error) where rnf x = seq x ()

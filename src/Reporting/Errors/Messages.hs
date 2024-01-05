@@ -97,9 +97,10 @@ decodeInternalLNError _ _ (ILNEEncounteredDuplicateStructureMember structLabel m
 decodeInternalLNError _ _ (ILNEDuplicateFunction fnName fn) = Just $ ("Duplicate function: " ++ show fnName ++ ": " ++ show fn, Just $ LSyntax.getPos fn)
 decodeInternalLNError _ _ (ILNEDuplicateFunctionName fnName) = Just $ ("Duplicate function: " ++ show fnName, Nothing)
 decodeInternalLNError _ _ (ILNEUndefinedFunction fnName) = Just $ ("Missing definition for function: " ++ show fnName, Nothing)
-decodeInternalLNError _ _ (ILNEDuplicateLabelledString stringLabel) = Just $ ("Duplicate labelled string: " ++ show stringLabel, Nothing)
+decodeInternalLNError _ _ (ILNEDuplicateLabelledData dataLabel) = Just $ ("Duplicate labelled data: " ++ show dataLabel, Nothing)
 decodeInternalLNError _ _ (ILNEDuplicateStructure name) = Just $ ("Duplicate structure definition: " ++ show name, Nothing)
 decodeInternalLNError _ _ (ILNEMissingMethod methodName struct) = Just $ ("Missing structure method " ++ show methodName ++ " in structure: " ++ show struct, Just $ LSyntax.getPos struct)
+decodeInternalLNError _ _ (ILNEMissingVariable varName) = Just $ ("Unknown variable: " ++ show varName, Nothing) 
 decodeInternalLNError _ _ _ = Nothing
 
 decodeError :: Error -> SimpleError

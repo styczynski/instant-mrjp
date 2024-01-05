@@ -4,6 +4,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE IncoherentInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveAnyClass #-}
 module Linearized.Syntax where
 
 import Data.List (intercalate)
@@ -11,8 +12,9 @@ import Data.Maybe (fromMaybe)
 import Control.Lens hiding(Empty, Index, Const)
 import Data.Generics.Product
 import Data.Generics.Sum
-import GHC.Generics (Generic)
+import GHC.Generics (Generic, Generic1)
 import Reporting.Errors.Position
+import Control.DeepSeq
 
 import qualified Utils.Containers.IDMap as M
 
@@ -25,25 +27,26 @@ class (HasPosition 1 (s Position) (s Position) Position Position
 
 data IRPosition = 
     IRPosition Int (Position, Position)
+    deriving (Eq, Ord, Generic, NFData)
     
 data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Program
 
 data Structure a = Struct a (Label a) (Maybe (Label a)) Size (M.Map (Label a, Type a, Offset)) (M.Map (Label a))
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Structure
 
 data Type a = IntT a | ByteT a | Reference a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Type
 
 data Function a = Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor,  NFData)
 instance IsIR Function
 
 data Entity a = FunEntity a String (Function a) | StructEntity a String (Structure a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Entity
 
 class IsEntity t where
@@ -54,7 +57,7 @@ instance IsEntity Structure where
     toEntity struct@(Struct p (Label _ name) _ _ _ _) = StructEntity p name struct
 
 data Label a = Label a String
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Label
 
 instance M.Idable (Label a) where
@@ -76,7 +79,7 @@ instance M.Idable (DataDef a) where
     getID (DataString _ content _) = content
 
 data Name a = Name a String
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Name
 
 type Size = Integer
@@ -92,19 +95,19 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | SetLabel a (Label a)
           | Jump a (Label a)
           | JumpCmp a (Cmp a) (Label a) (Value a) (Value a)
-          deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+          deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Stmt
 
 data DataDef a = DataString a (String) (Label a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR DataDef
 
 data Cmp a = Eq a | Ne a | Le a | Lt a | Ge a | Gt a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Cmp
 
 data Target a = Variable a (Name a) | Array a (Name a) (Value a) | Member a (Name a) Offset
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Target
 
 data Expr a = NewObj a (Label a)
@@ -120,19 +123,19 @@ data Expr a = NewObj a (Label a)
           | Not a (Value a)
           | BinOp a (Op a) (Value a) (Value a)
           | Cast a (Label a) (Value a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Expr
 
 data Value a = Const a (Constant a) | Var a (Name a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Value
 
 data Op a = Add a | Sub a | Mul a | Div a | Mod a | And a | Or a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Op
 
 data Constant a = IntC a Integer | ByteC a Integer | StringC a (Label a)| Null a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Constant
 
 instance Show (Entity a) where
@@ -152,7 +155,7 @@ instance Show (Name a) where
     show (Name _ n) = n
 
 instance Show (Program a) where
-    show (Program _ ss fs datas) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ (concat $ M.mapList (\_ dataDef -> show dataDef++"\n") datas)
+    show (Program _ ss fs datas) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ intercalate "\n" (M.mapList (curry $ show . snd) datas)
 
 instance Show (Structure a) where
     show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ M.mapList (\_ (l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)
@@ -181,7 +184,15 @@ instance Show (Expr a) where
     show (BinOp _ op v1 v2) = show v1 ++" "++ show op ++" "++ show v2
     show (NewObj _ l) = "new "++show l
     show (NewArray _ t v) = "new "++show t++"["++show v++"]"
-    show e = show e
+    --show (JumpCmp _ cmp l vl vr) = "    jump "++show l++" if "++show vl++" "++show cmp++" "++show vr
+    --show (NewArray _ t v) = "    " ++ show t ++ " new array " ++ " = " ++ show v
+    show (NewString _ l) = "    " ++ "new string " ++ show l
+    --show (Val _ v) = "    val " ++ show v
+    show (Call _ l args) = "    call<function> " ++ show l ++ "(" ++ intercalate ", " (map show args) ++ ")"
+    show (MCall _ n i args) = "    call<method:" ++ show i ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
+    --show (ArrAccess _ n v) = "    " ++ show name ++ "[" ++ show value ++ "]"
+    --show (MemberAccess _ n off) = "    " ++ show n ++ "." ++ "(+" ++ show off ++ ")"
+    show _ = "<unknown instruction>"
 
 instance Show (Target a) where
     show (Variable _ v) = show v

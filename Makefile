@@ -1,7 +1,7 @@
 all: compiler
 
 compiler:
-	./bin/invoke_haskell_stack.sh install --local-bin-path=$(shell pwd)
+	./bin/invoke_haskell_stack.sh install --profile --local-bin-path=$(shell pwd)
 
 clean:
 	./bin/invoke_haskell_stack.sh clean
@@ -13,3 +13,6 @@ format:
 
 parser:
 	./bin/generate_parser.sh
+
+profile:
+	./bin/invoke_haskell_stack.sh exec --profile -- latc_x86 ./test.lat +RTS -p -M 1844674407

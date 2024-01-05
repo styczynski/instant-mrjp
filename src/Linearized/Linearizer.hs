@@ -14,7 +14,7 @@ import Linearized.Env
 import Linearized.Def
 import qualified Linearized.Converter as Converter
 import qualified Optimizer.Env as Optimizer
-
+import qualified Data.Text as T
 type LinearizerResult = Either Errors.Error (LinearTranslatorEnv, B.Program IRPosition)
 
 posFrom :: Position -> IRPosition
@@ -24,8 +24,11 @@ runLinearizer :: (A.Program Position) -> LinearConverter (B.Program IRPosition)
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
+    liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
     return ir
 
 linearizeToIR ::  Optimizer.OptimizerEnv () -> A.Program Position -> LattePipeline LinearizerResult
 linearizeToIR oEnv prog@(A.Program pos defs) = do
     either (return . Left) (\((ir), env) -> return $ Right (env, ir)) =<< runExceptT (runStateT (runLinearizer prog) $ createInitialEnv oEnv)
+    --rintLogInfo $ T.pack $ "Linearizer terminated !!!"
+    --liftIO $ evaluate $ force k

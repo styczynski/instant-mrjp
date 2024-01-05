@@ -19,15 +19,12 @@ dependencies:
 library:
   source-dirs: src
   dependencies:
-    - parser-combinators
-    - mtl
-    - megaparsec
     - containers
     - process
     - co-log
     - text
     - diagnose
-    - jvm-parser
+    - mtl
     - lens
     - array
     - transformers
@@ -42,6 +39,7 @@ library:
     - prettyprinter-ansi-terminal
     - time
     - ordered-containers
+    - deepseq
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

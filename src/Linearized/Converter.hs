@@ -18,6 +18,8 @@ import Linearized.Syntax (IRPosition(..))
 import Linearized.Env
 import Linearized.Def
 
+import qualified Data.Text as T
+
 import qualified Typings.Env as TypeChecker
 import qualified Typings.Types as Types
 
@@ -38,7 +40,11 @@ class  (A.IsSyntax ma Position, B.IsIR mb) => IRConvertable ma mb c | ma -> mb, 
     transformOnly = return . snd <=< transform
 
     transform :: ma Position -> LinearConverter (c, [mb Position])
-    transform = doTransform
+    transform ast = do
+        liftPipelineOpt $ printLogInfo $ T.pack $ "Transform to IR: " ++ (show ast)
+        r <- doTransform ast
+        liftPipelineOpt $ printLogInfo $ T.pack $ "[DONE] Transform to IR: " ++ (show ast)
+        return r
     -- return . B.modifyPos (\_ -> posFrom ast)  =<< 
 
 justEmit :: [mb Position] -> LinearConverter ((), [mb Position])
@@ -208,24 +214,24 @@ collectFunctions defs = do
             ]
 transformFunction :: FnProto -> LinearConverter (B.Function Position)
 transformFunction (FnProto pos name@(B.Label _ id) retType args stmts) = do
-    nstmts <- transformOverOnly stmts
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
+    nstmts <- transformOverOnly stmts
     return $ B.Fun pos name retType nargs nstmts
 
 transformProgram :: (A.Program Position) -> LinearConverter (B.Program Position)
 transformProgram prog = do
     nprogs <- transformOnly prog
-    let (poss, structs, fns, strs) = unzip4 $ map (\(B.Program pos structs fns strs) -> (pos, structs, fns, strs)) nprogs
+    let (poss, structs, fns, datas) = unzip4 $ map (\(B.Program pos structs fns datas) -> (pos, structs, fns, datas)) nprogs
     structsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) structs
     fnsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) fns
-    strsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateLabelledString) strs
-    return $ B.Program (head poss) structsMap fnsMap strsMap
+    datasMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateLabelledData) datas
+    return $ B.Program (head poss) structsMap fnsMap datasMap
 
 instance IRConvertable A.Program B.Program () where
     doTransform (A.Program a tds) = do
         fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
         structs <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) =<<  collectStructures tds
-        datas <- return $ IM.empty
+        datas <- lcStateGet (^. datas)
         justEmit [B.Program a structs fns datas]
 
 instance IRConvertable A.Expr B.Stmt (B.Name Position) where
@@ -376,10 +382,12 @@ opNeg (B.Gt p) = B.Le p
 
 
 transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Position) -> Bool -> LinearConverter [B.Stmt Position]
-transformCondition (A.UnaryOp p (A.Not _) e) ltrue lfalse neg =
+transformCondition ast@(A.UnaryOp p (A.Not _) e) ltrue lfalse neg = do
+    liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
     transformCondition e lfalse ltrue (not neg)
-transformCondition (A.BinaryOp p op el er) ltrue lfalse neg =
+transformCondition ast@(A.BinaryOp p op el er) ltrue lfalse neg =
     if A.isAA op then do
+        liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
         (nl, nlc) <- transform el
         (nr, nrc) <- transform er
         case neg of
@@ -387,10 +395,12 @@ transformCondition (A.BinaryOp p op el er) ltrue lfalse neg =
             True -> return $ nlc ++ nrc ++ [B.JumpCmp p (opC op) ltrue (B.Var p nl) (B.Var p nr)]
     else case op of
         (A.And _) -> do
+            liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
             elc <- transformCondition el ltrue lfalse False
             erc <- transformCondition er ltrue lfalse neg
             return $ elc ++ erc
         (A.Or p) -> do
+            liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
             lnext <- newLabel "_COR"
             elc <- transformCondition el ltrue lnext True
             erc <- transformCondition er ltrue lfalse neg

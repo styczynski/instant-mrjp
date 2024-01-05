@@ -1,11 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Linearized.Env where
 
 import qualified Data.Map as M
 import qualified Utils.Containers.IDMap as IM
 import qualified Linearized.Syntax as LS
 import Control.Lens
+import Control.DeepSeq
+import GHC.Generics (Generic)
 import qualified Optimizer.Env as Optimizer
 import qualified Typings.Env as TypeChecker
 
@@ -20,7 +24,7 @@ data LinearTranslatorEnv = LinearTranslatorEnv
     , _ltFunctions :: IM.Map (LS.Function Position)
     , _ltDatas :: IM.Map (LS.DataDef Position)
     , _ltTypings :: TypeChecker.TypeCheckerEnv
-  } deriving (Show)
+  } deriving (Show, Generic, NFData)
 
 makeLensesWith abbreviatedFields ''LinearTranslatorEnv
 

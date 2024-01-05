@@ -1,19 +1,28 @@
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Utils.Containers.IDMap where
 
 
 import qualified Data.Map.Ordered as OM
 import Data.Foldable
 import Data.Typeable
+import Data.Maybe
 import Control.Monad
+import Control.DeepSeq
+import GHC.Generics (Generic, Generic1)
 
 class Idable k where
     getID :: k -> String
 
 newtype Map v = Map (OM.OMap String v)
-    deriving (Ord, Read, Show, Eq, Typeable, Traversable, Foldable)
+    deriving (Ord, Read, Show, Eq, Typeable, Traversable, Foldable, Generic, Generic1)
+
+instance NFData (Map v) where rnf x = seq x ()
+instance NFData1 (Map) where liftRnf _ = rwhnf
 
 _unwrap :: Map v -> OM.OMap String v
 _unwrap (Map m) = m
@@ -40,13 +49,13 @@ fromM errHandler = flip (insertSequenceM errHandler (\m v -> v)) empty
 -- fromList = from
 
 findM :: (Monad m) => (String -> m ()) -> String -> Map v -> m v
-findM errHandler name (Map m) = let result = OM.lookup name m in maybe (errHandler name) (const $ return ()) result >> maybe undefined return result
+findM errHandler name (Map m) = let result = OM.lookup name m in maybe (errHandler name) (const $ return ()) result >> (return . fromJust) result
 
 findElemM :: (Monad m) => (String -> m ()) -> String -> Map v -> m (String, v, Int)
 findElemM errHandler name (Map m) =
     let index = OM.findIndex name m in
     let result = (\i (k, v) -> (k, v, i)) <$> index <*> (OM.elemAt m =<< index) in
-    maybe (errHandler name) (const $ return ()) result >> maybe undefined return result
+    maybe (errHandler name) (const $ return ()) result >> (return . fromJust) result
 
 provideM :: (Idable v, Monad m) => (String -> m v) -> String -> Map v -> m (v, Map v)
 provideM provider name (Map m) = maybe ((\newEl -> (newEl, Map $ m OM.|> (getID newEl, newEl))) <$> provider name) (\v -> return (v, Map m)) $ OM.lookup name m
