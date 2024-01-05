@@ -52,6 +52,7 @@ data InternalLNError =
   | ILNEDuplicateStructure String
   | ILNEMissingMethod String (LSyntax.Structure Position)
   | ILNEMissingVariable String
+  | ILNEDuplicateLabelledString String
   deriving (Show, Typeable)
 
 data ConditionBodyLocation = 

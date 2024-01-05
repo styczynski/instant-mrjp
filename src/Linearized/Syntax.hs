@@ -26,7 +26,7 @@ class (HasPosition 1 (s Position) (s Position) Position Position
 data IRPosition = 
     IRPosition Int (Position, Position)
     
-data Program a = Program a [Structure a] [Function a] [(Label a, String)]
+data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (Label a, String))
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
 instance IsIR Program
 
@@ -66,8 +66,11 @@ instance M.Idable (Function a) where
 instance M.Idable (Structure a) where
     getID (Struct _ l _ _ _ _) = M.getID l
 
-instance M.Idable (Label a, Type a, Size) where
+instance M.Idable (Label a, b, c) where
     getID (l, _, _) = M.getID l
+
+instance M.Idable (Label a, b) where
+    getID (l, _) = M.getID l
 
 data Name a = Name a String
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor)
@@ -142,7 +145,7 @@ instance Show (Name a) where
     show (Name _ n) = n
 
 instance Show (Program a) where
-    show (Program _ ss fs strs) = intercalate "\n" (map show ss) ++"\n"++ intercalate "\n" (map show fs) ++ "\n" ++ (concat $ map (\(l,s) -> show l++": "++show s++"\n") strs)
+    show (Program _ ss fs strs) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ (concat $ M.mapList (\_ (l,s) -> show l++": "++show s++"\n") strs)
 
 instance Show (Structure a) where
     show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ M.mapList (\_ (l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)

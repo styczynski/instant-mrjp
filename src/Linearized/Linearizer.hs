@@ -22,7 +22,7 @@ posFrom pos = IRPosition 0 (pos, pos)
 
 runLinearizer :: (A.Program Position) -> LinearConverter (B.Program IRPosition)
 runLinearizer prog = do
-    rawIR <- Converter.transform prog
+    rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
     return ir
 
