@@ -90,13 +90,15 @@ decodeInternalOPTError _ _ (IOPTECheckConstUnexpectedLiterals l1 l2) = Just $ ("
 decodeInternalOPTError _ _ _ = Nothing
 
 decodeInternalLNError :: TypeCheckerEnv -> LinearTranslatorEnv -> InternalLNError -> Maybe (String, Maybe Position)
-decodeInternalLNError _ _ (ILNEMissingClass clsName def) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Syntax.getPos def)
+decodeInternalLNError _ _ (ILNEMissingClass clsName (Just def) _) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Syntax.getPos def)
+decodeInternalLNError _ _ (ILNEMissingClass clsName Nothing p) = Just $ ("Missing typings for class: " ++ show clsName, Just p)
 decodeInternalLNError _ _ (ILNEMissingClassDefinition clsName cls) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Type.location cls)
 decodeInternalLNError _ _ (ILNEEncounteredDuplicateStructureMember structLabel memberName) = Just $ ("Duplicate structure member for structure " ++ show structLabel ++ ", member " ++ show memberName, Just $ LSyntax.getPos structLabel)
 decodeInternalLNError _ _ (ILNEDuplicateFunction fnName fn) = Just $ ("Duplicate function: " ++ show fnName ++ ": " ++ show fn, Just $ LSyntax.getPos fn)
 decodeInternalLNError _ _ (ILNEDuplicateFunctionName fnName) = Just $ ("Duplicate function: " ++ show fnName, Nothing)
 decodeInternalLNError _ _ (ILNEUndefinedFunction fnName) = Just $ ("Missing definition for function: " ++ show fnName, Nothing)
 decodeInternalLNError _ _ (ILNEDuplicateStructure name) = Just $ ("Duplicate structure definition: " ++ show name, Nothing)
+decodeInternalLNError _ _ (ILNEMissingMethod methodName struct) = Just $ ("Missing structure method " ++ show methodName ++ " in structure: " ++ show struct, Just $ LSyntax.getPos struct)
 decodeInternalLNError _ _ _ = Nothing
 
 decodeError :: Error -> SimpleError

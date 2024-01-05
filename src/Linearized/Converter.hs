@@ -29,18 +29,18 @@ class  (A.IsSyntax ma Position, B.IsIR mb) => IRAST ma mb where
     over = mapM transform
 
     transform :: ma Position -> LinearConverter (mb Position)
-    transform ast = doTransform ast
+    transform = doTransform
     -- return . B.modifyPos (\_ -> posFrom ast)  =<< 
 
 data FnProto = FnProto Position (B.Label Position) (B.Type Position) [A.Arg Position] [A.Stmt Position]
 
-newNameFor :: (A.Ident Position) -> (B.Type Position) -> LinearConverter (B.Name Position)
+newNameFor :: A.Ident Position -> B.Type Position -> LinearConverter (B.Name Position)
 newNameFor (A.Ident pos n) t = do
     (B.Name _ n') <- newName t
     lcStateSet (\env -> env & varMap %~ M.insert n n')
     return $ B.Name pos n'
 
-newName :: (B.Type Position) -> LinearConverter (B.Name Position)
+newName :: B.Type Position -> LinearConverter (B.Name Position)
 newName t = do
     i <- lcStateGet (^. varNameCounter)
     let n = "t_"++show i
@@ -53,6 +53,14 @@ newLabel prefix = do
     lcStateSet (\env -> env & varNameCounter %~ (+1))
     return (B.Label Undefined $ prefix++show i)
 
+nameOf :: String -> LinearConverter String
+nameOf varName =
+    maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "nameOf" $ Errors.ILNEMissingVariable varName)) return . M.lookup varName =<< lcStateGet (^.varMap)
+
+typeOf :: String -> LinearConverter (B.Type Position)
+typeOf varName =
+    maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "typeOf" $ Errors.ILNEMissingVariable varName)) return . M.lookup varName =<< lcStateGet (^.varType)
+
 
 ct :: (Show a) => A.Type a -> B.Type a
 ct (A.BoolT p) = B.ByteT p
@@ -61,19 +69,42 @@ ct (A.VoidT p) = B.ByteT p
 ct (A.IntT p) = B.IntT p
 ct ast = B.Reference $ A.getPos ast
 
-collectStructures :: [A.Definition Position] -> LinearConverter [(B.Structure Position)]
+getMethod :: Position -> String -> String -> LinearConverter (B.Label Position, B.Index)
+getMethod pos clsName methodName = do
+    --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
+    struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
+    (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) methodName methods
+    return (method, toInteger methodIndex)
+
+getField :: Position -> String -> String -> LinearConverter (B.Label Position, B.Type Position, B.Offset)
+getField pos clsName fieldName = do
+    --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
+    struct@(B.Struct _ _ _ _ fields _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getField" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
+    IM.findM (idMapFailure "getField" (`Errors.ILNEMissingMethod` struct)) fieldName fields
+
+getFieldOffset :: Position -> String -> String -> LinearConverter B.Offset
+getFieldOffset pos clsName = (\(_, _, o) -> return o) <=< getField pos clsName
+
+getFieldType :: Position -> String -> String -> LinearConverter (B.Type Position)
+getFieldType pos clsName = (\(_, t, _) -> return t) <=< getField pos clsName
+
+getFunctionType :: B.Label Position -> LinearConverter (B.Type Position)
+getFunctionType (B.Label pos fnName) =
+    (\(B.Fun _ _ t _ _) -> return t) =<< join (lcStateGet (\env -> IM.findM (idMapFailure "getFunctionType" Errors.ILNEUndefinedFunction) fnName (env ^. functions)))
+
+collectStructures :: [A.Definition Position] -> LinearConverter [B.Structure Position]
 collectStructures defs = do
-    structs <- IM.fromM (idMapFailure "collectStructures" $ Errors.ILNEDuplicateStructure) =<< return . concat =<< mapM collectFromDef defs
+    structs <- IM.fromM (idMapFailure "collectStructures" Errors.ILNEDuplicateStructure) . concat =<< mapM collectFromDef defs
     lcStateSet (\env -> env & structures .~ structs)
     lcStateGet (\env -> IM.elems (env ^. structures))
     where
-        collectFromDef :: A.Definition Position -> LinearConverter [(B.Structure Position)]
-        collectFromDef def@(A.ClassDef _ (A.Ident _ name) _ _) = do
+        collectFromDef :: A.Definition Position -> LinearConverter [B.Structure Position]
+        collectFromDef def@(A.ClassDef pos (A.Ident _ name) _ _) = do
             tcEnv <- lcStateGet (^.typings)
-            cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "collectFromDef" $ Errors.ILNEMissingClass name def)) return $ TypeChecker.findClassInEnv tcEnv name
+            cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "collectFromDef" $ Errors.ILNEMissingClass name (Just def) pos)) return $ TypeChecker.findClassInEnv tcEnv name
             collectFromClass cls
         collectFromDef _ = return []
-        collectFromClass :: Types.Class -> LinearConverter [(B.Structure Position)]
+        collectFromClass :: Types.Class -> LinearConverter [B.Structure Position]
         collectFromClass def@(Types.Class (A.Ident clnamePos clname) parent members _) = do
             let newName = B.Label clnamePos $ "_class_" ++ clname
             tcEnv <- lcStateGet (^.typings)
@@ -85,7 +116,7 @@ collectStructures defs = do
                     (A.NoName _) -> Nothing
                     (A.Name _ (A.Ident idpos id)) -> Just $ B.Label idpos $ "_class_"++id
             let structPrototype = B.Struct clnamePos newName newParent 0 selfFields selfMethods
-            chainMembers <- (return . concat) =<< (mapM ((return . map (\(B.Struct _ _ _ _ fields methods) -> (fields, methods))) <=< collectFromClass) parentChain)
+            chainMembers <- concat <$> mapM (return . map (\(B.Struct _ _ _ _ fields methods) -> (fields, methods)) <=< collectFromClass) parentChain
             completeStruct <- foldM (\struct (fields, methods) -> classParentMerge clname struct fields methods) structPrototype chainMembers
             return [completeStruct]
         translateToMethod :: Types.Member -> Maybe (B.Label Position)
@@ -94,7 +125,7 @@ collectStructures defs = do
         translateToField :: Types.Member -> Maybe (B.Label Position, B.Type Position, B.Offset)
         translateToField (Types.Field (A.Ident p n) t _) = Just (B.Label p n, ct t, 0)
         translateToField _ = Nothing
-        classParentMerge :: String -> B.Structure Position -> (IM.Map (B.Label Position, B.Type Position, B.Offset)) -> (IM.Map (B.Label Position)) -> LinearConverter (B.Structure Position)
+        classParentMerge :: String -> B.Structure Position -> IM.Map (B.Label Position, B.Type Position, B.Offset) -> IM.Map (B.Label Position) -> LinearConverter (B.Structure Position)
         classParentMerge clsName (B.Struct pos name parent offset fields methods) parentFields parentMethods = do
             combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++id++"_"++clsName) parentMethods) methods
             combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m (l, t, o) -> (l, t, measureOffset m)) fields parentFields
@@ -102,7 +133,7 @@ collectStructures defs = do
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()
             return $ B.Struct pos name parent (measureOffset combinedFields) combinedFields combinedMethods
-        measureOffset :: (IM.Map (B.Label a, B.Type a, B.Offset)) -> B.Size
+        measureOffset :: IM.Map (B.Label a, B.Type a, B.Offset) -> B.Size
         measureOffset m = case IM.last m of
             Nothing -> 0
             (Just (_, B.IntT _, o)) -> o + 0x04
@@ -126,7 +157,7 @@ collectFunctions defs = do
         collectFromDef (A.FunctionDef pos t (A.Ident idpos name) args (A.Block _ stmts)) = [FnProto pos (B.Label idpos name) (ct t) args stmts]
         collectFromDef (A.ClassDef _ (A.Ident _ clname) _ mems) = concatMap (collectFromClassDecl clname) mems
         collectFromClassDecl :: String -> A.ClassDecl Position -> [FnProto]
-        collectFromClassDecl _ (A.FieldDecl _ _ _) = []
+        collectFromClassDecl _ (A.FieldDecl {}) = []
         collectFromClassDecl clname (A.MethodDecl pos t (A.Ident idpos n) args  (A.Block _ stmts)) =
             [FnProto pos (B.Label idpos ("_"++clname++"_"++n)) (ct t) (A.Arg Undefined (A.ClassT Undefined (A.Ident Undefined clname)) (A.Ident Undefined "this") : args) stmts]
         builtIns =

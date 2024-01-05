@@ -42,6 +42,12 @@ fromM errHandler = flip (insertSequenceM errHandler (\m v -> v)) empty
 findM :: (Monad m) => (String -> m ()) -> String -> Map v -> m v
 findM errHandler name (Map m) = let result = OM.lookup name m in (maybe (errHandler name) (const $ return ()) result) >> maybe undefined return result
 
+findElemM :: (Monad m) => (String -> m ()) -> String -> Map v -> m (String, v, Int)
+findElemM errHandler name (Map m) =
+    let index = OM.findIndex name m in
+    let result = (\i (k, v) -> (k, v, i)) <$> index <*> (OM.elemAt m =<< index) in
+    maybe (errHandler name) (const $ return ()) result >> maybe undefined return result
+
 insertM :: (Idable v, Monad m) => (String -> m ()) -> v -> Map v -> m (Map v)
 --insertM v = _wrap . (flip (OM.|>)) ((getID v), v) . _unwrap
 insertM errHandler v (Map m) = let m' = _wrap . (flip (OM.|>)) ((getID v), v) in (if OM.member (getID v) m then (errHandler $ getID v) else return ()) >> (return . m') m

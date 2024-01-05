@@ -44,12 +44,14 @@ data InternalOPTError =
 
 data InternalLNError = 
   ILNEMissingClassDefinition String (Type.Class)
-  | ILNEMissingClass String (Syntax.Definition Position)
+  | ILNEMissingClass String (Maybe (Syntax.Definition Position)) Position
   | ILNEEncounteredDuplicateStructureMember (LSyntax.Label Position) String
   | ILNEDuplicateFunction String (LSyntax.Function Position)
   | ILNEDuplicateFunctionName String
   | ILNEUndefinedFunction String
   | ILNEDuplicateStructure String
+  | ILNEMissingMethod String (LSyntax.Structure Position)
+  | ILNEMissingVariable String
   deriving (Show, Typeable)
 
 data ConditionBodyLocation = 
