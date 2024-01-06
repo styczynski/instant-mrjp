@@ -89,7 +89,7 @@ decodeInternalOPTError :: TypeCheckerEnv -> (OptimizerEnv ()) -> InternalOPTErro
 decodeInternalOPTError _ _ (IOPTECheckConstUnexpectedLiterals l1 l2) = Just $ ("Unexpected combination of literals of incompatible types: " ++ printi 0 l1 ++ " and " ++ printi 0 l2, Just $ Syntax.getPos l1)
 decodeInternalOPTError _ _ _ = Nothing
 
-decodeInternalLNError :: TypeCheckerEnv -> LinearTranslatorEnv -> InternalLNError -> Maybe (String, Maybe Position)
+decodeInternalLNError :: TypeCheckerEnv -> (LinearTranslatorEnv ()) -> InternalLNError -> Maybe (String, Maybe Position)
 decodeInternalLNError _ _ (ILNEMissingClass clsName (Just def) _) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Syntax.getPos def)
 decodeInternalLNError _ _ (ILNEMissingClass clsName Nothing p) = Just $ ("Missing typings for class: " ++ show clsName, Just p)
 decodeInternalLNError _ _ (ILNEMissingClassDefinition clsName cls) = Just $ ("Missing typings for class: " ++ show clsName, Just $ Type.location cls)

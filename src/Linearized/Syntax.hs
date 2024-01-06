@@ -228,6 +228,10 @@ instance Show (Cmp a) where
 getPos :: IsIR s => (s Position) -> Position
 getPos ast = view (position @1) ast
 
+getPosIR :: IsIR s => (s IRPosition) -> IRPosition
+getPosIR ast = view (position @1) ast
+
+
 -- --setPos :: (IsIR s t) => (s t) -> a -> (s a)
 -- setPos :: (IsIR s) => IRPosition -> (s Position) -> (s IRPosition)
 -- setPos p ast = set (position @1) p ast

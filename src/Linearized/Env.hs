@@ -15,7 +15,7 @@ import qualified Typings.Env as TypeChecker
 
 import Reporting.Errors.Position
 
-data LinearTranslatorEnv = LinearTranslatorEnv
+data LinearTranslatorEnv a = LinearTranslatorEnv
   {
     _ltVarNameCounter :: Int
     , _ltVarMap :: M.Map String String
@@ -24,11 +24,13 @@ data LinearTranslatorEnv = LinearTranslatorEnv
     , _ltFunctions :: IM.Map (LS.Function Position)
     , _ltDatas :: IM.Map (LS.DataDef Position)
     , _ltTypings :: TypeChecker.TypeCheckerEnv
+    , _ltOptimizerState :: a
   } deriving (Show, Generic, NFData)
+
 
 makeLensesWith abbreviatedFields ''LinearTranslatorEnv
 
-createInitialEnv ::  Optimizer.OptimizerEnv () -> LinearTranslatorEnv
+createInitialEnv ::  Optimizer.OptimizerEnv () -> (LinearTranslatorEnv ())
 createInitialEnv oEnv = LinearTranslatorEnv {
     _ltVarNameCounter = 0
     , _ltVarMap = M.empty
@@ -37,4 +39,8 @@ createInitialEnv oEnv = LinearTranslatorEnv {
     , _ltFunctions = IM.empty
     , _ltDatas = IM.empty
     , _ltTypings = (oEnv^.Optimizer.tCEnv)
+    , _ltOptimizerState = ()
 }
+
+scrapInternalState :: LinearTranslatorEnv a -> LinearTranslatorEnv ()
+scrapInternalState oEnv = oEnv { _ltOptimizerState = () }

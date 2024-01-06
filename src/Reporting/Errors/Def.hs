@@ -73,7 +73,7 @@ data Error
    | NumericConstantExceedsTypeLimit TypeCheckerEnv (Syntax.Lit Position) Integer [(String, Syntax.Type Position)]
    | InternalTypecheckerFailure TypeCheckerEnv String InternalTCError
    | InternalOptimizerFailure TypeCheckerEnv (OptimizerEnv ()) String InternalOPTError
-   | InternalLinearizerFailure TypeCheckerEnv (LinearTranslatorEnv) String InternalLNError
+   | InternalLinearizerFailure TypeCheckerEnv (LinearTranslatorEnv ()) String InternalLNError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]

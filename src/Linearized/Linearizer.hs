@@ -15,17 +15,21 @@ import Linearized.Def
 import qualified Linearized.Converter as Converter
 import qualified Optimizer.Env as Optimizer
 import qualified Data.Text as T
-type LinearizerResult = Either Errors.Error (LinearTranslatorEnv, B.Program IRPosition)
+
+import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
+
+type LinearizerResult = Either Errors.Error (LinearTranslatorEnv (), B.Program IRPosition)
 
 posFrom :: Position -> IRPosition
 posFrom pos = IRPosition 0 (pos, pos)
 
-runLinearizer :: (A.Program Position) -> LinearConverter (B.Program IRPosition)
+runLinearizer :: (A.Program Position) -> LinearConverter () (B.Program IRPosition)
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
+    irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState ir 
     liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
-    return ir
+    return irWithCounters
 
 linearizeToIR ::  Optimizer.OptimizerEnv () -> A.Program Position -> LattePipeline LinearizerResult
 linearizeToIR oEnv prog@(A.Program pos defs) = do

@@ -29,17 +29,17 @@ import Data.Bifunctor
 import Control.Monad
 
 class  (A.IsSyntax ma Position, B.IsIR mb) => IRConvertable ma mb c | ma -> mb, ma -> c where
-    doTransform :: ma Position -> LinearConverter (c, [mb Position])
-    transformOver :: [ma Position] -> LinearConverter (c, [mb Position])
+    doTransform :: ma Position -> LinearConverter () (c, [mb Position])
+    transformOver :: [ma Position] -> LinearConverter () (c, [mb Position])
     transformOver = return . (\(c, ast) -> (head c, concat ast)) . unzip <=< mapM transform
 
-    transformOverOnly :: [ma Position] -> LinearConverter [mb Position]
+    transformOverOnly :: [ma Position] -> LinearConverter () [mb Position]
     transformOverOnly = return . snd <=< transformOver
 
-    transformOnly :: ma Position -> LinearConverter [mb Position]
+    transformOnly :: ma Position -> LinearConverter () [mb Position]
     transformOnly = return . snd <=< transform
 
-    transform :: ma Position -> LinearConverter (c, [mb Position])
+    transform :: ma Position -> LinearConverter () (c, [mb Position])
     transform ast = do
         liftPipelineOpt $ printLogInfo $ T.pack $ "Transform to IR: " ++ (show ast)
         r <- doTransform ast
@@ -47,39 +47,39 @@ class  (A.IsSyntax ma Position, B.IsIR mb) => IRConvertable ma mb c | ma -> mb, 
         return r
     -- return . B.modifyPos (\_ -> posFrom ast)  =<< 
 
-justEmit :: [mb Position] -> LinearConverter ((), [mb Position])
+justEmit :: [mb Position] -> LinearConverter () ((), [mb Position])
 justEmit = return . (,) ()
 
-noEmit :: LinearConverter ((), [mb Position])
+noEmit :: LinearConverter () ((), [mb Position])
 noEmit = justEmit []
 
 
 data FnProto = FnProto Position (B.Label Position) (B.Type Position) [A.Arg Position] [A.Stmt Position]
 
-newNameFor :: A.Ident Position -> B.Type Position -> LinearConverter (B.Name Position)
+newNameFor :: A.Ident Position -> B.Type Position -> LinearConverter () (B.Name Position)
 newNameFor (A.Ident pos n) t = do
     (B.Name _ n') <- newName t
     lcStateSet (\env -> env & varMap %~ M.insert n n')
     return $ B.Name pos n'
 
-newName :: B.Type Position -> LinearConverter (B.Name Position)
+newName :: B.Type Position -> LinearConverter () (B.Name Position)
 newName t = do
     i <- lcStateGet (^. varNameCounter)
     let n = "t_"++show i
     lcStateSet (\env -> env & varNameCounter %~ (+1) & varType %~ M.insert n t)
     return $ B.Name (B.getPos t) n
 
-newLabel :: String -> LinearConverter (B.Label Position)
+newLabel :: String -> LinearConverter () (B.Label Position)
 newLabel prefix = do
     i <- lcStateGet (^. varNameCounter)
     lcStateSet (\env -> env & varNameCounter %~ (+1))
     return (B.Label Undefined $ prefix++show i)
 
-nameOf :: Position -> String -> LinearConverter (B.Name Position)
+nameOf :: Position -> String -> LinearConverter () (B.Name Position)
 nameOf pos varName =
     maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "nameOf" $ Errors.ILNEMissingVariable varName)) (return . (B.Name pos)) . M.lookup varName =<< lcStateGet (^.varMap)
 
-typeOf :: (B.Name Position) -> LinearConverter (B.Type Position)
+typeOf :: (B.Name Position) -> LinearConverter () (B.Type Position)
 typeOf (B.Name _ varName) =
     maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "typeOf" $ Errors.ILNEMissingVariable varName)) return . M.lookup varName =<< lcStateGet (^.varType)
 
@@ -91,42 +91,42 @@ ct (A.VoidT p) = B.ByteT p
 ct (A.IntT p) = B.IntT p
 ct ast = B.Reference $ A.getPos ast
 
-getMethod :: Position -> String -> String -> LinearConverter (B.Label Position, B.Index)
+getMethod :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Index)
 getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
     struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
     (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) methodName methods
     return (method, toInteger methodIndex)
 
-getField :: Position -> String -> String -> LinearConverter (B.Label Position, B.Type Position, B.Offset)
+getField :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Type Position, B.Offset)
 getField pos clsName fieldName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
     struct@(B.Struct _ _ _ _ fields _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getField" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
     IM.findM (idMapFailure "getField" (`Errors.ILNEMissingMethod` struct)) fieldName fields
 
-getFieldOffset :: Position -> String -> String -> LinearConverter B.Offset
+getFieldOffset :: Position -> String -> String -> LinearConverter () B.Offset
 getFieldOffset pos clsName = (\(_, _, o) -> return o) <=< getField pos clsName
 
-getFieldType :: Position -> String -> String -> LinearConverter (B.Type Position)
+getFieldType :: Position -> String -> String -> LinearConverter () (B.Type Position)
 getFieldType pos clsName = (\(_, t, _) -> return t) <=< getField pos clsName
 
-getFunctionType :: B.Label Position -> LinearConverter (B.Type Position)
+getFunctionType :: B.Label Position -> LinearConverter () (B.Type Position)
 getFunctionType (B.Label pos fnName) =
     (\(B.Fun _ _ t _ _) -> return t) =<< join (lcStateGet (\env -> IM.findM (idMapFailure "getFunctionType" Errors.ILNEUndefinedFunction) fnName (env ^. functions)))
 
-collectStructures :: [A.Definition Position] -> LinearConverter [B.Structure Position]
+collectStructures :: [A.Definition Position] -> LinearConverter () [B.Structure Position]
 collectStructures defs = do
     structs <- IM.fromM (idMapFailure "collectStructures" Errors.ILNEDuplicateStructure) . concat =<< mapM collectFromDef defs
     lcStateSet (\env -> env & structures .~ structs)
     lcStateGet (\env -> IM.elems (env ^. structures))
     where
-        collectFromDef :: A.Definition Position -> LinearConverter [B.Structure Position]
+        collectFromDef :: A.Definition Position -> LinearConverter () [B.Structure Position]
         collectFromDef def@(A.ClassDef pos (A.Ident _ name) _ _) = do
             tcEnv <- lcStateGet (^.typings)
             cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "collectFromDef" $ Errors.ILNEMissingClass name (Just def) pos)) return $ TypeChecker.findClassInEnv tcEnv name
             collectFromClass cls
         collectFromDef _ = return []
-        collectFromClass :: Types.Class -> LinearConverter [B.Structure Position]
+        collectFromClass :: Types.Class -> LinearConverter () [B.Structure Position]
         collectFromClass def@(Types.Class (A.Ident clnamePos clname) parent members _) = do
             let newName = B.Label clnamePos $ "_class_" ++ clname
             tcEnv <- lcStateGet (^.typings)
@@ -147,7 +147,7 @@ collectStructures defs = do
         translateToField :: Types.Member -> Maybe (B.Label Position, B.Type Position, B.Offset)
         translateToField (Types.Field (A.Ident p n) t _) = Just (B.Label p n, ct t, 0)
         translateToField _ = Nothing
-        classParentMerge :: String -> B.Structure Position -> IM.Map (B.Label Position, B.Type Position, B.Offset) -> IM.Map (B.Label Position) -> LinearConverter (B.Structure Position)
+        classParentMerge :: String -> B.Structure Position -> IM.Map (B.Label Position, B.Type Position, B.Offset) -> IM.Map (B.Label Position) -> LinearConverter () (B.Structure Position)
         classParentMerge clsName (B.Struct pos name parent offset fields methods) parentFields parentMethods = do
             combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++id++"_"++clsName) parentMethods) methods
             combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m (l, t, o) -> (l, t, measureOffset m)) fields parentFields
@@ -166,7 +166,7 @@ collectStructures defs = do
 --             if elem name (map (\(B.Fun l _ _ _) ->l) funcs) then
 --                 return []--transF name args block
 --             else return [toEntity $ B.Fun name (ct t) [] []]
-collectFunctions :: [A.Definition Position] -> LinearConverter [B.Function Position]
+collectFunctions :: [A.Definition Position] -> LinearConverter () [B.Function Position]
 collectFunctions defs = do
     let fns = concatMap collectFromDef defs
     fnPrototypes <- IM.fromM (idMapFailure "collectFunctions" Errors.ILNEDuplicateFunctionName) $ builtIns ++ map (\(FnProto pos name@(B.Label _ id) retType _ _) -> B.Fun pos name retType [] []) fns
@@ -212,13 +212,13 @@ collectFunctions defs = do
                 B.Fun BuiltIn (B.Label BuiltIn "readInt") (B.IntT BuiltIn) [] [],
                 B.Fun BuiltIn (B.Label BuiltIn "readString") (B.Reference BuiltIn) [] []
             ]
-transformFunction :: FnProto -> LinearConverter (B.Function Position)
+transformFunction :: FnProto -> LinearConverter () (B.Function Position)
 transformFunction (FnProto pos name@(B.Label _ id) retType args stmts) = do
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
     nstmts <- transformOverOnly stmts
     return $ B.Fun pos name retType nargs nstmts
 
-transformProgram :: (A.Program Position) -> LinearConverter (B.Program Position)
+transformProgram :: (A.Program Position) -> LinearConverter () (B.Program Position)
 transformProgram prog = do
     nprogs <- transformOnly prog
     let (poss, structs, fns, datas) = unzip4 $ map (\(B.Program pos structs fns datas) -> (pos, structs, fns, datas)) nprogs
@@ -338,7 +338,7 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 else
                     return (n, enlc ++ enrc ++ [B.VarDecl p ent n (B.BinOp p bop (B.Var p enl) (B.Var p enr))])
         where
-            compare :: (A.Expr Position) ->  LinearConverter (B.Name Position, [B.Stmt Position])
+            compare :: (A.Expr Position) ->  LinearConverter () (B.Name Position, [B.Stmt Position])
             compare e = do
                 let p = A.getPos e
                 nb <- newName $ B.ByteT p
@@ -381,7 +381,7 @@ opNeg (B.Ge p) = B.Lt p
 opNeg (B.Gt p) = B.Le p
 
 
-transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Position) -> Bool -> LinearConverter [B.Stmt Position]
+transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Position) -> Bool -> LinearConverter () [B.Stmt Position]
 transformCondition ast@(A.UnaryOp p (A.Not _) e) ltrue lfalse neg = do
     liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
     transformCondition e lfalse ltrue (not neg)
@@ -428,7 +428,7 @@ instance IRConvertable A.Stmt B.Stmt () where
     doTransform (A.Empty _) = noEmit
     doTransform (A.VarDecl _ decls) = justEmit =<< concat <$> mapM transformVarDecl decls
         where
-            transformVarDecl :: (A.Type Position, A.DeclItem Position) -> LinearConverter [B.Stmt Position]
+            transformVarDecl :: (A.Type Position, A.DeclItem Position) -> LinearConverter () [B.Stmt Position]
             transformVarDecl (t, A.NoInit pos name) = do
                 n <- newNameFor name (ct t)
                 return $ [B.VarDecl pos (ct t) n (B.Val pos (B.Const pos (B.Null pos)))]

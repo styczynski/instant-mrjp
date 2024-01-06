@@ -17,7 +17,9 @@ type LiveFrom = Integer
 type LiveUntil = Integer
 type LivenessInterval a = (L.Name a, LiveFrom, LiveUntil)
 
-analize :: [L.Stmt L.IRPosition] -> [(L.Stmt L.IRPosition, [L.Name L.IRPosition],[L.Name L.IRPosition])]
+type LivenessEntry = (L.Stmt L.IRPosition, [L.Name L.IRPosition], [L.Name L.IRPosition])
+
+analize :: [L.Stmt L.IRPosition] -> [LivenessEntry]
 analize stmts = 
     let indexed = zip stmts [1..]
         succ = map (findSucc indexed) indexed
