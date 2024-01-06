@@ -170,7 +170,7 @@ addRefCounters entries args = do
     (argsStmts, argsRefs) <- incArgs entries args
     let exEntries = map (\(s, tin, tout) -> (s, tin, tout, tin \\ tout)) entries
     (_, stmts) <- foldM (\(refs, outStmts) entry -> (\(newRefs, newStmts) -> (newRefs, newStmts ++ outStmts)) <$> (mapStmt exEntries entry refs)) (argsRefs, []) exEntries
-    return stmts
+    return $ reverse stmts
 
 -- addRefCounters sts args =
 --   where
