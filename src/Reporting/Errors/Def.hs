@@ -69,6 +69,10 @@ data ConditionPredicateLocation =
   | WhileConditionPredicate (Syntax.Expr Position)
   deriving (Show, Typeable)
 
+data BackendError = 
+  CGExternalCommandFailed String [String]
+  deriving (Show, Typeable)
+
 data Error
   =
    UnknownFailure TypeCheckerEnv String
@@ -125,6 +129,7 @@ data Error
   | DuplicateClass Type.Class [Type.Class]
   | DuplicateMember Type.Class Type.Member [Type.Member]
   | DuplicateMembersInChain Type.Class Type.Member [(Type.Class, Type.Member)]
+  | BackendCodeGenerationError BackendError
   deriving (Typeable, Show)
   -- | DuplicateMethod ClassId MethodId
   -- | DuplicateConstructor ClassId (Maybe ConstructorId)

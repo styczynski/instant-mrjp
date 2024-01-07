@@ -17,6 +17,8 @@ import Parser.Transform
 import Typings.Checker as TypeChecker
 import Optimizer.Optimizer as Optimizer
 import Linearized.Linearizer as Linearizer
+import Backend.Base as Backend
+import Backend.X86.X86 as BackendX86
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -26,6 +28,9 @@ import System.IO
 import System.Process
 
 import Utils.Similarity
+
+usedBackend :: Backend.LatteBackend
+usedBackend = BackendX86.backend
 
 runCLI :: () -> IO ()
 runCLI backend = evaluateLattePipeline $ runPipeline backend
@@ -69,4 +74,12 @@ runPipeline backend = do
                       printErrors err file contents parsedAST
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ show ir)
+                      let outputPath = replaceExtension file (inputExtension usedBackend)
+                      backendResult <- Backend.runBackend outputPath (takeFileName outputPath) ir usedBackend
+                      case backendResult of 
+                        (Left err) -> do
+                          printLogInfo $ T.pack $ "Backend code generation has failed"
+                          printErrors err file contents parsedAST
+                        (Right (outputFilePath, _)) -> do
+                          printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
     _ -> latteError "BAD ARGS"
