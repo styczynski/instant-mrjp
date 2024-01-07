@@ -17,6 +17,7 @@ import qualified Optimizer.Env as Optimizer
 import qualified Data.Text as T
 
 import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
+import qualified Linearized.Optimizer.ValuePropagator as OValuePropagator
 
 type LinearizerResult = Either Errors.Error (LinearTranslatorEnv (), B.Program IRPosition)
 
@@ -27,6 +28,7 @@ runLinearizer :: (A.Program Position) -> LinearConverter () (B.Program IRPositio
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
+    ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
     irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState ir 
     liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
     return irWithCounters

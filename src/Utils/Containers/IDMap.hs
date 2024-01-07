@@ -100,3 +100,8 @@ elems = mapList (\ _ x -> x)
 overrideM :: (Idable v, Monad m) => (String -> m ()) -> v -> Map v -> m (Map v)
 overrideM errHandler v (Map m) = let m' = _wrap . flip (OM.>|) (getID v, v) in (when (not $ OM.member (getID v) m) $ errHandler $ getID v) >> (return . m') m
 
+delete :: (Idable v) => String -> Map v -> Map v
+delete k = _wrap . OM.delete k . _unwrap
+
+deleteMany :: (Idable v, Traversable t) => t String -> Map v -> Map v
+deleteMany keys m = foldl (flip delete) m keys

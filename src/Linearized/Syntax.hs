@@ -63,6 +63,9 @@ instance IsIR Label
 instance M.Idable (Label a) where
     getID (Label _ m) = m
 
+instance M.Idable (Name a) where
+    getID (Name _ m) = m
+
 instance M.Idable (Function a) where
     getID (Fun _ l _ _ _) = M.getID l
 
@@ -74,6 +77,9 @@ instance M.Idable (Label a, b, c) where
 
 instance M.Idable (Label a, b) where
     getID (l, _) = M.getID l
+
+instance M.Idable (Name a, b) where
+    getID (n, _) = M.getID n
 
 instance M.Idable (DataDef a) where
     getID (DataString _ content _) = content
@@ -232,9 +238,8 @@ getPosIR :: IsIR s => (s IRPosition) -> IRPosition
 getPosIR ast = view (position @1) ast
 
 
--- --setPos :: (IsIR s t) => (s t) -> a -> (s a)
--- setPos :: (IsIR s) => IRPosition -> (s Position) -> (s IRPosition)
--- setPos p ast = set (position @1) p ast
+setPosIR :: (IsIR s) => IRPosition -> (s IRPosition) -> (s IRPosition)
+setPosIR p ast = set (position @1) p ast
 
 -- modifyPos :: (IsIR s) => (Position -> IRPosition) -> (s Position) -> (s IRPosition)
 -- modifyPos fn ast = let setPos p ast = set (position @1) p ast in ((setPos . fn . getPos) ast) ast
