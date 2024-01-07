@@ -97,6 +97,7 @@ decodeInternalLNError _ _ (ILNEEncounteredDuplicateStructureMember structLabel m
 decodeInternalLNError _ _ (ILNEDuplicateFunction fnName fn) = Just $ ("Duplicate function: " ++ show fnName ++ ": " ++ show fn, Just $ LSyntax.getPos fn)
 decodeInternalLNError _ _ (ILNEDuplicateFunctionName fnName) = Just $ ("Duplicate function: " ++ show fnName, Nothing)
 decodeInternalLNError _ _ (ILNEDuplicateValueMapping varName) = Just $ ("Duplicate value mapping: " ++ show varName, Nothing)
+decodeInternalLNError _ _ (ILNEMissingValueMapping varName) = Just $ ("Missing value mapping: " ++ show varName, Nothing)
 decodeInternalLNError _ _ (ILNEUndefinedFunction fnName) = Just $ ("Missing definition for function: " ++ show fnName, Nothing)
 decodeInternalLNError _ _ (ILNEDuplicateLabelledData dataLabel) = Just $ ("Duplicate labelled data: " ++ show dataLabel, Nothing)
 decodeInternalLNError _ _ (ILNEDuplicateStructure name) = Just $ ("Duplicate structure definition: " ++ show name, Nothing)

@@ -89,44 +89,44 @@ propS stmts =
     notFix (n:[x,y]) = [x,y] /= "_f"
     notFix (n:ns) = notFix ns
 
-used' (VarDecl t n e@(Call _ _)) = n : usedE e
-used' (VarDecl t n e@(MCall _ _ _)) = n : usedE e
-used' e = used e
+-- used' (VarDecl t n e@(Call _ _)) = n : usedE e
+-- used' (VarDecl t n e@(MCall _ _ _)) = n : usedE e
+-- used' e = used e
 
-used (VarDecl t n e) = usedE e
-used (Assign t tg e) = usedT tg ++ usedE e
-used (ReturnVal t e) = usedE e
-used (IncrCounter n) = [n]
-used (DecrCounter n) = [n]
-used (JumpCmp _ _ vl vr) = usedV vl ++ usedV vr
-used _ = []
+-- used (VarDecl t n e) = usedE e
+-- used (Assign t tg e) = usedT tg ++ usedE e
+-- used (ReturnVal t e) = usedE e
+-- used (IncrCounter n) = [n]
+-- used (DecrCounter n) = [n]
+-- used (JumpCmp _ _ vl vr) = usedV vl ++ usedV vr
+-- used _ = []
 
-usedT (Array n v) = n : usedV v
-usedT (Member n _) = [n]
-usedT _ = []
+-- usedT (Array n v) = n : usedV v
+-- usedT (Member n _) = [n]
+-- usedT _ = []
 
-usedV (Var n) = [n]
-usedV _ = []
+-- usedV (Var n) = [n]
+-- usedV _ = []
 
-usedE (NewArray _ v) = usedV v
-usedE (Val v) = usedV v
-usedE (Call _ vs) = concat $ map usedV vs
-usedE (MCall n i vs) = concat $ map usedV vs
-usedE (ArrAccess n v) = n : usedV v
-usedE (MemberAccess n _) = [n]
-usedE (IntToByte v) = usedV v
-usedE (ByteToInt v) = usedV v
-usedE (Not v) = usedV v
-usedE (BinOp _ v1 v2) = usedV v1 ++ usedV v2
-usedE (Cast _ v) = usedV v
-usedE _ = []
+-- usedE (NewArray _ v) = usedV v
+-- usedE (Val v) = usedV v
+-- usedE (Call _ vs) = concat $ map usedV vs
+-- usedE (MCall n i vs) = concat $ map usedV vs
+-- usedE (ArrAccess n v) = n : usedV v
+-- usedE (MemberAccess n _) = [n]
+-- usedE (IntToByte v) = usedV v
+-- usedE (ByteToInt v) = usedV v
+-- usedE (Not v) = usedV v
+-- usedE (BinOp _ v1 v2) = usedV v1 ++ usedV v2
+-- usedE (Cast _ v) = usedV v
+-- usedE _ = []
 
-assigned (VarDecl _ n _) = [n]
-assigned (Assign t (Variable n) _) = [n]
-assigned _ = []
+-- assigned (VarDecl _ n _) = [n]
+-- assigned (Assign t (Variable n) _) = [n]
+-- assigned _ = []
 
-declared (VarDecl _ n _) = [n]
-declared _ = []
+-- declared (VarDecl _ n _) = [n]
+-- declared _ = []
 
 propE :: Expr -> SM Expr
 propE (NewArray t v) = do
@@ -165,17 +165,17 @@ propE (MemberAccess n o) = do
 propE (Cast l v) = updatedVal v >>= return . Cast l
 propE e = return e
 
-updatedVal (Var n) = do
-    m <- find n
-    case m of
-        Nothing -> return (Var n)
-        Just v -> return v
-updatedVal v = return v
+-- updatedVal (Var n) = do
+--     m <- find n
+--     case m of
+--         Nothing -> return (Var n)
+--         Just v -> return v
+-- updatedVal v = return v
 
-find :: Name -> SM (Maybe Value)
-find n = do
-    st <- get
-    return $ lookup n st
+-- find :: Name -> SM (Maybe Value)
+-- find n = do
+--     st <- get
+--     return $ lookup n st
 
 fixSelfSubstitution (VarDecl t n e : ss) | elem n (usedE e) && notBinOp e =
     VarDecl t (n++"_f") e : VarDecl t n (Val (Var (n++"_f"))) : fixSelfSubstitution ss

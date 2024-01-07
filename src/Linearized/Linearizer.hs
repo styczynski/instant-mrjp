@@ -15,9 +15,11 @@ import Linearized.Def
 import qualified Linearized.Converter as Converter
 import qualified Optimizer.Env as Optimizer
 import qualified Data.Text as T
+import Utils.Time
 
 import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
 import qualified Linearized.Optimizer.ValuePropagator as OValuePropagator
+import qualified Linearized.Optimizer.CommonExpressions as OExpressionSubstituter
 
 type LinearizerResult = Either Errors.Error (LinearTranslatorEnv (), B.Program IRPosition)
 
@@ -28,10 +30,27 @@ runLinearizer :: (A.Program Position) -> LinearConverter () (B.Program IRPositio
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
-    ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
-    irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState ir 
+    currentTime <- liftPipelineOpt nanos
+    (_, optimizedIR) <- findFixedPoint [(runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState), (runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState)] (0, currentTime) ir
+    --ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
+    --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
+    --ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
+    --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
+    irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState optimizedIR 
     liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
     return irWithCounters
+    where
+        findFixedPoint :: [B.Program IRPosition -> LinearConverter () (B.Program IRPosition)] -> (Int, Int) -> (B.Program IRPosition) -> LinearConverter () (Int, B.Program IRPosition)
+        findFixedPoint fns (callNo, startTime) prog = do
+            prevState <- oStateGet id
+            newProg <- foldM (\oldProg fn -> fn oldProg) prog fns
+            oStateSet (\_ -> prevState)
+            currentTime <- liftPipelineOpt nanos
+            timeElapsedMs <- return $ div (currentTime - startTime) 1000000
+            liftPipelineOpt $ printLogInfoStr $ "Optimizing IR round " ++ (show $ callNo+1) ++ " (took " ++ (show timeElapsedMs) ++ " ms)" 
+            if newProg /= prog && timeElapsedMs <= 4000 then do
+                findFixedPoint fns (callNo+1, startTime) newProg
+            else return (callNo, newProg)
 
 linearizeToIR ::  Optimizer.OptimizerEnv () -> A.Program Position -> LattePipeline LinearizerResult
 linearizeToIR oEnv prog@(A.Program pos defs) = do

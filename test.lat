@@ -19,15 +19,17 @@ class class2 extends class1 {
 int foo(int a, int b) {
     string u = "e";
     boolean qq = 1==1;
+    boolean qq2 = 1==1;
     var t = (9999999+1+1+1+1) / (0+0+0+0+0*0+0*0*0+1-1+1-1+1);
-    if (qq==true) {
+    if (qq==true && qq2 == true) {
         //string c = 9 + 5 * 2 + (5 + (5 + 2 / 2)) + (((((((((((1+1)+1)+1)+1)+1)+1)+1)+1)+1)+1)+1);
         //int c = "ala" + "ma" + lel("kota", 5+5);
         string c = lel("kota", 5+5);
+        string c2 = lel("kota", 5+5);
         String[] q = new String[2];
         //String p = b.lol;
         //if (c) int c = 2;
-        string u = c + 2;
+        string u = c + 2 + c2;
         return a+b;
     }
     class2 f = new class2;

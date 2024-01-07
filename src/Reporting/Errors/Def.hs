@@ -50,6 +50,7 @@ data InternalLNError =
   | ILNEDuplicateFunction String (LSyntax.Function Position)
   | ILNEDuplicateFunctionName String
   | ILNEDuplicateValueMapping String
+  | ILNEMissingValueMapping String
   | ILNEUndefinedFunction String
   | ILNEDuplicateStructure String
   | ILNEMissingMethod String (LSyntax.Structure Position)
