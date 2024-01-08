@@ -29,6 +29,9 @@ data IRPosition =
     IRPosition Int (Position, Position)
     deriving (Eq, Ord, Generic, NFData)
     
+noPosIR :: IRPosition
+noPosIR = IRPosition (-1) (Undefined, Undefined)
+
 data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
     deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Program

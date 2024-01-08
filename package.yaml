@@ -40,6 +40,7 @@ library:
     - time
     - ordered-containers
     - deepseq
+    - bytestring
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures
