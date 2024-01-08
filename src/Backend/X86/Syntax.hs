@@ -22,7 +22,7 @@ class (HasPosition 1 (s IR.IRPosition) (s IR.IRPosition) IR.IRPosition IR.IRPosi
     ) => IsASM (s :: * -> *)
 
 data Program a = Program a [Instruction a]
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Program
 
 data Value a = Constant a Integer 
@@ -31,7 +31,7 @@ data Value a = Constant a Integer
            | Memory a (Reg a)  (Maybe ((Reg a), Integer)) (Maybe Integer) (Maybe (IR.Type a))
             --[r1 + r2*c1 + c2]
             | Local a Integer
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Value
 
 data Instruction a = ADD a (Value a) (Value a)
@@ -68,7 +68,7 @@ data Instruction a = ADD a (Value a) (Value a)
                  | DW a (Value a)
                  | DD a (Value a)
                  | DQ a (Value a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Instruction
 
 renderStringComment :: IR.IRPosition -> String -> String
@@ -126,8 +126,9 @@ data Reg a = R11 a | R11D a | R11B a
          | R13 a | R13D a | R13B a --callee saved
          | R14 a | R14D a | R14B a --callee saved
          | R15 a | R15D a | R15B a --callee saved
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Reg
+
 
 instance Show (Reg IR.IRPosition) where
     show (R11 _) = "R11"
@@ -319,5 +320,23 @@ getPosIR ast = view (position @1) ast
 setPosIR :: (IsASM s) => IR.IRPosition -> (s IR.IRPosition) -> (s IR.IRPosition)
 setPosIR p ast = set (position @1) p ast
 
--- regEq :: (Reg IRPosition) -> (Reg IRPosition) -> Bool
--- regEq a b = (show a) == (show b)
+regEq :: (Reg IR.IRPosition) -> (Reg IR.IRPosition) -> Bool
+regEq a b = (show $ fmap (const IR.noPosIR) a) == (show $ fmap (const IR.noPosIR) b)
+
+valueEq :: (Value IR.IRPosition) -> (Value IR.IRPosition) -> Bool
+valueEq a b = (show $ fmap (const IR.noPosIR) a) == (show $ fmap (const IR.noPosIR) b)
+
+instrEq :: (Instruction IR.IRPosition) -> (Instruction IR.IRPosition) -> Bool
+instrEq a b = (show $ fmap (const IR.noPosIR) a) == (show $ fmap (const IR.noPosIR) b)
+
+instance Eq (Value IR.IRPosition) where
+    (==) = valueEq
+
+instance Eq (Reg IR.IRPosition) where
+    (==) = regEq
+
+instance Eq (Instruction IR.IRPosition) where
+    (==) = instrEq
+
+instance Eq (Program IR.IRPosition) where
+    (==) a b = (show $ fmap (const IR.noPosIR) a) == (show $ fmap (const IR.noPosIR) b)

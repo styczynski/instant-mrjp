@@ -196,8 +196,8 @@ emitI pos stmts (regInts, stackSize, umap) = do
                 tell [X.MOV p (X.Register p (X.regSize (fromJust t) (X.R13 p))) v,X.PUSH p (X.Register p $ X.R13 p)]
             pushArg v@(X.Register p r) = tell [X.PUSH p (X.Register p (X.topReg r))]
             pushArg v = tell [X.PUSH noPosIR v]
-            replace what with = map (\(a,b) -> if X.topRegV a == X.topRegV what then (X.regSizeV (X.regSizeRV a) with,b) else (a,b))
-            replace2 what with = map (\a -> if X.topRegV a == X.topRegV what then X.regSizeV (X.regSizeRV a) with else a)
+            replace what with = map (\(a,b) -> if X.valueEq (X.topRegV a) (X.topRegV what) then (X.regSizeV (X.regSizeRV a) with,b) else (a,b))
+            replace2 what with = map (\a -> if X.valueEq (X.topRegV a) (X.topRegV what) then X.regSizeV (X.regSizeRV a) with else a)
     call f = tell [ X.CALL noPosIR f, moverr (X.RSP noPosIR) (X.RBX noPosIR) ]
     valueConv (Var _ a) = getVal vmap a
     valueConv (Const p  (IntC _ i)) = X.Constant p i
