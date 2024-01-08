@@ -15,6 +15,8 @@ import Control.Lens hiding(Empty, Index, Const)
 
 import qualified Linearized.Syntax as IR
 
+type Position = IR.IRPosition
+
 class (HasPosition 1 (s IR.IRPosition) (s IR.IRPosition) IR.IRPosition IR.IRPosition
     , Show (s IR.IRPosition)
     ) => IsASM (s :: * -> *)
