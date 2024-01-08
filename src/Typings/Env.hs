@@ -176,3 +176,5 @@ inferTraceQuit pos varType env =
   & inferTrace . inferTypes %~ M.insert pos varType
   & inferTrace . inferStack %~ (\stack -> if length stack <= 1 then stack else tail stack)
 
+allClasses :: Hierarchy -> [Type.Class]
+allClasses (Hierarchy g _) = G.elems g

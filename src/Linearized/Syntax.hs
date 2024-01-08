@@ -33,23 +33,23 @@ noPosIR :: IRPosition
 noPosIR = IRPosition (-1) (Undefined, Undefined)
 
 data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Program
 
 data Structure a = Struct a (Label a) (Maybe (Label a)) Size (M.Map (Label a, Type a, Offset)) (M.Map (Label a))
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Structure
 
 data Type a = IntT a | ByteT a | Reference a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Type
 
 data Function a = Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor,  NFData)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor,  NFData)
 instance IsIR Function
 
 data Entity a = FunEntity a String (Function a) | StructEntity a String (Structure a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Entity
 
 class IsEntity t where
@@ -60,7 +60,7 @@ instance IsEntity Structure where
     toEntity struct@(Struct p (Label _ name) _ _ _ _) = StructEntity p name struct
 
 data Label a = Label a String
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Label
 
 instance M.Idable (Label a) where
@@ -88,7 +88,7 @@ instance M.Idable (DataDef a) where
     getID (DataString _ content _) = content
 
 data Name a = Name a String
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Name
 
 type Size = Integer
@@ -104,19 +104,19 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | SetLabel a (Label a)
           | Jump a (Label a)
           | JumpCmp a (Cmp a) (Label a) (Value a) (Value a)
-          deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+          deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Stmt
 
 data DataDef a = DataString a (String) (Label a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR DataDef
 
 data Cmp a = Eq a | Ne a | Le a | Lt a | Ge a | Gt a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Cmp
 
 data Target a = Variable a (Name a) | Array a (Name a) (Value a) | Member a (Name a) Offset
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Target
 
 data Expr a = NewObj a (Label a)
@@ -132,19 +132,19 @@ data Expr a = NewObj a (Label a)
           | Not a (Value a)
           | BinOp a (Op a) (Value a) (Value a)
           | Cast a (Label a) (Value a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Expr
 
 data Value a = Const a (Constant a) | Var a (Name a)
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Value
 
 data Op a = Add a | Sub a | Mul a | Div a | Mod a | And a | Or a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Op
 
 data Constant a = IntC a Integer | ByteC a Integer | StringC a (Label a)| Null a
-    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
+    deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Constant
 
 instance Show (Entity a) where
@@ -246,3 +246,48 @@ setPosIR p ast = set (position @1) p ast
 
 -- modifyPos :: (IsIR s) => (Position -> IRPosition) -> (s Position) -> (s IRPosition)
 -- modifyPos fn ast = let setPos p ast = set (position @1) p ast in ((setPos . fn . getPos) ast) ast
+
+instance Eq (Name a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Value a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Type a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Label a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Stmt a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Program a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Constant a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (DataDef a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Target a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Entity a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Function a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Structure a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Op a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Cmp a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)
+
+instance Eq (Expr a) where
+    (==) a b = (show $ fmap (const noPosIR) a) == (show $ fmap (const noPosIR) b)

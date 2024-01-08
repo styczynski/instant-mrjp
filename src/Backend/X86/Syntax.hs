@@ -12,6 +12,7 @@ import Data.Generics.Sum
 import GHC.Generics (Generic, Generic1)
 import Control.DeepSeq
 import Control.Lens hiding(Empty, Index, Const)
+import Reporting.Errors.Position
 
 import qualified Linearized.Syntax as IR
 
@@ -72,7 +73,9 @@ data Instruction a = ADD a (Value a) (Value a)
 instance IsASM Instruction
 
 renderStringComment :: IR.IRPosition -> String -> String
-renderStringComment (IR.IRPosition _ (originalPos, _)) line = let ps = show originalPos in if null ps then line else line ++ " ; " ++ ps
+renderStringComment (IR.IRPosition _ (Undefined, _)) code = code
+renderStringComment (IR.IRPosition _ (Position id file line col, _)) code = code ++ " ; " ++ show file ++ ": " ++ show line ++ "," ++ show col
+renderStringComment (IR.IRPosition _ _) code = code
 
 instance Show (Instruction IR.IRPosition) where
     show (ADD p v1 v2) = renderStringComment p $ "ADD " ++ show v1 ++ ", " ++ show v2

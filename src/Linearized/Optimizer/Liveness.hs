@@ -11,7 +11,7 @@ import qualified Utils.Containers.IDMap as IM
 type LiveIn a = [L.Name a]
 type LiveOut a = [L.Name a]
 type StmtWithLiveness a = (L.Stmt a, LiveIn a, LiveOut a)
-type LivenessInformation a = [StmtWithLiveness a]
+type LivenessAnalysis a = [StmtWithLiveness a]
 
 type LiveFrom = Integer
 type LiveUntil = Integer
@@ -58,7 +58,7 @@ analisisPrint livs = concat $ map printOne livs
         printOne (l, ana) = l ++ "\n" ++ (concat $ map printA ana) ++ "\n"
         printA (s, tin, tout) = show s ++ "   "++show tin++"   " ++ show tout ++ "\n"
 
-informationToIntervals :: LivenessInformation L.IRPosition -> [LivenessInterval L.IRPosition]
+informationToIntervals :: LivenessAnalysis L.IRPosition -> [LivenessInterval L.IRPosition]
 informationToIntervals ss = fst $ execState (mapM_ process ss) ([],1)
     where
         process (s,tin,tout) = add tin

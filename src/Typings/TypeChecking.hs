@@ -44,7 +44,7 @@ class (Syntax.IsSyntax a Position) => TypeCheckable a where
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
     inferType ast = do
         e <- tcEnv
-        liftPipelineTC $ printLogInfoStr $ "-> " ++ (show $ Syntax.getPos ast) ++ " " ++ (show $ e^.inferTrace.inferStack) ++ (show $ e^.inferTrace.inferChildren) ++ (show e)
+        --liftPipelineTC $ printLogInfoStr $ "-> " ++ (show $ Syntax.getPos ast) ++ " " ++ (show $ e^.inferTrace.inferStack) ++ (show $ e^.inferTrace.inferChildren) ++ (show e)
         tcEnvSet (inferTraceEnter (Syntax.getPos ast))
         (newAst, astType) <- doInferType ast
         --tcEnvSet (\env -> env & debugTypings %~ M.insert (Syntax.getPos ast) astType)

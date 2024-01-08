@@ -1,0 +1,7 @@
+/* DO NOT EDIT! GENERATED AUTOMATICALLY! */
+#ifndef UNISTRING_CONFIG_H
+#define UNISTRING_CONFIG_H
+
+#include "../config.h"
+
+#endif /* UNISTRING_CONFIG_H */

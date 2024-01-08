@@ -2,6 +2,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 module Linearized.Converter where
 
+import qualified Typings.Types as Types
 import qualified Program.Syntax as A
 import qualified Linearized.Syntax as B
 
@@ -41,9 +42,9 @@ class  (A.IsSyntax ma Position, B.IsIR mb) => IRConvertable ma mb c | ma -> mb, 
 
     transform :: ma Position -> LinearConverter () (c, [mb Position])
     transform ast = do
-        liftPipelineOpt $ printLogInfo $ T.pack $ "Transform to IR: " ++ (show ast)
+        --liftPipelineOpt $ printLogInfo $ T.pack $ "Transform to IR: " ++ (show ast)
         r <- doTransform ast
-        liftPipelineOpt $ printLogInfo $ T.pack $ "[DONE] Transform to IR: " ++ (show ast)
+        --liftPipelineOpt $ printLogInfo $ T.pack $ "[DONE] Transform to IR: " ++ (show ast)
         return r
     -- return . B.modifyPos (\_ -> posFrom ast)  =<< 
 
@@ -114,12 +115,17 @@ getFunctionType :: B.Label Position -> LinearConverter () (B.Type Position)
 getFunctionType (B.Label pos fnName) =
     (\(B.Fun _ _ t _ _) -> return t) =<< join (lcStateGet (\env -> IM.findM (idMapFailure "getFunctionType" Errors.ILNEUndefinedFunction) fnName (env ^. functions)))
 
-collectStructures :: [A.Definition Position] -> LinearConverter () [B.Structure Position]
-collectStructures defs = do
-    structs <- IM.fromM (idMapFailure "collectStructures" Errors.ILNEDuplicateStructure) . concat =<< mapM collectFromDef defs
+collectStructures :: [Types.Class] -> LinearConverter () [B.Structure Position]
+collectStructures classes = do
+    structs <- IM.fromM (idMapFailure "collectStructures" Errors.ILNEDuplicateStructure) . concat =<< mapM collectFromClassDef classes
     lcStateSet (\env -> env & structures .~ structs)
     lcStateGet (\env -> IM.elems (env ^. structures))
     where
+        collectFromClassDef :: Types.Class -> LinearConverter () [B.Structure Position]
+        collectFromClassDef c@(Types.Class _ _ _ (A.ClassDef _ (A.Ident BuiltIn "") _ _)) = do
+            -- Must use the typings instead
+            collectFromClass c
+        collectFromClassDef (Types.Class _ _ _ def) = collectFromDef def
         collectFromDef :: A.Definition Position -> LinearConverter () [B.Structure Position]
         collectFromDef def@(A.ClassDef pos (A.Ident _ name) _ _) = do
             tcEnv <- lcStateGet (^.typings)
@@ -131,30 +137,38 @@ collectStructures defs = do
             let newName = B.Label clnamePos $ "_class_" ++ clname
             tcEnv <- lcStateGet (^.typings)
             chain <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "collectStructures" $ Errors.ILNEMissingClassDefinition clname def)) return $ TypeChecker.findClassInheritanceChain tcEnv clname
-            selfMethods <- IM.fromM (idMapFailure "collectFromClass" $ Errors.ILNEEncounteredDuplicateStructureMember newName) $ mapMaybe translateToMethod members
-            selfFields <- IM.fromM (idMapFailure "collectFromClass" $ Errors.ILNEEncounteredDuplicateStructureMember newName) $ mapMaybe translateToField members
+            selfMethods <- IM.fromM (idMapFailure "collectFromClass" $ Errors.ILNEEncounteredDuplicateStructureMember newName) $ mapMaybe (translateToMethod clname) members
+            selfFields <- IM.fromM (idMapFailure "collectFromClass" $ Errors.ILNEEncounteredDuplicateStructureMember newName) $ mapMaybe (translateToField clname) members
             let parentChain = reverse $ tail chain
             let newParent = case parent of
                     (A.NoName _) -> Nothing
                     (A.Name _ (A.Ident idpos id)) -> Just $ B.Label idpos $ "_class_"++id
-            let structPrototype = B.Struct clnamePos newName newParent 0 selfFields selfMethods
-            chainMembers <- concat <$> mapM (return . map (\(B.Struct _ _ _ _ fields methods) -> (fields, methods)) <=< collectFromClass) parentChain
-            completeStruct <- foldM (\struct (fields, methods) -> classParentMerge clname struct fields methods) structPrototype chainMembers
-            return [completeStruct]
-        translateToMethod :: Types.Member -> Maybe (B.Label Position)
-        translateToMethod (Types.Method (A.Ident p n) _ _ _) = Just (B.Label p n)
-        translateToMethod _ = Nothing
-        translateToField :: Types.Member -> Maybe (B.Label Position, B.Type Position, B.Offset)
-        translateToField (Types.Field (A.Ident p n) t _) = Just (B.Label p n, ct t, 0)
-        translateToField _ = Nothing
-        classParentMerge :: String -> B.Structure Position -> IM.Map (B.Label Position, B.Type Position, B.Offset) -> IM.Map (B.Label Position) -> LinearConverter () (B.Structure Position)
-        classParentMerge clsName (B.Struct pos name parent offset fields methods) parentFields parentMethods = do
-            combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++id++"_"++clsName) parentMethods) methods
+            let structPrototype = B.Struct clnamePos newName newParent 0 IM.empty IM.empty
+            chainMembers <- concat <$> mapM (return . map (\(B.Struct _ (B.Label _ name) _ _ fields methods) -> (stripClassName name, fields, methods)) <=< collectFromClass) parentChain
+            completeStruct <- foldM (\struct (name, fields, methods) -> classParentMerge clname name struct fields methods) structPrototype chainMembers
+            completeStruct' <- classParentMerge clname clname completeStruct selfFields selfMethods
+            return [completeStruct']
+        translateToMethod :: String -> Types.Member -> Maybe (B.Label Position)
+        translateToMethod clname (Types.Method (A.Ident p n) _ _ _) = Just (B.Label p $ "_" ++ clname ++ "_" ++ n)
+        translateToMethod _ _ = Nothing
+        translateToField :: String -> Types.Member -> Maybe (B.Label Position, B.Type Position, B.Offset)
+        translateToField _ (Types.Field (A.Ident p n) t _) = Just (B.Label p n, ct t, 0)
+        translateToField _ _ = Nothing
+        classParentMerge :: String -> String -> B.Structure Position -> IM.Map (B.Label Position, B.Type Position, B.Offset) -> IM.Map (B.Label Position) -> LinearConverter () (B.Structure Position)
+        classParentMerge clsName parentName (B.Struct pos name parent offset fields methods) parentFields parentMethods = do
+            -- (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods)
+            let overridenMethods = filter (\name -> let pkeys = IM.keys parentMethods in any (\pname -> stripClassName name == stripClassName pname) pkeys) $ IM.keys methods
+            let newMethods = (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++parentName++"_"++stripClassName id) parentMethods)
+            combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany overridenMethods methods
+            --combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods) methods
             combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m (l, t, o) -> (l, t, measureOffset m)) fields parentFields
             --(B.Label idpos $ "_class_"++id) name newParent
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()
             return $ B.Struct pos name parent (measureOffset combinedFields) combinedFields combinedMethods
+        stripClassName :: String -> String
+        stripClassName pm = case findIndex (== '_') (drop 1 pm) of
+            Just i -> drop (i+2) pm
         measureOffset :: IM.Map (B.Label a, B.Type a, B.Offset) -> B.Size
         measureOffset m = case IM.last m of
             Nothing -> 0
@@ -220,19 +234,20 @@ transformFunction (FnProto pos name@(B.Label _ id) retType args stmts) = do
 
 transformProgram :: (A.Program Position) -> LinearConverter () (B.Program Position)
 transformProgram prog = do
-    nprogs <- transformOnly prog
+    nprogs <- doTransformProg prog
     let (poss, structs, fns, datas) = unzip4 $ map (\(B.Program pos structs fns datas) -> (pos, structs, fns, datas)) nprogs
     structsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) structs
     fnsMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) fns
     datasMap <- IM.concatMapsM (idMapFailure "transformProgram" Errors.ILNEDuplicateLabelledData) datas
     return $ B.Program (head poss) structsMap fnsMap datasMap
-
-instance IRConvertable A.Program B.Program () where
-    doTransform (A.Program a tds) = do
-        fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
-        structs <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) =<<  collectStructures tds
-        datas <- lcStateGet (^. datas)
-        justEmit [B.Program a structs fns datas]
+    where
+        doTransformProg ::(A.Program Position) -> LinearConverter () [B.Program Position]
+        doTransformProg (A.Program a tds) = do
+            classes <- lcStateGet (TypeChecker.allClasses . (^.TypeChecker.definedClasses) . (^.typings))
+            fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
+            structs <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) =<<  collectStructures classes
+            datas <- lcStateGet (^. datas)
+            return [B.Program a structs fns datas]
 
 instance IRConvertable A.Expr B.Stmt (B.Name Position) where
     doTransform (A.Lit pos (A.String _ s)) = do

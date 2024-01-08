@@ -97,6 +97,9 @@ mapElemsM errHandler f = (fromM errHandler) <=< (mapM (uncurry f) . OM.assocs . 
 elems :: Map v -> [v]
 elems = mapList (\ _ x -> x)
 
+keys :: (Idable v) => Map v -> [String]
+keys = mapList (\k _ -> k)
+
 overrideM :: (Idable v, Monad m) => (String -> m ()) -> v -> Map v -> m (Map v)
 overrideM errHandler v (Map m) = let m' = _wrap . flip (OM.>|) (getID v, v) in (when (not $ OM.member (getID v) m) $ errHandler $ getID v) >> (return . m') m
 

@@ -13,11 +13,15 @@ import qualified Data.List as L
 import qualified Data.Text as T
 import Reporting.Logs
 import System.Process
+import System.IO
 
 import qualified Reporting.Errors.Def as Errors
 import qualified Linearized.Syntax as IR
 
 type BackendPipeline = (ExceptT Errors.Error LattePipeline)
+
+liftPipelineToBackend :: LattePipeline a -> BackendPipeline a
+liftPipelineToBackend = lift
 
 type LatteBackendFn = String -> (IR.Program IR.IRPosition) -> BackendPipeline String
 
@@ -60,5 +64,8 @@ execCmd cmd args = do
   where
     safeExec :: IO (Either SomeException ())
     safeExec = try $ do
-      callProcess cmd args
-      return $ ()
+      (_,_,_,phandle) <- createProcess_ "Backend.execCmd" (proc cmd args){ std_err = UseHandle stdout}
+      waitForProcess phandle
+      return ()
+      --callProcess cmd args
+      --return $ ()

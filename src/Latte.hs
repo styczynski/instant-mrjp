@@ -58,28 +58,34 @@ runPipeline backend = do
             Left err -> do
               printLogInfo $ "Typecheck failed"
               printErrors err file contents parsedAST
+              latteError "Typecheck failed"
             Right (tcEnv, prog, _) -> do
-              printLogInfo $ "Typecheck done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
+              printLogInfo $ "Typecheck done" <> (T.pack file)
               optimizerResult <- Optimizer.optimize tcEnv prog
               case optimizerResult of
                 Left err -> do
                   printLogInfo $ "Optimizer failed"
                   printErrors err file contents parsedAST
+                  latteError "Optimizer failed"
                 Right (optimizerEnv, prog) -> do
-                  printLogInfo $ "Optimization done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog)
+                  printLogInfo $ "Optimization done" <> (T.pack file)
                   irResult <- Linearizer.linearizeToIR optimizerEnv prog
                   case irResult of
                     Left err -> do
                       printLogInfo $ "IR conversion failed"
                       printErrors err file contents parsedAST
+                      latteError "IR conversion failed"
                     Right (_, ir) -> do
-                      printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ show ir)
+                      printLogInfo $ "IR conversion done" <> (T.pack file)
                       let outputPath = replaceExtension file (inputExtension usedBackend)
                       backendResult <- Backend.runBackend outputPath (takeFileName outputPath) ir usedBackend
                       case backendResult of 
                         (Left err) -> do
                           printLogInfo $ T.pack $ "Backend code generation has failed"
                           printErrors err file contents parsedAST
+                          latteError "Backend code generation has failed"
                         (Right (outputFilePath, _)) -> do
                           printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
+                          printLogInfo $ "DONE"
+                          latteSuccess
     _ -> latteError "BAD ARGS"

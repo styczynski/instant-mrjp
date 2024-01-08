@@ -9,6 +9,7 @@ module Utils.Graphs(
     , keys
     , hasEdge
     , empty
+    , elems
 ) where
 
 import qualified Data.Graph.Inductive.Graph as G
@@ -140,3 +141,6 @@ hasEdge (Graph _ nodeIds graph) a b = fromMaybe False $ (curry $ G.hasEdge graph
 
 empty :: (Ord key) => Graph key nodeL edgeL
 empty = Graph M.empty M.empty G.empty
+
+elems :: (Ord key) => Graph key nodeL edgeL -> [nodeL]
+elems (Graph nodeMap _ _) = M.elems nodeMap

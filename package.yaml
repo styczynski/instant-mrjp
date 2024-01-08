@@ -41,6 +41,7 @@ library:
     - ordered-containers
     - deepseq
     - bytestring
+    - directory
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures
