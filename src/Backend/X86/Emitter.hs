@@ -139,6 +139,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
 
     loadArgs :: IRPosition -> ValMap -> Writer [ASM.Instruction IRPosition] ()
     loadArgs p vmap = do
+        -- TODO: This seems to be very broken D:
         let argsToLoad = filter (\(n,vals) -> length vals == 2) vmap
         tell $ map (\(_,vals) -> ASM.MOV p (reg vals) (mem vals)) argsToLoad
         where

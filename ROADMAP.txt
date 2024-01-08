@@ -1,0 +1,20 @@
+Do naprawienia:
+X- Problem z brakującym typem przy Assign
+.- Zły kontekst zmiennych przy zmianie do IR (good/core019.lat)
+.- Złe offsety przy klasach (Segmentation fault)
+.- Alokacja duzej ilosci parametrów funkcji
+
+
+Problemy z programami:
+1.
+class A {
+  int foo;
+}
+
+int main() {
+  A a = new A;
+  a.foo = 2;
+  int b = a.foo+1;
+  printInt(b);
+  return 0;
+}

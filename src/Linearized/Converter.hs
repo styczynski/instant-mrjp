@@ -95,14 +95,15 @@ ct ast = B.Reference $ A.getPos ast
 getMethod :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Index)
 getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
-    struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
+    struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) clsName (env ^. structures))
     (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) methodName methods
     return (method, toInteger methodIndex)
 
 getField :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Type Position, B.Offset)
 getField pos clsName fieldName = do
+    --liftPipelineOpt $ printLogInfoStr $ "get field all structurs are " ++ (show pppp)
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
-    struct@(B.Struct _ _ _ _ fields _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getField" (\clsName -> Errors.ILNEMissingClass ("_class_" ++ clsName) Nothing pos)) clsName (env ^. structures))
+    struct@(B.Struct _ _ _ _ fields _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getField" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) ("_class_"++clsName) (env ^. structures))
     IM.findM (idMapFailure "getField" (`Errors.ILNEMissingMethod` struct)) fieldName fields
 
 getFieldOffset :: Position -> String -> String -> LinearConverter () B.Offset
@@ -244,8 +245,8 @@ transformProgram prog = do
         doTransformProg ::(A.Program Position) -> LinearConverter () [B.Program Position]
         doTransformProg (A.Program a tds) = do
             classes <- lcStateGet (TypeChecker.allClasses . (^.TypeChecker.definedClasses) . (^.typings))
-            fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
             structs <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateStructure) =<<  collectStructures classes
+            fns <- IM.fromM (idMapFailure "transformProgram" Errors.ILNEDuplicateFunctionName) =<< collectFunctions tds
             datas <- lcStateGet (^. datas)
             return [B.Program a structs fns datas]
 
@@ -453,6 +454,7 @@ instance IRConvertable A.Stmt B.Stmt () where
                 return $ ecode ++ [B.VarDecl pos (ct t) n (B.Val pos (B.Var varpos en))]
     doTransform (A.Assignment _ el er) = do
         (en, enc) <- transform er
+        liftPipelineOpt $ printLogInfo $ T.pack $ "Assign " ++ (show el)
         case el of
             A.Var p (A.Ident _ x) -> do
                 x' <- nameOf p x

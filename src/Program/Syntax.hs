@@ -339,7 +339,8 @@ instance PrettyPrint (Expr a) where
     printi _ (UnaryOp _ (Neg _) e) = "-"++printi 0 e
     printi _ (UnaryOp _ (Not _) e) = "!"++printi 0 e
     printi _ (BinaryOp _ op el er) = "("++printi 0 el ++" "++printi 0 op++" "++printi 0 er ++")"
-    printi _ (Member _ e id _) = printi 0 e ++"."++printi 0 id
+    printi _ (Member _ e id Nothing) = printi 0 e ++"."++printi 0 id++"<???>"
+    printi _ (Member _ e id (Just t)) = printi 0 e ++"."++printi 0 id++"<"++show t++">"
     printi _ (NewObj _ t m) =
         case m of
             Nothing -> "new "++printi 0 t

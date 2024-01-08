@@ -1,0 +1,11 @@
+class A {
+  int foo;
+}
+
+int main() {
+  int[] a = new int[10];
+  a[2] = 3;
+  int t = a[2];
+  printInt(t);
+  return 0;
+}

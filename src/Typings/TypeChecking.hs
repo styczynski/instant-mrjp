@@ -17,6 +17,7 @@ import Data.Generics.Product
 import GHC.Generics
 import Data.Maybe
 import qualified Data.Map as M
+import qualified Data.Text as T
 import qualified Reporting.Errors.Def as Errors
 import Reporting.Logs
 
@@ -30,7 +31,7 @@ array = Syntax.ArrayT BuiltIn
 object = class_ "Object"
 class_ s = Syntax.ClassT BuiltIn (name s)
 
-class (Syntax.IsSyntax a Position) => TypeCheckable a where
+class (PrettyPrint (a Position), Syntax.IsSyntax a Position) => TypeCheckable a where
     doCheckTypes :: a Position -> TypeChecker (a Position)
     doInferType :: a Position -> TypeChecker (a Position, Type.Type)
     doInferType ast = (\newAst -> return (newAst, Syntax.VoidT Undefined)) =<< checkTypes ast
@@ -38,7 +39,10 @@ class (Syntax.IsSyntax a Position) => TypeCheckable a where
     checkTypes :: a Position -> TypeChecker (a Position)
     checkTypes ast = do
         tcEnvSet (\env -> env & inferTrace .~ initialTrace)
-        doCheckTypes ast
+        liftPipelineTC $ printLogInfoStr $ "before -> " ++ (printi 0 ast)
+        r <- doCheckTypes ast
+        liftPipelineTC $ printLogInfoStr $ "after  <- " ++ (printi 0 r)
+        return r
         --withStateT (\env -> env^.debugTypings %~ M.insert pos ) (doCheckTypes ast)
 
     inferType :: a Position -> TypeChecker (a Position, Type.Type)
@@ -313,6 +317,7 @@ instance TypeCheckable Syntax.Stmt where
             checkDecls _ [] = return []
     doCheckTypes stmt@(Syntax.Assignment pos ase e) = do
         (nase, aset) <- inferType ase
+        liftPipelineTC $ printLogInfo $ T.pack $ "Assignemnt mapped LEFT ?=> " ++ (printi 0 nase)
         checkEisLValue pos nase
         (ne, et) <- inferType e
         checkCastUpErr (\env -> Errors.IncompatibleTypesAssign env stmt) pos et aset
