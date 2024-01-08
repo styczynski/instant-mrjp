@@ -81,15 +81,15 @@ emitData (DataString p s (Label p' l)) = tell $ (X.SetLabel p l) : divideString 
 emitF :: Function IRPosition -> Writer [X.Instruction IRPosition] ()
 emitF (Fun p (Label p' l) _ args body) = do
     tell [X.Global p l, X.SetLabel p' l]
-    emitB args body
+    emitB p args body
 
-emitB :: [(Type IRPosition, Name IRPosition)] -> [Stmt IRPosition] -> Writer [X.Instruction IRPosition] ()
-emitB args body = do
+emitB :: IRPosition -> [(Type IRPosition, Name IRPosition)] -> [Stmt IRPosition] -> Writer [X.Instruction IRPosition] ()
+emitB p args body = do
     let liveness = analize body
         regMap = mapArgs args
         regState = allocateRegisters liveness args regMap
         zippedBody = zip [1..] body
-    emitI zippedBody regState
+    emitI p zippedBody regState
 
 mapArgs :: [(Type IRPosition, Name IRPosition)] -> [(Name IRPosition, [X.Value IRPosition])]
 mapArgs as = map (\((_,n),v)->(n,[v])) zas
@@ -104,9 +104,305 @@ st (IntT _) = 0x04
 st (ByteT _) = 0x01
 st (Reference _) = 0x08
 
-emitI :: [(Integer, Stmt IRPosition)] -> RegState -> Writer [X.Instruction IRPosition] ()
-emitI stmts (regInts, stackSize, umap) = do
-    return ()
+emitI :: IRPosition -> [(Integer, Stmt IRPosition)] -> RegState -> Writer [X.Instruction IRPosition] ()
+emitI pos stmts (regInts, stackSize, umap) = do
+    entry pos stackSize
+    loadArgs pos vmap
+    body stmts
+  where
+    entry :: IRPosition -> StackSize -> Writer [X.Instruction IRPosition] ()
+    entry pos s = do
+        tell [X.PUSH pos (X.Register pos $ X.RBP pos), X.PUSH pos (X.Register pos $ X.RBX pos)]
+        if r12 then tell [X.PUSH pos (X.Register pos $ X.R12 pos)]
+        else return ()
+        if r13 then tell [X.PUSH pos (X.Register pos $ X.R13 pos)]
+        else return ()
+        tell [X.MOV pos (X.Register pos $ X.RBP pos) (X.Register pos $ X.RSP pos), X.SUB pos (X.Register pos $ X.RSP pos) (X.Constant pos (padding + if s > 0 then ceil16 s else 0))]
+
+    ceil16 x = case x `mod` 16 of
+                0 -> x
+                _ -> x + (16 - (x `mod` 16))
+    body ss = mapM_ emitStmt ss
+
+    padding = if (r12 && r13) || (not r12 && not r13) then 8 else 0
+
+    r12 = any arrayOrObject $ map snd stmts
+    r13 = any arrayOrObjectAssignment $ map snd stmts
+
+    vmap = map fixArgPos umap
+      where
+        diff = (val r12) + (val r13)
+        val b = if b then 0 else 8
+        fixArgPos (n, vs) = (n, map fixMem vs)
+        fixMem (X.Memory p r f (Just o) t) | o > 0 = (X.Memory p r f (Just (o-diff)) t)
+        fixMem m = m
+
+    loadArgs :: IRPosition -> ValMap -> Writer [X.Instruction IRPosition] ()
+    loadArgs p vmap = do
+        let argsToLoad = filter (\(n,vals) -> length vals == 2) vmap
+        tell $ map (\(_,vals) -> X.MOV p (reg vals) (mem vals)) argsToLoad
+        where
+            reg [r@(X.Register _ _),_] = r
+            reg [_,r@(X.Register _ _)] = r
+            mem [m@(X.Memory _ _ _ _ _),_] = m
+            mem [_,m@(X.Memory _ _ _ _ _)] = m
+
+    exit :: IRPosition -> Writer [X.Instruction IRPosition] ()
+    exit p = do
+        tell [X.MOV p (X.Register p $ X.RSP p) (X.Register p $ X.RBP p)]
+        if r13 then tell [X.POP p (X.Register p $ X.R13 p)]
+        else return ()
+        if r12 then tell [X.POP p (X.Register p $ X.R12 p)]
+        else return ()
+        tell [X.POP p (X.Register p $ X.RBX p),
+                X.POP p (X.Register p $ X.RBP p),
+                X.RET p
+                ]
+
+    moverr dest src = 
+        let srcSize = X.regSizeR src
+        in X.MOV noPosIR (X.Register noPosIR (X.regSize srcSize (X.topReg dest))) (X.Register noPosIR src)
+
+    setupCallArgs args fr = do
+        let sourceArgs = map (\a -> valueConv a ) args
+            (regArgs,stackArgs) = splitAt 6 sourceArgs
+            destinationRegs = [X.RDI noPosIR, X.RSI noPosIR, X.RDX noPosIR, X.RCX noPosIR, X.R8 noPosIR, X.R9 noPosIR]
+            fromToRegArgs = zip regArgs (map (X.Register noPosIR) destinationRegs)
+        moveAround fromToRegArgs (reverse stackArgs)
+        where
+            moveAround :: [(X.Value IRPosition,X.Value IRPosition)] -> [X.Value IRPosition] -> Writer [X.Instruction IRPosition] ()
+            moveAround ((X.Register p rfrom, X.Register p' rto):xs) stack =
+                if X.topReg rfrom == rto then moveAround xs stack
+                else do
+                    if elem rto fr then do
+                        tell [moverr rto rfrom]
+                        moveAround xs stack
+                    else do
+                        tell [  moverr (X.RBX p) (X.topReg rto),
+                                moverr rto rfrom,
+                                moverr (X.topReg rfrom) (X.RBX p') ]
+                        moveAround (replace (X.Register p rto) (X.Register p' rfrom) xs) (replace2 (X.Register p rto) (X.Register p' rfrom) stack)
+            moveAround ((v, reg@(X.Register p rto)):xs) stack =
+                if elem rto fr then do
+                    tell [X.MOV p (X.Register p rto) v]
+                    moveAround xs stack
+                else do
+                    moveAround xs stack
+                    tell [X.MOV p (X.Register p rto) v]
+            moveAround [] stack = do
+                tell [moverr (X.RBX noPosIR) (X.RSP noPosIR)] -- quick pop arguments
+                mapM_ pushArg stack
+            pushArg v@(X.Memory p _ _ _ t) =
+                tell [X.MOV p (X.Register p (X.regSize (fromJust t) (X.R13 p))) v,X.PUSH p (X.Register p $ X.R13 p)]
+            pushArg v@(X.Register p r) = tell [X.PUSH p (X.Register p (X.topReg r))]
+            pushArg v = tell [X.PUSH noPosIR v]
+            replace what with = map (\(a,b) -> if X.topRegV a == X.topRegV what then (X.regSizeV (X.regSizeRV a) with,b) else (a,b))
+            replace2 what with = map (\a -> if X.topRegV a == X.topRegV what then X.regSizeV (X.regSizeRV a) with else a)
+    call f = tell [ X.CALL noPosIR f, moverr (X.RSP noPosIR) (X.RBX noPosIR) ]
+    valueConv (Var _ a) = getVal vmap a
+    valueConv (Const p  (IntC _ i)) = X.Constant p i
+    valueConv (Const p (ByteC _ i)) = X.Constant p i
+    valueConv (Const p (Null _)) = X.Constant p 0
+    valueConv (Const p (StringC _ (Label _ s))) = X.Label p s
+    getVal umap n = fromJust $ getmVal umap n
+    getmVal umap n =
+        case lookup n umap of
+            Nothing -> Nothing
+            Just mapping -> case filter X.isReg mapping of
+                                (h:_) -> Just h
+                                [] -> Just $ head mapping    
+
+    getReg umap n = case getmVal umap n of
+                        Just r@(X.Register _ _) -> Just r
+                        _ -> Nothing
+
+    emitStmt :: (Integer, Stmt IRPosition) -> Writer [X.Instruction IRPosition] ()
+    emitStmt _ = return ()
+
+    emitExpr :: (Maybe (Type IRPosition)) -> (Expr IRPosition) -> (X.Value IRPosition) -> Integer -> Writer [X.Instruction IRPosition] ()
+    emitExpr t expr target i = return ()
+
+    -- emitStmt (i, VarDecl t n e) = do
+    --     let rbx = X.Register (X.regSize t X.RBX)
+    --     let tgt = case lookup n vmap of
+    --                 Nothing -> rbx
+    --                 _ -> case getVal vmap n of
+    --                         r@(X.Register _) ->
+    --                             if elem n $ alive (i+1) then r else rbx
+    --                         m -> m
+    --     emitExpr (Just t) e tgt i
+    -- emitStmt (i, Assign t tg e) = do
+    --     case tg of
+    --         Variable n -> do
+    --             let rbx = X.Register (X.regSize t X.RBX)
+    --             let tgt = case lookup n vmap of
+    --                         Nothing -> rbx
+    --                         _ -> case getVal vmap n of
+    --                                 r@(X.Register _) ->
+    --                                     if elem n $ alive (i+1) then r else rbx
+    --                                 m -> m
+    --             emitExpr (Just t) e tgt i
+    --         Array a idx -> do
+    --             emitExpr (Just t) e (X.Register (X.regSize t X.R12)) i
+    --             emitCall (Just t) (X.Label "__getelementptr") [Var a, idx] (X.Register X.R13) i
+    --             tell [X.MOV (X.Memory X.R13 Nothing Nothing Nothing) (X.Register (X.regSize t X.R12))]
+    --         Member m off -> do
+    --             emitExpr (Just t) e (X.Register (X.regSize t X.R12)) i
+    --             r@(X.Register reg) <- regOrEmit m X.R13 i
+    --             checkIfNull r
+    --             tell [X.MOV (X.Register X.R13) (X.Memory reg Nothing (Just 0x08) Nothing),
+    --                   X.MOV (X.Memory X.R13 Nothing (Just off) Nothing) (X.Register (X.regSize t X.R12))]
+    -- emitStmt (i, IncrCounter n) = do
+    --     emitExpr Nothing (Val (Var n)) (X.Register X.R13) i
+    --     incr
+    -- emitStmt (i, DecrCounter n) = do
+    --     emitCall Nothing (X.Label "__decRef") [Var n] (X.Register X.RBX) i
+    -- emitStmt (i, ReturnVal t e) = do
+    --     emitExpr (Just t) e (X.Register (X.regSize t X.RAX)) i
+    --     exit
+    -- emitStmt (i, Return) = do
+    --     exit
+    -- emitStmt (i, SetLabel l) = do
+    --     tell [X.SetLabel l]
+    -- emitStmt (i, Jump l) = do
+    --     tell [X.JMP (X.Label l)]
+    -- emitStmt (i, JumpCmp cmp lbl vl vr) = do
+    --     let vlc = valueConv vl
+    --     let vrc = valueConv vr
+    --     (l,r,c) <- case (vlc, vrc) of
+    --         (X.Constant i, X.Register _) ->
+    --             return (vrc, vlc, reverseSide cmp)
+    --         (X.Constant i, X.Memory _ _ _ _) ->
+    --             return (vrc, vlc, reverseSide cmp)
+    --         (X.Memory _ _ _ (Just t), X.Memory _ _ _ _) -> do
+    --             tell [X.MOV (X.Register $ X.regSize t X.RBX) vlc]
+    --             return (X.Register $ X.regSize t X.RBX, vrc, cmp)
+    --         (_, _) -> return (vlc, vrc, cmp)
+
+    --     if r == X.Constant 0 && (cmp == Eq || cmp == Ne) then 
+    --         tell [X.TEST l l, makeJump cmp lbl]
+    --     else tell [X.CMP l r, makeJump cmp lbl]
+
+    --     where
+    --         reverseSide Ge = Le
+    --         reverseSide Le = Ge
+    --         reverseSide Gt = Lt
+    --         reverseSide Lt = Gt
+    --         reverseSide op = op
+
+
+    prepareCall free = do
+        let callerSaved = [X.R11 noPosIR, X.R10 noPosIR, X.R9 noPosIR, X.R8 noPosIR, X.RDX noPosIR, X.RCX noPosIR, X.RAX noPosIR, X.RSI noPosIR, X.RDI noPosIR]
+        prepare free callerSaved True
+    prepareDiv free = do
+        let callerSaved = [X.RAX noPosIR, X.RDX noPosIR]
+        prepare free callerSaved False
+    prepare free saved align = do
+        let used = saved \\ free
+            usedAsVal = map (X.Register noPosIR) used
+            (alignstack, dealignstack) = if not align || (length used) `mod` 2 == 0 then ([],[]) else ([X.SUB noPosIR (X.Register noPosIR $ X.RSP noPosIR) (X.Constant noPosIR 8)], [X.ADD noPosIR (X.Register noPosIR $ X.RSP noPosIR) (X.Constant noPosIR 8)])
+        tell (alignstack ++ map (X.PUSH noPosIR) usedAsVal)
+        return (tell (map (X.POP noPosIR) (reverse usedAsVal) ++ dealignstack))
+
+    divide :: (X.Value IRPosition) -> (X.Value IRPosition) -> Integer -> Writer [X.Instruction IRPosition] (Writer [X.Instruction IRPosition] ())
+    divide vl vr i = do
+        let fr = freeAt i
+        done <- prepareDiv fr
+        case vr of 
+            (X.Register p (X.EDX _)) -> tell [X.MOV p (X.Register p $ X.EBX p) (X.Register p $ X.EDX p)]
+            _ -> return ()
+        tell [X.MOV noPosIR (X.Register noPosIR $ X.EAX noPosIR) vl, X.CDQ noPosIR]
+        case vr of
+            X.Constant p _ -> 
+                tell [X.MOV p (X.Register p $ X.EBX p) vr,
+                      X.IDIV p (X.Register p $ X.EBX p)]
+            X.Register p (X.EDX _) -> tell [X.IDIV p (X.Register p $ X.EBX p)]
+            _ -> tell [X.IDIV noPosIR vr]
+        return done
+
+    opcode (Add p) = X.ADD p
+    opcode (Sub p) = X.SUB p
+    opcode (Mul p) = X.IMUL p
+    opcode (And p) = X.AND p
+    opcode (Or p) = X.OR p
+
+    opSize (And p) = ByteT p
+    opSize (Or p) = ByteT p
+    opSize _ = IntT noPosIR
+
+    checkIfNull r@(X.Register p _) = 
+        tell [
+            X.TEST p r r,
+            X.JNZ p (X.Local p (2+5)),
+            X.CALL p (X.Label p "__errorNull") 
+        ]
+
+    incr :: Writer [X.Instruction IRPosition] ()
+    incr = 
+        let p = noPosIR in
+        let r = (X.Register p $ X.R13 p) in
+        tell [
+            X.TEST p r r,
+            X.JZ p (X.Local p (2+4+2+4)), --TODO change value after emitting
+            X.MOV p (X.Register p $ X.EBX p) (X.Memory p (X.R13 p) Nothing (Just 16) Nothing),
+            X.INC p (X.Register p $ X.EBX p),
+            X.MOV p (X.Memory p (X.R13 p) Nothing (Just 16) Nothing) (X.Register p $ X.EBX p)
+        ]
+
+    emitCall t fun vs target i = do
+        let fr = freeAt (i + 1)
+        let p = noPosIR
+        doneCall <- prepareCall fr
+        setupCallArgs vs (freeAt i)
+        call fun
+        tell [moverr (X.RBX p) (X.RAX p)]
+        doneCall
+        case target of
+            X.Register p' r -> tell [moverr r (X.RBX p')]
+            _ -> tell [X.MOV p target (X.Register p $ X.regSize (fromJust t) (X.RBX p))]
+
+    makeJump (Eq p) l = X.JE p (X.Label p l)
+    makeJump (Ne p) l = X.JNE p (X.Label p l)
+    makeJump (Le p) l = X.JLE p (X.Label p l)
+    makeJump (Lt p) l = X.JL p (X.Label p l)
+    makeJump (Ge p) l = X.JGE p (X.Label p l)
+    makeJump (Gt p) l = X.JG p (X.Label p l)
+        
+    freeAt i = map fst $ filter (\(r,is) -> any (\(b,f,u) -> b == Free && f <= i && i <= u) is) regInts
+
+    alive i = map (\[(Busy b, _,_)] -> b) $ filter (\l -> length l == 1) $ map (\(r,is) -> let l = filter (\(b,f,u) -> b /= Free && f <= i && i <= u) is in l) regInts
+
+    regOrEmit :: Name IRPosition -> X.Reg IRPosition -> Integer -> Writer [X.Instruction IRPosition] (X.Value IRPosition)
+    regOrEmit n r i = do
+        let p = noPosIR
+        let m = getReg vmap n
+        case m of
+            Just x -> return x
+            Nothing -> do
+                emitExpr Nothing (Val p (Var p n)) (X.Register p r) i
+                return (X.Register p r)
+
+    arrayOrObject s = arrayOrObjectAssign s || arrayOrObjectExpression s
+    arrayOrObjectAssignment s = arrayOrObjectAssign s || isIncr s
+    arrayOrObjectAssign (Assign _ _ (Array _ _ _) _) = True
+    arrayOrObjectAssign (Assign _ _ (Member _ _ _) _) = True
+    arrayOrObjectAssign (VarDecl _ _ _ e) = longCall e
+    arrayOrObjectAssign (Assign _ _ _ e) = longCall e
+    arrayOrObjectAssign (ReturnVal _ _ e) = longCall e
+    arrayOrObjectAssign _ = False
+    isIncr (IncrCounter _ _) = True
+    isIncr _ = False
+    longCall (Call _ _ vs) = length vs > 6
+    longCall (MCall _ _ _ vs) = length vs > 6
+    longCall _ = False
+    arrayOrObjectExpression (VarDecl _ _ _ e) = aOOE e
+    arrayOrObjectExpression (Assign _ _ _ e) = aOOE e
+    arrayOrObjectExpression (ReturnVal _ _ e) = aOOE e
+    arrayOrObjectExpression _ = False
+    aOOE (MCall _ _ _ _) = True
+    aOOE (ArrAccess _ _ _) = True
+    aOOE (MemberAccess _ _ _) = True
+    aOOE _ = False
 
 --     entry stackSize
 --     loadArgs vmap

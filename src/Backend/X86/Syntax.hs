@@ -318,3 +318,6 @@ getPosIR ast = view (position @1) ast
 
 setPosIR :: (IsASM s) => IR.IRPosition -> (s IR.IRPosition) -> (s IR.IRPosition)
 setPosIR p ast = set (position @1) p ast
+
+-- regEq :: (Reg IRPosition) -> (Reg IRPosition) -> Bool
+-- regEq a b = (show a) == (show b)
