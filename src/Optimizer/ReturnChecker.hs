@@ -97,10 +97,10 @@ instance ASTVerifiable Syntax.ClassDecl where
     doVerifyReturn d = return d
 
 instance ASTVerifiable Syntax.Block where
-    doVerifyReturn (Syntax.Block pos stmts) = do
+    doVerifyReturn b@(Syntax.Block pos stmts) = do
         checks <- return $ map checkS stmts
         -- FunctionLacksReturn
-        if not $ any isRight checks then createMissingReturnError (last $ fst $ partitionEithers checks) else return (Syntax.Block pos stmts)
+        if not $ any isRight checks then let p = fst $ partitionEithers checks in if null p then createMissingReturnError (Syntax.BlockStmt pos b) else createMissingReturnError $ last p else return (Syntax.Block pos stmts)
         where
             checkB :: Syntax.Block Position -> Either (Syntax.Stmt Position) (Syntax.Stmt Position)
             checkB (Syntax.Block _ stmts) = let checks = map checkS stmts in if any isRight checks then Right (head $ snd $ partitionEithers checks) else last checks

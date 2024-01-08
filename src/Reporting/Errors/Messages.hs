@@ -441,7 +441,7 @@ decodeError (CallIncompatibleNumberOfParameters env expr (Syntax.FunT _ ret args
     , _errorSugestions = []
     , _errorLocation = Just $ Syntax.getPos expr
     , _errorContexts = [
-        ("Provide " ++ (show $ (length actualArgs) - (length args)) ++ " missing required parameters", Just $ Syntax.getPos $ fst $ last actualArgs)
+        ("Provide " ++ (show $ (length args) - (length actualArgs)) ++ " missing required parameters", if null actualArgs then Just $ Syntax.getPos expr else Just $ Syntax.getPos $ fst $ last actualArgs)
     ]
     , _errorHelp = Nothing
     , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]

@@ -3,7 +3,13 @@ X- Problem z brakującym typem przy Assign
 .- Zły kontekst zmiennych przy zmianie do IR (good/core019.lat)
 .- Złe offsety przy klasach (Segmentation fault)
 .- Alokacja duzej ilosci parametrów funkcji
-
+X- Wywala się ./tests/bad/bad005.lat
+.- Nieobslugiwany blad cannot convert types byte to string --  ./latc_x86 ./tests/bad/bad016.lat
+.- Krzywe wypiwywanie błędów - ./tests/bad/bad019.lat
+X- Empty list wywala sie - ./latc_x86 ./tests/bad/bad021.lat
+X- Wywala sie empty list - ./latc_x86 ./tests/bad/bad017.lat
+X- Bardzo wywala sie  ./latc_x86 ./tests/bad/bad013.lat
+.- Powinien byc bład o iniciajlizacji w ./latc_x86 ./tests/bad/bad013.lat
 
 Problemy z programami:
 1.

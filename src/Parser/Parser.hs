@@ -23,6 +23,7 @@ instance Errorable ParseError where
           Nothing -> Nothing
           Just (l, c) -> Just $ P.Position P.NoUID src l c
         , _errorHelp = Nothing
+        , _errorMarkers = NoMarker
     }
   -- getOrigin (ParseError _ _ loc) = loc
   -- getSourceName (ParseError src _ _) = src

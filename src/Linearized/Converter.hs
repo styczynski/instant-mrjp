@@ -54,6 +54,9 @@ justEmit = return . (,) ()
 noEmit :: LinearConverter () ((), [mb Position])
 noEmit = justEmit []
 
+stripClassName :: String -> String
+stripClassName pm = case findIndex (== '_') (drop 1 pm) of
+    Just i -> drop (i+2) pm
 
 data FnProto = FnProto Position (B.Label Position) (B.Type Position) [A.Arg Position] [A.Stmt Position]
 
@@ -95,8 +98,9 @@ ct ast = B.Reference $ A.getPos ast
 getMethod :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Index)
 getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
-    struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) clsName (env ^. structures))
-    (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) methodName methods
+    struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) ("_class_"++clsName) (env ^. structures))
+    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod111" $ Errors.ILNEMissingMethod methodName struct)) (return) $ listToMaybe $ filter (\name -> stripClassName name == methodName) $ IM.mapList (\name _ -> name) methods
+    (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod222" (`Errors.ILNEMissingMethod` struct)) (existingMethodName) methods
     return (method, toInteger methodIndex)
 
 getField :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Type Position, B.Offset)
@@ -167,9 +171,6 @@ collectStructures classes = do
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()
             return $ B.Struct pos name parent (measureOffset combinedFields) combinedFields combinedMethods
-        stripClassName :: String -> String
-        stripClassName pm = case findIndex (== '_') (drop 1 pm) of
-            Just i -> drop (i+2) pm
         measureOffset :: IM.Map (B.Label a, B.Type a, B.Offset) -> B.Size
         measureOffset m = case IM.last m of
             Nothing -> 0
