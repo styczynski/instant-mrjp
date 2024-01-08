@@ -216,79 +216,224 @@ emitI pos stmts (regInts, stackSize, umap) = do
                         Just r@(X.Register _ _) -> Just r
                         _ -> Nothing
 
-    emitStmt :: (Integer, Stmt IRPosition) -> Writer [X.Instruction IRPosition] ()
-    emitStmt _ = return ()
 
     emitExpr :: (Maybe (Type IRPosition)) -> (Expr IRPosition) -> (X.Value IRPosition) -> Integer -> Writer [X.Instruction IRPosition] ()
-    emitExpr t expr target i = return ()
+    emitExpr t (Val p v) target i = do
+        case v of
+            Var p' n -> 
+                case getVal vmap n of
+                    X.Register _ r ->
+                        case target of
+                            X.Register _ q ->
+                                if X.topReg r == X.topReg q then return ()
+                                else tell [moverr q r]
+                            _ -> tell [X.MOV p target (X.Register p r)]
+                    m@(X.Memory _ _ _ _ (Just t)) -> 
+                        case target of
+                            X.Register _ q ->
+                                tell [X.MOV p target m]
+                            mm -> 
+                                tell [X.MOV p (X.Register p (X.regSize t $ X.RBX p)) m,
+                                      X.MOV p mm (X.Register p (X.regSize t $ X.RBX p))]
+            Const p' c ->
+                case target of
+                    X.Register _ _ -> 
+                        case c of
+                            IntC p'' i -> tell [X.MOV p (X.regSizeV (IntT p'') target) (X.Constant p' i)]
+                            ByteC p'' i -> tell [X.MOV p (X.regSizeV (ByteT p'') target) (X.Constant p' i)]
+                            Null p'' ->tell [X.XOR p target target]
+                    _ -> case c of
+                            IntC _ i -> tell [X.MOV p (X.Register p $ X.EBX p) (X.Constant p i),
+                                        X.MOV p target (X.Register p $ X.EBX p)]
+                            ByteC _ i -> tell [X.MOV p (X.Register p $ X.BL p) (X.Constant p i),
+                                        X.MOV p target (X.Register p $ X.BL p)]
+                            Null _ -> tell [X.XOR p (X.Register p $ X.RBX p) (X.Register p $ X.RBX p),
+                                        X.MOV p target (X.Register p $ X.RBX p)]
+    emitExpr t (Call p (Label _ l)vs) target i =
+        emitCall t (X.Label p l) vs target i
+    emitExpr t (Cast p l v) target i =
+        emitCall t (X.Label p "__cast") [v, Const p (StringC p l)] target i
+    emitExpr t (MCall p n idx vs) target i = do
+        emitExpr Nothing (Val p (Var p n)) (X.Register p $ X.RBX p) i
+        checkIfNull (X.Register p $ X.RBX p)
+        tell [
+            X.MOV p (X.Register p $ X.R12 p) (X.Memory p (X.RBX p) Nothing Nothing Nothing),
+            --get pointer to type
+            X.MOV p (X.Register p $ X.R12 p) (X.Memory p (X.R12 p) Nothing (Just 12) Nothing),
+            --get method array pointer
+            X.MOV p (X.Register p $ X.R12 p) (X.Memory p (X.R12 p) Nothing (Just (idx*0x08)) Nothing)
+            --get method pointer
+              ]
+        emitCall t (X.Register p $ X.R12 p) vs target i
+    emitExpr t (NewObj p l) target i = do
+        emitCall t (X.Label p "__new") [Const p (StringC p l)] target i
+    emitExpr tp (NewArray p t v) target i = do
+        case t of
+            (IntT _) -> emitCall tp (X.Label p "__newIntArray") [v] target i
+            (ByteT _) -> emitCall tp (X.Label p "__newByteArray") [v] target i
+            (Reference _) -> emitCall tp (X.Label p "__newRefArray") [v] target i
+    emitExpr t (ArrAccess p n v) target i = do
+        emitCall t (X.Label p "__getelementptr") [Var p n, v] (X.Register p $ X.R12 p) i
+        case target of
+            X.Register _ r -> tell [X.MOV p target (X.Memory p (X.R12 p) Nothing Nothing Nothing)]
+            _ -> let rbx = X.regSize (fromJust t) $ X.RBX p in
+                 tell [X.MOV p (X.Register p rbx) (X.Memory p (X.R12 p) Nothing Nothing Nothing),
+                       X.MOV p target (X.Register p rbx)]
+    emitExpr t (MemberAccess p n off) target i = do
+        r <- regOrEmit n (X.R12 p) i
+        case r of
+            (X.Register _ reg) -> do
+                checkIfNull r
+                case target of
+                    X.Register p' _ ->
+                        tell [
+                            X.MOV p (X.Register p $ X.R12 p) (X.Memory p reg Nothing (Just 0x08) Nothing),
+                            --get pointer to data
+                            X.MOV p target (X.Memory p (X.R12 p) Nothing (Just off) Nothing)
+                            ]
+                    _ -> do 
+                        let rbx = X.Register p $ X.regSize (fromJust t) $ X.RBX p
+                        tell [
+                            X.MOV p (X.Register p $ X.R12 p) (X.Memory p reg Nothing (Just 0x08) Nothing),
+                            --get pointer to data
+                            X.MOV p rbx (X.Memory p (X.R12 p) Nothing (Just off) Nothing),
+                            X.MOV p target rbx
+                            ]
+            _ -> return () -- TODO: Handle failure here!
+    emitExpr t (IntToByte p v) target i =
+        emitExpr t (Val p v) target i
+    emitExpr t (ByteToInt p v) target i = do
+        case target of
+            X.Register _ _ -> do
+                tell [X.XOR p target target]
+                emitExpr t (Val p v) target i
+            _ -> do
+                tell [X.XOR p (X.Register p $ X.EBX p) (X.Register p $ X.EBX p)]
+                emitExpr t (Val p v) (X.Register p $ X.EBX p) i
+                tell [X.MOV p target (X.Register p $ X.EBX p)]
+    emitExpr t (Not p v) target' i =
+        let target = X.regSizeV (ByteT p) target' in
+        case v of
+            Var _ n -> do
+                let src = getVal vmap n
+                r <- case src of
+                        X.Register _ r -> return r
+                        _ -> do
+                            tell [X.MOV p (X.Register p $ X.BL p) src]
+                            return $ X.BL p
+                case target of
+                    X.Register _ q -> do
+                        if r /= q then
+                            tell [moverr q r]
+                        else return ()
+                        tell [
+                            X.TEST p (X.Register p q) (X.Register p q),
+                            X.SETZ p (X.Register p q)]
+                    _ -> tell [
+                            X.TEST p (X.Register p r) (X.Register p r),
+                            X.SETZ p target
+                               ]
+            Const _ (ByteC _ x) ->
+                case x of
+                    0 -> tell [X.MOV p target (X.Constant p 1)]
+                    1 -> tell [X.MOV p target (X.Constant p 0)]
+    emitExpr t (BinOp p op v1 v2) target i = do
+        let vl = valueConv v1
+            vr = valueConv v2
+            size = fromMaybe (opSize op) t
+        case op of
+            Div _ -> do
+                done <- divide vl vr i
+                tell [moverr (X.EBX p) (X.EAX p)]
+                done
+                tell [X.MOV p target (X.Register p $ X.EBX p)]
+            Mod _ -> do
+                done <- divide vl vr i
+                tell [moverr (X.EBX p) (X.EDX p)]
+                done
+                tell [X.MOV p target (X.Register p $ X.EBX p)]
+            _ ->
+                let x = (X.Register p (X.regSize size $ X.RBX p)) in
+                tell [
+                    X.MOV p x vl,
+                    (opcode op) x vr,
+                    X.MOV p target x
+                      ]
+    emitExpr t (NewString p l) target i = 
+        emitCall t (X.Label p "__createString") [Const p (StringC p l)] target i
 
-    -- emitStmt (i, VarDecl t n e) = do
-    --     let rbx = X.Register (X.regSize t X.RBX)
-    --     let tgt = case lookup n vmap of
-    --                 Nothing -> rbx
-    --                 _ -> case getVal vmap n of
-    --                         r@(X.Register _) ->
-    --                             if elem n $ alive (i+1) then r else rbx
-    --                         m -> m
-    --     emitExpr (Just t) e tgt i
-    -- emitStmt (i, Assign t tg e) = do
-    --     case tg of
-    --         Variable n -> do
-    --             let rbx = X.Register (X.regSize t X.RBX)
-    --             let tgt = case lookup n vmap of
-    --                         Nothing -> rbx
-    --                         _ -> case getVal vmap n of
-    --                                 r@(X.Register _) ->
-    --                                     if elem n $ alive (i+1) then r else rbx
-    --                                 m -> m
-    --             emitExpr (Just t) e tgt i
-    --         Array a idx -> do
-    --             emitExpr (Just t) e (X.Register (X.regSize t X.R12)) i
-    --             emitCall (Just t) (X.Label "__getelementptr") [Var a, idx] (X.Register X.R13) i
-    --             tell [X.MOV (X.Memory X.R13 Nothing Nothing Nothing) (X.Register (X.regSize t X.R12))]
-    --         Member m off -> do
-    --             emitExpr (Just t) e (X.Register (X.regSize t X.R12)) i
-    --             r@(X.Register reg) <- regOrEmit m X.R13 i
-    --             checkIfNull r
-    --             tell [X.MOV (X.Register X.R13) (X.Memory reg Nothing (Just 0x08) Nothing),
-    --                   X.MOV (X.Memory X.R13 Nothing (Just off) Nothing) (X.Register (X.regSize t X.R12))]
-    -- emitStmt (i, IncrCounter n) = do
-    --     emitExpr Nothing (Val (Var n)) (X.Register X.R13) i
-    --     incr
-    -- emitStmt (i, DecrCounter n) = do
-    --     emitCall Nothing (X.Label "__decRef") [Var n] (X.Register X.RBX) i
-    -- emitStmt (i, ReturnVal t e) = do
-    --     emitExpr (Just t) e (X.Register (X.regSize t X.RAX)) i
-    --     exit
-    -- emitStmt (i, Return) = do
-    --     exit
-    -- emitStmt (i, SetLabel l) = do
-    --     tell [X.SetLabel l]
-    -- emitStmt (i, Jump l) = do
-    --     tell [X.JMP (X.Label l)]
-    -- emitStmt (i, JumpCmp cmp lbl vl vr) = do
-    --     let vlc = valueConv vl
-    --     let vrc = valueConv vr
-    --     (l,r,c) <- case (vlc, vrc) of
-    --         (X.Constant i, X.Register _) ->
-    --             return (vrc, vlc, reverseSide cmp)
-    --         (X.Constant i, X.Memory _ _ _ _) ->
-    --             return (vrc, vlc, reverseSide cmp)
-    --         (X.Memory _ _ _ (Just t), X.Memory _ _ _ _) -> do
-    --             tell [X.MOV (X.Register $ X.regSize t X.RBX) vlc]
-    --             return (X.Register $ X.regSize t X.RBX, vrc, cmp)
-    --         (_, _) -> return (vlc, vrc, cmp)
 
-    --     if r == X.Constant 0 && (cmp == Eq || cmp == Ne) then 
-    --         tell [X.TEST l l, makeJump cmp lbl]
-    --     else tell [X.CMP l r, makeJump cmp lbl]
+    emitStmt :: (Integer, Stmt IRPosition) -> Writer [X.Instruction IRPosition] ()
+    emitStmt (i, VarDecl p t n e) = do
+        let rbx = X.Register p (X.regSize t $ X.RBX p)
+        let tgt = case lookup n vmap of
+                    Nothing -> rbx
+                    _ -> case getVal vmap n of
+                            r@(X.Register _ _) ->
+                                if elem n $ alive (i+1) then r else rbx
+                            m -> m
+        emitExpr (Just t) e tgt i
+    emitStmt (i, Assign p t tg e) =
+        case tg of
+            Variable p' n -> do
+                let rbx = X.Register p (X.regSize t $ X.RBX p)
+                let tgt = case lookup n vmap of
+                            Nothing -> rbx
+                            _ -> case getVal vmap n of
+                                    r@(X.Register _ _) ->
+                                        if elem n $ alive (i+1) then r else rbx
+                                    m -> m
+                emitExpr (Just t) e tgt i
+            Array p' a idx -> do
+                emitExpr (Just t) e (X.Register p (X.regSize t $ X.R12 p)) i
+                emitCall (Just t) (X.Label p "__getelementptr") [Var p a, idx] (X.Register p $ X.R13 p) i
+                tell [X.MOV p (X.Memory p (X.R13 p) Nothing Nothing Nothing) (X.Register p (X.regSize t $ X.R12 p))]
+            Member p' m off -> do
+                emitExpr (Just t) e (X.Register p (X.regSize t $ X.R12 p)) i
+                r <- regOrEmit m (X.R13 p) i
+                case r of
+                    (X.Register _ reg) -> do
+                        checkIfNull r
+                        tell [X.MOV p (X.Register p $ X.R13 p) (X.Memory p reg Nothing (Just 0x08) Nothing),
+                            X.MOV p (X.Memory p (X.R13 p) Nothing (Just off) Nothing) (X.Register p (X.regSize t $ X.R12 p))]
+                    _ -> return () -- TODO: Implement error handling here!
+    emitStmt (i, IncrCounter p n) = do
+        emitExpr Nothing (Val p (Var p n)) (X.Register p $ X.R13 p) i
+        incr
+    emitStmt (i, DecrCounter p n) = do
+        emitCall Nothing (X.Label p "__decRef") [Var p n] (X.Register p $ X.RBX p) i
+    emitStmt (i, ReturnVal p t e) = do
+        emitExpr (Just t) e (X.Register p (X.regSize t $ X.RAX p)) i
+        exit p
+    emitStmt (i, Return p) = do
+        exit p
+    emitStmt (i, SetLabel p (Label _ l)) = do
+        tell [X.SetLabel p l]
+    emitStmt (i, Jump p (Label _ l)) = do
+        tell [X.JMP p (X.Label p l)]
+    emitStmt (i, JumpCmp pos cmp (Label _ lbl) vl vr) = do
+        let vlc = valueConv vl
+        let vrc = valueConv vr
+        (l,r,c) <- case (vlc, vrc) of
+            (X.Constant p i, X.Register _ _) ->
+                return (vrc, vlc, reverseSide cmp)
+            (X.Constant p i, X.Memory _ _ _ _ _) ->
+                return (vrc, vlc, reverseSide cmp)
+            (X.Memory _ _ _ _ (Just t), X.Memory _ _ _ _ _) -> do
+                tell [X.MOV pos (X.Register pos $ X.regSize t $ X.RBX pos) vlc]
+                return (X.Register pos $ X.regSize t (X.RBX pos), vrc, cmp)
+            (_, _) -> return (vlc, vrc, cmp)
+        case (r, cmp) of
+            (X.Constant _ 0, Eq _) -> tell [X.TEST pos l l, makeJump cmp lbl]
+            (X.Constant _ 0, Ne _) -> tell [X.TEST pos l l, makeJump cmp lbl]
+            _ -> tell [X.CMP pos l r, makeJump cmp lbl]
 
-    --     where
-    --         reverseSide Ge = Le
-    --         reverseSide Le = Ge
-    --         reverseSide Gt = Lt
-    --         reverseSide Lt = Gt
-    --         reverseSide op = op
+        where
+            reverseSide (Ge p) = Le p
+            reverseSide (Le p) = Ge p
+            reverseSide (Gt p) = Lt p
+            reverseSide (Lt p) = Gt p
+            reverseSide op = op
 
 
     prepareCall free = do
@@ -330,6 +475,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
     opSize (Or p) = ByteT p
     opSize _ = IntT noPosIR
 
+    checkIfNull :: (X.Value IRPosition) -> Writer [X.Instruction IRPosition] ()
     checkIfNull r@(X.Register p _) = 
         tell [
             X.TEST p r r,
