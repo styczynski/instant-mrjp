@@ -66,8 +66,47 @@ data Instruction a = ADD a (Value a) (Value a)
                  | DW a (Value a)
                  | DD a (Value a)
                  | DQ a (Value a)
-    deriving (Eq, Show, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Instruction
+
+renderStringComment :: IR.IRPosition -> String -> String
+renderStringComment (IR.IRPosition _ (originalPos, _)) line = let ps = show originalPos in if null ps then line else line ++ " ; " ++ ps
+
+instance Show (Instruction IR.IRPosition) where
+    show (ADD p v1 v2) = renderStringComment p $ "ADD " ++ show v1 ++ ", " ++ show v2
+    show (SUB p v1 v2) = renderStringComment p $ "SUB " ++ show v1 ++ ", " ++ show v2
+    show (IMUL p v1 v2) = renderStringComment p $ "IMUL " ++ show v1 ++ ", " ++ show v2
+    show (CDQ p) = renderStringComment p $ "CDQ"
+    show (IDIV p v) = renderStringComment p $ "IDIV " ++ show v
+    show (MOV p v1 v2) = renderStringComment p $ "MOV " ++ show v1 ++ ", " ++ show v2
+    show (AND p v1 v2) = renderStringComment p $ "AND " ++ show v1 ++ ", " ++ show v2
+    show (OR p v1 v2) = renderStringComment p $ "OR " ++ show v1 ++ ", " ++ show v2
+    show (XOR p v1 v2) = renderStringComment p $ "XOR " ++ show v1 ++ ", " ++ show v2
+    show (INC p v) = renderStringComment p $ "INC " ++ show v
+    show (SETZ p v) = renderStringComment p $ "SETZ " ++ show v
+    show (JMP p v) = renderStringComment p $ "JMP " ++ show v
+    show (JZ p v) = renderStringComment p $ "JZ " ++ show v
+    show (JNZ p v) = renderStringComment p $ "JNZ " ++ show v
+    show (JE p v) = renderStringComment p $ "JE " ++ show v
+    show (JNE p v) = renderStringComment p $ "JNE " ++ show v
+    show (JL p v) = renderStringComment p $ "JL " ++ show v
+    show (JLE p v) = renderStringComment p $ "JLE " ++ show v
+    show (JG p v) = renderStringComment p $ "JG " ++ show v
+    show (JGE p v) = renderStringComment p $ "JGE " ++ show v
+    show (CMP p v1 v2) = renderStringComment p $ "CMP " ++ show v1 ++ ", " ++ show v2
+    show (TEST p v1 v2) = renderStringComment p $ "TEST " ++ show v1 ++ ", " ++ show v2
+    show (PUSH p v) = renderStringComment p $ "PUSH " ++ show v
+    show (POP p v) = renderStringComment p $ "POP " ++ show v
+    show (CALL p v) = renderStringComment p $ "CALL " ++ show v
+    show (LEAVE p) = renderStringComment p $ "LEAVE"
+    show (RET p) = renderStringComment p $ "RET"
+    show (SetLabel p l) = renderStringComment p $ l ++ ":"
+    show (Section p s) = renderStringComment p $  "section ." ++ s
+    show (Global p s) = renderStringComment p $ "global " ++ s
+    show (DB p v) = renderStringComment p $ "DB " ++ show v
+    show (DW p v) = renderStringComment p $ "DW " ++ show v
+    show (DD p v) = renderStringComment p $ "DD " ++ show v
+    show (DQ p v) = renderStringComment p $ "DQ " ++ show v
 
 data Reg a = R11 a | R11D a | R11B a 
          | R10 a | R10D a | R10B a 
@@ -85,10 +124,57 @@ data Reg a = R11 a | R11D a | R11B a
          | R13 a | R13D a | R13B a --callee saved
          | R14 a | R14D a | R14B a --callee saved
          | R15 a | R15D a | R15B a --callee saved
-    deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, NFData)
+    deriving (Eq, Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsASM Reg
 
-instance Show (Value a) where
+instance Show (Reg IR.IRPosition) where
+    show (R11 _) = "R11"
+    show (R11D _) = "R11D"
+    show (R11B _) = "R11B" 
+    show (R10 _) = "R10"
+    show (R10D _) = "R10D"
+    show (R10B _) = "R10B" 
+    show (R9 _) = "R9" 
+    show (R9D _) = "R9D"
+    show (R9B _) = "R9B" 
+    show (R8 _) = "R8" 
+    show (R8D _) = "R8D"
+    show (R8B _) = "R8B" 
+    show (RDX _) = "RDX"
+    show (EDX _) = "EDX"
+    show (DL _) = "DL"
+    show (RCX _) = "RCX"
+    show (ECX _) = "ECX"
+    show (CL _) = "CL"
+    show (RAX _) = "RAX"
+    show (EAX _) = "EAX"
+    show (AL _) = "AL"
+    show (RBP _) = "RBP"
+    show (RSP _) = "RSP"
+    show (RSI _) = "RSI"
+    show (ESI _) = "ESI"
+    show (SIL _) = "SIL"
+    show (RDI _) = "RDI"
+    show (EDI _) = "EDI"
+    show (DIL _) = "DIL"
+    show (RBX _) = "RBX"
+    show (EBX _) = "EBX"
+    show (BL _) = "BL"
+    show (R12 _) = "R12"
+    show (R12D _) = "R12D"
+    show (R12B _) = "R12B"
+    show (R13 _) = "R13"
+    show (R13D _) = "R13D"
+    show (R13B _) = "R13B"
+    show (R14 _) = "R14"
+    show (R14D _) = "R14D"
+    show (R14B _) = "R14B"
+    show (R15 _) = "R15"
+    show (R15D _) = "R15D"
+    show (R15B _) = "R15B"
+
+
+instance Show (Value IR.IRPosition) where
     show (Constant _ i) = show i
     show (Label _ s) = s
     show (Register _ r) = show r
@@ -103,24 +189,8 @@ instance Show (Value a) where
                         else ""
         in "["++show r++m++o++"]"
 
-instance Show (Program a) where
-    show (Program _ is) = "%include 'lib/runtime.ext'\n" ++ (concat $ map p is)
-        where
-            p i = pp i ++ "\n"
-            pp (SetLabel _ l) = l++":"
-            pp (Section _ s) = "section ."++s
-            pp (Global _ s) = "global "++s
-            pp x = "    "++ppp x
-            ppp (ADD _ v1 v2) = "ADD "++show v1++", "++show v2
-            ppp (SUB _ v1 v2) = "SUB "++show v1++", "++show v2
-            ppp (IMUL _ v1 v2) = "IMUL "++show v1++", "++show v2
-            ppp (MOV _ v1 v2) = "MOV "++show v1++", "++show v2
-            ppp (AND _ v1 v2) = "AND "++show v1++", "++show v2
-            ppp (OR _ v1 v2) = "OR "++show v1++", "++show v2
-            ppp (XOR _ v1 v2) = "XOR "++show v1++", "++show v2
-            ppp (CMP _ v1 v2) = "CMP "++show v1++", "++show v2
-            ppp (TEST _ v1 v2) = "TEST "++show v1++", "++show v2
-            ppp i = show i
+instance Show (Program IR.IRPosition) where
+    show (Program _ is) = "%include 'lib/runtime.ext'\n" ++ (concat $ map (\stmt -> show stmt ++ "\n") is)
 
 isReg (Register _ _) = True
 isReg _ = False
