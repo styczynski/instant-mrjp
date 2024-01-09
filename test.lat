@@ -1,11 +1,11 @@
-class A {
+class A extends Object {
   int foo;
 }
 
 int main() {
-  int[] a = new int[10];
-  a[2] = 3;
-  int t = a[2];
-  printInt(t);
+  A a = new A;
+  printInt(0);
+  a.foo = 2;
+  printInt(2);
   return 0;
 }

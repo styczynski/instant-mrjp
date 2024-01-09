@@ -28,10 +28,12 @@ obj __new(struct Type *t) {
     } else {
         r->data = NULL;
     }
+    fprintf(stderr, "__new %d\n", r);
     return r;
 }
 
 void __free(obj r) {
+    fprintf(stderr, "__free %d\n", r);
     if (r->type == &_class_Array) {
         struct Array *arr = r->data;
         void **els = arr->elements;
@@ -52,11 +54,13 @@ void __free(obj r) {
 }
 
 void __incRef(obj r) {
+    fprintf(stderr, "__incRef %d\n", r);
     if (r != NULL) {
         r->counter++;
     }
 }
 void __decRef(obj r) {
+    fprintf(stderr, "__decRef %d\n", r);
     if (r != NULL) {
         r->counter--;
         if (r->counter <= 0) {
@@ -67,6 +71,7 @@ void __decRef(obj r) {
             __free(r);
         }
     }
+    fprintf(stderr, "__decRef end %d\n", r);
 }
 
 obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }

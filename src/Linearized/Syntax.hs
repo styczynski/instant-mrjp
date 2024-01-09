@@ -167,7 +167,7 @@ instance Show (Program a) where
     show (Program _ ss fs datas) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ intercalate "\n" (M.mapList (curry $ show . snd) datas)
 
 instance Show (Structure a) where
-    show (Struct _ l _ _ fs ms) = "struct "++show l++"\n"++(concat $ M.mapList (\_ (l,t,_)-> "    "++show t++" "++show l++";\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)
+    show (Struct _ l _ structOffset fs ms) = "struct "++show l++"[offset="++show structOffset++"]\n"++(concat $ M.mapList (\_ (l,t,o)-> "    "++show t++" "++show l++"[offset="++show o++"];\n") fs)++(concat $ M.mapList (\_ l->"    "++show l++"(...)\n") ms)
 
 instance Show (Function a) where
     show (Fun _ l t args body) = show t++" "++show l++"("++intercalate ", " (map (\(t,n)->show t++" "++show n) args)++")\n"++(concat $ map (\s->show s++"\n") body)

@@ -21,26 +21,29 @@ import Linearized.Syntax
 import Linearized.Optimizer.Values
 import Linearized.Optimizer.Liveness
 import Backend.X86.RegisterAllocator
+import Backend.X86.Compiler
 
-emit :: Program IRPosition -> ASM.Program IRPosition
-emit p@(Program pos _ _ _) = ASM.Program pos $ execWriter (emitP p)
+import Data.Maybe
 
-emitP :: Program IRPosition -> Writer [ASM.Instruction IRPosition] ()
-emitP (Program p structs funcs strs) = do
-    tell [ASM.Section p "rodata"]
+-- emit :: Program IRPosition -> ASM.Program IRPosition
+-- emit p@(Program pos _ _ _) = ASM.Program pos $ execWriter (emitP p)
+
+emit :: Program IRPosition -> ASMCompiler ()
+emit (Program p structs funcs strs) = do
+    emitInstr [ASM.Section p "rodata"]
     mapM_ emitS structs
     mapM_ emitData strs
-    tell [ASM.Section p "text"]
+    emitInstr [ASM.Section p "text"]
     mapM_ emitF funcs
 
 isRef (Reference _) = True
 isRef _ = False
 
-emitS :: Structure IRPosition -> Writer [ASM.Instruction IRPosition] ()
+emitS :: Structure IRPosition -> ASMCompiler ()
 emitS (Struct pos (Label lp l) par s fs ms) = do
     let referenceFields = filter (\(_,t,_)->isRef t) $ IM.mapList (\_ v -> v) fs -- TODO: ? Reference
         refsLength = fromIntegral $ length referenceFields
-    tell [
+    emitInstr [
         ASM.Global lp l,
         ASM.SetLabel lp l,
         ASM.DQ pos (fromMaybe (ASM.Constant pos 0) (par >>= return . (\(Label p s) -> ASM.Label p s))),
@@ -50,16 +53,16 @@ emitS (Struct pos (Label lp l) par s fs ms) = do
         ASM.DQ pos (if refsLength > 0 then ASM.Label pos (l++"_refs") else ASM.Constant pos 0),
         ASM.SetLabel pos (l++"_methods")
           ]
-    tell $ map (\m -> ASM.DQ pos (ASM.Label pos m)) $ IM.mapList (\v _ -> v) ms
+    emitInstr $ map (\m -> ASM.DQ pos (ASM.Label pos m)) $ IM.mapList (\v _ -> v) ms
     if refsLength > 0 then do
-        tell [ASM.SetLabel pos (l++"_refs")]
-        tell $ map (\(_,_,o)-> ASM.DD pos (ASM.Constant pos o)) referenceFields
+        emitInstr [ASM.SetLabel pos (l++"_refs")]
+        emitInstr $ map (\(_,_,o)-> ASM.DD pos (ASM.Constant pos o)) referenceFields
     else return ()
 
 data StringRep = Char Word8 | Str String
 
-emitData :: DataDef IRPosition -> Writer [ASM.Instruction IRPosition] ()
-emitData (DataString p s (Label p' l)) = tell $ (ASM.SetLabel p l) : divideString p s ++ [ASM.DB p' (ASM.Constant p' 0)]
+emitData :: DataDef IRPosition -> ASMCompiler ()
+emitData (DataString p s (Label p' l)) = emitInstr $ (ASM.SetLabel p l) : divideString p s ++ [ASM.DB p' (ASM.Constant p' 0)]
     where
         divideString :: IRPosition -> String -> [ASM.Instruction IRPosition]
         divideString p s = map (toInst p) $ groupS s [] []
@@ -78,18 +81,14 @@ emitData (DataString p s (Label p' l)) = tell $ (ASM.SetLabel p l) : divideStrin
         empt (Str "") = False
         empt _ = True 
 
-emitF :: Function IRPosition -> Writer [ASM.Instruction IRPosition] ()
+emitF :: Function IRPosition -> ASMCompiler ()
 emitF (Fun p (Label p' l) _ args body) = do
-    tell [ASM.Global p l, ASM.SetLabel p' l]
-    emitB p args body
-
-emitB :: IRPosition -> [(Type IRPosition, Name IRPosition)] -> [Stmt IRPosition] -> Writer [ASM.Instruction IRPosition] ()
-emitB p args body = do
+    emitInstr [ASM.Global p l, ASM.SetLabel p' l]
     let liveness = analize body
         regMap = mapArgs args
         regState = allocateRegisters liveness args regMap
-        zippedBody = zip [1..] body
-    emitI p zippedBody regState
+        numberedBodyStmts = zip [1..] body
+    emitI p numberedBodyStmts regState
 
 mapArgs :: [(Type IRPosition, Name IRPosition)] -> [(Name IRPosition, [ASM.Value IRPosition])]
 mapArgs as = map (\((_,n),v)->(n,[v])) zas
@@ -104,20 +103,20 @@ st (IntT _) = 0x04
 st (ByteT _) = 0x01
 st (Reference _) = 0x08
 
-emitI :: IRPosition -> [(Integer, Stmt IRPosition)] -> RegState -> Writer [ASM.Instruction IRPosition] ()
+emitI :: IRPosition -> [(Integer, Stmt IRPosition)] -> RegState -> ASMCompiler ()
 emitI pos stmts (regInts, stackSize, umap) = do
     entry pos stackSize
     loadArgs pos vmap
     body stmts
   where
-    entry :: IRPosition -> StackSize -> Writer [ASM.Instruction IRPosition] ()
+    entry :: IRPosition -> StackSize -> ASMCompiler ()
     entry pos s = do
-        tell [ASM.PUSH pos (ASM.Register pos $ ASM.RBP pos), ASM.PUSH pos (ASM.Register pos $ ASM.RBX pos)]
-        if r12 then tell [ASM.PUSH pos (ASM.Register pos $ ASM.R12 pos)]
+        emitInstr [ASM.PUSH pos (ASM.Register pos $ ASM.RBP pos), ASM.PUSH pos (ASM.Register pos $ ASM.RBX pos)]
+        if r12 then emitInstr [ASM.PUSH pos (ASM.Register pos $ ASM.R12 pos)]
         else return ()
-        if r13 then tell [ASM.PUSH pos (ASM.Register pos $ ASM.R13 pos)]
+        if r13 then emitInstr [ASM.PUSH pos (ASM.Register pos $ ASM.R13 pos)]
         else return ()
-        tell [ASM.MOV pos (ASM.Register pos $ ASM.RBP pos) (ASM.Register pos $ ASM.RSP pos), ASM.SUB pos (ASM.Register pos $ ASM.RSP pos) (ASM.Constant pos (padding + if s > 0 then ceil16 s else 0))]
+        emitInstr [ASM.MOV pos (ASM.Register pos $ ASM.RBP pos) (ASM.Register pos $ ASM.RSP pos), ASM.SUB pos (ASM.Register pos $ ASM.RSP pos) (ASM.Constant pos (padding + if s > 0 then ceil16 s else 0))]
 
     ceil16 x = case x `mod` 16 of
                 0 -> x
@@ -137,25 +136,29 @@ emitI pos stmts (regInts, stackSize, umap) = do
         fixMem (ASM.Memory p r f (Just o) t) | o > 0 = (ASM.Memory p r f (Just (o-diff)) t)
         fixMem m = m
 
-    loadArgs :: IRPosition -> ValMap -> Writer [ASM.Instruction IRPosition] ()
+    loadArgs :: IRPosition -> ValMap -> ASMCompiler ()
     loadArgs p vmap = do
+        emitterLog $ "loadArgs(...): " ++ (show vmap)
         -- TODO: This seems to be very broken D:
         let argsToLoad = filter (\(n,vals) -> length vals == 2) vmap
-        tell $ map (\(_,vals) -> ASM.MOV p (reg vals) (mem vals)) argsToLoad
+        emitterLog $ show argsToLoad
+        emitInstr $ mapMaybe (\(_,vals) -> ASM.MOV p <$> (reg vals) <*> (mem vals)) argsToLoad
         where
-            reg [r@(ASM.Register _ _),_] = r
-            reg [_,r@(ASM.Register _ _)] = r
-            mem [m@(ASM.Memory _ _ _ _ _),_] = m
-            mem [_,m@(ASM.Memory _ _ _ _ _)] = m
+            reg [r@(ASM.Register _ _),_] = Just r
+            reg [_,r@(ASM.Register _ _)] = Just r
+            reg _ = Nothing
+            mem [m@(ASM.Memory _ _ _ _ _),_] = Just m
+            mem [_,m@(ASM.Memory _ _ _ _ _)] = Just m
+            mem _ = Nothing
 
-    exit :: IRPosition -> Writer [ASM.Instruction IRPosition] ()
+    exit :: IRPosition -> ASMCompiler ()
     exit p = do
-        tell [ASM.MOV p (ASM.Register p $ ASM.RSP p) (ASM.Register p $ ASM.RBP p)]
-        if r13 then tell [ASM.POP p (ASM.Register p $ ASM.R13 p)]
+        emitInstr [ASM.MOV p (ASM.Register p $ ASM.RSP p) (ASM.Register p $ ASM.RBP p)]
+        if r13 then emitInstr [ASM.POP p (ASM.Register p $ ASM.R13 p)]
         else return ()
-        if r12 then tell [ASM.POP p (ASM.Register p $ ASM.R12 p)]
+        if r12 then emitInstr [ASM.POP p (ASM.Register p $ ASM.R12 p)]
         else return ()
-        tell [ASM.POP p (ASM.Register p $ ASM.RBX p),
+        emitInstr [ASM.POP p (ASM.Register p $ ASM.RBX p),
                 ASM.POP p (ASM.Register p $ ASM.RBP p),
                 ASM.RET p
                 ]
@@ -171,35 +174,35 @@ emitI pos stmts (regInts, stackSize, umap) = do
             fromToRegArgs = zip regArgs (map (ASM.Register noPosIR) destinationRegs)
         moveAround fromToRegArgs (reverse stackArgs)
         where
-            moveAround :: [(ASM.Value IRPosition,ASM.Value IRPosition)] -> [ASM.Value IRPosition] -> Writer [ASM.Instruction IRPosition] ()
+            moveAround :: [(ASM.Value IRPosition,ASM.Value IRPosition)] -> [ASM.Value IRPosition] -> ASMCompiler ()
             moveAround ((ASM.Register p rfrom, ASM.Register p' rto):xs) stack =
                 if ASM.topReg rfrom == rto then moveAround xs stack
                 else do
                     if elem rto fr then do
-                        tell [moverr rto rfrom]
+                        emitInstr [moverr rto rfrom]
                         moveAround xs stack
                     else do
-                        tell [  moverr (ASM.RBX p) (ASM.topReg rto),
+                        emitInstr [  moverr (ASM.RBX p) (ASM.topReg rto),
                                 moverr rto rfrom,
                                 moverr (ASM.topReg rfrom) (ASM.RBX p') ]
                         moveAround (replace (ASM.Register p rto) (ASM.Register p' rfrom) xs) (replace2 (ASM.Register p rto) (ASM.Register p' rfrom) stack)
             moveAround ((v, reg@(ASM.Register p rto)):xs) stack =
                 if elem rto fr then do
-                    tell [ASM.MOV p (ASM.Register p rto) v]
+                    emitInstr [ASM.MOV p (ASM.Register p rto) v]
                     moveAround xs stack
                 else do
                     moveAround xs stack
-                    tell [ASM.MOV p (ASM.Register p rto) v]
+                    emitInstr [ASM.MOV p (ASM.Register p rto) v]
             moveAround [] stack = do
-                tell [moverr (ASM.RBX noPosIR) (ASM.RSP noPosIR)] -- quick pop arguments
+                emitInstr [moverr (ASM.RBX noPosIR) (ASM.RSP noPosIR)] -- quick pop arguments
                 mapM_ pushArg stack
             pushArg v@(ASM.Memory p _ _ _ t) =
-                tell [ASM.MOV p (ASM.Register p (ASM.regSize (fromJust t) (ASM.R13 p))) v,ASM.PUSH p (ASM.Register p $ ASM.R13 p)]
-            pushArg v@(ASM.Register p r) = tell [ASM.PUSH p (ASM.Register p (ASM.topReg r))]
-            pushArg v = tell [ASM.PUSH noPosIR v]
+                emitInstr [ASM.MOV p (ASM.Register p (ASM.regSize (fromJust t) (ASM.R13 p))) v,ASM.PUSH p (ASM.Register p $ ASM.R13 p)]
+            pushArg v@(ASM.Register p r) = emitInstr [ASM.PUSH p (ASM.Register p (ASM.topReg r))]
+            pushArg v = emitInstr [ASM.PUSH noPosIR v]
             replace what with = map (\(a,b) -> if ASM.valueEq (ASM.topRegV a) (ASM.topRegV what) then (ASM.regSizeV (ASM.regSizeRV a) with,b) else (a,b))
             replace2 what with = map (\a -> if ASM.valueEq (ASM.topRegV a) (ASM.topRegV what) then ASM.regSizeV (ASM.regSizeRV a) with else a)
-    call f = tell [ ASM.CALL noPosIR f, moverr (ASM.RSP noPosIR) (ASM.RBX noPosIR) ]
+    call f = emitInstr [ ASM.CALL noPosIR f, moverr (ASM.RSP noPosIR) (ASM.RBX noPosIR) ]
     valueConv (Var _ a) = getVal vmap a
     valueConv (Const p  (IntC _ i)) = ASM.Constant p i
     valueConv (Const p (ByteC _ i)) = ASM.Constant p i
@@ -218,7 +221,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
                         _ -> Nothing
 
 
-    emitExpr :: (Maybe (Type IRPosition)) -> (Expr IRPosition) -> (ASM.Value IRPosition) -> Integer -> Writer [ASM.Instruction IRPosition] ()
+    emitExpr :: (Maybe (Type IRPosition)) -> (Expr IRPosition) -> (ASM.Value IRPosition) -> Integer -> ASMCompiler ()
     emitExpr t (Val p v) target i = do
         case v of
             Var p' n -> 
@@ -227,28 +230,28 @@ emitI pos stmts (regInts, stackSize, umap) = do
                         case target of
                             ASM.Register _ q ->
                                 if ASM.topReg r == ASM.topReg q then return ()
-                                else tell [moverr q r]
-                            _ -> tell [ASM.MOV p target (ASM.Register p r)]
+                                else emitInstr [moverr q r]
+                            _ -> emitInstr [ASM.MOV p target (ASM.Register p r)]
                     m@(ASM.Memory _ _ _ _ (Just t)) -> 
                         case target of
                             ASM.Register _ q ->
-                                tell [ASM.MOV p target m]
+                                emitInstr [ASM.MOV p target m]
                             mm -> 
-                                tell [ASM.MOV p (ASM.Register p (ASM.regSize t $ ASM.RBX p)) m,
+                                emitInstr [ASM.MOV p (ASM.Register p (ASM.regSize t $ ASM.RBX p)) m,
                                       ASM.MOV p mm (ASM.Register p (ASM.regSize t $ ASM.RBX p))]
             Const p' c ->
                 case target of
                     ASM.Register _ _ -> 
                         case c of
-                            IntC p'' i -> tell [ASM.MOV p (ASM.regSizeV (IntT p'') target) (ASM.Constant p' i)]
-                            ByteC p'' i -> tell [ASM.MOV p (ASM.regSizeV (ByteT p'') target) (ASM.Constant p' i)]
-                            Null p'' ->tell [ASM.XOR p target target]
+                            IntC p'' i -> emitInstr [ASM.MOV p (ASM.regSizeV (IntT p'') target) (ASM.Constant p' i)]
+                            ByteC p'' i -> emitInstr [ASM.MOV p (ASM.regSizeV (ByteT p'') target) (ASM.Constant p' i)]
+                            Null p'' ->emitInstr [ASM.XOR p target target]
                     _ -> case c of
-                            IntC _ i -> tell [ASM.MOV p (ASM.Register p $ ASM.EBX p) (ASM.Constant p i),
+                            IntC _ i -> emitInstr [ASM.MOV p (ASM.Register p $ ASM.EBX p) (ASM.Constant p i),
                                         ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
-                            ByteC _ i -> tell [ASM.MOV p (ASM.Register p $ ASM.BL p) (ASM.Constant p i),
+                            ByteC _ i -> emitInstr [ASM.MOV p (ASM.Register p $ ASM.BL p) (ASM.Constant p i),
                                         ASM.MOV p target (ASM.Register p $ ASM.BL p)]
-                            Null _ -> tell [ASM.XOR p (ASM.Register p $ ASM.RBX p) (ASM.Register p $ ASM.RBX p),
+                            Null _ -> emitInstr [ASM.XOR p (ASM.Register p $ ASM.RBX p) (ASM.Register p $ ASM.RBX p),
                                         ASM.MOV p target (ASM.Register p $ ASM.RBX p)]
     emitExpr t (Call p (Label _ l)vs) target i =
         emitCall t (ASM.Label p l) vs target i
@@ -257,7 +260,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
     emitExpr t (MCall p n idx vs) target i = do
         emitExpr Nothing (Val p (Var p n)) (ASM.Register p $ ASM.RBX p) i
         checkIfNull (ASM.Register p $ ASM.RBX p)
-        tell [
+        emitInstr [
             ASM.MOV p (ASM.Register p $ ASM.R12 p) (ASM.Memory p (ASM.RBX p) Nothing Nothing Nothing),
             --get pointer to type
             ASM.MOV p (ASM.Register p $ ASM.R12 p) (ASM.Memory p (ASM.R12 p) Nothing (Just 12) Nothing),
@@ -276,9 +279,9 @@ emitI pos stmts (regInts, stackSize, umap) = do
     emitExpr t (ArrAccess p n v) target i = do
         emitCall t (ASM.Label p "__getelementptr") [Var p n, v] (ASM.Register p $ ASM.R12 p) i
         case target of
-            ASM.Register _ r -> tell [ASM.MOV p target (ASM.Memory p (ASM.R12 p) Nothing Nothing Nothing)]
+            ASM.Register _ r -> emitInstr [ASM.MOV p target (ASM.Memory p (ASM.R12 p) Nothing Nothing Nothing)]
             _ -> let rbx = ASM.regSize (fromJust t) $ ASM.RBX p in
-                 tell [ASM.MOV p (ASM.Register p rbx) (ASM.Memory p (ASM.R12 p) Nothing Nothing Nothing),
+                 emitInstr [ASM.MOV p (ASM.Register p rbx) (ASM.Memory p (ASM.R12 p) Nothing Nothing Nothing),
                        ASM.MOV p target (ASM.Register p rbx)]
     emitExpr t (MemberAccess p n off) target i = do
         r <- regOrEmit n (ASM.R12 p) i
@@ -287,14 +290,14 @@ emitI pos stmts (regInts, stackSize, umap) = do
                 checkIfNull r
                 case target of
                     ASM.Register p' _ ->
-                        tell [
+                        emitInstr [
                             ASM.MOV p (ASM.Register p $ ASM.R12 p) (ASM.Memory p reg Nothing (Just 0x08) Nothing),
                             --get pointer to data
                             ASM.MOV p target (ASM.Memory p (ASM.R12 p) Nothing (Just off) Nothing)
                             ]
                     _ -> do 
                         let rbx = ASM.Register p $ ASM.regSize (fromJust t) $ ASM.RBX p
-                        tell [
+                        emitInstr [
                             ASM.MOV p (ASM.Register p $ ASM.R12 p) (ASM.Memory p reg Nothing (Just 0x08) Nothing),
                             --get pointer to data
                             ASM.MOV p rbx (ASM.Memory p (ASM.R12 p) Nothing (Just off) Nothing),
@@ -306,12 +309,12 @@ emitI pos stmts (regInts, stackSize, umap) = do
     emitExpr t (ByteToInt p v) target i = do
         case target of
             ASM.Register _ _ -> do
-                tell [ASM.XOR p target target]
+                emitInstr [ASM.XOR p target target]
                 emitExpr t (Val p v) target i
             _ -> do
-                tell [ASM.XOR p (ASM.Register p $ ASM.EBX p) (ASM.Register p $ ASM.EBX p)]
+                emitInstr [ASM.XOR p (ASM.Register p $ ASM.EBX p) (ASM.Register p $ ASM.EBX p)]
                 emitExpr t (Val p v) (ASM.Register p $ ASM.EBX p) i
-                tell [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
+                emitInstr [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
     emitExpr t (Not p v) target' i =
         let target = ASM.regSizeV (ByteT p) target' in
         case v of
@@ -320,24 +323,24 @@ emitI pos stmts (regInts, stackSize, umap) = do
                 r <- case src of
                         ASM.Register _ r -> return r
                         _ -> do
-                            tell [ASM.MOV p (ASM.Register p $ ASM.BL p) src]
+                            emitInstr [ASM.MOV p (ASM.Register p $ ASM.BL p) src]
                             return $ ASM.BL p
                 case target of
                     ASM.Register _ q -> do
                         if r /= q then
-                            tell [moverr q r]
+                            emitInstr [moverr q r]
                         else return ()
-                        tell [
+                        emitInstr [
                             ASM.TEST p (ASM.Register p q) (ASM.Register p q),
                             ASM.SETZ p (ASM.Register p q)]
-                    _ -> tell [
+                    _ -> emitInstr [
                             ASM.TEST p (ASM.Register p r) (ASM.Register p r),
                             ASM.SETZ p target
                                ]
             Const _ (ByteC _ x) ->
                 case x of
-                    0 -> tell [ASM.MOV p target (ASM.Constant p 1)]
-                    1 -> tell [ASM.MOV p target (ASM.Constant p 0)]
+                    0 -> emitInstr [ASM.MOV p target (ASM.Constant p 1)]
+                    1 -> emitInstr [ASM.MOV p target (ASM.Constant p 0)]
     emitExpr t (BinOp p op v1 v2) target i = do
         let vl = valueConv v1
             vr = valueConv v2
@@ -345,17 +348,17 @@ emitI pos stmts (regInts, stackSize, umap) = do
         case op of
             Div _ -> do
                 done <- divide vl vr i
-                tell [moverr (ASM.EBX p) (ASM.EAX p)]
+                emitInstr [moverr (ASM.EBX p) (ASM.EAX p)]
                 done
-                tell [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
+                emitInstr [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
             Mod _ -> do
                 done <- divide vl vr i
-                tell [moverr (ASM.EBX p) (ASM.EDX p)]
+                emitInstr [moverr (ASM.EBX p) (ASM.EDX p)]
                 done
-                tell [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
+                emitInstr [ASM.MOV p target (ASM.Register p $ ASM.EBX p)]
             _ ->
                 let x = (ASM.Register p (ASM.regSize size $ ASM.RBX p)) in
-                tell [
+                emitInstr [
                     ASM.MOV p x vl,
                     (opcode op) x vr,
                     ASM.MOV p target x
@@ -364,7 +367,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
         emitCall t (ASM.Label p "__createString") [Const p (StringC p l)] target i
 
 
-    emitStmt :: (Integer, Stmt IRPosition) -> Writer [ASM.Instruction IRPosition] ()
+    emitStmt :: (Integer, Stmt IRPosition) -> ASMCompiler ()
     emitStmt (i, VarDecl p t n e) = do
         let rbx = ASM.Register p (ASM.regSize t $ ASM.RBX p)
         let tgt = case lookup n vmap of
@@ -388,14 +391,14 @@ emitI pos stmts (regInts, stackSize, umap) = do
             Array p' a idx -> do
                 emitExpr (Just t) e (ASM.Register p (ASM.regSize t $ ASM.R12 p)) i
                 emitCall (Just t) (ASM.Label p "__getelementptr") [Var p a, idx] (ASM.Register p $ ASM.R13 p) i
-                tell [ASM.MOV p (ASM.Memory p (ASM.R13 p) Nothing Nothing Nothing) (ASM.Register p (ASM.regSize t $ ASM.R12 p))]
+                emitInstr [ASM.MOV p (ASM.Memory p (ASM.R13 p) Nothing Nothing Nothing) (ASM.Register p (ASM.regSize t $ ASM.R12 p))]
             Member p' m off -> do
                 emitExpr (Just t) e (ASM.Register p (ASM.regSize t $ ASM.R12 p)) i
                 r <- regOrEmit m (ASM.R13 p) i
                 case r of
                     (ASM.Register _ reg) -> do
                         checkIfNull r
-                        tell [ASM.MOV p (ASM.Register p $ ASM.R13 p) (ASM.Memory p reg Nothing (Just 0x08) Nothing),
+                        emitInstr [ASM.MOV p (ASM.Register p $ ASM.R13 p) (ASM.Memory p reg Nothing (Just 0x08) Nothing),
                             ASM.MOV p (ASM.Memory p (ASM.R13 p) Nothing (Just off) Nothing) (ASM.Register p (ASM.regSize t $ ASM.R12 p))]
                     _ -> return () -- TODO: Implement error handling here!
     emitStmt (i, IncrCounter p n) = do
@@ -409,9 +412,9 @@ emitI pos stmts (regInts, stackSize, umap) = do
     emitStmt (i, Return p) = do
         exit p
     emitStmt (i, SetLabel p (Label _ l)) = do
-        tell [ASM.SetLabel p l]
+        emitInstr [ASM.SetLabel p l]
     emitStmt (i, Jump p (Label _ l)) = do
-        tell [ASM.JMP p (ASM.Label p l)]
+        emitInstr [ASM.JMP p (ASM.Label p l)]
     emitStmt (i, JumpCmp pos cmp (Label _ lbl) vl vr) = do
         let vlc = valueConv vl
         let vrc = valueConv vr
@@ -421,13 +424,13 @@ emitI pos stmts (regInts, stackSize, umap) = do
             (ASM.Constant p i, ASM.Memory _ _ _ _ _) ->
                 return (vrc, vlc, reverseSide cmp)
             (ASM.Memory _ _ _ _ (Just t), ASM.Memory _ _ _ _ _) -> do
-                tell [ASM.MOV pos (ASM.Register pos $ ASM.regSize t $ ASM.RBX pos) vlc]
+                emitInstr [ASM.MOV pos (ASM.Register pos $ ASM.regSize t $ ASM.RBX pos) vlc]
                 return (ASM.Register pos $ ASM.regSize t (ASM.RBX pos), vrc, cmp)
             (_, _) -> return (vlc, vrc, cmp)
         case (r, cmp) of
-            (ASM.Constant _ 0, Eq _) -> tell [ASM.TEST pos l l, makeJump cmp lbl]
-            (ASM.Constant _ 0, Ne _) -> tell [ASM.TEST pos l l, makeJump cmp lbl]
-            _ -> tell [ASM.CMP pos l r, makeJump cmp lbl]
+            (ASM.Constant _ 0, Eq _) -> emitInstr [ASM.TEST pos l l, makeJump cmp lbl]
+            (ASM.Constant _ 0, Ne _) -> emitInstr [ASM.TEST pos l l, makeJump cmp lbl]
+            _ -> emitInstr [ASM.CMP pos l r, makeJump cmp lbl]
 
         where
             reverseSide (Ge p) = Le p
@@ -447,23 +450,23 @@ emitI pos stmts (regInts, stackSize, umap) = do
         let used = saved \\ free
             usedAsVal = map (ASM.Register noPosIR) used
             (alignstack, dealignstack) = if not align || (length used) `mod` 2 == 0 then ([],[]) else ([ASM.SUB noPosIR (ASM.Register noPosIR $ ASM.RSP noPosIR) (ASM.Constant noPosIR 8)], [ASM.ADD noPosIR (ASM.Register noPosIR $ ASM.RSP noPosIR) (ASM.Constant noPosIR 8)])
-        tell (alignstack ++ map (ASM.PUSH noPosIR) usedAsVal)
-        return (tell (map (ASM.POP noPosIR) (reverse usedAsVal) ++ dealignstack))
+        emitInstr (alignstack ++ map (ASM.PUSH noPosIR) usedAsVal)
+        return (emitInstr (map (ASM.POP noPosIR) (reverse usedAsVal) ++ dealignstack))
 
-    divide :: (ASM.Value IRPosition) -> (ASM.Value IRPosition) -> Integer -> Writer [ASM.Instruction IRPosition] (Writer [ASM.Instruction IRPosition] ())
+    divide :: (ASM.Value IRPosition) -> (ASM.Value IRPosition) -> Integer -> ASMCompiler (ASMCompiler ())
     divide vl vr i = do
         let fr = freeAt i
         done <- prepareDiv fr
         case vr of 
-            (ASM.Register p (ASM.EDX _)) -> tell [ASM.MOV p (ASM.Register p $ ASM.EBX p) (ASM.Register p $ ASM.EDX p)]
+            (ASM.Register p (ASM.EDX _)) -> emitInstr [ASM.MOV p (ASM.Register p $ ASM.EBX p) (ASM.Register p $ ASM.EDX p)]
             _ -> return ()
-        tell [ASM.MOV noPosIR (ASM.Register noPosIR $ ASM.EAX noPosIR) vl, ASM.CDQ noPosIR]
+        emitInstr [ASM.MOV noPosIR (ASM.Register noPosIR $ ASM.EAX noPosIR) vl, ASM.CDQ noPosIR]
         case vr of
             ASM.Constant p _ -> 
-                tell [ASM.MOV p (ASM.Register p $ ASM.EBX p) vr,
+                emitInstr [ASM.MOV p (ASM.Register p $ ASM.EBX p) vr,
                       ASM.IDIV p (ASM.Register p $ ASM.EBX p)]
-            ASM.Register p (ASM.EDX _) -> tell [ASM.IDIV p (ASM.Register p $ ASM.EBX p)]
-            _ -> tell [ASM.IDIV noPosIR vr]
+            ASM.Register p (ASM.EDX _) -> emitInstr [ASM.IDIV p (ASM.Register p $ ASM.EBX p)]
+            _ -> emitInstr [ASM.IDIV noPosIR vr]
         return done
 
     opcode (Add p) = ASM.ADD p
@@ -476,19 +479,19 @@ emitI pos stmts (regInts, stackSize, umap) = do
     opSize (Or p) = ByteT p
     opSize _ = IntT noPosIR
 
-    checkIfNull :: (ASM.Value IRPosition) -> Writer [ASM.Instruction IRPosition] ()
+    checkIfNull :: (ASM.Value IRPosition) -> ASMCompiler ()
     checkIfNull r@(ASM.Register p _) = 
-        tell [
+        emitInstr [
             ASM.TEST p r r,
             ASM.JNZ p (ASM.Local p (2+5)),
             ASM.CALL p (ASM.Label p "__errorNull") 
         ]
 
-    incr :: Writer [ASM.Instruction IRPosition] ()
+    incr :: ASMCompiler ()
     incr = 
         let p = noPosIR in
         let r = (ASM.Register p $ ASM.R13 p) in
-        tell [
+        emitInstr [
             ASM.TEST p r r,
             ASM.JZ p (ASM.Local p (2+4+2+4)), --TODO change value after emitting
             ASM.MOV p (ASM.Register p $ ASM.EBX p) (ASM.Memory p (ASM.R13 p) Nothing (Just 16) Nothing),
@@ -502,11 +505,11 @@ emitI pos stmts (regInts, stackSize, umap) = do
         doneCall <- prepareCall fr
         setupCallArgs vs (freeAt i)
         call fun
-        tell [moverr (ASM.RBX p) (ASM.RAX p)]
+        emitInstr [moverr (ASM.RBX p) (ASM.RAX p)]
         doneCall
         case target of
-            ASM.Register p' r -> tell [moverr r (ASM.RBX p')]
-            _ -> tell [ASM.MOV p target (ASM.Register p $ ASM.regSize (fromJust t) (ASM.RBX p))]
+            ASM.Register p' r -> emitInstr [moverr r (ASM.RBX p')]
+            _ -> emitInstr [ASM.MOV p target (ASM.Register p $ ASM.regSize (fromJust t) (ASM.RBX p))]
 
     makeJump (Eq p) l = ASM.JE p (ASM.Label p l)
     makeJump (Ne p) l = ASM.JNE p (ASM.Label p l)
@@ -519,7 +522,7 @@ emitI pos stmts (regInts, stackSize, umap) = do
 
     alive i = map (\[(Busy b, _,_)] -> b) $ filter (\l -> length l == 1) $ map (\(r,is) -> let l = filter (\(b,f,u) -> b /= Free && f <= i && i <= u) is in l) regInts
 
-    regOrEmit :: Name IRPosition -> ASM.Reg IRPosition -> Integer -> Writer [ASM.Instruction IRPosition] (ASM.Value IRPosition)
+    regOrEmit :: Name IRPosition -> ASM.Reg IRPosition -> Integer -> ASMCompiler (ASM.Value IRPosition)
     regOrEmit n r i = do
         let p = noPosIR
         let m = getReg vmap n

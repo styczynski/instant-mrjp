@@ -196,7 +196,7 @@ instance Show (Value IR.IRPosition) where
         in "["++show r++m++o++"]"
 
 instance Show (Program IR.IRPosition) where
-    show (Program _ is) = "%include 'lib/runtime.ext'\n" ++ (concat $ map (\stmt -> show stmt ++ "\n") is)
+    show (Program _ is) = (concat $ map (\stmt -> show stmt ++ "\n") is)
 
 isReg (Register _ _) = True
 isReg _ = False

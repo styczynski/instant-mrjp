@@ -4,7 +4,7 @@ GCC_PATHS_OPT:=-I$(ROOT_DIR)/src/Runtime/dependencies/_built_/include -L$(ROOT_D
 all: compiler
 
 compiler: lib/runtime.ext
-	./bin/invoke_haskell_stack.sh install --local-bin-path=$(shell pwd)
+	./bin/invoke_haskell_stack.sh install --profile --local-bin-path=$(shell pwd)
 
 clean:
 	./bin/invoke_haskell_stack.sh clean

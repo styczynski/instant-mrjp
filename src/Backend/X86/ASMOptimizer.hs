@@ -1,9 +1,10 @@
 module Backend.X86.ASMOptimizer where
 
+import Backend.X86.Compiler
 import qualified Backend.X86.Syntax as ASM
 
-cleanupX86 :: ASM.Program ASM.Position -> ASM.Program ASM.Position
-cleanupX86 (ASM.Program p is) = ASM.Program p (stackOptim $ clean is)
+cleanupX86 :: [ASM.Instruction ASM.Position] -> ASMCompiler ()
+cleanupX86 = emitInstr . stackOptim . clean
 
 clean (ASM.MOV p bx x : ASM.MOV p' y bx' : is) | bx == bx' && isTemp bx && (ASM.isReg x || ASM.isReg y) = clean (ASM.MOV p y x : is)
 

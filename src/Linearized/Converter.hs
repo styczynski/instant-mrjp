@@ -99,8 +99,8 @@ getMethod :: Position -> String -> String -> LinearConverter () (B.Label Positio
 getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
     struct@(B.Struct _ _ _ _ _ methods) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) ("_class_"++clsName) (env ^. structures))
-    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod111" $ Errors.ILNEMissingMethod methodName struct)) (return) $ listToMaybe $ filter (\name -> stripClassName name == methodName) $ IM.mapList (\name _ -> name) methods
-    (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod222" (`Errors.ILNEMissingMethod` struct)) (existingMethodName) methods
+    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return) $ listToMaybe $ filter (\name -> stripClassName name == methodName) $ IM.mapList (\name _ -> name) methods
+    (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) (existingMethodName) methods
     return (method, toInteger methodIndex)
 
 getField :: Position -> String -> String -> LinearConverter () (B.Label Position, B.Type Position, B.Offset)
@@ -166,7 +166,7 @@ collectStructures classes = do
             let newMethods = (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++parentName++"_"++stripClassName id) parentMethods)
             combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany overridenMethods methods
             --combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods) methods
-            combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m (l, t, o) -> (l, t, measureOffset m)) fields parentFields
+            combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m (l, t, o) -> (l, t, measureOffset m)) parentFields fields
             --(B.Label idpos $ "_class_"++id) name newParent
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()
@@ -175,7 +175,7 @@ collectStructures classes = do
         measureOffset m = case IM.last m of
             Nothing -> 0
             (Just (_, B.IntT _, o)) -> o + 0x04
-            (Just (_, B.ByteT _, o)) -> o + 0x04
+            (Just (_, B.ByteT _, o)) -> o + 0x01
             (Just (_, B.Reference _, o)) -> o + 0x08
 
 -- collectFn (A.FunctionDef _ t (A.Ident _ name) args block) = do

@@ -61,40 +61,13 @@ global main              ; "./test.lat": 5,1
 main:                    ; "./test.lat": 5,5
 PUSH RBP                 ; "./test.lat": 5,1
 PUSH RBX
-PUSH R12
-PUSH R13
 MOV RBP, RSP
 SUB RSP, 8
-SUB RSP, 8
-PUSH R11
-MOV RDI, _class_A
-CALL __new
-MOV RBX, RAX
-POP R11
-ADD RSP, 8
-MOV R11, RBX
-
-MOV R10, R11
-MOV RBX, RAX
-MOV RDI, R11
+MOV RDI, 2
 CALL printInt
 MOV RBX, RAX
-MOV R12D, 2              ; "./test.lat": 8,3;
-;TEST R10, R10
-; JNZ $+7
-; CALL __errorNull
-;MOV R13, [R10 + 8]       ; "./test.lat": 8,3
-;MOV [R13], R12D
-;MOV RDI, R10
-;CALL __decRef
-MOV RBX, RAX
-MOV RDI, R11
-CALL printInt
-MOV RBX, RAX
-MOV EAX, 0               ; "./test.lat": 10,3
+MOV EAX, 0               ; "./test.lat": 9,3
 MOV RSP, RBP
-POP R13
-POP R12
 POP RBX
 POP RBP
 RET
