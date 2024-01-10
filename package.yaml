@@ -42,6 +42,8 @@ library:
     - deepseq
     - bytestring
     - directory
+    - hashable
+    - unordered-containers
   default-extensions:
     - TypeSynonymInstances
     - KindSignatures

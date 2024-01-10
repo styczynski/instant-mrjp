@@ -1,0 +1,119 @@
+-- Generation of Control Flow Graphs for methods.
+{-# LANGUAGE DeriveFoldable   #-}
+{-# LANGUAGE DeriveFunctor    #-}
+{-# LANGUAGE FlexibleContexts #-}
+module IR.Flow.CFG where
+
+import Data.Foldable
+import Data.Maybe
+import           Control.Monad.State
+import qualified Data.Map            as Map
+import qualified Data.Set            as Set
+import           IR.Syntax.Syntax
+-- import           Identifiers         (ToString (toStr), entryLabel)
+-- import           Utilities           (single)
+
+-- A CFG is a set of nodes representing basic blocks, identified by their starting labels.
+newtype CFG a = CFG (Map.Map LabIdent (Node a)) deriving (Eq, Functor, Foldable)
+
+data Node a = Node {
+    -- Starting label of this basic block.
+    nodeLabel :: LabIdent,
+    -- All code in this basic block.
+    nodeCode  :: [Instr a],
+    -- All basic blocks reachable from this block.
+    nodeOut   :: Set.Set LabIdent,
+    -- All basic blocks that can reach this block.
+    nodeIn    :: Set.Set LabIdent
+} deriving (Eq, Functor, Foldable)
+
+instance Show (Node a) where
+    show = toStr . nodeLabel
+
+-- Convert an Espresso method to a CFG. Code that is unreachable within a basic block,
+-- that is instructions occuring after a jump, are removed.
+cfg :: Method a -> CFG a
+cfg (Mthd _ _ _ _ instrs) =
+    let basicBlocks = splitBasicBlocks instrs
+        initial = Map.fromList $ map (\(l, is) -> (l, Node l is Set.empty Set.empty)) basicBlocks
+    in  execState (construct basicBlocks) (CFG initial)
+
+linearMap :: (Node a -> Node b) -> CFG a -> CFG b
+linearMap f g = CFG (Map.fromList $ map (\n -> (nodeLabel n, f n)) $ lineariseNodes g)
+
+lineariseNodes :: CFG a -> [Node a]
+lineariseNodes (CFG g) =
+    case Map.lookup entryLabel g of
+        Just entry -> evalState (go entry) Set.empty
+        Nothing    -> error "internal error. malformed graph, no entry label"
+    where
+        go node = do
+            rest <- mapM expand (Set.elems $ nodeOut node)
+            return $ node : concat rest
+        expand l = do
+            case Map.lookup l g of
+                Just node -> do
+                    wasVisited <- gets (Set.member l)
+                    if wasVisited then return [] else do
+                        modify (Set.insert l)
+                        go node
+                Nothing -> error $ "internal error. malformed graph, no " ++ toStr l ++ " node"
+
+-- Convert a CFG to a sequence of instructions. It is guaranteed to start with the
+-- .L_entry block. Blocks that are unreachable from the entry block will be ignored.
+linearise :: CFG a -> [Instr a]
+linearise = concatMap nodeCode . lineariseNodes
+
+
+-- Split the instruction sequence into basic blocks. A basic block spans from a label
+-- to the first consecutive jump instruction. All instructions after a jump are dead
+-- code and are ignored.
+splitBasicBlocks :: [Instr a] -> [(LabIdent, [Instr a])]
+splitBasicBlocks = go []
+    where
+        go bbs []                         = map finalizeBlock bbs
+        go bbs (i@(ILabel _ l):is)        = go ((l, [i]):bbs) is
+        go bbs (i@(ILabelAnn _ l _ _):is) = go ((l, [i]):bbs) is
+        go ((l, x):bbs) (j:is) | isJump j = go ((l, j:x):bbs) (dropWhile (not . isLabel) is)
+        go ((l, x):bbs) (i:is)            = go ((l, i:x):bbs) is
+        go [] _                           = error "first instruction is not a label"
+        finalizeBlock (l, []) = error ("empty basic block: " ++ toStr l)
+        finalizeBlock (l, is@(i:_)) | isJump i = (l, reverse is)
+        finalizeBlock (l, _)  = error ("basic block not ending with a jump: " ++ toStr l)
+
+-- Constructs a CFG from basic blocks.
+construct :: [(LabIdent, [Instr a])] -> State (CFG a) ()
+construct = mapM_ fromJumps
+    where fromJumps (_, [])      = return ()
+          fromJumps (from, i:is) = fromInstr from i >> fromJumps (from, is)
+          fromInstr from i = case i of
+              IJmp _ to            -> addEdge from to
+              ICondJmp _ _ to1 to2 -> addEdge from to1 >> addEdge from to2
+              _                    -> return ()
+
+-- Add an edge between two blocks to the current CFG.
+addEdge :: LabIdent -> LabIdent -> State (CFG a) ()
+addEdge from to = do
+    mbfromNode <- gets (\(CFG g) -> Map.lookup from g)
+    mbtoNode <- gets (\(CFG g) -> Map.lookup to g)
+    let fromNode' = case mbfromNode of
+            Just fromNode -> fromNode {nodeOut = Set.insert to (nodeOut fromNode)}
+            Nothing -> error $ "internal error. no src label " ++ toStr from
+        toNode' = case mbtoNode of
+            Just toNode -> toNode {nodeIn = Set.insert from (nodeIn toNode)}
+            Nothing     -> error $ "internal error. no dest label " ++ toStr to
+    modify (\(CFG g) -> CFG $ Map.insert from fromNode' g)
+    modify (\(CFG g) -> CFG $ Map.insert to toNode' g)
+
+instance Show (CFG a) where
+    show (CFG g) = unlines (nodes:map edges (Map.elems g))
+        where nodes = show (map toStr $ Map.keys g)
+              edges node = show (toStr $ nodeLabel node) ++ " -> " ++ show (nodeOut node)
+
+isJump :: Instr a -> Bool
+isJump instr = case instr of
+    IJmp {}     -> True
+    ICondJmp {} -> True
+    IVRet {}    -> True
+    IRet {}     -> True
+    _           -> False
