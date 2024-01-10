@@ -2,17 +2,6 @@
 ;  Source file: test.asm
 %include 'lib/runtime.ext'
 section .rodata          ; "./test.lat": 1,1
-global _class_A          ; "./test.lat": 1,7
-_class_A:
-DQ _class_Object
-DD 4
-DQ _class_A_methods
-DD 0
-DQ 0
-_class_A_methods:
-DQ _Object_equals
-DQ _Object_getHashCode
-DQ _Object_toString
 global _class_Array
 _class_Array:
 DQ _class_Object
@@ -56,45 +45,189 @@ DQ _String_length
 DQ _String_substring
 DQ _String_toString
 DQ _String_getHashCode
+_S28:                    ; "./test.lat": 21,17
+DB "foo"
+DB 0
 section .text            ; "./test.lat": 1,1
-global main              ; "./test.lat": 5,1
-main:                    ; "./test.lat": 5,5
-PUSH RBP                 ; "./test.lat": 5,1
+global main              ; "./test.lat": 1,1
+main:                    ; "./test.lat": 1,5
+PUSH RBP                 ; "./test.lat": 1,1
 PUSH RBX
-PUSH R12
 PUSH R13
 MOV RBP, RSP
-SUB RSP, 8
-SUB RSP, 8
-PUSH R11
-MOV RDI, _class_A
-CALL __new
+SUB RSP, 0
+MOV EDI, 78              ; "./test.lat": 2,7
+PUSH R10
+PUSH R9
+PUSH R8
+PUSH RDX
+PUSH RCX
+PUSH RAX
+PUSH RSI
+PUSH RDI
+MOV RBX, RSP
+MOV RDI, 1
+CALL printInt
+MOV RSP, RBX
 MOV RBX, RAX
-POP R11
+POP RDI
+POP RSI
+POP RAX
+POP RCX
+POP RDX
+POP R8
+POP R9
+POP R10
+MOV RBX, RBX
+PUSH R10
+PUSH R9
+PUSH R8
+PUSH RDX
+PUSH RCX
+PUSH RAX
+PUSH RSI
+PUSH RDI
+MOV RBX, RSP
+MOV RDI, 78
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+POP RDI
+POP RSI
+POP RAX
+POP RCX
+POP RDX
+POP R8
+POP R9
+POP R10
+MOV RBX, RBX
+JMP _WCOND8              ; "./test.lat": 8,3
+_WBEG9:
+MOV EBX, EDI             ; "./test.lat": 9,5
+SUB EBX, 1
+MOV R11D, EBX
+MOV EDI, R11D
+PUSH R10
+PUSH R9
+PUSH R8
+PUSH RDX
+PUSH RCX
+PUSH RAX
+PUSH RSI
+PUSH RDI
+MOV RBX, RSP
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+POP RDI
+POP RSI
+POP RAX
+POP RCX
+POP RDX
+POP R8
+POP R9
+POP R10
+MOV RBX, RBX
+MOV EBX, EDI             ; "./test.lat": 13,14
+ADD EBX, 7
+MOV R11D, EBX
+MOV ECX, R11D
+PUSH R10
+PUSH R9
+PUSH R8
+PUSH RDX
+PUSH RCX
+PUSH RAX
+PUSH RSI
+PUSH RDI
+MOV RBX, RDI
+MOV EDI, ECX
+MOV RCX, RBX
+MOV RBX, RSP
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+POP RDI
+POP RSI
+POP RAX
+POP RCX
+POP RDX
+POP R8
+POP R9
+POP R10
+MOV RBX, RBX
+_WCOND8:                 ; "./test.lat": 8,3
+CMP EDI, 76              ; "./test.lat": 8,10
+JG _WBEG9                ; "./test.lat": 8,12
+PUSH R10
+PUSH R9
+MOV RBX, RSP
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+POP R9
+POP R10
+MOV RBX, RBX
+CMP EDI, 4               ; "./test.lat": 17,7
+JLE _IELSE21             ; "./test.lat": 17,9
+_IIF20:                  ; "./test.lat": 17,3
+SUB RSP, 8
+PUSH R10
+MOV RDI, 4
+MOV RBX, RSP
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+POP R10
 ADD RSP, 8
+MOV RBX, RBX
+JMP _IEND22              ; "./test.lat": 17,3
+_IELSE21:
+PUSH R11
+PUSH R10
+MOV RDI, _S28
+MOV RBX, RSP
+CALL __createString
+MOV RSP, RBX
+MOV RBX, RAX
+POP R10
+POP R11
 MOV R11, RBX
-
-MOV R10, R11
-MOV RBX, RAX
+MOV R13, R11
+TEST R13, R13
+JZ $+12
+MOV EBX, [R13 + 16]
+INC EBX
+MOV [R13 + 16], EBX
+PUSH R11
+PUSH R10
 MOV RDI, R11
-CALL printInt
+MOV RBX, RSP
+CALL printString
+MOV RSP, RBX
 MOV RBX, RAX
-MOV R12D, 2              ; "./test.lat": 8,3;
-;TEST R10, R10
-; JNZ $+7
-; CALL __errorNull
-;MOV R13, [R10 + 8]       ; "./test.lat": 8,3
-;MOV [R13], R12D
-;MOV RDI, R10
-;CALL __decRef
-MOV RBX, RAX
+POP R10
+POP R11
+MOV RBX, RBX
+SUB RSP, 8
+PUSH R10
 MOV RDI, R11
-CALL printInt
+MOV RBX, RSP
+CALL __decRef
+MOV RSP, RBX
 MOV RBX, RAX
-MOV EAX, 0               ; "./test.lat": 10,3
+POP R10
+ADD RSP, 8
+MOV RBX, RBX
+_IEND22:                 ; "./test.lat": 17,3
+MOV RBX, RSP
+CALL printInt
+MOV RSP, RBX
+MOV RBX, RAX
+MOV RBX, RBX
+MOV EAX, 0               ; "./test.lat": 24,3
 MOV RSP, RBP
 POP R13
-POP R12
 POP RBX
 POP RBP
 RET

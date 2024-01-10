@@ -25,7 +25,7 @@ compileCode :: String -> (IR.Program IR.IRPosition) -> ASMCompiler String
 compileCode fileName code = do
   (asm, _) <- captureEmittedInstr $ X86Emitter.emit code
   (asm', _) <- captureEmittedInstr $ X86Optimizer.cleanupX86 asm
-  X86Formatter.format ["lib/runtime.ext"] fileName asm'
+  X86Formatter.format ["lib/runtime.ext"] fileName asm
 
 backend :: LatteBackend
 backend =

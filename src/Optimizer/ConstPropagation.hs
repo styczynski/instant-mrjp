@@ -9,6 +9,7 @@ module Optimizer.ConstPropagation(
 import Control.Lens
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Data.Maybe
 import qualified Data.Text as T
@@ -36,6 +37,7 @@ data Value = Constant (Syntax.Lit Position) | Dynamic
 data ConstPropagationEnv = ConstPropagationEnv {
     _cpVars :: M.Map String (Syntax.Ident Position, Value) --[(Syntax.Ident Position, Value)]
     , _cpCurrentScopeStart :: Maybe (Syntax.Stmt Position)
+    , _cpScopes :: [S.Set String]
     , _cpCurrentScopeVars :: M.Map String (Syntax.Ident Position, Value)
     , _cpRenamedVars :: M.Map String String
     , _cpContextBlock :: Maybe (Syntax.Block Position)
@@ -50,30 +52,39 @@ initialState = ConstPropagationEnv {
     _cpVars = M.empty
     , _cpCurrentScopeStart = Nothing
     , _cpCurrentScopeVars = M.empty
+    , _cpScopes = []
     , _cpRenamedVars = M.empty
     , _cpContextBlock = Nothing
     , _cpNextFreeGlobalBlockUID = 0
     , _cpBlockIndex = 0
 }
 
+buildNewRun :: Int -> ConstPropagationEnv -> ConstPropagationEnv -> ConstPropagationEnv
+buildNewRun noShift prev new = prev & nextFreeGlobalBlockUID .~ (noShift + new^.nextFreeGlobalBlockUID) & blockIndex .~ (noShift + new^.blockIndex)
+
 run :: Syntax.Program Position -> Optimizer ConstPropagationEnv (Syntax.Program Position)
 run prog = do
     startTime <- liftPipelineOpt nanos
-    (_, optimizedProg) <- findFixedPoint (\p -> normalizeScope =<< transformBools =<< foldConst p) (0, startTime) prog
+    --normalizeScope =<< transformBools =<< foldConst p
+    (_, optimizedProg) <- findFixedPoint [foldConst, transformBools, normalizeScope] (0, startTime) prog
     return optimizedProg
     where
-        findFixedPoint :: (Syntax.Program Position -> Optimizer ConstPropagationEnv (Syntax.Program Position)) -> (Int, Int) -> (Syntax.Program Position) -> Optimizer ConstPropagationEnv (Int, Syntax.Program Position)
-        findFixedPoint fn (callNo, startTime) prog = do
+        findFixedPoint :: [(Syntax.Program Position -> Optimizer ConstPropagationEnv (Syntax.Program Position))] -> (Int, Int) -> (Syntax.Program Position) -> Optimizer ConstPropagationEnv (Int, Syntax.Program Position)
+        findFixedPoint fns (callNo, startTime) prog = do
+            liftPipelineOpt $ printLogInfoStr $ "ConstPropagation.run before:" ++ (printi 0 prog)
             prevState <- oState
             let prevRepr = printi 0 prog
-            newProg <- fn prog
-            oStateSet (\_ -> prevState)
+            newProg' <- foldM (\oldProg fn -> oStateSet (buildNewRun 1000000 prevState) >> fn oldProg) prog fns
+            oStateSet $ const prevState
+            newProg <- foldConst newProg'
+            liftPipelineOpt $ printLogInfoStr $ "ConstPropagation.run after:" ++ (printi 0 newProg)
+            oStateSet $ const prevState
             let newRepr = printi 0 newProg
             currentTime <- liftPipelineOpt nanos
             timeElapsedMs <- return $ div (currentTime - startTime) 1000000
             liftPipelineOpt $ printLogInfoStr $ "Optimizing AST round " ++ (show $ callNo+1) ++ " (took " ++ (show timeElapsedMs) ++ " ms)" 
             if newRepr /= prevRepr && timeElapsedMs <= 4000 then do
-                findFixedPoint fn (callNo+1, startTime) newProg
+                findFixedPoint fns (callNo+1, startTime) newProg
             else return (callNo, newProg)
 
 checkNull :: Syntax.Expr Position -> Syntax.Expr Position -> Optimizer ConstPropagationEnv ()
@@ -99,7 +110,7 @@ extractAssignedVars (Syntax.IfElse _ _ sl sr) = extractAssignedVars sl ++ extrac
 extractAssignedVars _ = []
 
 addVarEnv :: Syntax.Ident Position -> Value -> ConstPropagationEnv -> ConstPropagationEnv
-addVarEnv name@(Syntax.Ident _ id) val env = env & vars %~ M.insert id (name, val) & renamedVars %~ (M.insert id $ "_var_" ++ show (env^.nextFreeGlobalBlockUID) ++ "#" ++ extractOriginalId id)
+addVarEnv name@(Syntax.Ident _ id) val env = env & scopes %~ (\scp -> (S.insert id $ head scp) : tail scp) & nextFreeGlobalBlockUID %~ (+1) & vars %~ M.insert id (name, val) & renamedVars %~ (M.insert id $ "_var_" ++ show (env^.nextFreeGlobalBlockUID) ++ "#" ++ extractOriginalId id)
     where
         extractOriginalId :: String -> String
         extractOriginalId name = T.unpack $ last $ T.splitOn (T.pack "#") (T.pack name)
@@ -111,22 +122,30 @@ exprToValue :: Syntax.Expr Position -> Value
 exprToValue (Syntax.Lit a l) = Constant l
 exprToValue _ = Dynamic
 
+isInCurrentScope :: String -> Optimizer ConstPropagationEnv Bool
+isInCurrentScope name = do
+    scp <- oStateGet (head . (^.scopes))
+    return $ S.member name $ scp
+
 withBlockContext :: (Syntax.Block Position) -> Optimizer ConstPropagationEnv a -> Optimizer ConstPropagationEnv a
 withBlockContext block@(Syntax.Block _ _) m = do
     prevBlockContext <- oStateGet (\env -> env^.contextBlock)
     prevRenamedVars <- oStateGet (\env -> env^.renamedVars)
-    withOState (\env -> env & contextBlock .~ prevBlockContext & nextFreeGlobalBlockUID %~ (+1) & renamedVars .~ prevRenamedVars) . return =<< withOState (\env -> env & contextBlock .~ Just block & nextFreeGlobalBlockUID %~ (+1)) m
+    withOState (\env -> env & scopes %~ tail & contextBlock .~ prevBlockContext & nextFreeGlobalBlockUID %~ (+1) & renamedVars .~ prevRenamedVars) . return =<< withOState (\env -> env & scopes %~ ((:) S.empty) & contextBlock .~ Just block & nextFreeGlobalBlockUID %~ (+1)) m
 
 withSepratateScope :: (Syntax.Stmt Position) -> Optimizer ConstPropagationEnv a -> Optimizer ConstPropagationEnv a
 withSepratateScope scopeStart m = do
     prevScopeStart <- oStateGet (\env -> env^.currentScopeStart)
     prevScopeVars <- oStateGet (\env -> env^.currentScopeVars)
-    withOState (\env -> env & currentScopeStart .~ prevScopeStart & currentScopeVars .~ prevScopeVars & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> env & currentScopeStart .~ Just scopeStart & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) m
+    prevRenamedVars <- oStateGet (\env -> env^.renamedVars)
+    prevVars <- oStateGet (\env -> env^.vars)
+    withOState (\env -> env & scopes %~ tail & currentScopeStart .~ prevScopeStart & vars .~ prevVars & renamedVars .~ prevRenamedVars & currentScopeVars .~ prevScopeVars & scopes %~ ((:) S.empty) & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> env & currentScopeStart .~ Just scopeStart & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) m
 
 withScopedVars :: [(Syntax.Ident Position, Value)] -> Optimizer ConstPropagationEnv a -> Optimizer ConstPropagationEnv a
 withScopedVars varsList m = do
     prevVars <- oStateGet (\env -> env^.vars)
-    withOState (\env -> env & vars .~ prevVars & currentScopeStart .~ Nothing & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> foldl (flip $ uncurry addVarEnv) (env & currentScopeStart .~ Nothing & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) varsList) m
+    scopeVarNames <- return $ S.fromList $ map (\(Syntax.Ident _ n, _) -> n) varsList
+    withOState (\env -> env & scopes %~ tail & vars .~ prevVars & currentScopeStart .~ Nothing & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> foldl (flip $ uncurry addVarEnv) (env & currentScopeStart .~ Nothing & scopes %~ ((:) scopeVarNames) & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) varsList) m
 
 zero :: Syntax.Type Position -> Value
 zero (Syntax.IntT p) = Constant (Syntax.Int p 0)
@@ -156,6 +175,7 @@ class (Syntax.IsSyntax a Position) => ConstFoldable a where
     foldConst ast = do
         --liftPipelineOpt $ printLogInfoStr $ "optimize " ++ (show ast) 
         withStateT (optimizerQuit $ Syntax.getPos ast) . return =<< withStateT (optimizerEnter $ Syntax.getPos ast) (doFoldConst ast)
+
 
 instance ConstFoldable Syntax.Program where
     doFoldConst (Syntax.Program p defs) = do
@@ -231,7 +251,7 @@ instance ConstFoldable  Syntax.Block where
 
 instance ConstFoldable Syntax.Stmt where
     doFoldConst e@(Syntax.Empty _) = return e
-    doFoldConst (Syntax.BlockStmt p b) = foldConst b >>= \(nb) -> return $ Syntax.BlockStmt p nb
+    doFoldConst stmt@(Syntax.BlockStmt p b) = (withSepratateScope stmt $ foldConst b) >>= \(nb) -> return $ Syntax.BlockStmt p nb
     doFoldConst (Syntax.VarDecl p decls) = do
         ndecls <- foldDecls decls
         return $ Syntax.VarDecl p ndecls
@@ -249,10 +269,10 @@ instance ConstFoldable Syntax.Stmt where
     doFoldConst (Syntax.Assignment p el er) = do
         ne <- foldConst er
         case el of
-            (Syntax.Var _ id) -> do
+            (Syntax.Var _ id@(Syntax.Ident _ varName)) -> do
                 env <- ask
-                iif <- oStateGet (\env -> isJust $ env^.currentScopeStart)
-                if not iif then addVar id $ exprToValue ne
+                iif <- isInCurrentScope varName --oStateGet (\env -> isJust $ env^.currentScopeStart)
+                if iif then addVar id $ exprToValue ne
                     else addVar id Dynamic
                 return $ Syntax.Assignment p el ne
             stmt@(Syntax.ArrAccess pp earr eidx m) -> do
@@ -309,7 +329,8 @@ instance ConstFoldable Syntax.Stmt where
         return $ Syntax.While p e sn
     doTransformBools s = return s
 
-    doNormalizeScope (Syntax.BlockStmt p b) = normalizeScope b >>= \(nb) -> return $ Syntax.BlockStmt p nb
+    -- chyba tu?
+    doNormalizeScope stmt@(Syntax.BlockStmt p b) = (withSepratateScope stmt $ normalizeScope b) >>= \(nb) -> return $ Syntax.BlockStmt p nb
     doNormalizeScope (Syntax.VarDecl p decls) = do
         ndecls <- normalizeScopeInDecls decls
         return $ Syntax.VarDecl p ndecls
