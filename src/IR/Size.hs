@@ -1,0 +1,28 @@
+module IR.Size where
+
+import           Data.Int
+import           IR.Syntax.Syntax
+
+data Size = Byte | Double | Quadruple deriving (Eq, Show, Ord)
+
+sizeInBytes :: Size -> Int64
+sizeInBytes size = case size of
+    Byte      -> 1
+    Double    -> 4
+    Quadruple -> 8
+
+typeSize :: SType a -> Size
+typeSize t = case t of
+    Int _   -> Double
+    Bool _  -> Byte
+    Ref _ _ -> Quadruple
+    _       -> error $ "typeSize: invalid type " ++ show (() <$ t)
+
+valSize :: Val a -> Size
+valSize val = case val of
+    VInt _  _    -> Double
+    VNegInt _  _ -> Double
+    VTrue _      -> Byte
+    VFalse _     -> Byte
+    VNull {}     -> Quadruple
+    VVal _ t _   -> typeSize t

@@ -3,7 +3,7 @@ GCC_PATHS_OPT:=-I$(ROOT_DIR)/src/Runtime/dependencies/_built_/include -L$(ROOT_D
 
 all: compiler
 
-compiler: lib/runtime.ext
+compiler: lib/runtime.ext src/Parser/Gen src/IR/Parser/Gen
 	./bin/invoke_haskell_stack.sh install --profile --local-bin-path=$(shell pwd)
 
 clean:
@@ -14,8 +14,11 @@ clean:
 format:
 	ormolu --mode inplace $(shell find . -name '*.hs')
 
-parser:
-	./bin/generate_parser.sh
+src/Parser/Gen:
+	./bin/generate_main_parser.sh
+
+src/IR/Parser/Gen:
+	./bin/generate_ir_parser.sh
 
 profile:
 	./bin/invoke_haskell_stack.sh exec --profile -- latc_x86 ./test.lat +RTS -p -M 1844674407
