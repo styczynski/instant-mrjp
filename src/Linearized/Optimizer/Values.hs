@@ -39,7 +39,7 @@ instance WithVariables L.Target where
     declared _ = []
 
 instance WithVariables L.Value where
-    used (L.Var _ n) = [n]
+    used (L.Var _ n _) = [n]
     used _ = []
     
     assigned _ = []

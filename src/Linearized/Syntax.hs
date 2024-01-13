@@ -32,6 +32,9 @@ data IRPosition =
 noPosIR :: IRPosition
 noPosIR = IRPosition (-1) (Undefined, Undefined)
 
+instance Show (IRPosition) where
+    show p = ""
+
 data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)
 instance IsIR Program
@@ -40,7 +43,11 @@ data Structure a = Struct a (Label a) (Maybe (Label a)) Size (M.Map (Label a, Ty
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Structure
 
-data Type a = IntT a | ByteT a | Reference a
+data Type a =
+    IntT a
+    | ByteT a
+    | Reference a (Label a)
+    | ArrT a (Type a)
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Type
 
@@ -124,7 +131,7 @@ data Expr a = NewObj a (Label a)
           | NewString a (Label a)
           | Val a (Value a)
           | Call a (Label a) [Value a] --function call
-          | MCall a (Name a) Index [Value a] --method call
+          | MCall a (Name a) (Label a) [Value a] --method call
           | ArrAccess a (Name a) (Value a)
           | MemberAccess a (Name a) Offset
           | IntToByte a (Value a)
@@ -135,7 +142,7 @@ data Expr a = NewObj a (Label a)
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Expr
 
-data Value a = Const a (Constant a) | Var a (Name a)
+data Value a = Const a (Constant a) | Var a (Name a) (Type a)
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Value
 
@@ -143,7 +150,11 @@ data Op a = Add a | Sub a | Mul a | Div a | Mod a | And a | Or a
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Op
 
-data Constant a = IntC a Integer | ByteC a Integer | StringC a (Label a)| Null a
+data Constant a =
+    IntC a Integer
+    | ByteC a Integer
+    | StringC a (Label a)
+    | Null a (Type a)
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Constant
 
@@ -155,7 +166,7 @@ instance Show (Constant a) where
     show (IntC _ i) = "<int>"++show i
     show (ByteC _ b) = "<byte>"++show b
     show (StringC _ str) = "<str>"++show str
-    show (Null _) = "<null>"
+    show (Null _ t) = "<"++show t++">null"
 
 instance Show (Label a) where
     show (Label _ l) = l
@@ -211,11 +222,12 @@ instance Show (Target a) where
 instance Show (Type a) where
     show (IntT _) = "int"
     show (ByteT _) = "byte"
-    show (Reference _) = "obj"
+    show (Reference _ c) = "obj<" ++ show c ++ ">"
+    show (ArrT _ c) = "array<" ++ show c ++ ">"
 
 instance Show (Value a) where
     show (Const _ c) = show c
-    show (Var _ x) = show x
+    show (Var _ x t) = "<" ++ show t ++ ">" ++ show x
 
 instance Show (Op a) where
     show (Add _) = "+"

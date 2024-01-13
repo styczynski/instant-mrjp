@@ -59,7 +59,7 @@ eliminateCommons emitted s@(L.VarDecl p t n e) = do
             return $ emitted ++ [s]
         Just g -> do
             b <- checkValid e g emitted
-            if b then return $ emitted ++ [L.VarDecl p t n (L.Val p (L.Var p g))]
+            if b then return $ emitted ++ [L.VarDecl p t n (L.Val p (L.Var p g t))]
             else do
                 addVar n e
                 return $ emitted ++ [s]
@@ -74,7 +74,7 @@ eliminateCommons emitted s@(L.Assign p t tg e) = do
                 _ -> return $ emitted ++ [s]
         Just g -> do
             b <- checkValid e g emitted
-            if b then return $ emitted ++ [L.Assign p t tg (L.Val p (L.Var p g))]
+            if b then return $ emitted ++ [L.Assign p t tg (L.Val p (L.Var p g t))]
             else case tg of
                     L.Variable _ n -> do
                         addVar n e

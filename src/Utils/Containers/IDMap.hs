@@ -91,6 +91,9 @@ last (Map m) = (return . snd <=< flip OM.elemAt (OM.size m-1)) m
 mapList :: (String -> v -> t) -> Map v-> [t]
 mapList f = map (uncurry f) . OM.assocs . _unwrap
 
+mapListM :: (Monad m) => (String -> v -> m t) -> Map v -> m [t]
+mapListM f = mapM (uncurry f) . OM.assocs . _unwrap
+
 mapElemsM :: (Idable v, Idable v', Monad m) => (String -> m ()) -> (String -> v -> m v') -> Map v -> m (Map v')
 mapElemsM errHandler f = (fromM errHandler) <=< (mapM (uncurry f) . OM.assocs . _unwrap)
 

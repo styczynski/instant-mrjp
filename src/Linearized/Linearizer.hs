@@ -5,6 +5,7 @@ import Control.Monad.State
 
 import qualified Program.Syntax as A
 import qualified Linearized.Syntax as B
+import qualified IR.Syntax.Syntax as C
 
 import Reporting.Errors.Position
 import qualified Reporting.Errors.Def as Errors
@@ -17,16 +18,17 @@ import qualified Optimizer.Env as Optimizer
 import qualified Data.Text as T
 import Utils.Time
 
-import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
+--import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
 import qualified Linearized.Optimizer.ValuePropagator as OValuePropagator
 import qualified Linearized.Optimizer.CommonExpressions as OExpressionSubstituter
+import qualified Linearized.IRConverter as OFIRConverter
 
-type LinearizerResult = Either Errors.Error (LinearTranslatorEnv (), B.Program IRPosition)
+type LinearizerResult = Either Errors.Error (LinearTranslatorEnv (), C.Program IRPosition)
 
 posFrom :: Position -> IRPosition
 posFrom pos = IRPosition 0 (pos, pos)
 
-runLinearizer :: (A.Program Position) -> LinearConverter () (B.Program IRPosition)
+runLinearizer :: (A.Program Position) -> LinearConverter () (C.Program IRPosition)
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
     ir <- return $ fmap (posFrom) rawIR
@@ -36,9 +38,11 @@ runLinearizer prog = do
     --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
     --ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
     --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
-    irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState optimizedIR 
+    --irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState optimizedIR 
+    irWithCounters <- return optimizedIR
+    fir <- runInternal "Convert to FIR" OFIRConverter.run OFIRConverter.initialState irWithCounters
     liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
-    return irWithCounters
+    return fir
     where
         findFixedPoint :: [B.Program IRPosition -> LinearConverter () (B.Program IRPosition)] -> (Int, Int) -> (B.Program IRPosition) -> LinearConverter () (Int, B.Program IRPosition)
         findFixedPoint fns (callNo, startTime) prog = do

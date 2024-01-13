@@ -1,0 +1,26 @@
+class A {
+  int r;
+}
+
+class B {
+  A foo;
+}
+
+A testing(A ign) {
+  return null;
+}
+
+int main() {
+  A a = null;
+  a = new A;
+  A[] x = new A[32];
+  x[0] = a;
+  a.r = 32;
+  a = testing(null);
+  printInt(a.r);
+
+  B b = new B;
+  b.foo = a;
+
+  return 0;
+}

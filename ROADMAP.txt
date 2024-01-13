@@ -24,3 +24,8 @@ int main() {
   printInt(b);
   return 0;
 }
+
+-------
+Project integration:
+Require:
+type info at null and references

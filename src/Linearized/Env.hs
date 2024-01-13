@@ -25,6 +25,7 @@ data LinearTranslatorEnv a = LinearTranslatorEnv
     , _ltDatas :: IM.Map (LS.DataDef Position)
     , _ltTypings :: TypeChecker.TypeCheckerEnv
     , _ltOptimizerState :: a
+    , _ltReturnContextType :: Maybe (LS.Type Position)
   } deriving (Show, Generic, NFData)
 
 
@@ -39,6 +40,7 @@ createInitialEnv oEnv = LinearTranslatorEnv {
     , _ltFunctions = IM.empty
     , _ltDatas = IM.empty
     , _ltTypings = (oEnv^.Optimizer.tCEnv)
+    , _ltReturnContextType = Nothing
     , _ltOptimizerState = ()
 }
 

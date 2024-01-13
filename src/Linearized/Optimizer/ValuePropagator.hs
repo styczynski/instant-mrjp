@@ -24,6 +24,8 @@ import Data.List
 import Reporting.Logs
 import qualified Reporting.Errors.Def as Errors
 
+unknownType = L.Reference L.noPosIR $ L.Label L.noPosIR "?"
+
 data VPEnv = VPEnv
   {
     _vpValuesMap :: IM.Map (L.Name L.IRPosition, L.Value L.IRPosition)
@@ -56,11 +58,11 @@ propE (L.Call p l vs) = do
     return (L.Call p l vs')
 propE (L.MCall p n idx vs) = do
     vs' <- mapM updatedVal vs
-    (L.Var _ m) <- updatedVal (L.Var p n)
+    (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
     return (L.MCall p m idx vs')
 propE (L.ArrAccess p n v) = do
     v' <- updatedVal v
-    (L.Var _ m) <- updatedVal (L.Var p n)
+    (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
     return (L.ArrAccess p m v')
 propE (L.IntToByte p v) = updatedVal v >>= return . L.IntToByte p
 propE (L.ByteToInt p v) = updatedVal v >>= return . L.ByteToInt p
@@ -76,7 +78,7 @@ propE (L.BinOp p op v1 v2) = do
         (L.Mul _, _, (L.Const _ (L.IntC _ 1))) -> return (L.Val p v1)
         _ -> return (L.BinOp p op v1' v2')
 propE (L.MemberAccess p n o) = do
-    (L.Var _ m) <- updatedVal (L.Var p n)
+    (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
     return (L.MemberAccess p m o)
 propE (L.Cast p l v) = updatedVal v >>= return . L.Cast p l
 propE e = return e
@@ -92,9 +94,9 @@ removeUnusedStmts stmts =
         isUsed _ _ = True
 
 propagateValuesStmt :: [L.Stmt L.IRPosition] -> ValuePropagator ([L.Stmt L.IRPosition])
-propagateValuesStmt (L.VarDecl p t n e : L.VarDecl p' t' n' (L.Val _ (L.Var _ m)) : ss) | m == n && (not $ elem n $ concat $ map VP.used ss) && notFix n =
+propagateValuesStmt (L.VarDecl p t n e : L.VarDecl p' t' n' (L.Val _ (L.Var _ m _)) : ss) | m == n && (not $ elem n $ concat $ map VP.used ss) && notFix n =
         propagateValuesStmt $ (L.VarDecl p t n' e : ss)
-propagateValuesStmt (L.VarDecl p t n e : L.Assign p' t' (L.Variable p'' n') (L.Val _ (L.Var _ m)) : ss) | m == n && (not $ elem n $ concat $ map VP.used ss) && notFix n =
+propagateValuesStmt (L.VarDecl p t n e : L.Assign p' t' (L.Variable p'' n') (L.Val _ (L.Var _ m _)) : ss) | m == n && (not $ elem n $ concat $ map VP.used ss) && notFix n =
         propagateValuesStmt $ (L.Assign p' t (L.Variable p'' n') e : ss)
 propagateValuesStmt (L.VarDecl p t n (L.Val _ _) : L.Assign _ t' (L.Variable _ n') e : ss) | n == n' =
         propagateValuesStmt $ (L.VarDecl p t n e : ss)
@@ -103,7 +105,7 @@ propagateValuesStmt (L.VarDecl p t n e : ss) = do
     case e' of
         (L.Val _ v) ->
             case v of
-                (L.Var _ n) -> do 
+                (L.Var _ n _) -> do 
                     let assignedInFuture = concat $ map VP.assigned ss
                     if elem n assignedInFuture then return ()
                     else addVar v n
@@ -150,7 +152,7 @@ propagateValuesStmt (s:ss) = do
 propagateValuesStmt [] = return []
 
 updatedVal :: (L.Value L.IRPosition) -> ValuePropagator (L.Value L.IRPosition)
-updatedVal v@(L.Var p (L.Name _ n)) = (maybe (return v) (return . L.setPosIR p . snd)) =<< oStateGet ((IM.lookup n) . (^. valuesMap))
+updatedVal v@(L.Var p (L.Name _ n) _) = (maybe (return v) (return . L.setPosIR p . snd)) =<< oStateGet ((IM.lookup n) . (^. valuesMap))
 updatedVal v = return v
 
 addVar :: (L.Value L.IRPosition) -> (L.Name L.IRPosition) -> ValuePropagator ()
