@@ -15,8 +15,10 @@ import IR.RegisterAllocation.RegisterAllocation
 import IR.Utils
 import IR.Phi
 import IR.CodeGen.Generator
+import IR.Syntax.Syntax
 
-compl_ meta mthds = 
+compl_ :: (Program ()) -> String
+compl_ (Program _ meta mthds) = 
     let cfgs = zip (map cfg mthds) mthds
         cfgsLin = map (uncurry removeUnreachable) cfgs
         cfgsWithLiveness = map (first analyseLiveness) cfgsLin

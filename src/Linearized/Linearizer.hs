@@ -31,6 +31,7 @@ posFrom pos = IRPosition 0 (pos, pos)
 runLinearizer :: (A.Program Position) -> LinearConverter () (C.Program IRPosition)
 runLinearizer prog = do
     rawIR <- Converter.transformProgram prog
+    liftPipelineOpt $ printLogInfo $ T.pack $ "Initial IR: \n" ++ (show rawIR)
     ir <- return $ fmap (posFrom) rawIR
     currentTime <- liftPipelineOpt nanos
     (_, optimizedIR) <- findFixedPoint [(runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState), (runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState)] (0, currentTime) ir

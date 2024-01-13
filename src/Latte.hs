@@ -30,6 +30,7 @@ import System.Process
 import Utils.Similarity
 
 import IR.Syntax.Print(printTree)
+import qualified IR.Compl as Compl
 
 -- usedBackend :: Backend.LatteBackend
 -- usedBackend = BackendX86.backend
@@ -79,6 +80,9 @@ runPipeline backend = do
                       latteError "IR conversion failed"
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
+                      res <- return $ Compl.compl_ (fmap (const ()) ir)
+                      printLogInfo $ "Compilation done" <> (T.pack file) <> "\n\n" <> (T.pack $ res)
+
                       -- let outputPath = replaceExtension file (inputExtension usedBackend)
                       -- backendResult <- Backend.runBackend outputPath (takeFileName outputPath) ir usedBackend
                       -- case backendResult of 

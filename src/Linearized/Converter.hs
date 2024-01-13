@@ -226,8 +226,8 @@ collectFunctions defs = do
                 B.Fun BuiltIn (B.Label BuiltIn "_String_concat") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
                 B.Fun BuiltIn (B.Label BuiltIn "_String_charAt") (B.IntT BuiltIn) [] [],
                 B.Fun BuiltIn (B.Label BuiltIn "printString") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printInt") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printByte") (B.ByteT BuiltIn) [] [],
+                B.Fun BuiltIn (B.Label BuiltIn "printInt") (B.ByteT BuiltIn) [(B.IntT BuiltIn, B.Name BuiltIn "_1")] [],
+                B.Fun BuiltIn (B.Label BuiltIn "printByte") (B.ByteT BuiltIn) [(B.ByteT BuiltIn, B.Name BuiltIn "_1")] [],
                 B.Fun BuiltIn (B.Label BuiltIn "printBoolean") (B.ByteT BuiltIn) [] [],
                 B.Fun BuiltIn (B.Label BuiltIn "printBinArray") (B.ByteT BuiltIn) [] [],
                 B.Fun BuiltIn (B.Label BuiltIn "byteToString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
@@ -390,20 +390,20 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 let f' = B.Label p' f
                 t <- getFunctionType f'
                 argst <- getFunctionArgsTypes f'
+                liftPipelineOpt $ printLogInfo $ T.pack $ "APPDET " ++ show argst
                 (ens, ensc) <- second concat <$> unzip <$> mapM (uncurry transform) (zip argst es)
                 n <- newName t
-                enstt <- mapM typeOf ens
-                return (n, ensc ++ [B.VarDecl p t n (B.Call p f' (map (uncurry (B.Var p)) $ zip ens enstt))])
+                return (n, ensc ++ [B.VarDecl p t n (B.Call p f' (map (uncurry (B.Var p)) $ zip ens argst))])
             (A.Member p e (A.Ident _ m) (Just clsName)) -> do
                 (en, enc) <- transform (B.Reference p $ B.Label p clsName) e
+                ent <- typeOf en
                 (l,i) <- getMethod p clsName m
                 t <- getFunctionType l
                 argst <- getFunctionArgsTypes l
                 (ens, ensc) <- second concat <$> unzip <$> mapM (uncurry transform) (zip argst es)
                 n <- newName t
                 ens' <- return $ en:ens
-                enst' <- mapM typeOf ens'
-                return (n, ensc ++ enc ++ [B.VarDecl p t n (B.MCall p en l (map (uncurry (B.Var p)) $ zip ens' enst' ))])
+                return (n, ensc ++ enc ++ [B.VarDecl p t n (B.MCall p en l (map (uncurry (B.Var p)) $ zip ens' (ent:argst) ))])
 
 opC :: A.BinOp Position -> B.Cmp Position
 opC (A.Equ p) = B.Eq p

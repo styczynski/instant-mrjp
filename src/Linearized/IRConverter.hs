@@ -45,7 +45,7 @@ convertFunctionToFIR :: (A.Function a) -> LinearConverter IRConverterEnv (B.Meth
 convertFunctionToFIR (A.Fun p l rt args stmts) = do
     instrs <- return . concat =<< mapM convertStmtToFIR stmts
     params <- return $ map (\(t, n) -> B.Param p (convertType rt) (nameToValIdent n)) args
-    return $ B.Mthd p (convertType rt) (functionName l) params instrs
+    return $ B.Mthd p (convertType rt) (functionName l) params $ [B.ILabel p $ B.LabIdent ".L_entry"] ++ instrs
 --Mthd a (SType a) (QIdent a) [Param a] [Instr a]
 --Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
 
@@ -68,7 +68,7 @@ labelToValIdent :: A.Label a -> B.ValIdent
 labelToValIdent (A.Label _ name) = B.ValIdent name
 
 nameToValIdent :: A.Name a -> B.ValIdent
-nameToValIdent (A.Name _ name) = B.ValIdent name
+nameToValIdent (A.Name _ name) = B.ValIdent $ "%v_" ++ name
 
 classType :: A.Label a -> B.SType a
 classType (A.Label p name) = B.Cl p $ B.SymIdent name
