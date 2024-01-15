@@ -1,0 +1,13 @@
+string foo(string a) {
+  return a + "!!!";
+}
+
+int bar(int x) {
+  return x*2;
+}
+
+int main() {
+  String t = "ala ma kota";
+  printString(foo(t));
+  return 0;
+}

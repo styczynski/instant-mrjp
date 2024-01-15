@@ -19,16 +19,22 @@ char *errMsg;
 uint8_t emptyString[] = "";
 
 obj __new(struct Type *t) {
+    printf("Perform reference malloc\n");fflush(stdout);
     obj r = malloc(sizeof(struct Reference));
+    printf("Set __new type/counter\n");fflush(stdout);
     r->type = t;
     r->counter = 0;
+    printf("Do init for non array non string?\n");fflush(stdout);
     if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
+        printf("perform init\n");fflush(stdout);
         r->data = malloc(t->dataSize);
         bzero(r->data, t->dataSize);
     } else {
+        printf("Just set data to NULL\n");fflush(stdout);
         r->data = NULL;
     }
-    fprintf(stderr, "__new %d\n", r);
+    printf("Completed __new\n");fflush(stdout);
+    //fprintf(stderr, "__new %d\n", r);
     return r;
 }
 
@@ -127,13 +133,21 @@ void __errorNull() {
 }
 
 obj __createString(char *c) {
-    if (c == NULL)
+    printf("Try to create string from %d\n", c);fflush(stdout);
+    if (c == NULL) {
+        printf("C is NULL exit\n");
         return __createString(emptyString);
+    }
+    printf("Perform new on _class_String\n");fflush(stdout);
     obj r = __new(&_class_String);
+    printf("String allocated\n");fflush(stdout);
     struct String *str = malloc(sizeof(struct String));
     r->data = str;
+    printf("Measure strlen\n");fflush(stdout);
     str->length = u8_strlen(c);
+    printf("Check unicode\n");fflush(stdout);
     if (u8_check(c, str->length) != NULL) {
+        printf("Non-unicode string encoding\n", c);
         errMsg = "ERROR: Non-unicode string encoding.";
         error();
     }
@@ -146,6 +160,7 @@ obj __createString(char *c) {
         str->data = emptyString;
         return r;
     }
+    printf("Str init completed\n");
     str->length = -1;
     return r;
 }
@@ -337,21 +352,26 @@ int8_t _String_startsWith(obj str, obj substr) {
     return u8_startswith(rs, rsub);
 }
 obj _String_concat(obj str, obj secondstr) {
+    printf("String concat on %d and %d\n", str, secondstr);
     if (secondstr == NULL) {
         __incRef(str);
         return str;
     }
     uint8_t *rs1 = ((struct String *)str->data)->data;
     uint8_t *rs2 = ((struct String *)secondstr->data)->data;
+    printf("Take strlen\n");
     int32_t len1 = u8_strlen(rs1);
     int32_t len2 = u8_strlen(rs2);
     uint8_t *buffer = malloc(len1 + len2 + 1);
+    printf("perform strcpy\n");
     u8_strcpy(buffer, rs1);
     u8_strcpy(buffer + len1, rs2);
     buffer[len1 + len2] = 0;
+    printf("Create final string\n");
     obj ret = __createString(buffer);
     __incRef(ret);
     free(buffer);
+    printf("String concat completed\n");
     return ret;
 }
 

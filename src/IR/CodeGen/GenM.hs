@@ -47,7 +47,7 @@ data VarState = VarS {
     varName :: ValIdent,
     varType :: SType (),
     varLoc  :: Loc
-}
+} deriving (Show)
 
 data VarKind = VarImm
              | VarPtr Int64
@@ -114,7 +114,9 @@ getLoc vi = do
     mbvar <- gets (Map.lookup vi . vars)
     case mbvar of
         Just var -> return $ varLoc var
-        Nothing  -> error $ "internal error. value not found " ++ toStr vi
+        Nothing  -> do 
+            vs <- gets vars
+            error $ "internal error. value not found " ++ toStr vi ++ " in vars " ++ (show vs)
 
 getValLoc :: Val a -> GenM Loc
 getValLoc val = case val of

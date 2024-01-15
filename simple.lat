@@ -1,4 +1,8 @@
+int foo(int a) {
+	return 2+a;
+}
+
 int main() {
-	int a = 2+2;
-	return a+1;
+	printInt(foo(2+2));
+	return 0;
 }

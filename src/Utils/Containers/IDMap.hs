@@ -51,6 +51,9 @@ fromM errHandler = flip (insertSequenceM errHandler (\m v -> v)) empty
 findM :: (Monad m) => (String -> m ()) -> String -> Map v -> m v
 findM errHandler name (Map m) = let result = OM.lookup name m in maybe (errHandler name) (const $ return ()) result >> (return . fromJust) result
 
+findUsingM :: (Monad m) => (String -> m ()) -> (v -> String) -> String -> Map v -> m v
+findUsingM errHandler otherKeyGetter otherKey m = let result = listToMaybe $ filter (\v -> otherKeyGetter v == otherKey) $ mapList (\_ v -> v) m in maybe (errHandler otherKey) (const $ return ()) result >> (return . fromJust) result
+
 findElemM :: (Monad m) => (String -> m ()) -> String -> Map v -> m (String, v, Int)
 findElemM errHandler name (Map m) =
     let index = OM.findIndex name m in

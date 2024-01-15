@@ -2,6 +2,9 @@
 {-# LANGUAGE InstanceSigs #-}
 module IR.Syntax.Syntax where
 
+
+import qualified Linearized.BuiltIns as BuiltIns
+
 import           Data.Hashable
 import           Data.Int
 import           Data.Maybe    (fromJust)
@@ -333,16 +336,7 @@ vTableLabIdent :: SymIdent -> LabIdent
 vTableLabIdent (SymIdent i) =  LabIdent $ "__vtable_" ++ i
 
 runtimeSymbols :: [String]
-runtimeSymbols = [
-        "lat_print_int",
-        "lat_print_string",
-        "lat_read_int",
-        "lat_read_string",
-        "lat_error",
-        "lat_nullref",
-        "lat_new_string",
-        "lat_cat_strings"
-    ]
+runtimeSymbols = BuiltIns.builtInsLabels
 
 
 --- END UTILS ---

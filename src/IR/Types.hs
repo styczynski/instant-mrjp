@@ -30,7 +30,7 @@ isStr :: SType a -> Bool
 isStr t = (() <$ deref t) == strType
 
 strType :: SType ()
-strType = Cl () (SymIdent "string")
+strType = Cl () (SymIdent "String")
 
 -- toSType :: Latte.Type a -> SType a
 -- toSType t = case t of

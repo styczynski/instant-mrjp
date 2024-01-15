@@ -20,6 +20,7 @@ import Control.DeepSeq
 import GHC.Generics (Generic)
 
 import Data.List
+import Data.Maybe
 
 import Reporting.Logs
 import qualified Reporting.Errors.Def as Errors
@@ -56,10 +57,10 @@ propE (L.Val p v) = do
 propE (L.Call p l vs) = do
     vs' <- mapM updatedVal vs
     return (L.Call p l vs')
-propE (L.MCall p n idx vs) = do
+propE (L.MCall p n cls idx vs) = do
     vs' <- mapM updatedVal vs
     (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
-    return (L.MCall p m idx vs')
+    return (L.MCall p m cls idx vs')
 propE (L.ArrAccess p n v) = do
     v' <- updatedVal v
     (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
@@ -85,13 +86,20 @@ propE e = return e
 
 removeUnusedStmts :: [L.Stmt L.IRPosition] -> ValuePropagator ([L.Stmt L.IRPosition])
 removeUnusedStmts stmts =
-    let u = foldl (\a s -> VP.used' s ++ a) [] stmts
-    in return $ filter (isUsed u) stmts
+    let used' = foldl (\a s -> VP.used' s ++ a) [] stmts
+        filtered = filter (isUsedStmt used') stmts
+        usedFiltered = foldl (\a s -> VP.used s ++ a) [] filtered
+        final = map (transformUnusedStmt usedFiltered) filtered
+    in return final
     where
-        isUsed :: [L.Name L.IRPosition] -> (L.Stmt L.IRPosition) -> Bool
-        isUsed u (L.VarDecl _ _ n _) = elem n u
-        isUsed u (L.Assign _ _ (L.Variable _ n) _) = elem n u
-        isUsed _ _ = True
+        transformUnusedStmt :: [L.Name L.IRPosition] -> (L.Stmt L.IRPosition) -> (L.Stmt L.IRPosition)
+        transformUnusedStmt u stmt@(L.VarDecl _ t n (L.Call p l v)) = if elem n u then stmt else (L.VCall p t l v)
+        transformUnusedStmt u stmt@(L.VarDecl _ t n (L.MCall p cn cls l v)) = if elem n u then stmt else (L.VMCall p t cn cls l v)
+        transformUnusedStmt _ stmt = stmt
+        isUsedStmt :: [L.Name L.IRPosition] -> (L.Stmt L.IRPosition) -> Bool
+        isUsedStmt u (L.VarDecl _ _ n _) = elem n u
+        isUsedStmt u (L.Assign _ _ (L.Variable _ n) _) = elem n u
+        isUsedStmt _ _ = True
 
 propagateValuesStmt :: [L.Stmt L.IRPosition] -> ValuePropagator ([L.Stmt L.IRPosition])
 propagateValuesStmt (L.VarDecl p t n e : L.VarDecl p' t' n' (L.Val _ (L.Var _ m _)) : ss) | m == n && (not $ elem n $ concat $ map VP.used ss) && notFix n =

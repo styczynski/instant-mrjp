@@ -4,6 +4,7 @@
 module IR.Identifiers where
 
 import           IR.Syntax.Syntax
+import qualified Linearized.BuiltIns as BuiltIns
 
 
 argValIdent :: String -> ValIdent
@@ -36,11 +37,5 @@ phiUnfoldJumpFromToLabel (LabIdent from) (LabIdent to) = LabIdent $ to ++ "__fro
 getCallTarget :: QIdent a -> String
 getCallTarget (QIdent _ (SymIdent i1) (SymIdent i2)) =
     if i1 == "~cl_TopLevel"
-    then case i2 of
-        "readInt"     -> "lat_read_int"
-        "readString"  -> "lat_read_string"
-        "printInt"    -> "lat_print_int"
-        "printString" -> "lat_print_string"
-        "error"       -> "lat_error"
-        _             -> i1 ++ "." ++ i2
+    then (if elem i2 BuiltIns.builtInsLabels then i2 else i1 ++ "." ++ i2)
     else i1 ++ "." ++ i2

@@ -19,6 +19,8 @@ import Linearized.Syntax (IRPosition(..))
 import Linearized.Env
 import Linearized.Def
 
+import Linearized.BuiltIns(builtIns)
+
 import qualified Data.Text as T
 
 import qualified Typings.Env as TypeChecker
@@ -208,36 +210,6 @@ collectFunctions defs = do
         collectFromClassDecl _ (A.FieldDecl {}) = []
         collectFromClassDecl clname (A.MethodDecl pos t (A.Ident idpos n) args  (A.Block _ stmts)) =
             [FnProto pos (B.Label idpos ("_"++clname++"_"++n)) (ct t) (A.Arg Undefined (A.ClassT Undefined (A.Ident Undefined clname)) (A.Ident Undefined "this") : args) stmts]
-        builtIns =
-            [
-                B.Fun BuiltIn (B.Label BuiltIn "_Array_toString") (B.Reference BuiltIn $ B.Label BuiltIn "Array") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_Object_toString") (B.Reference BuiltIn $ B.Label BuiltIn "Object") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_Object_getHashCode") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_Object_equals") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_equals") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_getHashCode") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_toString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_substring") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_length") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_indexOf") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_getBytes") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_endsWith") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_startsWith") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_concat") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "_String_charAt") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printString") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printInt") (B.ByteT BuiltIn) [(B.IntT BuiltIn, B.Name BuiltIn "_1")] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printByte") (B.ByteT BuiltIn) [(B.ByteT BuiltIn, B.Name BuiltIn "_1")] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printBoolean") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "printBinArray") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "byteToString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "boolToString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "intToString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "print") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "error") (B.ByteT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "readInt") (B.IntT BuiltIn) [] [],
-                B.Fun BuiltIn (B.Label BuiltIn "readString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] []
-            ]
 transformFunction :: FnProto -> LinearConverter () (B.Function Position)
 transformFunction (FnProto pos name@(B.Label _ id) retType args stmts) = do
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
@@ -403,7 +375,7 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 (ens, ensc) <- second concat <$> unzip <$> mapM (uncurry transform) (zip argst es)
                 n <- newName t
                 ens' <- return $ en:ens
-                return (n, ensc ++ enc ++ [B.VarDecl p t n (B.MCall p en l (map (uncurry (B.Var p)) $ zip ens' (ent:argst) ))])
+                return (n, ensc ++ enc ++ [B.VarDecl p t n (B.MCall p en (B.Label p m) (B.Label p clsName) (map (uncurry (B.Var p)) $ zip ens' (ent:argst) ))])
 
 opC :: A.BinOp Position -> B.Cmp Position
 opC (A.Equ p) = B.Eq p

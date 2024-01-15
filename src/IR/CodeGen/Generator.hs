@@ -224,14 +224,13 @@ genInstr instr =
                         Emit.mov Quadruple (LocReg rax) dest "")
                 _ -> error $ "internal error. new on nonclass " ++ show t
             INewStr _ vi str -> do
-                let len = toInteger $ length str
-                    t = Ref () strType
+                let t = Ref () strType
                 dest <- getLoc vi
                 strConst <- newStrConst str
                 case dest of
                     LocReg reg_ -> Emit.leaOfConst (constName strConst) reg_
                     _ -> error $ "internal error. invalid dest loc " ++ show dest
-                genCall (CallDirect "lat_new_string") [VVal () t vi, VInt () len] (Emit.mov Quadruple (LocReg rax) dest "")
+                genCall (CallDirect "__createString") [VVal () t vi] (Emit.mov Quadruple (LocReg rax) dest "")
             INewArr _ vi t val -> do
                 dest <- getLoc vi
                 let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)

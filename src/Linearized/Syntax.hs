@@ -104,6 +104,8 @@ type Offset = Integer
 
 data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | Assign a (Type a) (Target a) (Expr a)
+          | VCall a (Type a) (Label a) [Value a] --function call
+          | VMCall a (Type a) (Name a) (Label a) (Label a) [Value a] --method call
           | IncrCounter a (Name a)
           | DecrCounter a (Name a)
           | ReturnVal a (Type a) (Expr a)
@@ -131,7 +133,7 @@ data Expr a = NewObj a (Label a)
           | NewString a (Label a)
           | Val a (Value a)
           | Call a (Label a) [Value a] --function call
-          | MCall a (Name a) (Label a) [Value a] --method call
+          | MCall a (Name a) (Label a) (Label a) [Value a] --method call
           | ArrAccess a (Name a) (Value a)
           | MemberAccess a (Name a) Offset
           | IntToByte a (Value a)
@@ -196,6 +198,8 @@ instance Show (Stmt a) where
     show (SetLabel _ l) = "  "++show l++":"
     show (Jump _ l) = "    jump "++show l
     show (JumpCmp _ cmp l vl vr) = "    jump "++show l++" if "++show vl++" "++show cmp++" "++show vr
+    show (VCall _ t l args) = "    discard<"++show t++"> call<function> " ++ show l ++ "(" ++ intercalate ", " (map show args) ++ ")"
+    show (VMCall _ t n cls i args) = "    discard<"++show t++"> call<method:" ++ show i ++ ", class:" ++ show cls ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
 
 instance Show (Expr a) where
     show (Val _ v) = show v
@@ -209,7 +213,7 @@ instance Show (Expr a) where
     show (NewString _ l) = "    " ++ "new string " ++ show l
     --show (Val _ v) = "    val " ++ show v
     show (Call _ l args) = "    call<function> " ++ show l ++ "(" ++ intercalate ", " (map show args) ++ ")"
-    show (MCall _ n i args) = "    call<method:" ++ show i ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
+    show (MCall _ n cls i args) = "    call<method:" ++ show i ++ ", class:" ++ show cls ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
     --show (ArrAccess _ n v) = "    " ++ show name ++ "[" ++ show value ++ "]"
     --show (MemberAccess _ n off) = "    " ++ show n ++ "." ++ "(+" ++ show off ++ ")"
     show _ = "<unknown instruction>"

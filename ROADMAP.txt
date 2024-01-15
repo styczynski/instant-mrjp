@@ -29,3 +29,6 @@ int main() {
 Project integration:
 Require:
 type info at null and references
+
+DQ -> .quad
+DD -> .long

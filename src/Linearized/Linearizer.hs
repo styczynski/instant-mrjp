@@ -53,6 +53,8 @@ runLinearizer prog = do
             currentTime <- liftPipelineOpt nanos
             timeElapsedMs <- return $ div (currentTime - startTime) 1000000
             liftPipelineOpt $ printLogInfoStr $ "Optimizing IR round " ++ (show $ callNo+1) ++ " (took " ++ (show timeElapsedMs) ++ " ms)" 
+            liftPipelineOpt $ printLogInfoStr $ "> BEFORE ROUND\n" ++ (show prog)
+            liftPipelineOpt $ printLogInfoStr $ "> AFTER ROUND\n" ++ (show newProg)
             if newProg /= prog && timeElapsedMs <= 4000 then do
                 findFixedPoint fns (callNo+1, startTime) newProg
             else return (callNo, newProg)

@@ -31,6 +31,8 @@ compl_ (Program _ meta mthds) =
         unfoldedPhi = map (\(SSA c, m, g) -> (unfoldPhi (SSA c) m (getRegisterAllocation c g), m, g)) allocatedCfgs
         optimisedCfgs = map (\(c, m, g) -> let(c', m') = removeUnreachable (inlineTrivialBlocks c) m in (c', m', g)) unfoldedPhi
         finalCfgs = map (\(c, m, g) -> (removeDeadCode $ analyseLiveness c, m, g)) optimisedCfgs
-        assembly = generate meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs) in
-    assembly
-
+        --assembly = generate meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs) in
+    --assembly
+    in
+    --show $ (map (\(c, m, _) -> (c, m)) finalCfgs)
+    generate meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)
