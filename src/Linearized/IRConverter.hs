@@ -53,7 +53,7 @@ convertStructureToFIR :: (A.Structure a) -> LinearConverter (IRConverterEnv a) (
 convertStructureToFIR (A.Struct p (A.Label _ name) parentName methods fields) = do
     --(A.Label fieldPos fieldName), fieldType, _
     fields <- return $ IM.mapList (\_ (A.Field fieldPos fieldType (A.Label _ fieldName)) -> B.FldDef fieldPos (convertType fieldType) $ B.SymIdent fieldName) fields
-    methods <- return []
+    methods <- return $ IM.mapList (\_ (A.Method methodPos methodCls methodName methodType methodArgs) -> B.MthdDef methodPos (B.FType methodPos (convertType methodType) (map (convertType . fst) methodArgs)) (functionName (Just methodCls) methodName)) methods
     return $ B.ClDef p (B.SymIdent name) fields methods
 
 convertFunctionToFIR :: (A.Function a) -> LinearConverter (IRConverterEnv a) (B.Method a)
@@ -145,8 +145,8 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
         -- argParams <- return $ map (\(param, v) -> B.VVal p (snd $ convertValueT param) v) $ zip params $ map nameToValIdent argTempNames
         -- return $ argTempInstrs ++ [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (functionName fnLabel) argParams)]
     A.MCall p' _ (A.Label p'' methodName) (A.Label _ clsName) params -> 
-        --return [B.ICall p (nameToValIdent vn) (B.CallVirt p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent methodName)) (map convertValue $ params))]
-        return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (B.QIdent p (B.SymIdent "~cl_TopLevel") (B.SymIdent methodName)) (map convertValue params))]
+        return [B.ICall p (nameToValIdent vn) (B.CallVirt p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent methodName)) (map convertValue $ params))]
+        --return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (B.QIdent p (B.SymIdent "~cl_TopLevel") (B.SymIdent methodName)) (map convertValue params))]
     A.ArrAccess p' n v -> todoAddLogic
     A.MemberAccess p' n cls member -> todoAddLogic
     A.IntToByte p' v -> todoAddLogic
