@@ -11,6 +11,7 @@ data Loc = LocImm Int32
          | LocReg Reg
          | LocPtr Reg Int64
          | LocPtrCmplx { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size}
+         | LocLabel String
     deriving (Eq, Show)
 
 isReg :: Loc -> Bool

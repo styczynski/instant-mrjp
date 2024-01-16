@@ -94,7 +94,7 @@ argNameToValIdent (A.Name _ name) = B.ValIdent $ "%a_" ++ name
 
 
 classType :: A.Label a -> B.SType a
-classType (A.Label p name) = B.Ref p $ B.Cl p $ B.SymIdent name
+classType (A.Label p name) = B.Cl p $ B.SymIdent name
 
 convertOp :: A.Op a -> B.Op a 
 convertOp (A.Add p) = B.OpAdd p
@@ -148,7 +148,8 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
         return [B.ICall p (nameToValIdent vn) (B.CallVirt p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent methodName)) (map convertValue $ params))]
         --return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (B.QIdent p (B.SymIdent "~cl_TopLevel") (B.SymIdent methodName)) (map convertValue params))]
     A.ArrAccess p' n v -> todoAddLogic
-    A.MemberAccess p' n cls member -> todoAddLogic
+    A.MemberAccess p' n cls member fieldType -> do 
+        return [B.ILoad p (nameToValIdent vn) (B.PFld p ((B.Ref p) $ convertType fieldType) (B.VVal p (classType cls) (nameToValIdent n)) (functionName (Just cls) member) )]
     A.IntToByte p' v -> todoAddLogic
     A.ByteToInt p' v -> todoAddLogic
     A.Not p' v -> return [B.IOp p (nameToValIdent vn) (B.VInt p' 0) (B.OpSub p') (convertValue v)]
@@ -159,7 +160,10 @@ convertStmtToFIR (A.VCall p vt fnLabel params) = do
 --convertStmtToFIR (A.VMCall p vt (A.Name _ clsName) (A.Label _ fnName) params) = do
 --    return [B.IVCall p (B.Call p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent fnName)) (map convertValue params))]
 convertStmtToFIR (A.Assign p vt (A.Variable p' n) expr) = convertStmtToFIR $ A.VarDecl p vt n expr
-convertStmtToFIR (A.Assign p vt (A.Member p' _ _ _) expr) = todoAddLogic
+convertStmtToFIR (A.Assign p vt (A.Member p' mVal mCls mName) expr) = do 
+    exprValName <- newRetTempName p
+    exprc <- convertStmtToFIR $ A.VarDecl p vt exprValName expr
+    return $ exprc ++ [B.IStore p (B.VVal p (convertType vt) (nameToValIdent exprValName)) (B.PFld p ((B.Ref p) $ convertType vt) (B.VVal p (classType mCls) (nameToValIdent mVal)) (functionName (Just mCls) mName) )]
 convertStmtToFIR (A.Assign p vt (A.Array p' _ _) expr) = todoAddLogic
 convertStmtToFIR (A.ReturnVal p vt expr) = do
     retName <- newRetTempName p

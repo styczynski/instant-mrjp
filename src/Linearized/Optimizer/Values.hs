@@ -53,7 +53,7 @@ instance WithVariables L.Expr where
     used (L.Call _ _ vs) = concat $ map used vs
     used (L.MCall _ n i cls vs) = concat $ map used vs
     used (L.ArrAccess _ n v) = n : used v
-    used (L.MemberAccess _ n _ _) = [n]
+    used (L.MemberAccess _ n _ _ _) = [n]
     used (L.IntToByte _ v) = used v
     used (L.ByteToInt _ v) = used v
     used (L.Not _ v) = used v

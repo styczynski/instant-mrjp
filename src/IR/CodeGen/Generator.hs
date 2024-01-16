@@ -109,7 +109,7 @@ genInstr instr =
                                 Emit.lea Double (LocPtr r1 (fromIntegral n2)) dest ("addition " ++ toStr vi)
                             _ -> error "internal error. invalid src locs in add"
                     OpAdd _ | isStr (valType v1) -> do
-                        genCall (CallDirect "lat_cat_strings") [v1, v2] (Emit.mov Quadruple (LocReg rax) dest "")
+                        genCall (CallDirect "lat_cat_strings") [v1, v2] [] (Emit.mov Quadruple (LocReg rax) dest "")
                     OpAdd _ -> error "internal error. invalid operand types for add."
                     OpSub _ -> do
                         if dest == src1 then
@@ -195,12 +195,12 @@ genInstr instr =
                     UnOpNeg _ -> Emit.neg dest
                     UnOpNot _ -> Emit.xor Byte (LocImm 1) dest
             IVCall _ call -> case call of
-                    Call _ _ qi args     -> genCall (CallDirect $ getCallTarget qi) args (return ())
+                    Call _ _ qi args     -> genCall (CallDirect $ getCallTarget qi) args [] (return ())
                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
             ICall _ vi call -> do
                 dest <- getLoc vi
                 case call of
-                        Call _ t qi args     -> genCall (CallDirect $ getCallTarget qi) args (Emit.mov (typeSize t) (LocReg rax) dest "")
+                        Call _ t qi args     -> genCall (CallDirect $ getCallTarget qi) args [] (Emit.mov (typeSize t) (LocReg rax) dest "")
                         CallVirt _ t qi args -> genCallVirt qi args (Emit.mov (typeSize t) (LocReg rax) dest "")
             ILoad _ vi ptr -> do
                 let t = () <$ deref (ptrType ptr)
@@ -218,7 +218,8 @@ genInstr instr =
                     dest <- getLoc vi
                     let sizeArg = VInt () (toInteger $ clSize cl)
                         (LocReg tmpReg) = argLoc 0
-                    genCall (CallDirect "lat_new_instance") [sizeArg] (do
+                    let clLabel = classDefIdent clIdent
+                    genCall (CallDirect "__new") [] [clLabel] (do
                         Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
                         Emit.mov Quadruple (LocReg tmpReg) (LocPtr rax 0) "store vtable"
                         Emit.mov Quadruple (LocReg rax) dest "")
@@ -230,11 +231,11 @@ genInstr instr =
                 case dest of
                     LocReg reg_ -> Emit.leaOfConst (constName strConst) reg_
                     _ -> error $ "internal error. invalid dest loc " ++ show dest
-                genCall (CallDirect "__createString") [VVal () t vi] (Emit.mov Quadruple (LocReg rax) dest "")
+                genCall (CallDirect "__createString") [VVal () t vi] [] (Emit.mov Quadruple (LocReg rax) dest "")
             INewArr _ vi t val -> do
                 dest <- getLoc vi
                 let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
-                genCall (CallDirect "lat_new_array") [() <$ val, sizeArg] (Emit.mov Quadruple (LocReg rax) dest "")
+                genCall (CallDirect "lat_new_array") [() <$ val, sizeArg] [] (Emit.mov Quadruple (LocReg rax) dest "")
             IJmp _ li -> do
                 li' <- label li
                 resetStack
@@ -260,8 +261,11 @@ genInstr instr =
 
 data CallTarget = CallDirect String | CallVirtual Int64 String
 
-genCall :: CallTarget -> [Val a] -> GenM () -> GenM ()
-genCall target args cont = do
+data CallArg a = CallArgVal (Val a) | CallArgLabel (LabIdent)
+
+genCall :: CallTarget -> [Val a] -> [LabIdent] -> GenM () -> GenM ()
+genCall target varArgs labelArgs cont = do
+        let args = (map CallArgVal varArgs) ++ (map CallArgLabel labelArgs)
         regs_ <- getPreservedRegs
         let argsWithLocs = zip args (map argLoc [0..])
             (argsWithLocReg,  argsWithLocStack) = partition (isReg . snd) argsWithLocs
@@ -287,10 +291,21 @@ genCall target args cont = do
         modify (\st -> st{stack = (stack st){stackOverheadSize = stackBefore}})
         cont
         forM_ (reverse savedRegs) (Emit.pop . LocReg)
-    where passInReg val reg_ = do
+    where
+          passInReg :: CallArg a -> Reg -> GenM ()
+          passInReg (CallArgLabel l) reg_ = do
+            Emit.leaOfConst (toStr l) reg_
+            --Emit.mov (Quadruple) (LocLabel l) (LocReg reg_) "passing label arg"
+          passInReg (CallArgVal val) reg_ = do
             loc <- getValLoc val
             Emit.mov (valSize val) loc (LocReg reg_) "passing arg"
-          prepOnStack val = do
+          prepOnStack :: CallArg a -> GenM Loc
+          prepOnStack ((CallArgLabel (LabIdent l))) = do
+              s <- gets stack
+              let s' = stackPush Quadruple s
+              setStack s'
+              return (LocLabel l)
+          prepOnStack (CallArgVal val) = do
               s <- gets stack
               loc <- getValLoc val
               let s' = stackPush Quadruple s
@@ -308,7 +323,7 @@ genCallVirt (QIdent _ cli i) args cont = do
     let offset = case Map.lookup i $ vtabMthdMap $ clVTable cl of
                     Just (_, n) -> n
                     Nothing     -> error ""
-    genCall (CallVirtual offset (toStr i)) args cont
+    genCall (CallVirtual offset (toStr i)) args [] cont
 
 emitCmpBin :: Op a -> Loc -> Loc -> Loc -> Size -> GenM ()
 emitCmpBin op dest src1 src2 size = do

@@ -326,17 +326,20 @@ sanitiseAssembly s = case s of
 
 
 nullrefLabel :: LabIdent
-nullrefLabel = LabIdent "__nullref"
+nullrefLabel = LabIdent "__errorNull"
 
 
 valIdent :: String -> ValIdent
 valIdent = ValIdent . ("%v_" ++)
 
+classDefIdent :: SymIdent -> LabIdent
+classDefIdent (SymIdent i) =  LabIdent $ "_class_" ++ i
+
 vTableLabIdent :: SymIdent -> LabIdent
-vTableLabIdent (SymIdent i) =  LabIdent $ "__vtable_" ++ i
+vTableLabIdent (SymIdent i) =  LabIdent $ "_class_" ++ i ++ "_methods"
 
 runtimeSymbols :: [String]
-runtimeSymbols = BuiltIns.builtInsLabels
+runtimeSymbols = map snd BuiltIns.builtInsLabels
 
 
 --- END UTILS ---

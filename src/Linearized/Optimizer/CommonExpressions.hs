@@ -89,7 +89,7 @@ findExistingExpr (L.NewObj _ _) = return Nothing
 findExistingExpr (L.NewArray _ _ _) = return Nothing
 findExistingExpr (L.Call _ _ _) = return Nothing
 findExistingExpr (L.MCall _ _ _ _ _) = return Nothing
-findExistingExpr (L.MemberAccess _ _ _ _) = return Nothing
+findExistingExpr (L.MemberAccess _ _ _ _ _) = return Nothing
 findExistingExpr (L.ArrAccess _ _ _) = return Nothing
 findExistingExpr e = oStateGet ((M.lookup e) . (^. exprMap))
 

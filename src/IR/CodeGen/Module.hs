@@ -35,8 +35,15 @@ generateModule cls mthds allConsts =
                               "    Field offset: " ++ show (fldOffset fld),
                               "    Field size:   " ++ show (sizeInBytes $ typeSize $ fldType fld)]
           vtable cl = if toStr (clName cl) == "~cl_TopLevel" then []
-                      else Emit.label (vTableLabIdent (clName cl)) "":
-                           map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
+                      else [Emit.global (classDefIdent (clName cl))
+                            ,Emit.global (vTableLabIdent (clName cl))
+                            ,Emit.label (classDefIdent (clName cl)) ""
+                            ,Emit.quadDef (let (LabIdent l) = classDefIdent (clName cl) in l) -- parent
+                            ,Emit.longDef (show $ clSize cl)
+                            ,Emit.quadDef (let (LabIdent l) = vTableLabIdent (clName cl) in l)
+                            ,Emit.longDef "0"
+                            ,Emit.quadDef "0"
+                            ,Emit.label (vTableLabIdent (clName cl)) ""]++map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
           nullRef = [Emit.label nullrefLabel "runtime error on null dereference",
                      Emit.and Quadruple (LocImm (-16)) (LocReg rsp) "16 bytes allign",
-                     Emit.callDirect "lat_nullref"]
+                     Emit.callDirect "__errorNull"]

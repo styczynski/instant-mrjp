@@ -152,7 +152,7 @@ data Expr a = NewObj a (Label a)
           | Call a (Label a) [Value a] --function call
           | MCall a (Name a) (Label a) (Label a) [Value a] --method call
           | ArrAccess a (Name a) (Value a)
-          | MemberAccess a (Name a) (Label a) (Label a)
+          | MemberAccess a (Name a) (Label a) (Label a) (Type a)
           | IntToByte a (Value a)
           | ByteToInt a (Value a)
           | Not a (Value a)
@@ -227,7 +227,7 @@ instance Show (Stmt a) where
 
 instance Show (Expr a) where
     show (Val _ v) = show v
-    show (MemberAccess _ n cls field) = show n++".field["++show cls++"."++show field++"]"
+    show (MemberAccess _ n cls field fieldType) = show n++".field<"++show fieldType++">["++show cls++"."++show field++"]"
     show (ArrAccess _ n v) = show n++"["++show v++"]"
     show (BinOp _ op v1 v2) = show v1 ++" "++ show op ++" "++ show v2
     show (NewObj _ l) = "new "++show l

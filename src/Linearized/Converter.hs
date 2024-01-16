@@ -266,7 +266,7 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
         (enm, enmc) <- transform (B.Reference p $ B.Label p className) e
         t <- getFieldType p className field
         n <- newName t
-        return (n, enmc ++ [B.VarDecl p t n (B.MemberAccess p enm (B.Label p className) (B.Label p field))])
+        return (n, enmc ++ [B.VarDecl p t n (B.MemberAccess p enm (B.Label p className) (B.Label p field) t)])
     doTransform _ (A.NewObj p t m) = 
         case m of
             Nothing -> do

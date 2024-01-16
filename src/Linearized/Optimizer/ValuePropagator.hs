@@ -78,9 +78,9 @@ propE (L.BinOp p op v1 v2) = do
         (L.Mul _, (L.Const _ (L.IntC _ 1)), _) -> return (L.Val p v2)
         (L.Mul _, _, (L.Const _ (L.IntC _ 1))) -> return (L.Val p v1)
         _ -> return (L.BinOp p op v1' v2')
-propE (L.MemberAccess p n cls member) = do
+propE (L.MemberAccess p n cls member fieldType) = do
     (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
-    return (L.MemberAccess p m cls member)
+    return (L.MemberAccess p m cls member fieldType)
 propE (L.Cast p l v) = updatedVal v >>= return . L.Cast p l
 propE e = return e
 

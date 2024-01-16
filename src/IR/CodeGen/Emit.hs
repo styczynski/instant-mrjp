@@ -29,6 +29,7 @@ module IR.CodeGen.Emit (
     pop,
     push,
     quadDef,
+    longDef,
     ret,
     sal,
     sar,
@@ -42,6 +43,7 @@ module IR.CodeGen.Emit (
     test,
     xchg,
     xor,
+    global,
 ) where
 
 import           Data.Int
@@ -128,6 +130,9 @@ extern s = emit $ ".extern " ++ s
 -- Emit a declaration of the main function as entry point.
 globalMain :: EmitM m => m ()
 globalMain = emit ".global main"
+
+global :: EmitM m => LabIdent -> m ()
+global (LabIdent l) = emit $ ".global " ++ sanitiseAssembly l
 
 -- Emit an instruction logically increasing the stack
 -- by decreasing the rsp pointer.
@@ -255,6 +260,11 @@ push srcloc comment_ = emitInd $ "push " ++ loc Quadruple srcloc ++ comment comm
 --   .quad <s>
 quadDef :: EmitM m => String -> m ()
 quadDef s = emitInd $ ".quad " ++ sanitiseAssembly s
+
+-- Emit a definition of a long value.
+--   .long <s>
+longDef :: EmitM m => String -> m ()
+longDef s = emitInd $ ".long " ++ sanitiseAssembly s
 
 -- Emit a ret instruction that ends the current function call.
 ret :: EmitM m => m ()
@@ -399,6 +409,7 @@ loc size loc_ = case loc_ of
     LocPtrCmplx base idx offset scale -> complexPtr Quadruple base offset idx scale
     LocImm n                          -> lit32 n
     LocImm64 n                        -> lit64 n
+    LocLabel label                    -> label
 
 -- String representation of a register (full 64-bits).
 reg :: String -> String

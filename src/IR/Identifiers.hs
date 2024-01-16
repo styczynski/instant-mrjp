@@ -36,6 +36,7 @@ phiUnfoldJumpFromToLabel (LabIdent from) (LabIdent to) = LabIdent $ to ++ "__fro
 
 getCallTarget :: QIdent a -> String
 getCallTarget (QIdent _ (SymIdent i1) (SymIdent i2)) =
-    if i1 == "~cl_TopLevel"
-    then (if elem i2 BuiltIns.builtInsLabels then i2 else i1 ++ "." ++ i2)
-    else i1 ++ "." ++ i2
+    let defaultTarget = i1 ++ "." ++ i2 in
+    case lookup defaultTarget BuiltIns.builtInsLabels of 
+        Nothing -> defaultTarget
+        (Just mappedTarget) -> mappedTarget

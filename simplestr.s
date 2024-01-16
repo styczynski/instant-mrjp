@@ -26,57 +26,17 @@
 .extern readInt
 .extern readString
 .global main
-
-.global _class_Array
-_class_Array:
-.quad _class_Object
-.long 16
-.quad _class_Array_methods
-.long 1
-.quad _class_Array_refs
-_class_Array_methods:
-.quad _Object_equals
-.quad _Object_getHashCode
-.quad _Array_toString
-_class_Array_refs:
-.long 0
-.global _class_Object
-_class_Object:
-.quad 0
-.long 0
-.quad _class_Object_methods
-.long 0
-.quad 0
-_class_Object_methods:
-.quad _Object_equals
-.quad _Object_getHashCode
-.quad _Object_toString
-.global _class_String
-_class_String:
-.quad _class_Object
-.long 0
-.quad _class_String_methods
-.long 0
-.quad 0
-_class_String_methods:
-.quad _String_charAt
-.quad _String_equals
-.quad _String_concat
-.quad _String_startsWith
-.quad _String_endsWith
-.quad _String_getBytes
-.quad _String_indexOf
-.quad _String_length
-.quad _String_substring
-.quad _String_toString
-.quad _String_getHashCode
-
-__const_2:
-  .string "!!!\0"
+.section        .rodata
 __const_1:
-  .string "ala ma kota\0"
+  .string "!!!"
  # Class metadata:
- # Class _class_Array:
+ # Class A:
+ #   Fields:
+ #     Field name:   a
+ #     Field type:   Int ()
+ #     Field offset: 8
+ #     Field size:   4
+ # Class Array:
  #   Fields:
  #     Field name:   elements
  #     Field type:   Ref () (Cl () (SymIdent "Object"))
@@ -90,20 +50,68 @@ __const_1:
  #     Field type:   Int ()
  #     Field offset: 20
  #     Field size:   4
- # Class _class_Object:
+ # Class Object:
  #   Fields:
- # Class _class_String:
+ # Class String:
  #   Fields:
  # Class ~cl_TopLevel:
  #   Fields:
 
-__vtable__class_Array:
-__vtable__class_Object:
-__vtable__class_String:
+.global _class_A
+_class_A:
+  .quad _class_A
+  .long 16
+  .quad _class_A_methods
+  .long 0
+  .quad 0
+_class_A_methods:
+.global _class_Array
+_class_Array:
+  .quad 0
+  .long 24
+  .quad _class_Array_methods
+  .long 0
+  .quad 0
+_class_Array_methods:
+  .quad _Object_equals
+  .quad _Object_getHashCode
+  .quad _Array_toString
+.global _class_Object
+_class_Object:
+  .quad 0
+  .long 8
+  .quad _class_Object_methods
+  .long 0
+  .quad 0
+_class_Object_methods:
+  .quad _Object_equals
+  .quad _Object_getHashCode
+  .quad _Object_toString
+.global _class_String
+_class_String:
+  .quad 0
+  .long 8
+  .quad _class_String_methods
+  .long 0
+  .quad 0
+_class_String_methods:
+  .quad _String_charAt
+  .quad _String_equals
+  .quad _String_concat
+  .quad _String_startsWith
+  .quad _String_endsWith
+  .quad _String_getBytes
+  .quad _String_indexOf
+  .quad _String_length
+  .quad _String_substring
+  .quad _String_toString
+  .quad _String_getHashCode
 
-__nullref: # runtime error on null dereference
+.text
+
+__errorNull: # runtime error on null dereference
   andq $-16, %rsp # 16 bytes allign
-  # call lat_nullref
+  call __errorNull
 
 
  # Register allocation:
@@ -115,7 +123,7 @@ __cl_TopLevel.foo:
   subq $0, %rsp # space for locals
 __cl_TopLevel.foo.L_entry:
   movq %rdi, %rdx # load %v_t_0
-  lea __const_2(%rip), %rax
+  lea __const_1(%rip), %rax
   push %rdx # save caller saved
   movq %rax, %rdi # passing arg
   subq $0, %rsp # 16 bytes alignment
@@ -126,7 +134,10 @@ __cl_TopLevel.foo.L_entry:
   movq %rdx, %rdi # passing arg
   movq %rax, %rsi # passing arg
   subq $0, %rsp # 16 bytes alignment
-  call _String_concat
+  testq %rdi, %rdi
+  jz __errorNull
+  movq 0(%rdi), %rax # load address of vtable
+  call *16(%rax) # call concat
   addq $0, %rsp
   movq %rax, %rax
   movq %rax, %rax # move return value
@@ -152,27 +163,26 @@ __cl_TopLevel.bar.L_entry:
 
 main:
  # Register allocation:
- # [(ValIdent "%v_t_10",rax),(ValIdent "%v_t_11",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi)]
+ # [(ValIdent "%v_t_11",rax),(ValIdent "%v_t_12",rax),(ValIdent "%v_t_7",rax),(ValIdent "~arg_0_rdi",rdi)]
 
 __cl_TopLevel.main:
   push %rbp
   movq %rsp, %rbp
   subq $0, %rsp # space for locals
 __cl_TopLevel.main.L_entry:
-  lea __const_1(%rip), %rax
-  movq %rax, %rdi # passing arg
+  lea _class_A(%rip), %rdi # passing label arg
   subq $0, %rsp # 16 bytes alignment
-  call __createString
+  call __new
   addq $0, %rsp
+  lea _class_A_methods(%rip), %rdi
+  movq %rdi, 0(%rax) # store vtable
   movq %rax, %rax
-  movq %rax, %rdi # passing arg
+  movl $42, 8(%rax)
+  movl 8(%rax), %eax # load %v_t_11
+  addl $1, %eax
+  movl %eax, %edi # passing arg
   subq $0, %rsp # 16 bytes alignment
-  call __cl_TopLevel.foo
-  addq $0, %rsp
-  movq %rax, %rax
-  movq %rax, %rdi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call printString
+  call printInt
   addq $0, %rsp
   movl $0, %eax # move return value
   addq $0, %rsp

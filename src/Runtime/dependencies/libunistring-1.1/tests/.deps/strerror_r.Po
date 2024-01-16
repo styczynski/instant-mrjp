@@ -31,8 +31,7 @@ strerror_r.o: strerror_r.c /usr/include/stdc-predef.h ../lib/config.h \
  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
- /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
- /usr/include/x86_64-linux-gnu/bits/stdio.h ../lib/sys/types.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h ../lib/sys/types.h \
  /usr/include/x86_64-linux-gnu/sys/types.h \
  /usr/include/x86_64-linux-gnu/bits/types/clock_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
@@ -57,7 +56,6 @@ strerror_r.o: strerror_r.c /usr/include/stdc-predef.h ../lib/config.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h ../lib/stdlib.h \
  /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h ../lib/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h strerror-override.h
 /usr/include/stdc-predef.h:
 ../lib/config.h:
@@ -103,7 +101,6 @@ stdio.h:
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
-/usr/include/x86_64-linux-gnu/bits/stdio.h:
 ../lib/sys/types.h:
 /usr/include/x86_64-linux-gnu/sys/types.h:
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
@@ -134,6 +131,5 @@ sys/select.h:
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 ../lib/alloca.h:
-/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 strerror-override.h:

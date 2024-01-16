@@ -37,7 +37,8 @@ builtIns =
         B.Fun BuiltIn Nothing (B.Label BuiltIn "readString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] []
     ]
 
+builtInsLabels :: [(String, String)]
 builtInsLabels = map (\(B.Fun p cls name _ _ _) -> getLabel cls name) builtIns
     where
-        getLabel (Nothing) (B.Label _ name) = name
-        getLabel (Just (B.Label _ cls)) (B.Label _ name) = "_" ++ cls ++ "_" ++ name
+        getLabel (Nothing) (B.Label _ name) = ("~cl_TopLevel."++name, name)
+        getLabel (Just (B.Label _ cls)) (B.Label _ name) = (cls ++ "." ++ name, "_" ++ cls ++ "_" ++ name)
