@@ -44,7 +44,7 @@ initialState = VPEnv {
 run :: L.Program L.IRPosition -> ValuePropagator (L.Program L.IRPosition)
 run (L.Program p sts funs strs) = do
     let dupErr = (idMapFailure "ValuePropagator" Errors.ILNEDuplicateFunctionName)
-    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p l t args body) -> (\nbody -> return $ L.Fun p l t args nbody) =<< removeUnusedStmts =<< propagateValuesStmt body) funs
+    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p cls l t args body) -> (\nbody -> return $ L.Fun p cls l t args nbody) =<< removeUnusedStmts =<< propagateValuesStmt body) funs
     return (L.Program p sts nfuncs strs)
 
 propE :: (L.Expr L.IRPosition) -> ValuePropagator (L.Expr L.IRPosition)
@@ -78,9 +78,9 @@ propE (L.BinOp p op v1 v2) = do
         (L.Mul _, (L.Const _ (L.IntC _ 1)), _) -> return (L.Val p v2)
         (L.Mul _, _, (L.Const _ (L.IntC _ 1))) -> return (L.Val p v1)
         _ -> return (L.BinOp p op v1' v2')
-propE (L.MemberAccess p n o) = do
+propE (L.MemberAccess p n cls member) = do
     (L.Var _ m _) <- updatedVal (L.Var p n unknownType)
-    return (L.MemberAccess p m o)
+    return (L.MemberAccess p m cls member)
 propE (L.Cast p l v) = updatedVal v >>= return . L.Cast p l
 propE e = return e
 

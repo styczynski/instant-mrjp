@@ -50,8 +50,8 @@ findSucc ind (s,i) =
 
 analizeProg (L.Program _ _ funs _) = IM.mapList (\_ f -> (getName f, analize $ getBody f)) funs
     where
-        getBody (L.Fun _ _ _ _ body) = body
-        getName (L.Fun _ l _ _ _) = l
+        getBody (L.Fun _ _ _ _ _ body) = body
+        getName (L.Fun _ _ l _ _ _) = l
 
 analisisPrint livs = concat $ map printOne livs
     where

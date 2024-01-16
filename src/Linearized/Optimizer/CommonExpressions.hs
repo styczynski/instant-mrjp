@@ -44,7 +44,7 @@ initialState = ESEnv {
 run :: L.Program L.IRPosition -> ExpressionSubsituter (L.Program L.IRPosition)
 run (L.Program p sts funs strs) = do
     let dupErr = (idMapFailure "ExpressionSubsituter" Errors.ILNEDuplicateFunctionName)
-    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p l t args body) -> (\nbody -> return $ L.Fun p l t args nbody) =<< eliminateCommonSubexpressions body) funs
+    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p cls l t args body) -> (\nbody -> return $ L.Fun p cls l t args nbody) =<< eliminateCommonSubexpressions body) funs
     return (L.Program p sts nfuncs strs)
 
 eliminateCommonSubexpressions :: [L.Stmt L.IRPosition] -> ExpressionSubsituter [L.Stmt L.IRPosition]
@@ -89,7 +89,7 @@ findExistingExpr (L.NewObj _ _) = return Nothing
 findExistingExpr (L.NewArray _ _ _) = return Nothing
 findExistingExpr (L.Call _ _ _) = return Nothing
 findExistingExpr (L.MCall _ _ _ _ _) = return Nothing
-findExistingExpr (L.MemberAccess _ _ _) = return Nothing
+findExistingExpr (L.MemberAccess _ _ _ _) = return Nothing
 findExistingExpr (L.ArrAccess _ _ _) = return Nothing
 findExistingExpr e = oStateGet ((M.lookup e) . (^. exprMap))
 
