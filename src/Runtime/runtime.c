@@ -33,6 +33,7 @@ obj __new(struct Type *t) {
         printf("Just set data to NULL\n");fflush(stdout);
         r->data = NULL;
     }
+    r->methods = r->type->methods;
     printf("Completed __new %d <type %d, par %d> inner data=%d\n", r, r->type, r->type->parent, r->data);fflush(stdout);
     //fprintf(stderr, "__new %d\n", r);
     return r;

@@ -13,6 +13,7 @@ struct Reference {
     struct Type *type;
     void *data;
     int32_t counter;
+    void *methods;
 } __attribute__((__packed__ ));
 
 struct Array {

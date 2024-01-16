@@ -156,31 +156,49 @@ A.bar.L_entry:
   ret
 
  # Register allocation:
- # [(ValIdent "%a_t_5",rsi),(ValIdent "%v_t_5",rax),(ValIdent "%v_t_8",rax),(ValIdent "%v_t_9",rax)]
+ # [(ValIdent "%a_t_4",rdi),(ValIdent "%a_t_5",rsi),(ValIdent "%v_t_10",rdx),(ValIdent "%v_t_12",rax),(ValIdent "%v_t_13",rax),(ValIdent "%v_t_14",rax),(ValIdent "%v_t_4",rbx),(ValIdent "%v_t_5",r12),(ValIdent "%v_t_6",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi)]
 
 B.bar:
+  push %r12
+  push %rbx
   push %rbp
   movq %rsp, %rbp
   subq $0, %rsp # space for locals
 B.bar.L_entry:
-  movl %esi, %eax # load %v_t_5
+  movq %rdi, %rbx # load %v_t_4
+  movl %esi, %r12d # load %v_t_5
+  movq 8(%rbx), %rax # load data (indirect)
+  movl 0(%rax), %eax # load %v_t_6
+  movl %eax, %edi # passing arg
+  subq $0, %rsp # 16 bytes alignment
+  call printInt
+  addq $0, %rsp
+  movl %r12d, %edi # passing arg
+  subq $0, %rsp # 16 bytes alignment
+  call printInt
+  addq $0, %rsp
+  leal 2(%r12), %edx # addition %v_t_10
+  movq 8(%rbx), %rax # load data (indirect)
+  movl 0(%rax), %eax # load %v_t_12
   movl %eax, %eax
   sal $1, %eax # multiply by 2
-  addl $2, %eax
+  addl %edx, %eax
   movl %eax, %eax # move return value
   addq $0, %rsp
   leave
+  pop %rbx
+  pop %r12
   ret
 
  # Register allocation:
- # [(ValIdent "%a_t_10",rdi),(ValIdent "%v_t_10",rdx),(ValIdent "%v_t_12",rax),(ValIdent "%v_t_13",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rsi",rsi)]
+ # [(ValIdent "%a_t_15",rdi),(ValIdent "%v_t_15",rdx),(ValIdent "%v_t_17",rax),(ValIdent "%v_t_18",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rsi",rsi)]
 
 __cl_TopLevel.foo:
   push %rbp
   movq %rsp, %rbp
   subq $0, %rsp # space for locals
 __cl_TopLevel.foo.L_entry:
-  movq %rdi, %rdx # load %v_t_10
+  movq %rdi, %rdx # load %v_t_15
   lea __const_1(%rip), %rax
   push %rdx # save caller saved
   movq %rax, %rdi # passing arg
@@ -194,9 +212,8 @@ __cl_TopLevel.foo.L_entry:
   subq $0, %rsp # 16 bytes alignment
   testq %rdi, %rdi
   jz __errorNull
-  movq 0(%rdi), %rax # load address of vtable
-  movq 12(%rax), %rdi # load address of vtable
-  call *16(%rdi) # call concat
+  movq 20(%rdi), %rax # load address of vtable
+  call *16(%rax) # call concat
   addq $0, %rsp
   movq %rax, %rax
   movq %rax, %rax # move return value
@@ -205,14 +222,14 @@ __cl_TopLevel.foo.L_entry:
   ret
 
  # Register allocation:
- # [(ValIdent "%a_t_14",rdi),(ValIdent "%v_t_14",rax),(ValIdent "%v_t_16",rax)]
+ # [(ValIdent "%a_t_19",rdi),(ValIdent "%v_t_19",rax),(ValIdent "%v_t_21",rax)]
 
 __cl_TopLevel.bar:
   push %rbp
   movq %rsp, %rbp
   subq $0, %rsp # space for locals
 __cl_TopLevel.bar.L_entry:
-  movl %edi, %eax # load %v_t_14
+  movl %edi, %eax # load %v_t_19
   movl %eax, %eax
   sal $1, %eax # multiply by 2
   movl %eax, %eax # move return value
@@ -222,7 +239,7 @@ __cl_TopLevel.bar.L_entry:
 
 main:
  # Register allocation:
- # [(ValIdent "%v_t_17",r12),(ValIdent "%v_t_19",rax),(ValIdent "%v_t_20",rbx),(ValIdent "%v_t_27",rax),(ValIdent "%v_t_30",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi),(ValIdent "~arg_2_rsi",rsi),(ValIdent "~arg_3_rdi",rdi),(ValIdent "~arg_4_rdi",rdi),(ValIdent "~arg_5_rsi",rsi),(ValIdent "~arg_6_rdi",rdi)]
+ # [(ValIdent "%v_t_22",r12),(ValIdent "%v_t_24",rax),(ValIdent "%v_t_25",rbx),(ValIdent "%v_t_32",rax),(ValIdent "%v_t_35",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi),(ValIdent "~arg_2_rsi",rsi),(ValIdent "~arg_3_rdi",rdi),(ValIdent "~arg_4_rdi",rdi),(ValIdent "~arg_5_rsi",rsi),(ValIdent "~arg_6_rdi",rdi)]
 
 __cl_TopLevel.main:
   push %r12
@@ -247,18 +264,17 @@ __cl_TopLevel.main.L_entry:
   call __cast
   addq $0, %rsp
   movq %rax, %rbx
-  movq 8(%r12), %rdi # load data (indirect)
-  movl $42, 0(%rdi)
-  movq 8(%rbx), %rdi # load data (indirect)
-  movl $42, 0(%rdi)
+  movq 8(%r12), %rax # load data (indirect)
+  movl $42, 0(%rax)
+  movq 8(%rbx), %rax # load data (indirect)
+  movl $42, 0(%rax)
   movq %r12, %rdi # passing arg
   movl $15, %esi # passing arg
   subq $0, %rsp # 16 bytes alignment
   testq %rdi, %rdi
   jz __errorNull
-  movq 0(%rdi), %rax # load address of vtable
-  movq 12(%rax), %rdi # load address of vtable
-  call *24(%rdi) # call bar
+  movq 20(%rdi), %rax # load address of vtable
+  call *24(%rax) # call bar
   addq $0, %rsp
   movl %eax, %eax
   movl %eax, %edi # passing arg
@@ -270,9 +286,8 @@ __cl_TopLevel.main.L_entry:
   subq $0, %rsp # 16 bytes alignment
   testq %rdi, %rdi
   jz __errorNull
-  movq 0(%rdi), %rax # load address of vtable
-  movq 12(%rax), %rdi # load address of vtable
-  call *24(%rdi) # call bar
+  movq 20(%rdi), %rax # load address of vtable
+  call *24(%rax) # call bar
   addq $0, %rsp
   movl %eax, %eax
   movl %eax, %edi # passing arg

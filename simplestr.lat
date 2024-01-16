@@ -7,7 +7,9 @@ class A {
 
 class B extends A {
   int bar(int x) {
-    return x*2+2;
+    printInt(a);
+    printInt(x);
+    return a*2+2+x;
   }
 }
 

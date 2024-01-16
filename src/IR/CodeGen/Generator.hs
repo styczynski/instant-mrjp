@@ -285,9 +285,9 @@ genCall target varArgs labelArgs cont = do
                 let self@(LocReg selfReg) = argLoc 0
                 Emit.test Quadruple self self
                 Emit.jz nullrefLabel
-                Emit.mov Quadruple (LocPtr selfReg 0) (LocReg rax) "load address of vtable"
-                Emit.mov Quadruple (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
-                Emit.callAddress selfReg offset ("call " ++ s)
+                Emit.mov Quadruple (LocPtr selfReg 20) (LocReg rax) "load address of vtable"
+                --Emit.mov Quadruple (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
+                Emit.callAddress rax offset ("call " ++ s)
         Emit.decrStack (stackAfter - stackBefore)
         modify (\st -> st{stack = (stack st){stackOverheadSize = stackBefore}})
         cont
@@ -392,9 +392,8 @@ getPtrLoc ptr = case ptr of
         case Map.lookup fldi (clFlds cl) of
             Just fld -> case src of
                 LocReg reg_ -> do
-                    let (LocReg tmpReg) = argLoc 0
-                    Emit.mov Quadruple (LocPtr reg_ 0x08) (LocReg tmpReg) ("load data (indirect)")
-                    return $ LocPtr tmpReg (fldOffset fld)
+                    Emit.mov Quadruple (LocPtr reg_ 0x08) (LocReg rax) ("load data (indirect)")
+                    return $ LocPtr rax (fldOffset fld)
                 _ -> error $ "internal error. invalid src loc for fldptr " ++ show src
             Nothing -> error $ "internal error. no such field " ++ toStr cli ++ "." ++ toStr fldi
     PParam _ _ n _ -> return $ argLoc n

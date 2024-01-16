@@ -63,7 +63,7 @@ withVar sourcePosition errorHandler name t m = do
     -- TODO: Add check for shadowing of "this"
     newEnv <- either (\(newName, prevName, prevType) -> failure $ errorHandler env sourcePosition (name, t) (prevName, prevType)) (return) (addVar name t env)
     withStateT (const newEnv) m
-    --withStateT (addVar name t) m
+
 
 getFunction :: String -> TypeChecker (Maybe Type.Function)
 getFunction name = tcEnvGet ((flip findFunction) name)
@@ -88,18 +88,19 @@ withClassContext className m = do
 withMethodContext :: String -> TypeChecker x -> TypeChecker x
 withMethodContext methodName m = do
         env <- tcEnv
-        (Type.Class (Syntax.Ident pos currentClassName) _ _ currentClassDecl) <- maybe (internalTCFailure "withMethodContext" $ Errors.ITCEClassContextNotAvailable Nothing) (return) $ env^.currentClass
+        (Type.Class clsName@(Syntax.Ident pos currentClassName) _ _ currentClassDecl) <- maybe (internalTCFailure "withMethodContext" $ Errors.ITCEClassContextNotAvailable Nothing) (return) $ env^.currentClass
         member <- tcEnvGet ((flip findMember) methodName)
         case member of
                 (Just (Type.Method methodName methodType args (Syntax.MethodDecl a t id as b))) -> do
-                    withSeparateScope pos (methodContext methodName methodType args (Syntax.FunctionDef a t id as b) m)
+                    withSeparateScope pos (methodContext clsName methodName methodType args (Syntax.FunctionDef a t id as b) m)
                 _ -> internalTCFailure "withMethodContext" $ Errors.ITCEMissingClassMember currentClassName methodName
     where
-        methodContext :: Type.Name -> Type.Type -> (M.Map String (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
-        methodContext methodName methodType args currentClassDecl m = do
+        methodContext :: Syntax.Ident Position -> Type.Name -> Type.Type -> (M.Map String (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
+        methodContext clsName methodName methodType args currentClassDecl m = do
             env <- tcEnv
-            -- TODO: Add this to env here!!!
-            newEnv <- foldM (\accEnv (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withMethodContext" $ Errors.ITCEDuplicateMethodArg n1 n2 t) (return) $ addVar varName varType accEnv) env args
+            let declPos = Syntax.getPos currentClassDecl
+            thisEnv <- either (\(n1, n2, t) -> internalTCFailure "withMethodContext" $ Errors.ITCEDuplicateMethodArg n1 n2 t) (return) $ addVar (Syntax.Ident declPos "this") (Syntax.ClassT declPos $ clsName) env
+            newEnv <- foldM (\accEnv (varName, varType) -> either (\(n1, n2, t) -> internalTCFailure "withMethodContext" $ Errors.ITCEDuplicateMethodArg n1 n2 t) (return) $ addVar varName varType accEnv) thisEnv args
             withStateT (\env -> env & currentFunction .~ Nothing) . return =<< withStateT (const $ newEnv & currentFunction %~ (\_ -> Just $ (Type.Fun methodName methodType args currentClassDecl))) m 
  
 
@@ -252,10 +253,7 @@ instance TypeCheckable Syntax.ClassDecl where
     doCheckTypes method@(Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b) = do
         checkTypeExists AllowVoid (Errors.TypeInMethodReturn method) tret
         mapM (\arg -> typeFromArg (Errors.TypeInMethodArgDecl method arg) arg) args >>= mapM_ (\(t, arg) -> checkTypeExists NoVoid (Errors.TypeInMethodArgDecl method arg) t)
-        --checkArgsRedeclaration args
-        -- TODO: should be separate function not withFunctionContext
         checkedBody <- withMethodContext methodName (checkArgsRedeclaration (Errors.DuplicateFunctionArgument) args >> checkTypesFunctionBlock b)
-        -- checkedBody <- withFunctionContext methodName (checkTypes b)
         return $ Syntax.MethodDecl pos tret id args checkedBody
 
 instance TypeCheckable Syntax.Block where
