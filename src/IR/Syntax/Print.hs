@@ -6,6 +6,7 @@ module IR.Syntax.Print where
 
 import IR.Syntax.Syntax
 import Data.Char
+import Data.List (intercalate)
 
 -- the top-level printing method
 printTree :: Print a => a -> String
@@ -129,7 +130,7 @@ instance Print (Metadata a) where
 
 instance Print (ClassDef a) where
   prt i e = case e of
-    ClDef _ symident fielddefs methoddefs -> prPrec i 0 (concatD [prt 0 symident, doc (showString ":"), doc (showString "["), doc (showString ".fields"), doc (showString ":"), doc (showString "["), prt 0 fielddefs, doc (showString "]"), doc (showString ".methods"), doc (showString ":"), doc (showString "["), prt 0 methoddefs, doc (showString "]"), doc (showString "]")])
+    ClDef _ symident chain fielddefs methoddefs -> prPrec i 0 (concatD [prt 0 symident, doc (showString $ " extends [" ++ (intercalate ", " $ map show chain) ++ "] "), doc (showString ":"), doc (showString "["), doc (showString ".fields"), doc (showString ":"), doc (showString "["), prt 0 fielddefs, doc (showString "]"), doc (showString ".methods"), doc (showString ":"), doc (showString "["), prt 0 methoddefs, doc (showString "]"), doc (showString "]")])
   prtList _ [] = (concatD [])
   prtList _ (x:xs) = (concatD [prt 0 x, prt 0 xs])
 instance Print (FieldDef a) where
@@ -206,7 +207,7 @@ instance Print (PhiVariant a) where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
 instance Print (Call a) where
   prt i e = case e of
-    Call _ stype qident vals -> prPrec i 0 (concatD [doc (showString "call"), prt 0 stype, prt 0 qident, doc (showString "("), prt 0 vals, doc (showString ")")])
+    Call _ stype qident vals _ -> prPrec i 0 (concatD [doc (showString "call"), prt 0 stype, prt 0 qident, doc (showString "("), prt 0 vals, doc (showString ")")])
     CallVirt _ stype qident vals -> prPrec i 0 (concatD [doc (showString "callvirt"), prt 0 stype, prt 0 qident, doc (showString "("), prt 0 vals, doc (showString ")")])
 
 instance Print (Val a) where

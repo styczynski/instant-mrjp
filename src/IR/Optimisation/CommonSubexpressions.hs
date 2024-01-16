@@ -94,9 +94,9 @@ replaceInInstr instr = case instr of
 
 replaceInCall :: Call () -> State GCSEState (Call ())
 replaceInCall call = case call of
-    Call _ t qi vs -> do
+    Call _ t qi vs labs -> do
         xs <- mapM replaceInVal vs
-        return $ Call () t qi xs
+        return $ Call () t qi xs labs
     CallVirt _ t qi vs -> do
         xs <- mapM replaceInVal vs
         return $ CallVirt () t qi xs

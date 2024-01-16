@@ -36,8 +36,13 @@ collectClasses [] = return []
 collectClasses ((def@(ClassDef pos id parent decls)):xs) = do
     rest <- collectClasses xs
     members <- mapM memberOf decls
-    return $ Type.Class id parent members def : rest
+    -- Corect all classes to extend Object
+    parent' <- correctExtends parent
+    return $ Type.Class id parent' members def : rest
     where
+        correctExtends :: OptionalName Position -> TypeChecker (OptionalName Position)
+        correctExtends n@(Name p i) = return n
+        correctExtends (NoName p) = return $ Name p (Ident p "Object")
         memberOf :: ClassDecl Position -> TypeChecker Type.Member
         memberOf decl@(FieldDecl pos t id) = assureProperType t >> return (Type.Field id t decl)
         memberOf decl@(MethodDecl pos t id args _) = return . ($ decl) . Type.Method id t  =<< (argsToMapping args)

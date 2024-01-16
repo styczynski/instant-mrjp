@@ -91,6 +91,6 @@ rename vif vit instr = case instr of
     where
         f (VVal _ t vi) | vi == vif = VVal () t vit
         f val = val
-        fc (Call _ t qi vs)     = Call () t qi (map f vs)
+        fc (Call _ t qi vs labs)     = Call () t qi (map f vs) labs
         fc (CallVirt _ t qi vs) = CallVirt () t qi (map f vs)
         fp (PhiVar _ l v) = PhiVar () l (f v)

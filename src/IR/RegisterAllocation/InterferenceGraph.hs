@@ -76,7 +76,7 @@ buildInterferenceGraph g = stIg $ execState (go (linearise g)) (St (IG Map.empty
 createCallEdges :: Call a -> Liveness -> State InterferenceState ()
 createCallEdges call l = do
     let vals = case call of
-                Call _ _ _ vs     -> vs
+                Call _ _ _ vs _     -> vs
                 CallVirt _ _ _ vs -> vs
         valLocs = zip vals (map argLoc [0..])
     forM_ valLocs (uncurry edgesForArg)

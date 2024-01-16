@@ -48,7 +48,7 @@ data Field a = Field a (Type a) (Label a)
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Field
 
-data Structure a = Struct a (Label a) (Maybe (Label a)) (M.Map (Method a)) (M.Map (Field a))
+data Structure a = Struct a (Label a) [Label a] (M.Map (Method a)) (M.Map (Field a))
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Structure
 
@@ -203,7 +203,7 @@ instance Show (Field a) where
     show (Field _ fieldType name) = "field "++show fieldType++" "++show name++";"
 
 instance Show (Structure a) where
-    show (Struct _ l _ methods fields) = "struct "++show l++"\n"++(concat $ M.mapList (\_ field-> "    "++show field++"\n") fields)++(concat $ M.mapList (\_ method->"    "++show method++"\n") methods)
+    show (Struct _ l chain methods fields) = "struct "++show l++" extends ["++(intercalate ", " $ map show chain)++"]\n"++(concat $ M.mapList (\_ field-> "    "++show field++"\n") fields)++(concat $ M.mapList (\_ method->"    "++show method++"\n") methods)
 
 instance Show (Function a) where
     show (Fun _ Nothing l t args body) = show t++" "++show l++"("++intercalate ", " (map (\(t,n)->show t++" "++show n) args)++")\n"++(concat $ map (\s->show s++"\n") body)
@@ -240,6 +240,7 @@ instance Show (Expr a) where
     show (MCall _ n cls i args) = "    call<method:" ++ show i ++ ", class:" ++ show cls ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
     --show (ArrAccess _ n v) = "    " ++ show name ++ "[" ++ show value ++ "]"
     --show (MemberAccess _ n off) = "    " ++ show n ++ "." ++ "(+" ++ show off ++ ")"
+    show (Cast _ l val) = "    cast "++show val++" to "++show l
     show _ = "<unknown instruction>"
 
 instance Show (Target a) where

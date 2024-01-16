@@ -19,8 +19,8 @@ char *errMsg;
 uint8_t emptyString[] = "";
 
 obj __new(struct Type *t) {
-    printf("Perform reference malloc\n");fflush(stdout);
-    obj r = malloc(sizeof(struct Reference));
+    printf("Perform reference malloc type=%d <type parent=%d> [%d]\n", t, t->parent, t->dataSize);fflush(stdout);
+    obj r = malloc(sizeof(struct Reference)+10);
     printf("Set __new type/counter\n");fflush(stdout);
     r->type = t;
     r->counter = 0;
@@ -33,7 +33,7 @@ obj __new(struct Type *t) {
         printf("Just set data to NULL\n");fflush(stdout);
         r->data = NULL;
     }
-    printf("Completed __new\n");fflush(stdout);
+    printf("Completed __new %d <type %d, par %d> inner data=%d\n", r, r->type, r->type->parent, r->data);fflush(stdout);
     //fprintf(stderr, "__new %d\n", r);
     return r;
 }
@@ -116,14 +116,28 @@ void *__getelementptr(obj array, int32_t index) {
 }
 
 obj __cast(obj o, struct Type *t) {
-    if (o == NULL)
+    fprintf(stderr, "__cast\n");fflush(stdout);
+    fprintf(stderr, "__cast %d %d [%d]\n", o, t, t->dataSize);fflush(stdout);
+    if (o == NULL) {
+        fprintf(stderr, "__cast object is null\n");fflush(stdout);
         return NULL;
+    }
+    fprintf(stderr, "__cast get underlying type\n");fflush(stdout);
     struct Type *to = o->type;
     while (to != NULL) {
-        if (t == to)
+        fprintf(stderr, "__cast iterate parent upward %d [%d]\n", to, to->dataSize);fflush(stdout);
+        if (t == to) {
+            fprintf(stderr, "__cast found correct parent: %d\n", to);fflush(stdout);
             return o;
+        }
+        struct Type *prev = to;
         to = to->parent;
+        if (prev == to) {
+            fprintf(stderr, "__cast loop, break %d\n", to);fflush(stdout);
+            break;
+        }
     }
+    fprintf(stderr, "finished the cast (FAILED)\n");
     return NULL;
 }
 

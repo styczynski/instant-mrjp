@@ -131,7 +131,7 @@ ptrValSet ptr = case ptr of
 
 callUseSet :: Call a -> TypedVarSet
 callUseSet call = case call of
-    Call _ _ _ vs     -> valsSet vs
+    Call _ _ _ vs _    -> valsSet vs
     CallVirt _ _ _ vs -> valsSet vs
 
 phiUseSet :: [PhiVariant a] -> TypedVarSet

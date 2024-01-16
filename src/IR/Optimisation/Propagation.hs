@@ -120,12 +120,12 @@ propagateInPtr ptr = case ptr of
 
 propagateInCall :: Call () -> State PropagationState (Call ())
 propagateInCall call = case call of
-    Call _ t qi vals -> do
+    Call p t qi vals labs -> do
         xs <- mapM tryPropagate vals
-        return $ Call () t qi xs
-    CallVirt _ t qi vals -> do
+        return $ Call p t qi xs labs
+    CallVirt p t qi vals -> do
         xs <- mapM tryPropagate vals
-        return $ CallVirt () t qi xs
+        return $ CallVirt p t qi xs
 
 propagateInPhiVar :: PhiVariant () -> State PropagationState (PhiVariant ())
 propagateInPhiVar (PhiVar _ l val) = do

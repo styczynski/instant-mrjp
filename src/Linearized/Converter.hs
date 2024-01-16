@@ -161,7 +161,7 @@ collectStructures classes = do
             let newParent = case parent of
                     (A.NoName _) -> Nothing
                     (A.Name _ (A.Ident idpos id)) -> Just $ B.Label idpos id
-            let structPrototype = B.Struct clnamePos newName newParent IM.empty IM.empty
+            let structPrototype = B.Struct clnamePos newName [] IM.empty IM.empty
             chainMembers <- concat <$> mapM (return . map (\(B.Struct _ (B.Label _ name) _ methods fields) -> (name, fields, methods)) <=< collectFromClass) parentChain
             completeStruct <- foldM (\struct (name, fields, methods) -> classParentMerge clname name struct fields methods) structPrototype chainMembers
             completeStruct' <- classParentMerge clname clname completeStruct selfFields selfMethods
@@ -173,20 +173,20 @@ collectStructures classes = do
         translateToField _ (Types.Field (A.Ident p n) t _) = Just $ B.Field p (ct t) (B.Label p n)
         translateToField _ _ = Nothing
         classParentMerge :: String -> String -> B.Structure Position -> IM.Map (B.Field Position) -> IM.Map (B.Method Position) -> LinearConverter () (B.Structure Position)
-        classParentMerge clsName parentName (B.Struct pos name parent methods fields) parentFields parentMethods = do
+        classParentMerge clsName parentName (B.Struct pos name chain methods fields) parentFields parentMethods = do
             -- (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods)
             --let overridenMethods = filter (\name -> let pkeys = IM.keys parentMethods in any (\pname -> stripClassName name == stripClassName pname) pkeys) $ IM.keys methods
-            let parentMethodEntries = IM.mapList (\k (B.Method _ _ name _ _) -> (k, name)) parentMethods
-            let overridenMethods = map fst $ filter snd $ IM.mapList (\k (B.Method _ _ name _ _) -> (k, any (\(_, pname) -> pname == name) parentMethodEntries)) methods
+            let parentMethodEntries = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ (B.Label _ parName) name _ _) -> ((m, name), parName == parentName)) parentMethods
+            let overridenMethods = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ _ name _ _) -> ((k, m), any (\(_, pname) -> pname == name) parentMethodEntries)) methods
             --let newMethods = (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++parentName++"_"++stripClassName id) parentMethods)
-            let newMethods = (IM.mapList (\_ (B.Method mPos mClass mName mType mArgs) -> B.Method mPos (B.Label pos parentName) mName mType mArgs) parentMethods)
-            combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany overridenMethods methods
+            let newMethods = map (\(B.Method mPos mClass mName mType mArgs) -> B.Method mPos (B.Label pos parentName) mName mType mArgs) $ map fst parentMethodEntries
+            combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany (map fst overridenMethods) methods
             --combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods) methods
             combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m field -> field) parentFields fields
             --(B.Label idpos $ "_class_"++id) name newParent
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()
-            return $ B.Struct pos name parent combinedMethods combinedFields 
+            return $ B.Struct pos name (B.Label pos parentName : chain) combinedMethods combinedFields 
         measureOffset :: IM.Map (B.Label a, B.Type a, B.Offset) -> B.Size
         measureOffset m = case IM.last m of
             Nothing -> 0

@@ -32,12 +32,12 @@ data Metadata a = Meta a [ClassDef a]
 instance Functor Metadata where
     fmap f x = case x of
         Meta a classdefs -> Meta (f a) (map (fmap f) classdefs)
-data ClassDef a = ClDef a SymIdent [FieldDef a] [MethodDef a]
+data ClassDef a = ClDef a SymIdent [SymIdent] [FieldDef a] [MethodDef a]
   deriving (Eq, Ord, Show, Read, Foldable)
 
 instance Functor ClassDef where
     fmap f x = case x of
-        ClDef a symident fielddefs methoddefs -> ClDef (f a) symident (map (fmap f) fielddefs) (map (fmap f) methoddefs)
+        ClDef a symident chain fielddefs methoddefs -> ClDef (f a) symident chain (map (fmap f) fielddefs) (map (fmap f) methoddefs)
 data FieldDef a = FldDef a (SType a) SymIdent
   deriving (Eq, Ord, Show, Read, Foldable)
 
@@ -150,13 +150,13 @@ instance Functor PhiVariant where
     fmap f x = case x of
         PhiVar a labident val -> PhiVar (f a) labident (fmap f val)
 data Call a
-    = Call a (SType a) (QIdent a) [Val a]
+    = Call a (SType a) (QIdent a) [Val a] [LabIdent]
     | CallVirt a (SType a) (QIdent a) [Val a]
   deriving (Eq, Ord, Show, Read, Foldable)
 
 instance Functor Call where
     fmap f x = case x of
-        Call a stype qident vals -> Call (f a) (fmap f stype) (fmap f qident) (map (fmap f) vals)
+        Call a stype qident vals labs -> Call (f a) (fmap f stype) (fmap f qident) (map (fmap f) vals) labs
         CallVirt a stype qident vals -> CallVirt (f a) (fmap f stype) (fmap f qident) (map (fmap f) vals)
 data Val a
     = VInt a Integer

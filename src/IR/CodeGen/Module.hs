@@ -38,7 +38,7 @@ generateModule cls mthds allConsts =
                       else [Emit.global (classDefIdent (clName cl))
                             ,Emit.global (vTableLabIdent (clName cl))
                             ,Emit.label (classDefIdent (clName cl)) ""
-                            ,Emit.quadDef (let (LabIdent l) = classDefIdent (clName cl) in l) -- parent
+                            ,Emit.quadDef (let (LabIdent l) = (if length (clChain cl) == 1 then (LabIdent "0") else classDefIdent ((clChain cl)!!1)) in l) -- parent
                             ,Emit.longDef (show $ clSize cl)
                             ,Emit.quadDef (let (LabIdent l) = vTableLabIdent (clName cl) in l)
                             ,Emit.longDef "0"

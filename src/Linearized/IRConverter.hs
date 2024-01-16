@@ -46,15 +46,15 @@ run prog@(A.Program p structs fns datas) = do
     classDefs <- IM.mapListM (\_ struct -> convertStructureToFIR struct) structs
     methodsFns <- IM.mapListM (\_ fn -> convertFunctionToFIR fn) fns
     builtinFns <- return $ map (\(A.Fun _ cls l rt args stmts) -> B.MthdDef p (B.FType p (convertType rt) $ map (convertType . fst) args) (functionName cls l)) $ map (fmap (const p)) builtIns
-    globalClassDef <- return $ B.ClDef p (B.SymIdent "~cl_TopLevel") [] (builtinFns ++ map extractMethodDef methodsFns)
+    globalClassDef <- return $ B.ClDef p (B.SymIdent "~cl_TopLevel") [] [] (builtinFns ++ map extractMethodDef methodsFns)
     return $ B.Program p (B.Meta p $ classDefs ++ [globalClassDef]) methodsFns
 
 convertStructureToFIR :: (A.Structure a) -> LinearConverter (IRConverterEnv a) (B.ClassDef a)
-convertStructureToFIR (A.Struct p (A.Label _ name) parentName methods fields) = do
+convertStructureToFIR (A.Struct p (A.Label _ name) chain methods fields) = do
     --(A.Label fieldPos fieldName), fieldType, _
     fields <- return $ IM.mapList (\_ (A.Field fieldPos fieldType (A.Label _ fieldName)) -> B.FldDef fieldPos (convertType fieldType) $ B.SymIdent fieldName) fields
     methods <- return $ IM.mapList (\_ (A.Method methodPos methodCls methodName methodType methodArgs) -> B.MthdDef methodPos (B.FType methodPos (convertType methodType) (map (convertType . fst) methodArgs)) (functionName (Just methodCls) methodName)) methods
-    return $ B.ClDef p (B.SymIdent name) fields methods
+    return $ B.ClDef p (B.SymIdent name) (map (\(A.Label _ pCls) -> B.SymIdent pCls) chain) fields methods
 
 convertFunctionToFIR :: (A.Function a) -> LinearConverter (IRConverterEnv a) (B.Method a)
 convertFunctionToFIR (A.Fun p cls l rt args stmts) = do
@@ -139,7 +139,7 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
         return [B.INewStr p' (nameToValIdent vn) strConst]
     A.Val p' val -> return [B.ISet p' (nameToValIdent vn) (convertValue val)]
     A.Call p' fnLabel params -> do
-        return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params))]
+        return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params) [])]
         -- argTempNames <- mapM (const $ newRetTempName p') params
         -- argTempInstrs <- return $ map (\(tmpName, val) -> B.ISet p (nameToValIdent tmpName) (convertValue val)) $ zip argTempNames params
         -- argParams <- return $ map (\(param, v) -> B.VVal p (snd $ convertValueT param) v) $ zip params $ map nameToValIdent argTempNames
@@ -154,9 +154,10 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
     A.ByteToInt p' v -> todoAddLogic
     A.Not p' v -> return [B.IOp p (nameToValIdent vn) (B.VInt p' 0) (B.OpSub p') (convertValue v)]
     A.BinOp p' op v1 v2 -> return [B.IOp p (nameToValIdent vn) (convertValue v1) (convertOp op) (convertValue v2)]
-    A.Cast p' l v -> todoAddLogic
+    A.Cast p' l@(A.Label _ clsName) v ->
+        return [B.ICall p (nameToValIdent vn) (B.Call p (convertType $ A.Reference p l) (functionName Nothing $ A.Label p "__cast") [convertValue v] [B.LabIdent $ "_class_" ++ clsName])]
 convertStmtToFIR (A.VCall p vt fnLabel params) = do
-    return [B.IVCall p (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params))]
+    return [B.IVCall p (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params) [])]
 --convertStmtToFIR (A.VMCall p vt (A.Name _ clsName) (A.Label _ fnName) params) = do
 --    return [B.IVCall p (B.Call p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent fnName)) (map convertValue params))]
 convertStmtToFIR (A.Assign p vt (A.Variable p' n) expr) = convertStmtToFIR $ A.VarDecl p vt n expr

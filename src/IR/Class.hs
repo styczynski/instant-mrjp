@@ -11,7 +11,8 @@ data CompiledClass = CompiledCl {
     clName   :: SymIdent,
     clFlds   :: Map.Map SymIdent CompiledField,
     clSize   :: Int64,
-    clVTable :: VTable
+    clVTable :: VTable,
+    clChain  :: [SymIdent]
 }
 
 data CompiledField = Fld {
@@ -26,10 +27,10 @@ data VTable = VTab {
 }
 
 compileClass :: ClassDef a -> CompiledClass
-compileClass (ClDef _ i fldDefs mthdDefs) =
+compileClass (ClDef _ i chain fldDefs mthdDefs) =
     let (flds, unalignedSize) = layoutFields fldDefs
         vTable = generateVTable mthdDefs
-    in  CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) (alignSize unalignedSize) vTable
+    in  CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) (alignSize unalignedSize) vTable chain
 
 alignSize :: Int64 -> Int64
 alignSize n = if n `mod` 8 == 0
@@ -39,7 +40,7 @@ alignSize n = if n `mod` 8 == 0
 layoutFields :: [FieldDef a] -> ([CompiledField], Int64)
 layoutFields fldDefs =
     let fldBase = map (\(FldDef _ t sym) -> Fld sym (() <$ t) 0) fldDefs
-    in  foldl' go ([], 8) fldBase
+    in  foldl' go ([], 0) fldBase
     where
         go (flds, offset) fld =
             let fldSize = sizeInBytes (typeSize (fldType fld))

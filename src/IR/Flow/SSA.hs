@@ -137,9 +137,9 @@ transformLocally g params =
                 return $ IPhi a vi' phiVars
             _ -> return instr
         transformCall call = case call of
-            Call a t qi vals -> do
+            Call a t qi vals labs -> do
                 xs <- mapM renameVal vals
-                return $ Call a t qi xs
+                return $ Call a t qi xs labs
             CallVirt a t qi vals -> do
                 xs <- mapM renameVal vals
                 return $ CallVirt a t qi xs

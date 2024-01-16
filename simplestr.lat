@@ -1,5 +1,14 @@
 class A {
   int a;
+  int bar(int x) {
+    return x*2;
+  }
+}
+
+class B extends A {
+  int bar(int x) {
+    return x*2+2;
+  }
 }
 
 string foo(string a) {
@@ -11,9 +20,14 @@ int bar(int x) {
 }
 
 int main() {
-  A a = new A;
-  a.a = 42;
-  printInt(a.a+1);
+  A x = new A;
+  A y = new B;
+  x.a = 42;
+  y.a = 42;
+  A x2 = x;
+  A y2 = y;
+  printInt(x2.bar(15));
+  printInt(y2.bar(15));
   return 0;
 }
 

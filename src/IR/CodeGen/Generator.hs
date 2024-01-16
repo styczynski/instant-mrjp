@@ -195,12 +195,12 @@ genInstr instr =
                     UnOpNeg _ -> Emit.neg dest
                     UnOpNot _ -> Emit.xor Byte (LocImm 1) dest
             IVCall _ call -> case call of
-                    Call _ _ qi args     -> genCall (CallDirect $ getCallTarget qi) args [] (return ())
+                    Call _ _ qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (return ())
                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
             ICall _ vi call -> do
                 dest <- getLoc vi
                 case call of
-                        Call _ t qi args     -> genCall (CallDirect $ getCallTarget qi) args [] (Emit.mov (typeSize t) (LocReg rax) dest "")
+                        Call _ t qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (Emit.mov (typeSize t) (LocReg rax) dest "")
                         CallVirt _ t qi args -> genCallVirt qi args (Emit.mov (typeSize t) (LocReg rax) dest "")
             ILoad _ vi ptr -> do
                 let t = () <$ deref (ptrType ptr)
@@ -220,8 +220,8 @@ genInstr instr =
                         (LocReg tmpReg) = argLoc 0
                     let clLabel = classDefIdent clIdent
                     genCall (CallDirect "__new") [] [clLabel] (do
-                        Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
-                        Emit.mov Quadruple (LocReg tmpReg) (LocPtr rax 0) "store vtable"
+                        --Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
+                        --Emit.mov Quadruple (LocReg tmpReg) (LocPtr rax 0) "store vtable"
                         Emit.mov Quadruple (LocReg rax) dest "")
                 _ -> error $ "internal error. new on nonclass " ++ show t
             INewStr _ vi str -> do
@@ -286,7 +286,8 @@ genCall target varArgs labelArgs cont = do
                 Emit.test Quadruple self self
                 Emit.jz nullrefLabel
                 Emit.mov Quadruple (LocPtr selfReg 0) (LocReg rax) "load address of vtable"
-                Emit.callAddress rax offset ("call " ++ s)
+                Emit.mov Quadruple (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
+                Emit.callAddress selfReg offset ("call " ++ s)
         Emit.decrStack (stackAfter - stackBefore)
         modify (\st -> st{stack = (stack st){stackOverheadSize = stackBefore}})
         cont
@@ -390,7 +391,10 @@ getPtrLoc ptr = case ptr of
         cl <- getClass cli
         case Map.lookup fldi (clFlds cl) of
             Just fld -> case src of
-                LocReg reg_ -> return $ LocPtr reg_ (fldOffset fld)
+                LocReg reg_ -> do
+                    let (LocReg tmpReg) = argLoc 0
+                    Emit.mov Quadruple (LocPtr reg_ 0x08) (LocReg tmpReg) ("load data (indirect)")
+                    return $ LocPtr tmpReg (fldOffset fld)
                 _ -> error $ "internal error. invalid src loc for fldptr " ++ show src
             Nothing -> error $ "internal error. no such field " ++ toStr cli ++ "." ++ toStr fldi
     PParam _ _ n _ -> return $ argLoc n
