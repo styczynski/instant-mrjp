@@ -234,8 +234,21 @@ genInstr instr =
                 genCall (CallDirect "__createString") [VVal () t vi] [] (Emit.mov Quadruple (LocReg rax) dest "")
             INewArr _ vi t val -> do
                 dest <- getLoc vi
-                let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
-                genCall (CallDirect "lat_new_array") [() <$ val, sizeArg] [] (Emit.mov Quadruple (LocReg rax) dest "")
+                --let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
+                --() <$ val, 
+                -- | = Int a
+                -- | Bool a
+                -- | Void a
+                -- | Arr a (SType a)
+                -- | Cl a SymIdent
+                -- | Ref a (SType a)
+                case t of 
+                    (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (Emit.mov Quadruple (LocReg rax) dest "")
+                    (Bool _) -> genCall (CallDirect "__newByteArray") [() <$ val] [] (Emit.mov Quadruple (LocReg rax) dest "")
+                    (Void _) -> genCall (CallDirect "__newArray") [VInt () 0, () <$ val] [] (Emit.mov Quadruple (LocReg rax) dest "")
+                    (Cl _ name) -> error $ "internal error. cannot create array of class type " ++ show name
+                    (Ref _ _) -> genCall (CallDirect "__newRefArray") [() <$ val] [] (Emit.mov Quadruple (LocReg rax) dest "")
+                    _ -> error $ "internal error. invalid array type " ++ show t
             IJmp _ li -> do
                 li' <- label li
                 resetStack
@@ -375,16 +388,21 @@ getPtrLoc ptr = case ptr of
             _ -> error $ "internal error. invalid src loc for arrlen " ++ show src
     PElem _ elemT arrVal idxVal -> do
         let elemSize = typeSize $ deref elemT
-            idxOffset = if elemSize < Double
-                          then sizeInBytes Double
-                          else sizeInBytes elemSize
+            idxOffset = 8
+            -- idxOffset = if elemSize < Double
+            --               then sizeInBytes Double
+            --               else sizeInBytes elemSize
         arrSrc <- getValLoc arrVal
         idxSrc <- getValLoc idxVal
         case (arrSrc, idxSrc) of
-            (LocReg arrReg, LocReg idxReg) ->
-                return $ LocPtrCmplx arrReg idxReg idxOffset elemSize
-            (LocReg arrReg, LocImm idx) ->
-                return $ LocPtr arrReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
+            (LocReg arrReg, LocReg idxReg) -> do
+                let (LocReg tmpReg) = argLoc 0
+                Emit.mov Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
+                return $ LocPtrCmplx tmpReg idxReg idxOffset elemSize
+            (LocReg arrReg, LocImm idx) -> do
+                let (LocReg tmpReg) = argLoc 0
+                Emit.mov Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
+                return $ LocPtr tmpReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
             _ -> error $ "internal error. invalid src loc for elemptr " ++ show arrSrc ++ ", " ++ show idxSrc
     PFld _ _ val (QIdent _ cli fldi) -> do
         src <- getValLoc val

@@ -147,7 +147,8 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
     A.MCall p' _ (A.Label p'' methodName) (A.Label _ clsName) params -> 
         return [B.ICall p (nameToValIdent vn) (B.CallVirt p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent methodName)) (map convertValue $ params))]
         --return [B.ICall p (nameToValIdent vn) (B.Call p (convertType vt) (B.QIdent p (B.SymIdent "~cl_TopLevel") (B.SymIdent methodName)) (map convertValue params))]
-    A.ArrAccess p' n v -> todoAddLogic
+    A.ArrAccess p' n v ->
+        return [B.ILoad p (nameToValIdent vn) (B.PElem p (convertType vt) (B.VVal p (B.Ref p $ B.Arr p (convertType vt)) (nameToValIdent n)) (convertValue v))]
     A.MemberAccess p' n cls member fieldType -> do 
         return [B.ILoad p (nameToValIdent vn) (B.PFld p ((B.Ref p) $ convertType fieldType) (B.VVal p (classType cls) (nameToValIdent n)) (functionName (Just cls) member) )]
     A.IntToByte p' v -> todoAddLogic
@@ -165,7 +166,10 @@ convertStmtToFIR (A.Assign p vt (A.Member p' mVal mCls mName) expr) = do
     exprValName <- newRetTempName p
     exprc <- convertStmtToFIR $ A.VarDecl p vt exprValName expr
     return $ exprc ++ [B.IStore p (B.VVal p (convertType vt) (nameToValIdent exprValName)) (B.PFld p ((B.Ref p) $ convertType vt) (B.VVal p (classType mCls) (nameToValIdent mVal)) (functionName (Just mCls) mName) )]
-convertStmtToFIR (A.Assign p vt (A.Array p' _ _) expr) = todoAddLogic
+convertStmtToFIR (A.Assign p vt (A.Array p' n v) expr) = do
+    exprValName <- newRetTempName p
+    exprc <- convertStmtToFIR $ A.VarDecl p vt exprValName expr
+    return $ exprc ++ [B.IStore p (B.VVal p (convertType vt) (nameToValIdent exprValName)) (B.PElem p (convertType vt) (B.VVal p (B.Ref p $ B.Arr p (convertType vt)) (nameToValIdent n)) (convertValue v))]
 convertStmtToFIR (A.ReturnVal p vt expr) = do
     retName <- newRetTempName p
     exprc <- convertStmtToFIR $ A.VarDecl p vt retName expr

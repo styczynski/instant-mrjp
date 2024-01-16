@@ -90,15 +90,16 @@ obj __newByteArray(int32_t length) {
 }
 obj __newArray(int32_t size, int32_t length) {
     obj r = __new(&_class_Array);
-    struct Array *arr = malloc(sizeof(struct Array));
+    struct Array *arr = malloc(sizeof(struct Array)+size * length);
     r->data = arr;
     arr->elementSize = size;
     arr->length = length;
     if (length > 0) {
-        arr->elements = malloc(size * length);
-        bzero(arr->elements, size * length);
-    } else
+        //arr->elements = malloc(size * length);
+        bzero(&(arr->elements), size * length);
+    } else {
         arr->elements = NULL;
+    }
     return r;
 }
 

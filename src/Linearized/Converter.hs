@@ -274,12 +274,11 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 n <- newName (ct t)
                 return (n, [B.VarDecl p (ct t) n (B.NewObj p $ B.Label p $ cls)])
             Just e -> do
-                let (A.ClassT _ (A.Ident _ cls)) = t
-                (en, enc) <- transform (B.Reference p $ B.Label p cls) e
+                (en, enc) <- transform (ct t) e
                 ten <- typeOf en
                 let tt = ct t
-                n <- newName $ B.ArrT p $ B.Reference p $ B.Label p cls
-                return (n, enc ++ [B.VarDecl p (B.ArrT p $ B.Reference p $ B.Label p cls) n (B.NewArray p tt (B.Var p en ten))])
+                n <- newName $ B.ArrT p $ ct t
+                return (n, enc ++ [B.VarDecl p (B.ArrT p $ ct t) n (B.NewArray p tt (B.Var p en ten))])
     doTransform _ (A.ArrAccess p el er (Just t)) = do
         (enl, enlc) <- transform (B.ArrT p $ ct t) el
         (enr, enrc) <- transform (B.IntT p) er
