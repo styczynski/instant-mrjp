@@ -21,6 +21,9 @@ src/Parser/Gen:
 src/IR/Parser/Gen:
 	./bin/generate_ir_parser.sh
 
+src/Backend/X64/Parser/Gen:
+	./bin/generate_asm_parser.sh
+
 profile:
 	./bin/invoke_haskell_stack.sh exec --profile -- latc_x86 ./test.lat +RTS -p -M 1844674407
 

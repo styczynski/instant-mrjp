@@ -1,0 +1,190 @@
+
+entrypoints AsmProgram ;
+
+AsmProgram.   AsmProgram ::= [Directive] SectionData SectionCode ;
+separator  AsmInstr "" ;
+
+SectionData. SectionData ::= ".section" ".rodata" [AsmDataDef];
+SectionCode. SectionCode ::= ".section" ".text" [AsmInstr] ;
+
+AsmDataGlobal .AsmDataDef ::= ".global" Label ;
+AsmDataDef. AsmDataDef ::= Label ":" [Data] ;
+separator AsmDataDef "\n" ;
+
+DataString. Data ::= ".string" String ;
+Data64. Data ::= ".quad" DataConst ;
+Data32. Data ::= ".long" DataConst ;
+separator Data "\n" ;
+
+ConstInt. DataConst ::= "$" Integer ;
+ConstLabel. DataConst ::= Label ;
+
+Extern. Directive ::= ".extern " Label ;
+separator Directive "\n" ;
+
+token Label (letter | digit | '_' | '\'')+ ;
+
+LabelDef. AsmInstr ::= Label ":" ;
+separator AsmInstr "\n" ;
+
+-- 2-operand arithmetics
+ADD64. AsmInstr ::= "addq" Source64 "," Target64 ;
+AND64. AsmInstr ::= "andq" Source64 "," Target64 ;
+CMP64. AsmInstr ::= "cmpq" Source64 "," Target64 ;
+IDIV64. AsmInstr ::= "idivq" Source64 "," Target64 ;
+IMUL64. AsmInstr ::= "imulq" Source64 "," Target64 ;
+LEA64. AsmInstr ::= "leaq" Source64 "," Target64 ;
+MOV64. AsmInstr ::= "movq" Source64 "," Target64 ;
+SUB64. AsmInstr ::= "subq" Source64 "," Target64 ;
+TEST64. AsmInstr ::= "testq" Source64 "," Target64 ;
+XOR64. AsmInstr ::= "xorq" Source64 "," Target64 ;
+XCHG64. AsmInstr ::= "xchgq" Source64 "," Target64 ;
+SAL64. AsmInstr ::= "salq" Source64 "," Target64 ;
+SAR64. AsmInstr ::= "sarq" Source64 "," Target64 ;
+
+ADD32. AsmInstr ::= "addl" Source32 "," Target32 ;
+AND32. AsmInstr ::= "andl" Source32 "," Target32 ;
+CMP32. AsmInstr ::= "cmpl" Source32 "," Target32 ;
+IDIV32. AsmInstr ::= "idivl" Source32 "," Target32 ;
+IMUL32. AsmInstr ::= "imull" Source32 "," Target32 ;
+LEA32. AsmInstr ::= "leal" Source32 "," Target32 ;
+MOV32. AsmInstr ::= "movl" Source32 "," Target32 ;
+SUB32. AsmInstr ::= "subl" Source32 "," Target32 ;
+TEST32. AsmInstr ::= "testl" Source32 "," Target32 ;
+XOR32. AsmInstr ::= "xorl" Source32 "," Target32 ;
+XCHG32. AsmInstr ::= "xchgl" Source32 "," Target32 ;
+SAL32. AsmInstr ::= "sall" Source32 "," Target32 ;
+SAR32. AsmInstr ::= "sarl" Source32 "," Target32 ;
+
+ADD16. AsmInstr ::= "addb" Source16 "," Target16 ;
+AND16. AsmInstr ::= "andb" Source16 "," Target16 ;
+CMP16. AsmInstr ::= "cmpb" Source16 "," Target16 ;
+IDIV16. AsmInstr ::= "idivb" Source16 "," Target16 ;
+IMUL16. AsmInstr ::= "imulb" Source16 "," Target16 ;
+LEA16. AsmInstr ::= "leab" Source16 "," Target16 ;
+MOV16. AsmInstr ::= "movb" Source16 "," Target16 ;
+SUB16. AsmInstr ::= "subb" Source16 "," Target16 ;
+TEST16. AsmInstr ::= "testb" Source16 "," Target16 ;
+XOR16. AsmInstr ::= "xorb" Source16 "," Target16 ;
+XCHG16. AsmInstr ::= "xchgb" Source16 "," Target16 ;
+SAL16. AsmInstr ::= "salb" Source16 "," Target16 ;
+SAR16. AsmInstr ::= "sarb" Source16 "," Target16 ;
+
+
+-- 1-operand arithmetics
+NEG64. AsmInstr ::= "negq" Target64 ;
+
+NEG32. AsmInstr ::= "negl" Target32 ;
+
+NEG16. AsmInstr ::= "negb" Target16 ;
+
+
+-- Stack operations
+POP. AsmInstr ::= "pop" Reg64 ;
+PUSH. AsmInstr ::= "push" Reg64 ;
+
+
+-- Zero arg instructions
+LEAVE. AsmInstr ::= "leave" ;
+RET. AsmInstr ::= "ret" ;
+CDQ. AsmInstr ::= "cdq" ;
+
+
+-- Set instructions
+SETE. AsmInstr ::= "sete" Reg8 ;
+SETG. AsmInstr ::= "setg" Reg8 ;
+SETGE. AsmInstr ::= "setge" Reg8 ;
+SETL. AsmInstr ::= "setl" Reg8 ;
+SETLE. AsmInstr ::= "setle" Reg8 ;
+SETNE. AsmInstr ::= "setne" Reg8 ;
+
+
+-- Jumps
+JMP. AsmInstr ::= "jmp" Label ;
+JZ. AsmInstr ::= "jz" Label ;
+
+
+-- Registers
+ToReg64. Target64 ::= Reg64 ;
+ToMem64. Target64 ::= Integer "(" Reg64 ")" ;
+FromReg64. Source64 ::= Reg64 ;
+FromMem64. Source64 ::= Integer "(" Reg64 ")" ;
+RAX. Reg64 ::= "%RAX" ;
+RBX. Reg64 ::= "%RBX" ;
+RCX. Reg64 ::= "%RCX" ;
+RDX. Reg64 ::= "%RDX" ;
+RDI. Reg64 ::= "%RDI" ;
+RSI. Reg64 ::= "%RSI" ;
+RSP. Reg64 ::= "%RSP" ;
+RBP. Reg64 ::= "%RBP" ;
+R8. Reg64 ::= "%R8" ;
+R9. Reg64 ::= "%R9" ;
+R10. Reg64 ::= "%R10" ;
+R11. Reg64 ::= "%R11" ;
+R12. Reg64 ::= "%R12" ;
+R13. Reg64 ::= "%R13" ;
+R14. Reg64 ::= "%R14" ;
+R15. Reg64 ::= "%R15" ;
+ToReg32. Target32 ::= Reg32 ;
+ToMem32. Target32 ::= Integer "(" Reg32 ")" ;
+FromReg32. Source32 ::= Reg32 ;
+FromMem32. Source32 ::= Integer "(" Reg32 ")" ;
+EAX. Reg32 ::= "%EAX" ;
+EBX. Reg32 ::= "%EBX" ;
+ECX. Reg32 ::= "%ECX" ;
+EDX. Reg32 ::= "%EDX" ;
+EDI. Reg32 ::= "%EDI" ;
+ESI. Reg32 ::= "%ESI" ;
+ESP. Reg32 ::= "%ESP" ;
+EBP. Reg32 ::= "%EBP" ;
+R8D. Reg32 ::= "%R8D" ;
+R9D. Reg32 ::= "%R9D" ;
+R10D. Reg32 ::= "%R10D" ;
+R11D. Reg32 ::= "%R11D" ;
+R12D. Reg32 ::= "%R12D" ;
+R13D. Reg32 ::= "%R13D" ;
+R14D. Reg32 ::= "%R14D" ;
+R15D. Reg32 ::= "%R15D" ;
+ToReg16. Target16 ::= Reg16 ;
+ToMem16. Target16 ::= Integer "(" Reg16 ")" ;
+FromReg16. Source16 ::= Reg16 ;
+FromMem16. Source16 ::= Integer "(" Reg16 ")" ;
+AX. Reg16 ::= "%AX" ;
+BX. Reg16 ::= "%BX" ;
+CX. Reg16 ::= "%CX" ;
+DX. Reg16 ::= "%DX" ;
+DI. Reg16 ::= "%DI" ;
+SI. Reg16 ::= "%SI" ;
+SP. Reg16 ::= "%SP" ;
+BP. Reg16 ::= "%BP" ;
+R8W. Reg16 ::= "%R8W" ;
+R9W. Reg16 ::= "%R9W" ;
+R10W. Reg16 ::= "%R10W" ;
+R11W. Reg16 ::= "%R11W" ;
+R12W. Reg16 ::= "%R12W" ;
+R13W. Reg16 ::= "%R13W" ;
+R14W. Reg16 ::= "%R14W" ;
+R15W. Reg16 ::= "%R15W" ;
+ToReg8. Target8 ::= Reg8 ;
+ToMem8. Target8 ::= Integer "(" Reg8 ")" ;
+FromReg8. Source8 ::= Reg8 ;
+FromMem8. Source8 ::= Integer "(" Reg8 ")" ;
+AL. Reg8 ::= "%AL" ;
+BL. Reg8 ::= "%BL" ;
+CL. Reg8 ::= "%CL" ;
+DL. Reg8 ::= "%DL" ;
+DIL. Reg8 ::= "%DIL" ;
+SIL. Reg8 ::= "%SIL" ;
+SPL. Reg8 ::= "%SPL" ;
+BPL. Reg8 ::= "%BPL" ;
+R8B. Reg8 ::= "%R8B" ;
+R9B. Reg8 ::= "%R9B" ;
+R10B. Reg8 ::= "%R10B" ;
+R11B. Reg8 ::= "%R11B" ;
+R12B. Reg8 ::= "%R12B" ;
+R13B. Reg8 ::= "%R13B" ;
+R14B. Reg8 ::= "%R14B" ;
+R15B. Reg8 ::= "%R15B" ;
+
+
+comment    "#" ;
