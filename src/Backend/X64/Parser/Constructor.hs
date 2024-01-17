@@ -3,69 +3,149 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DefaultSignatures #-}
-module Backend.X64.Parser.Constructor where
+{-# LANGUAGE DeriveDataTypeable #-}
+module Backend.X64.Parser.Constructor(run
+, ASMGenerator
+, dataDef
+, DataDef(..)
+, Data(..)
+, Reg64(..)
+, Reg32(..)
+, Reg16(..)
+, Reg8(..)
+, Instr(..)
+, add
+, and
+, cmp
+, idiv
+, imul
+, lea
+, mov
+, sub
+, test
+, xor
+, xchg
+, sal
+, sar
+, neg
+, jmp
+, jz
+, pop
+, push
+, leave
+, ret
+, cdq
+, sete
+, setg
+, setge
+, setl
+, setle
+, setne) where
 
 import Data.Generics.Product
 import Data.Generics.Sum
 import GHC.Generics (Generic)
+import Data.Typeable
+import qualified Data.Data as D
 
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.Writer.Lazy
 
+import Prelude hiding (and)
+
 import qualified Backend.X64.Parser.Gen.AbsXGAS as Syntax
+import qualified Backend.X64.Parser.Gen.PrintXGAS as Printer
+
+-- Data defintions
+data DataDef
+	= DataGlobal String | DataDef String [Data]
+	deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
+
+data Data
+	= DataStr String
+	| Data64I Integer
+	| Data32I Integer
+	| Data64From String
+	| Data32From String
+	deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
+
+convertDataDef :: a -> DataDef -> Syntax.AsmDataDef' a
+convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label label
+convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label label) (map (convertData pos) datas)
+	where
+		convertData :: a -> Data -> Syntax.Data' a
+		convertData pos (DataStr str) = Syntax.DataString pos str
+		convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos val
+		convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos val
+		convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label label
+		convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label label
+
 
 -- Assembly generator definition
 type ASMGenerator a v = (WriterT (GeneratorOut a) (Except String)) v
 
-data GeneratorOut a = GeneratorOut [Instr a] [Syntax.AsmDataDef' a]
+data GeneratorOut a = GeneratorOut (Maybe a) [Instr a] [Syntax.AsmDataDef' a]
 
 instance Semigroup (GeneratorOut a) where
-GeneratorOut instr1 defs1 <> GeneratorOut instr2 defs2 = GeneratorOut (instr1 <> instr2) (defs1 <> defs2)
+	(<>) (GeneratorOut Nothing instr1 defs1) (GeneratorOut (Just firstPos2) instr2 defs2) = GeneratorOut (Just firstPos2) (instr1 <> instr2) (defs1 <> defs2)
+	(<>) (GeneratorOut (Just firstPos1) instr1 defs1) (GeneratorOut Nothing instr2 defs2) = GeneratorOut (Just firstPos1) (instr1 <> instr2) (defs1 <> defs2)
+	(<>) (GeneratorOut firstPos1 instr1 defs1) (GeneratorOut _ instr2 defs2) = GeneratorOut firstPos1 (instr1 <> instr2) (defs1 <> defs2)
 
 instance Monoid (GeneratorOut a) where
-mempty = GeneratorOut [] []
+mempty = GeneratorOut Nothing [] []
 
 _emitInstr :: a -> Instr a -> ASMGenerator a ()
-_emitInstr pos instr = tell $ GeneratorOut [instr] []
+_emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] []
 
 _emitDef :: a -> Syntax.AsmDataDef' a -> ASMGenerator a ()
-_emitDef pos def = tell $ GeneratorOut [] [def]
+_emitDef pos def = tell $ GeneratorOut (Just pos) [] [def]
+
+run :: (ASMGenerator a v) -> [String] -> Either String (String, v)
+run generator externs =
+	case runExcept (runWriterT generator) of
+		Left err -> Left err
+		Right (_, GeneratorOut Nothing _ _) -> Left "Nothing generated"
+		Right (result, GeneratorOut (Just pos) instrs defs) ->
+			let topDirectives = map (Syntax.Extern pos . Syntax.Label) externs in
+			let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos $ map (\(Instr _ ins _) -> ins) instrs) in
+			let assemblyCodeStr = Printer.printTree fullProg in
+			Right (assemblyCodeStr, result)
 
 -- Registers
 
 data Reg64 = RAX| RBX| RCX| RDX| RDI| RSI| RSP| RBP| R8| R9| R10| R11| R12| R13| R14| R15
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data Reg32 = EAX| EBX| ECX| EDX| EDI| ESI| ESP| EBP| R8D| R9D| R10D| R11D| R12D| R13D| R14D| R15D
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data Reg16 = AX| BX| CX| DX| DI| SI| SP| BP| R8W| R9W| R10W| R11W| R12W| R13W| R14W| R15W
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data Reg8 = AL| BL| CL| DL| DIL| SIL| SPL| BPL| R8B| R9B| R10B| R11B| R12B| R13B| R14B| R15B
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 -- Size classes
 
 data SIZE64 = SIZE64
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data SIZE32 = SIZE32
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data SIZE16 = SIZE16
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 data SIZE8 = SIZE8
-	deriving (Eq, Ord, Show, Read, Generic)
+	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 
 class IsTarget target size target64 target32 target16 target8 | target -> size target64 target32 target16 target8 where
@@ -77,6 +157,23 @@ class IsTarget target size target64 target32 target16 target8 | target -> size t
 	asTarget :: a -> target -> Syntax.Target' a
 	sizeOf :: target -> Int
 
+_reg64ToSReg :: a -> Reg64 -> Syntax.Reg' a
+_reg64ToSReg pos RAX = Syntax.RAX pos
+_reg64ToSReg pos RBX = Syntax.RBX pos
+_reg64ToSReg pos RCX = Syntax.RCX pos
+_reg64ToSReg pos RDX = Syntax.RDX pos
+_reg64ToSReg pos RDI = Syntax.RDI pos
+_reg64ToSReg pos RSI = Syntax.RSI pos
+_reg64ToSReg pos RSP = Syntax.RSP pos
+_reg64ToSReg pos RBP = Syntax.RBP pos
+_reg64ToSReg pos R8 = Syntax.R8 pos
+_reg64ToSReg pos R9 = Syntax.R9 pos
+_reg64ToSReg pos R10 = Syntax.R10 pos
+_reg64ToSReg pos R11 = Syntax.R11 pos
+_reg64ToSReg pos R12 = Syntax.R12 pos
+_reg64ToSReg pos R13 = Syntax.R13 pos
+_reg64ToSReg pos R14 = Syntax.R14 pos
+_reg64ToSReg pos R15 = Syntax.R15 pos
 
 instance IsTarget Reg64 SIZE64 Reg64 Reg32 Reg16 Reg8 where
 	to64 RAX = RAX
@@ -177,6 +274,23 @@ instance IsTarget Reg64 SIZE64 Reg64 Reg32 Reg16 Reg8 where
 	asTarget pos R15 = Syntax.ToReg64 pos $ Syntax.R15 pos
 	sizeOf _ = 64
 
+_reg32ToSReg :: a -> Reg32 -> Syntax.Reg' a
+_reg32ToSReg pos EAX = Syntax.EAX pos
+_reg32ToSReg pos EBX = Syntax.EBX pos
+_reg32ToSReg pos ECX = Syntax.ECX pos
+_reg32ToSReg pos EDX = Syntax.EDX pos
+_reg32ToSReg pos EDI = Syntax.EDI pos
+_reg32ToSReg pos ESI = Syntax.ESI pos
+_reg32ToSReg pos ESP = Syntax.ESP pos
+_reg32ToSReg pos EBP = Syntax.EBP pos
+_reg32ToSReg pos R8D = Syntax.R8D pos
+_reg32ToSReg pos R9D = Syntax.R9D pos
+_reg32ToSReg pos R10D = Syntax.R10D pos
+_reg32ToSReg pos R11D = Syntax.R11D pos
+_reg32ToSReg pos R12D = Syntax.R12D pos
+_reg32ToSReg pos R13D = Syntax.R13D pos
+_reg32ToSReg pos R14D = Syntax.R14D pos
+_reg32ToSReg pos R15D = Syntax.R15D pos
 
 instance IsTarget Reg32 SIZE32 Reg64 Reg32 Reg16 Reg8 where
 	to64 EAX = RAX
@@ -277,6 +391,23 @@ instance IsTarget Reg32 SIZE32 Reg64 Reg32 Reg16 Reg8 where
 	asTarget pos R15D = Syntax.ToReg32 pos $ Syntax.R15D pos
 	sizeOf _ = 32
 
+_reg16ToSReg :: a -> Reg16 -> Syntax.Reg' a
+_reg16ToSReg pos AX = Syntax.AX pos
+_reg16ToSReg pos BX = Syntax.BX pos
+_reg16ToSReg pos CX = Syntax.CX pos
+_reg16ToSReg pos DX = Syntax.DX pos
+_reg16ToSReg pos DI = Syntax.DI pos
+_reg16ToSReg pos SI = Syntax.SI pos
+_reg16ToSReg pos SP = Syntax.SP pos
+_reg16ToSReg pos BP = Syntax.BP pos
+_reg16ToSReg pos R8W = Syntax.R8W pos
+_reg16ToSReg pos R9W = Syntax.R9W pos
+_reg16ToSReg pos R10W = Syntax.R10W pos
+_reg16ToSReg pos R11W = Syntax.R11W pos
+_reg16ToSReg pos R12W = Syntax.R12W pos
+_reg16ToSReg pos R13W = Syntax.R13W pos
+_reg16ToSReg pos R14W = Syntax.R14W pos
+_reg16ToSReg pos R15W = Syntax.R15W pos
 
 instance IsTarget Reg16 SIZE16 Reg64 Reg32 Reg16 Reg8 where
 	to64 AX = RAX
@@ -377,6 +508,23 @@ instance IsTarget Reg16 SIZE16 Reg64 Reg32 Reg16 Reg8 where
 	asTarget pos R15W = Syntax.ToReg16 pos $ Syntax.R15W pos
 	sizeOf _ = 16
 
+_reg8ToSReg :: a -> Reg8 -> Syntax.Reg' a
+_reg8ToSReg pos AL = Syntax.AL pos
+_reg8ToSReg pos BL = Syntax.BL pos
+_reg8ToSReg pos CL = Syntax.CL pos
+_reg8ToSReg pos DL = Syntax.DL pos
+_reg8ToSReg pos DIL = Syntax.DIL pos
+_reg8ToSReg pos SIL = Syntax.SIL pos
+_reg8ToSReg pos SPL = Syntax.SPL pos
+_reg8ToSReg pos BPL = Syntax.BPL pos
+_reg8ToSReg pos R8B = Syntax.R8B pos
+_reg8ToSReg pos R9B = Syntax.R9B pos
+_reg8ToSReg pos R10B = Syntax.R10B pos
+_reg8ToSReg pos R11B = Syntax.R11B pos
+_reg8ToSReg pos R12B = Syntax.R12B pos
+_reg8ToSReg pos R13B = Syntax.R13B pos
+_reg8ToSReg pos R14B = Syntax.R14B pos
+_reg8ToSReg pos R15B = Syntax.R15B pos
 
 instance IsTarget Reg8 SIZE8 Reg64 Reg32 Reg16 Reg8 where
 	to64 AL = RAX
@@ -481,7 +629,7 @@ instance IsTarget Reg8 SIZE8 Reg64 Reg32 Reg16 Reg8 where
 -- Instruction wrappers
 
 data Instr a = Instr a (Syntax.AsmInstr' a) (Maybe (String))
-	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
+	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
 _wrap :: a -> Syntax.AsmInstr' a -> Instr a
 _wrap pos instr = Instr pos instr Nothing
@@ -538,68 +686,146 @@ _instr_sar :: Int -> (a -> Syntax.Source' a -> Syntax.Target' a -> Syntax.AsmIns
 _instr_sar 64 = Syntax.SAR64
 _instr_sar 32 = Syntax.SAR32
 _instr_sar 16 = Syntax.SAR16
+_instr_neg :: Int -> (a -> Syntax.Target' a -> Syntax.AsmInstr' a)
+_instr_neg 64 = Syntax.NEG64
+_instr_neg 32 = Syntax.NEG32
+_instr_neg 16 = Syntax.NEG16
 
 add :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 add pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_add (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_add (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 and :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 and pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_and (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_and (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 cmp :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 cmp pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_cmp (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_cmp (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 idiv :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 idiv pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_idiv (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_idiv (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 imul :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 imul pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_imul (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_imul (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 lea :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 lea pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_lea (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_lea (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 mov :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 mov pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_mov (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_mov (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 sub :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 sub pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_sub (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_sub (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 test :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 test pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_test (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_test (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 xor :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 xor pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_xor (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_xor (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 xchg :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 xchg pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_xchg (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_xchg (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 sal :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 sal pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_sal (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_sal (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
 
 sar :: (IsTarget t size t64 t32 t16 t8) => a -> t -> t -> ASMGenerator a ()
 sar pos arg1 arg2 = do
-	_emitInstr pos [_wrap pos $ (_instr_sar (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)]
+	_emitInstr pos $ _wrap pos $ (_instr_sar (sizeOf arg1)) pos (asSource pos arg1) (asTarget pos arg2)
 
+
+neg :: (IsTarget t size t64 t32 t16 t8) => a -> t -> ASMGenerator a ()
+neg pos arg1 = do
+	_emitInstr pos $ _wrap pos $ (_instr_neg (sizeOf arg1)) pos (asTarget pos arg1)
+
+
+jmp :: a -> String -> ASMGenerator a ()
+jmp pos label = do
+	_emitInstr pos $ _wrap pos $ Syntax.JMP pos (Syntax.Label label)
+
+
+jz :: a -> String -> ASMGenerator a ()
+jz pos label = do
+	_emitInstr pos $ _wrap pos $ Syntax.JZ pos (Syntax.Label label)
+
+
+pop :: a -> Reg64 -> ASMGenerator a ()
+pop pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.POP pos $ _reg64ToSReg pos reg
+
+
+push :: a -> Reg64 -> ASMGenerator a ()
+push pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.PUSH pos $ _reg64ToSReg pos reg
+
+
+leave :: a -> ASMGenerator a ()
+leave pos = do
+	_emitInstr pos $ _wrap pos $ Syntax.LEAVE pos
+
+
+ret :: a -> ASMGenerator a ()
+ret pos = do
+	_emitInstr pos $ _wrap pos $ Syntax.RET pos
+
+
+cdq :: a -> ASMGenerator a ()
+cdq pos = do
+	_emitInstr pos $ _wrap pos $ Syntax.CDQ pos
+
+
+sete :: a -> Reg8 -> ASMGenerator a ()
+sete pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETE pos $ _reg8ToSReg pos reg
+
+
+setg :: a -> Reg8 -> ASMGenerator a ()
+setg pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETG pos $ _reg8ToSReg pos reg
+
+
+setge :: a -> Reg8 -> ASMGenerator a ()
+setge pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETGE pos $ _reg8ToSReg pos reg
+
+
+setl :: a -> Reg8 -> ASMGenerator a ()
+setl pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETL pos $ _reg8ToSReg pos reg
+
+
+setle :: a -> Reg8 -> ASMGenerator a ()
+setle pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETLE pos $ _reg8ToSReg pos reg
+
+
+setne :: a -> Reg8 -> ASMGenerator a ()
+setne pos reg = do
+	_emitInstr pos $ _wrap pos $ Syntax.SETNE pos $ _reg8ToSReg pos reg
+
+
+-- Data wrappers
+dataDef :: a -> DataDef -> ASMGenerator a ()
+dataDef pos def = _emitDef pos $ convertDataDef pos def
