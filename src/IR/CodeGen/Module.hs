@@ -11,6 +11,7 @@ import           IR.CodeGen.GenM
 import           IR.Loc
 import           IR.Registers
 import           IR.Size
+import qualified Backend.X64.Parser.Constructor as X64
 
 -- Combine compiled methods to produce a full assembly file as string.
 generateModule :: [CompiledClass] -> [CompiledMethod] -> ConstSet -> String
@@ -45,5 +46,5 @@ generateModule cls mthds allConsts =
                             ,Emit.quadDef "0"
                             ,Emit.label (vTableLabIdent (clName cl)) ""]++map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
           nullRef = [Emit.label nullrefLabel "runtime error on null dereference",
-                     Emit.and Quadruple (LocImm (-16)) (LocReg rsp) "16 bytes allign",
+                     Emit.and X64.Size64 (LocImm (-16)) (LocReg rsp) "16 bytes allign",
                      Emit.callDirect "__errorNull"]

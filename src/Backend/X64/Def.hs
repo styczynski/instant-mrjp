@@ -152,7 +152,7 @@ getClass i = do
         Just cl -> return cl
 
 -- Get the size of a variable.
-varSize :: VarState -> Size
+varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varS ^. varType 
 
 -- Is the variable currently alive.

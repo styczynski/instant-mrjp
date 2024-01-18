@@ -1,6 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
 module IR.CodeGen.Prologue (withPrologue) where
 
+import qualified Backend.X64.Parser.Constructor as X64
 import           Data.List
 import qualified Data.Map                  as Map
 import           IR.Syntax.Syntax
@@ -23,7 +24,7 @@ withPrologue qi rs mthd =
             [Emit.incrStack 8 "16 bytes alignment" | needsAlignment] ++
             [
                 Emit.push (LocReg rbp) "",
-                Emit.mov Quadruple (LocReg rsp) (LocReg rbp) "",
+                Emit.mov X64.Size64 (LocReg rsp) (LocReg rbp) "",
                 Emit.incrStack locs "space for locals"
             ]
         -- Access to parameters passed on stack has to be offset by 8 for each saved

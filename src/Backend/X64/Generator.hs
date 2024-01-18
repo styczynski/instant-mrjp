@@ -33,9 +33,9 @@ import Backend.X64.Def
 
 import qualified Backend.X64.Parser.Constructor as X64
 
-genInstr :: Instr Liveness -> Generator ()
-genInstr instr = do
-    liftGenerator $ X64.mov () X64.Size64 (X64.LocReg X64.RAX) (X64.LocReg X64.RDX)
+-- genInstr :: Instr Liveness -> Generator ()
+-- genInstr instr = do
+--     liftGenerator $ X64.mov () X64.Size64 (X64.LocReg X64.RAX) (X64.LocReg X64.RDX)
 
 -- generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> String
 -- generate (Meta () clDefs) mthds =
@@ -81,15 +81,15 @@ genInstr instr = do
 --         case instr of
 --             ILabel _ l -> do
 --                 l' <- label l
---                 Emit.label l' ""
+--                 liftGenerator $ X64.label () l' ""
 --             ILabelAnn _ l f t -> do
 --                 l' <- label l
---                 Emit.label l' $ "lines " ++ show f ++ "-" ++ show t
+--                 liftGenerator $ X64.label () l' $ "lines " ++ show f ++ "-" ++ show t
 --             IVRet _ -> do
 --                 resetStack
 --             IRet _ val -> do
 --                 loc <- getValLoc val
---                 Emit.mov (valSize val) loc (convertReg rax) "move return value"
+--                 liftGenerator $ X64.mov () (valSize val) loc (convertReg rax) "move return value"
 --                 resetStack
 --             IOp _ vi v1 op v2 -> do
 --                 dest <- getLoc vi
@@ -99,80 +99,80 @@ genInstr instr = do
 --                 case op of
 --                     OpAdd _ | isInt (valType v1) -> do
 --                         if dest == src1 then
---                           Emit.add src2 dest ""
+--                           liftGenerator $ X64.add () src2 dest ""
 --                         else if dest == src2 then
---                           Emit.add src1 dest ""
+--                           liftGenerator $ X64.add () src1 dest ""
 --                         else case (src1, src2) of
 --                             (LocReg r1, LocReg r2) ->
---                                 Emit.lea Double (LocPtrCmplx r1 r2 0 Byte) dest ("addition " ++ toStr vi)
+--                                 liftGenerator $ X64.lea () Double (LocPtrCmplx r1 r2 0 Byte) dest ("addition " ++ toStr vi)
 --                             (LocImm n1, LocReg r2) ->
---                                 Emit.lea Double (LocPtr r2 (fromIntegral n1)) dest ("addition " ++ toStr vi)
+--                                 liftGenerator $ X64.lea () Double (LocPtr r2 (fromIntegral n1)) dest ("addition " ++ toStr vi)
 --                             (LocReg r1, LocImm n2) ->
---                                 Emit.lea Double (LocPtr r1 (fromIntegral n2)) dest ("addition " ++ toStr vi)
+--                                 liftGenerator $ X64.lea () Double (LocPtr r1 (fromIntegral n2)) dest ("addition " ++ toStr vi)
 --                             _ -> error "internal error. invalid src locs in add"
 --                     OpAdd _ | isStr (valType v1) -> do
---                         genCall (CallDirect "lat_cat_strings") [v1, v2] [] (Emit.mov Quadruple (convertReg rax) dest "")
+--                         genCall (CallDirect "lat_cat_strings") [v1, v2] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
 --                     OpAdd _ -> error "internal error. invalid operand types for add."
 --                     OpSub _ -> do
 --                         if dest == src1 then
---                           Emit.sub src2 dest
+--                           liftGenerator $ X64.sub () src2 dest
 --                         else if dest == src2 then do
---                           Emit.sub src1 dest
---                           Emit.neg dest
+--                           liftGenerator $ X64.sub () src1 dest
+--                           liftGenerator $ X64.neg () dest
 --                         else do
---                           Emit.mov Double src1 dest ""
---                           Emit.sub src2 dest
+--                           liftGenerator $ X64.mov () Double src1 dest ""
+--                           liftGenerator $ X64.sub () src2 dest
 --                     OpMul _ -> do
 --                         case (src1, src2) of
 --                             (LocImm n, _) | isPowerOfTwo n -> do
---                                 when (dest /= src2) (Emit.mov Double src2 dest "")
---                                 Emit.sal (log2 n) dest ("multiply by " ++ show n)
+--                                 when (dest /= src2) (liftGenerator $ X64.mov () Double src2 dest "")
+--                                 liftGenerator $ X64.sal () (log2 n) dest ("multiply by " ++ show n)
 --                             (_, LocImm n) | isPowerOfTwo n -> do
---                                 when (dest == src1) (Emit.mov Double src1 dest "")
---                                 Emit.sal (log2 n) dest ("multiply by " ++ show n)
+--                                 when (dest == src1) (liftGenerator $ X64.mov () Double src1 dest "")
+--                                 liftGenerator $ X64.sal () (log2 n) dest ("multiply by " ++ show n)
 --                             _ -> do
 --                                 if dest == src1 then
---                                   Emit.imul src2 dest
+--                                   liftGenerator $ X64.imul () src2 dest
 --                                 else if dest == src2 then
---                                   Emit.imul src1 dest
+--                                   liftGenerator $ X64.imul () src1 dest
 --                                 else do
---                                   Emit.mov Double src1 dest ""
---                                   Emit.imul src2 dest
+--                                   liftGenerator $ X64.mov () Double src1 dest ""
+--                                   liftGenerator $ X64.imul () src2 dest
 --                     OpDiv _ -> do
 --                         case src2 of
 --                             LocImm n | isPowerOfTwo n -> do
---                                 Emit.mov Double src1 dest ""
---                                 Emit.sar (log2 n) dest ("divide by " ++ show n)
+--                                 liftGenerator $ X64.mov () Double src1 dest ""
+--                                 liftGenerator $ X64.sar () (log2 n) dest ("divide by " ++ show n)
 --                             LocImm {} -> do
---                                 Emit.mov Double src1 (convertReg rax) ""
---                                 Emit.cdq
---                                 Emit.mov Double src2 src1 ""
---                                 Emit.idiv Double src1
---                                 Emit.mov Double (convertReg rax) dest ""
+--                                 liftGenerator $ X64.mov () Double src1 (convertReg rax) ""
+--                                 liftGenerator $ X64.cdq ()
+--                                 liftGenerator $ X64.mov () Double src2 src1 ""
+--                                 liftGenerator $ X64.idiv () Double src1
+--                                 liftGenerator $ X64.mov () Double (convertReg rax) dest ""
 --                             _ -> do
---                                 Emit.mov Double src1 (convertReg rax) ""
---                                 Emit.cdq
---                                 Emit.idiv Double src2
---                                 Emit.mov Double (convertReg rax) dest ""
+--                                 liftGenerator $ X64.mov () Double src1 (convertReg rax) ""
+--                                 liftGenerator $ X64.cdq ()
+--                                 liftGenerator $ X64.idiv () Double src2
+--                                 liftGenerator $ X64.mov () Double (convertReg rax) dest ""
 --                     OpMod _ -> do
 --                         case src2 of
 --                             LocImm n | isPowerOfTwo n -> do
 --                                 -- n % 2^k
 --                                 -- is the same as
 --                                 -- n AND (2^k - 1)
---                                 Emit.mov Double src1 dest ""
---                                 Emit.and Double (LocImm (n - 1)) dest ("modulo by " ++ show n)
+--                                 liftGenerator $ X64.mov () Double src1 dest ""
+--                                 liftGenerator $ X64.and () Double (LocImm (n - 1)) dest ("modulo by " ++ show n)
 --                             LocImm {} -> do
---                                 Emit.mov Double src1 (convertReg rax) ""
---                                 Emit.cdq
---                                 Emit.mov Double src2 src1 ""
---                                 Emit.idiv Double src1
---                                 Emit.mov Double (convertReg rdx) dest ""
+--                                 liftGenerator $ X64.mov () Double src1 (convertReg rax) ""
+--                                 liftGenerator $ X64.cdq ()
+--                                 liftGenerator $ X64.mov () Double src2 src1 ""
+--                                 liftGenerator $ X64.idiv () Double src1
+--                                 liftGenerator $ X64.mov () Double (convertReg rdx) dest ""
 --                             _ -> do
---                                 Emit.mov Double src1 (convertReg rax) ""
---                                 Emit.cdq
---                                 Emit.idiv Double src2
---                                 Emit.mov Double (convertReg rdx) dest ""
+--                                 liftGenerator $ X64.mov () Double src1 (convertReg rax) ""
+--                                 liftGenerator $ X64.cdq ()
+--                                 liftGenerator $ X64.idiv () Double src2
+--                                 liftGenerator $ X64.mov () Double (convertReg rdx) dest ""
 --                     OpLTH _ -> emitCmpBin op dest src1 src2 size
 --                     OpLE _  -> emitCmpBin op dest src1 src2 size
 --                     OpGTH _ -> emitCmpBin op dest src1 src2 size
@@ -183,37 +183,37 @@ genInstr instr = do
 --                 let t = valType v
 --                 dest <- getLoc vi
 --                 src <- getValLoc v
---                 Emit.mov (typeSize t) src dest $ "setting " ++ toStr vi
+--                 liftGenerator $ X64.mov () (typeSize t) src dest $ "setting " ++ toStr vi
 --             ISwap _ t vi1 vi2 -> do
 --                 loc1 <- getLoc vi1
 --                 loc2 <- getLoc vi2
---                 Emit.xchg (typeSize t) loc1 loc2
+--                 liftGenerator $ X64.xchg () (typeSize t) loc1 loc2
 --             IUnOp _ vi op v -> do
 --                 let t = valType v
 --                 src <- getValLoc v
 --                 dest <- getLoc vi
---                 Emit.mov (typeSize t) src dest $ "setting " ++ toStr vi
+--                 liftGenerator $ X64.mov () (typeSize t) src dest $ "setting " ++ toStr vi
 --                 case op of
---                     UnOpNeg _ -> Emit.neg dest
---                     UnOpNot _ -> Emit.xor Byte (LocImm 1) dest
+--                     UnOpNeg _ -> liftGenerator $ X64.neg () dest
+--                     UnOpNot _ -> liftGenerator $ X64.xor () Byte (LocImm 1) dest
 --             IVCall _ call -> case call of
 --                     Call _ _ qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (return ())
 --                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
 --             ICall _ vi call -> do
 --                 dest <- getLoc vi
 --                 case call of
---                         Call _ t qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (Emit.mov (typeSize t) (LocReg rax) dest "")
---                         CallVirt _ t qi args -> genCallVirt qi args (Emit.mov (typeSize t) (LocReg rax) dest "")
+--                         Call _ t qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (liftGenerator $ X64.mov () (typeSize t) (LocReg rax) dest "")
+--                         CallVirt _ t qi args -> genCallVirt qi args (liftGenerator $ X64.mov () (typeSize t) (LocReg rax) dest "")
 --             ILoad _ vi ptr -> do
 --                 let t = () <$ deref (ptrType ptr)
 --                 src <- getPtrLoc ptr
 --                 dest <- getLoc vi
---                 Emit.mov (typeSize t) src dest ("load " ++ toStr vi)
+--                 liftGenerator $ X64.mov () (typeSize t) src dest ("load " ++ toStr vi)
 --             IStore _ v ptr -> do
 --                 let t = valType v
 --                 src <- getValLoc v
 --                 dest <- getPtrLoc ptr
---                 Emit.mov (typeSize t) src dest ""
+--                 liftGenerator $ X64.mov () (typeSize t) src dest ""
 --             INew _ vi t -> case t of
 --                 Cl _ clIdent -> do
 --                     cl <- getClass clIdent
@@ -222,18 +222,18 @@ genInstr instr = do
 --                         (LocReg tmpReg) = argLoc 0
 --                     let clLabel = classDefIdent clIdent
 --                     genCall (CallDirect "__new") [] [clLabel] (do
---                         --Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
---                         --Emit.mov Quadruple (LocReg tmpReg) (LocPtr rax 0) "store vtable"
---                         Emit.mov Quadruple (convertReg rax) dest "")
+--                         --liftGenerator $ X64.leaOfConst () (toStr $ vTableLabIdent clIdent) tmpReg
+--                         --liftGenerator $ X64.mov () Quadruple (LocReg tmpReg) (LocPtr rax 0) "store vtable"
+--                         liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
 --                 _ -> error $ "internal error. new on nonclass " ++ show t
 --             INewStr _ vi str -> do
 --                 let t = Ref () strType
 --                 dest <- getLoc vi
 --                 strConst <- newStrConst str
 --                 case dest of
---                     LocReg reg_ -> Emit.leaOfConst (constName strConst) reg_
+--                     LocReg reg_ -> liftGenerator $ X64.leaOfConst () (constName strConst) reg_
 --                     _ -> error $ "internal error. invalid dest loc " ++ show dest
---                 genCall (CallDirect "__createString") [VVal () t vi] [] (Emit.mov Quadruple (convertReg rax) dest "")
+--                 genCall (CallDirect "__createString") [VVal () t vi] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
 --             INewArr _ vi t val -> do
 --                 dest <- getLoc vi
 --                 --let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
@@ -245,16 +245,16 @@ genInstr instr = do
 --                 -- | Cl a SymIdent
 --                 -- | Ref a (SType a)
 --                 case t of 
---                     (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (Emit.mov Quadruple (convertReg rax) dest "")
---                     (Bool _) -> genCall (CallDirect "__newByteArray") [() <$ val] [] (Emit.mov Quadruple (convertReg rax) dest "")
---                     (Void _) -> genCall (CallDirect "__newArray") [VInt () 0, () <$ val] [] (Emit.mov Quadruple (convertReg rax) dest "")
+--                     (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
+--                     (Bool _) -> genCall (CallDirect "__newByteArray") [() <$ val] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
+--                     (Void _) -> genCall (CallDirect "__newArray") [VInt () 0, () <$ val] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
 --                     (Cl _ name) -> error $ "internal error. cannot create array of class type " ++ show name
---                     (Ref _ _) -> genCall (CallDirect "__newRefArray") [() <$ val] [] (Emit.mov Quadruple (convertReg rax) dest "")
+--                     (Ref _ _) -> genCall (CallDirect "__newRefArray") [() <$ val] [] (liftGenerator $ X64.mov () Quadruple (convertReg rax) dest "")
 --                     _ -> error $ "internal error. invalid array type " ++ show t
 --             IJmp _ li -> do
 --                 li' <- label li
 --                 resetStack
---                 Emit.jmp li'
+--                 liftGenerator $ X64.jmp () li'
 --             ICondJmp _ v l1 l2 -> do
 --                 loc <- getValLoc v
 --                 l1' <- label l1
@@ -262,13 +262,13 @@ genInstr instr = do
 --                 resetStack
 --                 case loc of
 --                     LocImm 0 -> do
---                         Emit.jmp l2'
+--                         liftGenerator $ X64.jmp () l2'
 --                     LocImm 1 -> do
---                         Emit.jmp l1'
+--                         liftGenerator $ X64.jmp () l1'
 --                     _ -> do
---                         Emit.test Byte loc loc
---                         Emit.jz l2'
---                         Emit.jmp l1'
+--                         liftGenerator $ X64.test () Byte loc loc
+--                         liftGenerator $ X64.jz () l2'
+--                         liftGenerator $ X64.jmp () l1'
 --             IPhi {} -> error "internal error. phi should be eliminated before assembly codegen"
 --             IEndPhi {} -> return ()
 --         fullTrace
@@ -287,34 +287,34 @@ genInstr instr = do
 --             argsInRegs = map (second asReg) argsWithLocReg
 --             argsOnStack = map fst argsWithLocStack
 --             savedRegs = filter ((== CallerSaved) . regType) regs_
---         forM_ savedRegs (\r -> Emit.push (convertReg r) "save caller saved")
+--         forM_ savedRegs (\r -> liftGenerator $ X64.push () (convertReg r) "save caller saved")
 --         forM_ argsInRegs (uncurry passInReg)
 --         stackBefore <- gets (stackOverheadSize . stack)
 --         locs <- mapM prepOnStack (reverse argsOnStack)
 --         alignStack
 --         stackAfter <- gets (stackOverheadSize . stack)
---         forM_ locs (`Emit.push` "passing arg")
+--         forM_ locs (`liftGenerator $ X64.push ()` "passing arg")
 --         case target of
---             CallDirect l              -> Emit.callDirect l
+--             CallDirect l              -> liftGenerator $ X64.callDirect () l
 --             CallVirtual offset s -> do
 --                 let self@(convertReg selfReg) = argLoc 0
---                 Emit.test Quadruple self self
---                 Emit.jz nullrefLabel
---                 Emit.mov Quadruple (LocPtr selfReg 20) (convertReg rax) "load address of vtable"
---                 --Emit.mov Quadruple (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
---                 Emit.callAddress rax offset ("call " ++ s)
---         Emit.decrStack (stackAfter - stackBefore)
+--                 liftGenerator $ X64.test () Quadruple self self
+--                 liftGenerator $ X64.jz () nullrefLabel
+--                 liftGenerator $ X64.mov () Quadruple (LocPtr selfReg 20) (convertReg rax) "load address of vtable"
+--                 --liftGenerator $ X64.mov () Quadruple (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
+--                 liftGenerator $ X64.callAddress () rax offset ("call " ++ s)
+--         liftGenerator $ X64.decrStack () (stackAfter - stackBefore)
 --         modify (\st -> st{stack = (stack st){stackOverheadSize = stackBefore}})
 --         cont
---         forM_ (reverse savedRegs) (Emit.pop . LocReg)
+--         forM_ (reverse savedRegs) (liftGenerator $ X64.pop () . LocReg)
 --     where
 --           passInReg :: CallArg a -> Reg -> Generator ()
 --           passInReg (CallArgLabel l) reg_ = do
---             Emit.leaOfConst (toStr l) reg_
---             --Emit.mov (Quadruple) (LocLabel l) (LocReg reg_) "passing label arg"
+--             liftGenerator $ X64.leaOfConst () (toStr l) reg_
+--             --liftGenerator $ X64.mov () (Quadruple) (LocLabel l) (LocReg reg_) "passing label arg"
 --           passInReg (CallArgVal val) reg_ = do
 --             loc <- getValLoc val
---             Emit.mov (valSize val) loc (convertReg reg_) "passing arg"
+--             liftGenerator $ X64.mov () (valSize val) loc (convertReg reg_) "passing arg"
 --           prepOnStack :: CallArg a -> Generator Loc
 --           prepOnStack ((CallArgLabel (LabIdent l))) = do
 --               s <- gets stack
@@ -329,7 +329,7 @@ genInstr instr = do
 --               return loc
 --           alignStack = do
 --               (misalignment, s) <- gets (stackAlign16 . stack)
---               Emit.incrStack misalignment "16 bytes alignment"
+--               liftGenerator $ X64.incrStack () misalignment "16 bytes alignment"
 --               setStack s
 
 -- genCallVirt :: QIdent a -> [Val a] -> Generator () -> Generator ()
@@ -345,40 +345,40 @@ genInstr instr = do
 -- emitCmpBin op dest src1 src2 size = do
 --     case src1 of
 --         LocImm {} -> do
---             Emit.cmp size src1 src2
+--             liftGenerator $ X64.cmp () size src1 src2
 --             revCmpEmitter op dest
 --         LocImm64 {} -> do
---             Emit.cmp size src1 src2
+--             liftGenerator $ X64.cmp () size src1 src2
 --             revCmpEmitter op dest
 --         _ -> do
---             Emit.cmp size src2 src1
+--             liftGenerator $ X64.cmp () size src2 src1
 --             cmpEmitter op dest
 
 -- cmpEmitter :: Op a -> Loc -> Generator ()
 -- cmpEmitter op = case op of
---     OpLTH _ -> Emit.setl
---     OpLE _  -> Emit.setle
---     OpGTH _ -> Emit.setg
---     OpGE _  -> Emit.setge
---     OpEQU _ -> Emit.sete
---     OpNE _  -> Emit.setne
+--     OpLTH _ -> liftGenerator $ X64.setl ()
+--     OpLE _  -> liftGenerator $ X64.setle ()
+--     OpGTH _ -> liftGenerator $ X64.setg ()
+--     OpGE _  -> liftGenerator $ X64.setge ()
+--     OpEQU _ -> liftGenerator $ X64.sete ()
+--     OpNE _  -> liftGenerator $ X64.setne ()
 --     _       -> error "internal error. invalid op to cmpEmitter."
 
 -- revCmpEmitter :: Op a -> Loc -> Generator ()
 -- revCmpEmitter op = case op of
---     OpLTH _ -> Emit.setge
---     OpLE _  -> Emit.setg
---     OpGTH _ -> Emit.setle
---     OpGE _  -> Emit.setl
---     OpEQU _ -> Emit.sete
---     OpNE _  -> Emit.setne
+--     OpLTH _ -> liftGenerator $ X64.setge ()
+--     OpLE _  -> liftGenerator $ X64.setg ()
+--     OpGTH _ -> liftGenerator $ X64.setle ()
+--     OpGE _  -> liftGenerator $ X64.setl ()
+--     OpEQU _ -> liftGenerator $ X64.sete ()
+--     OpNE _  -> liftGenerator $ X64.setne ()
 --     _       -> error "internal error. invalid op to cmpEmitter."
 
 -- resetStack :: Generator ()
 -- resetStack = do
 --     s <- gets stack
 --     let (n, s') = stackClearOverhead s
---     Emit.decrStack n
+--     liftGenerator $ X64.decrStack () n
 --     setStack s'
 
 -- getPtrLoc :: Ptr a -> Generator Loc
@@ -399,11 +399,11 @@ genInstr instr = do
 --         case (arrSrc, idxSrc) of
 --             (LocReg arrReg, LocReg idxReg) -> do
 --                 let (LocReg tmpReg) = argLoc 0
---                 Emit.mov Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
+--                 liftGenerator $ X64.mov () Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
 --                 return $ LocPtrCmplx tmpReg idxReg idxOffset elemSize
 --             (LocReg arrReg, LocImm idx) -> do
 --                 let (LocReg tmpReg) = argLoc 0
---                 Emit.mov Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
+--                 liftGenerator $ X64.mov () Quadruple (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
 --                 return $ LocPtr tmpReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
 --             _ -> error $ "internal error. invalid src loc for elemptr " ++ show arrSrc ++ ", " ++ show idxSrc
 --     PFld _ _ val (QIdent _ cli fldi) -> do
@@ -412,7 +412,7 @@ genInstr instr = do
 --         case Map.lookup fldi (clFlds cl) of
 --             Just fld -> case src of
 --                 LocReg reg_ -> do
---                     Emit.mov Quadruple (LocPtr reg_ 0x08) (LocReg rax) ("load data (indirect)")
+--                     liftGenerator $ X64.mov () Quadruple (LocPtr reg_ 0x08) (LocReg rax) ("load data (indirect)")
 --                     return $ LocPtr rax (fldOffset fld)
 --                 _ -> error $ "internal error. invalid src loc for fldptr " ++ show src
 --             Nothing -> error $ "internal error. no such field " ++ toStr cli ++ "." ++ toStr fldi

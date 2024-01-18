@@ -39,6 +39,7 @@ import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
 import           IR.Registers
 import           IR.Size
+import qualified Backend.X64.Parser.Constructor as X64
 
 traceEnabled :: Bool
 traceEnabled = False
@@ -168,7 +169,7 @@ getClass i = do
         Just cl -> return cl
 
 -- Get the size of a variable.
-varSize :: VarState -> Size
+varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varType varS
 
 -- Is the variable currently alive.

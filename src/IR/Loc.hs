@@ -5,12 +5,13 @@ module IR.Loc where
 import           Data.Int
 import           IR.Registers
 import           IR.Size
+import qualified Backend.X64.Parser.Constructor as X64
 
 data Loc = LocImm Int32
          | LocImm64 Int64
          | LocReg Reg
          | LocPtr Reg Int64
-         | LocPtrCmplx { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size}
+         | LocPtrCmplx { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: X64.Size}
          | LocLabel String
     deriving (Eq, Show)
 

@@ -1,6 +1,8 @@
 -- Stack state during assembly generation.
 module IR.CodeGen.Stack where
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 import           Data.Int
 import           IR.Size
 
@@ -22,7 +24,7 @@ stackClearOverhead s =
     in  (overhead, s')
 
 -- Increase the stack overhead with some unidentified value.
-stackPush :: Size -> Stack -> Stack
+stackPush :: X64.Size -> Stack -> Stack
 stackPush size s = s {stackOverheadSize = stackOverheadSize s + sizeInBytes size}
 
 -- Align the stack to take a multiple of 16 bytes. Returns the applied additional offset
