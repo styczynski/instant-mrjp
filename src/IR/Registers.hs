@@ -1,5 +1,7 @@
 module IR.Registers where
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 data RegType = CallerSaved | CalleeSaved deriving (Eq, Show)
 data Reg = Reg {
     -- Identifier for the 64 bits of the register.
@@ -33,6 +35,25 @@ instance Ord RegType where
 
 allRegs :: [Reg]
 allRegs = [rax, rdx, rbx, rcx, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15]
+
+convertReg :: Reg -> X64.Loc
+convertReg (Reg "rax" _ _ _ _) = X64.LocReg X64.RAX
+convertReg (Reg "rdx" _ _ _ _) = X64.LocReg X64.RDX
+convertReg (Reg "rbx" _ _ _ _) = X64.LocReg X64.RBX
+convertReg (Reg "rcx" _ _ _ _) = X64.LocReg X64.RCX
+convertReg (Reg "rsi" _ _ _ _) = X64.LocReg X64.RSI
+convertReg (Reg "rdi" _ _ _ _) = X64.LocReg X64.RDI
+convertReg (Reg "rsp" _ _ _ _) = X64.LocReg X64.RSP
+convertReg (Reg "rbp" _ _ _ _) = X64.LocReg X64.RBP
+convertReg (Reg "r8" _ _ _ _) = X64.LocReg X64.R8
+convertReg (Reg "r9" _ _ _ _) = X64.LocReg X64.R9
+convertReg (Reg "r10" _ _ _ _) = X64.LocReg X64.R10
+convertReg (Reg "r11" _ _ _ _) = X64.LocReg X64.R11
+convertReg (Reg "r12" _ _ _ _) = X64.LocReg X64.R12
+convertReg (Reg "r13" _ _ _ _) = X64.LocReg X64.R13
+convertReg (Reg "r14" _ _ _ _) = X64.LocReg X64.R14
+convertReg (Reg "r15" _ _ _ _) = X64.LocReg X64.R15
+
 
 rax :: Reg
 rax = Reg "rax" "eax" "ax" "al" CallerSaved

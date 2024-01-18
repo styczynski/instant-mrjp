@@ -40,7 +40,6 @@ import System.Exit
 
 --type LattePipeline t = forall env m. (WithLog env Message m, MonadIO m) => m t
 type LattePipeline = LoggerT Message IO
-
 --type WithLattePipeline env m = (WithLog env Message m, MonadIO m)
 
 --type LattePipelineT = LoggerT Message IO

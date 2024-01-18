@@ -283,15 +283,16 @@ AsmInstr
   | 'jmp' Label { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.JMP (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'jz' Label { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.JZ (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
 
+Source64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
+Source64
+  : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
+  | Reg64 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg64 (fst $1) (snd $1)) }
+  | Integer '(' Reg64 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem64 (fst $1) (snd $1) (snd $3)) }
+
 Target64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target64
   : Reg64 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg64 (fst $1) (snd $1)) }
   | Integer '(' Reg64 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem64 (fst $1) (snd $1) (snd $3)) }
-
-Source64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
-Source64
-  : Reg64 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg64 (fst $1) (snd $1)) }
-  | Integer '(' Reg64 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem64 (fst $1) (snd $1) (snd $3)) }
 
 Reg64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg64
@@ -312,15 +313,16 @@ Reg64
   | '%R14' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R14 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
   | '%R15' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R15 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
 
+Source32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
+Source32
+  : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
+  | Reg32 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg32 (fst $1) (snd $1)) }
+  | Integer '(' Reg32 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem32 (fst $1) (snd $1) (snd $3)) }
+
 Target32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target32
   : Reg32 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg32 (fst $1) (snd $1)) }
   | Integer '(' Reg32 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem32 (fst $1) (snd $1) (snd $3)) }
-
-Source32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
-Source32
-  : Reg32 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg32 (fst $1) (snd $1)) }
-  | Integer '(' Reg32 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem32 (fst $1) (snd $1) (snd $3)) }
 
 Reg32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg32
@@ -341,15 +343,16 @@ Reg32
   | '%R14D' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R14D (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
   | '%R15D' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R15D (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
 
+Source16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
+Source16
+  : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
+  | Reg16 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg16 (fst $1) (snd $1)) }
+  | Integer '(' Reg16 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem16 (fst $1) (snd $1) (snd $3)) }
+
 Target16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target16
   : Reg16 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg16 (fst $1) (snd $1)) }
   | Integer '(' Reg16 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem16 (fst $1) (snd $1) (snd $3)) }
-
-Source16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
-Source16
-  : Reg16 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg16 (fst $1) (snd $1)) }
-  | Integer '(' Reg16 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem16 (fst $1) (snd $1) (snd $3)) }
 
 Reg16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg16
@@ -370,15 +373,16 @@ Reg16
   | '%R14W' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R14W (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
   | '%R15W' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.R15W (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
 
+Source8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
+Source8
+  : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
+  | Reg8 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg8 (fst $1) (snd $1)) }
+  | Integer '(' Reg8 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem8 (fst $1) (snd $1) (snd $3)) }
+
 Target8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target8
   : Reg8 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg8 (fst $1) (snd $1)) }
   | Integer '(' Reg8 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem8 (fst $1) (snd $1) (snd $3)) }
-
-Source8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Source) }
-Source8
-  : Reg8 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg8 (fst $1) (snd $1)) }
-  | Integer '(' Reg8 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem8 (fst $1) (snd $1) (snd $3)) }
 
 Reg8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg8

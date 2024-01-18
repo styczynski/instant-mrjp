@@ -110,6 +110,18 @@ transAsmInstr x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.JMP _ label -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.JZ _ label -> failure x
 
+transSource :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Source' a -> Result
+transSource x = case x of
+  Backend.X64.Parser.Gen.AbsXGAS.FromConst _ integer -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromReg64 _ reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromMem64 _ integer reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromReg32 _ reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromMem32 _ integer reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromReg16 _ reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromMem16 _ integer reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromReg8 _ reg -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromMem8 _ integer reg -> failure x
+
 transTarget :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Target' a -> Result
 transTarget x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.ToReg64 _ reg -> failure x
@@ -120,17 +132,6 @@ transTarget x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.ToMem16 _ integer reg -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.ToReg8 _ reg -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.ToMem8 _ integer reg -> failure x
-
-transSource :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Source' a -> Result
-transSource x = case x of
-  Backend.X64.Parser.Gen.AbsXGAS.FromReg64 _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromMem64 _ integer reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromReg32 _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromMem32 _ integer reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromReg16 _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromMem16 _ integer reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromReg8 _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.FromMem8 _ integer reg -> failure x
 
 transReg :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Reg' a -> Result
 transReg x = case x of

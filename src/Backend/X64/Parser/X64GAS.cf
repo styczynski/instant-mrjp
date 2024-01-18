@@ -105,6 +105,7 @@ JZ. AsmInstr ::= "jz" Label ;
 
 
 -- Registers
+FromConst. Source64 ::= Integer ;
 ToReg64. Target64 ::= Reg64 ;
 ToMem64. Target64 ::= Integer "(" Reg64 ")" ;
 FromReg64. Source64 ::= Reg64 ;
@@ -125,6 +126,7 @@ R12. Reg64 ::= "%R12" ;
 R13. Reg64 ::= "%R13" ;
 R14. Reg64 ::= "%R14" ;
 R15. Reg64 ::= "%R15" ;
+FromConst. Source32 ::= Integer ;
 ToReg32. Target32 ::= Reg32 ;
 ToMem32. Target32 ::= Integer "(" Reg32 ")" ;
 FromReg32. Source32 ::= Reg32 ;
@@ -145,6 +147,7 @@ R12D. Reg32 ::= "%R12D" ;
 R13D. Reg32 ::= "%R13D" ;
 R14D. Reg32 ::= "%R14D" ;
 R15D. Reg32 ::= "%R15D" ;
+FromConst. Source16 ::= Integer ;
 ToReg16. Target16 ::= Reg16 ;
 ToMem16. Target16 ::= Integer "(" Reg16 ")" ;
 FromReg16. Source16 ::= Reg16 ;
@@ -165,6 +168,7 @@ R12W. Reg16 ::= "%R12W" ;
 R13W. Reg16 ::= "%R13W" ;
 R14W. Reg16 ::= "%R14W" ;
 R15W. Reg16 ::= "%R15W" ;
+FromConst. Source8 ::= Integer ;
 ToReg8. Target8 ::= Reg8 ;
 ToMem8. Target8 ::= Integer "(" Reg8 ")" ;
 FromReg8. Source8 ::= Reg8 ;

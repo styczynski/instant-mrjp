@@ -19,6 +19,7 @@ def generate_reg_defs():
     for size in REGISTERS:
         regs = REGISTERS[size]
         rules = rules + [
+            rule(f"FromConst", f"Source{size}", f"Integer"),
             rule(f"ToReg{size}", f"Target{size}", f"Reg{size}"),
             rule(f"ToMem{size}", f"Target{size}", "Integer", lit("("), f"Reg{size}", lit(")")),
             rule(f"FromReg{size}", f"Source{size}", f"Reg{size}"),

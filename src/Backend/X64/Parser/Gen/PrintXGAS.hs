@@ -249,6 +249,18 @@ instance Print (Backend.X64.Parser.Gen.AbsXGAS.AsmInstr' a) where
     Backend.X64.Parser.Gen.AbsXGAS.JMP _ label -> prPrec i 0 (concatD [doc (showString "jmp"), prt 0 label])
     Backend.X64.Parser.Gen.AbsXGAS.JZ _ label -> prPrec i 0 (concatD [doc (showString "jz"), prt 0 label])
 
+instance Print (Backend.X64.Parser.Gen.AbsXGAS.Source' a) where
+  prt i = \case
+    Backend.X64.Parser.Gen.AbsXGAS.FromConst _ n -> prPrec i 64 (concatD [prt 0 n])
+    Backend.X64.Parser.Gen.AbsXGAS.FromReg64 _ reg -> prPrec i 64 (concatD [prt 64 reg])
+    Backend.X64.Parser.Gen.AbsXGAS.FromMem64 _ n reg -> prPrec i 64 (concatD [prt 0 n, doc (showString "("), prt 64 reg, doc (showString ")")])
+    Backend.X64.Parser.Gen.AbsXGAS.FromReg32 _ reg -> prPrec i 32 (concatD [prt 32 reg])
+    Backend.X64.Parser.Gen.AbsXGAS.FromMem32 _ n reg -> prPrec i 32 (concatD [prt 0 n, doc (showString "("), prt 32 reg, doc (showString ")")])
+    Backend.X64.Parser.Gen.AbsXGAS.FromReg16 _ reg -> prPrec i 16 (concatD [prt 16 reg])
+    Backend.X64.Parser.Gen.AbsXGAS.FromMem16 _ n reg -> prPrec i 16 (concatD [prt 0 n, doc (showString "("), prt 16 reg, doc (showString ")")])
+    Backend.X64.Parser.Gen.AbsXGAS.FromReg8 _ reg -> prPrec i 8 (concatD [prt 8 reg])
+    Backend.X64.Parser.Gen.AbsXGAS.FromMem8 _ n reg -> prPrec i 8 (concatD [prt 0 n, doc (showString "("), prt 8 reg, doc (showString ")")])
+
 instance Print (Backend.X64.Parser.Gen.AbsXGAS.Target' a) where
   prt i = \case
     Backend.X64.Parser.Gen.AbsXGAS.ToReg64 _ reg -> prPrec i 64 (concatD [prt 64 reg])
@@ -259,17 +271,6 @@ instance Print (Backend.X64.Parser.Gen.AbsXGAS.Target' a) where
     Backend.X64.Parser.Gen.AbsXGAS.ToMem16 _ n reg -> prPrec i 16 (concatD [prt 0 n, doc (showString "("), prt 16 reg, doc (showString ")")])
     Backend.X64.Parser.Gen.AbsXGAS.ToReg8 _ reg -> prPrec i 8 (concatD [prt 8 reg])
     Backend.X64.Parser.Gen.AbsXGAS.ToMem8 _ n reg -> prPrec i 8 (concatD [prt 0 n, doc (showString "("), prt 8 reg, doc (showString ")")])
-
-instance Print (Backend.X64.Parser.Gen.AbsXGAS.Source' a) where
-  prt i = \case
-    Backend.X64.Parser.Gen.AbsXGAS.FromReg64 _ reg -> prPrec i 64 (concatD [prt 64 reg])
-    Backend.X64.Parser.Gen.AbsXGAS.FromMem64 _ n reg -> prPrec i 64 (concatD [prt 0 n, doc (showString "("), prt 64 reg, doc (showString ")")])
-    Backend.X64.Parser.Gen.AbsXGAS.FromReg32 _ reg -> prPrec i 32 (concatD [prt 32 reg])
-    Backend.X64.Parser.Gen.AbsXGAS.FromMem32 _ n reg -> prPrec i 32 (concatD [prt 0 n, doc (showString "("), prt 32 reg, doc (showString ")")])
-    Backend.X64.Parser.Gen.AbsXGAS.FromReg16 _ reg -> prPrec i 16 (concatD [prt 16 reg])
-    Backend.X64.Parser.Gen.AbsXGAS.FromMem16 _ n reg -> prPrec i 16 (concatD [prt 0 n, doc (showString "("), prt 16 reg, doc (showString ")")])
-    Backend.X64.Parser.Gen.AbsXGAS.FromReg8 _ reg -> prPrec i 8 (concatD [prt 8 reg])
-    Backend.X64.Parser.Gen.AbsXGAS.FromMem8 _ n reg -> prPrec i 8 (concatD [prt 0 n, doc (showString "("), prt 8 reg, doc (showString ")")])
 
 instance Print (Backend.X64.Parser.Gen.AbsXGAS.Reg' a) where
   prt i = \case

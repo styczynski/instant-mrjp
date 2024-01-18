@@ -116,6 +116,19 @@ data AsmInstr' a
     | JZ a Label
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
+type Source = Source' BNFC'Position
+data Source' a
+    = FromConst a Integer
+    | FromReg64 a (Reg' a)
+    | FromMem64 a Integer (Reg' a)
+    | FromReg32 a (Reg' a)
+    | FromMem32 a Integer (Reg' a)
+    | FromReg16 a (Reg' a)
+    | FromMem16 a Integer (Reg' a)
+    | FromReg8 a (Reg' a)
+    | FromMem8 a Integer (Reg' a)
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
+
 type Target = Target' BNFC'Position
 data Target' a
     = ToReg64 a (Reg' a)
@@ -126,18 +139,6 @@ data Target' a
     | ToMem16 a Integer (Reg' a)
     | ToReg8 a (Reg' a)
     | ToMem8 a Integer (Reg' a)
-  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
-
-type Source = Source' BNFC'Position
-data Source' a
-    = FromReg64 a (Reg' a)
-    | FromMem64 a Integer (Reg' a)
-    | FromReg32 a (Reg' a)
-    | FromMem32 a Integer (Reg' a)
-    | FromReg16 a (Reg' a)
-    | FromMem16 a Integer (Reg' a)
-    | FromReg8 a (Reg' a)
-    | FromMem8 a Integer (Reg' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Reg = Reg' BNFC'Position
@@ -317,6 +318,18 @@ instance HasPosition AsmInstr where
     JMP p _ -> p
     JZ p _ -> p
 
+instance HasPosition Source where
+  hasPosition = \case
+    FromConst p _ -> p
+    FromReg64 p _ -> p
+    FromMem64 p _ _ -> p
+    FromReg32 p _ -> p
+    FromMem32 p _ _ -> p
+    FromReg16 p _ -> p
+    FromMem16 p _ _ -> p
+    FromReg8 p _ -> p
+    FromMem8 p _ _ -> p
+
 instance HasPosition Target where
   hasPosition = \case
     ToReg64 p _ -> p
@@ -327,17 +340,6 @@ instance HasPosition Target where
     ToMem16 p _ _ -> p
     ToReg8 p _ -> p
     ToMem8 p _ _ -> p
-
-instance HasPosition Source where
-  hasPosition = \case
-    FromReg64 p _ -> p
-    FromMem64 p _ _ -> p
-    FromReg32 p _ -> p
-    FromMem32 p _ _ -> p
-    FromReg16 p _ -> p
-    FromMem16 p _ _ -> p
-    FromReg8 p _ -> p
-    FromMem8 p _ _ -> p
 
 instance HasPosition Reg where
   hasPosition = \case

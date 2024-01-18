@@ -152,9 +152,10 @@ All other symbols are terminals.
   |  |  **|**  | ``setne`` //Reg8//
   |  |  **|**  | ``jmp`` //Label//
   |  |  **|**  | ``jz`` //Label//
-  | //Target64// | -> | //Reg64//
+  | //Source64// | -> | //Integer//
+  |  |  **|**  | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``
-  | //Source64// | -> | //Reg64//
+  | //Target64// | -> | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``
   | //Reg64// | -> | ``%RAX``
   |  |  **|**  | ``%RBX``
@@ -172,9 +173,10 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13``
   |  |  **|**  | ``%R14``
   |  |  **|**  | ``%R15``
-  | //Target32// | -> | //Reg32//
+  | //Source32// | -> | //Integer//
+  |  |  **|**  | //Reg32//
   |  |  **|**  | //Integer// ``(`` //Reg32// ``)``
-  | //Source32// | -> | //Reg32//
+  | //Target32// | -> | //Reg32//
   |  |  **|**  | //Integer// ``(`` //Reg32// ``)``
   | //Reg32// | -> | ``%EAX``
   |  |  **|**  | ``%EBX``
@@ -192,9 +194,10 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13D``
   |  |  **|**  | ``%R14D``
   |  |  **|**  | ``%R15D``
-  | //Target16// | -> | //Reg16//
+  | //Source16// | -> | //Integer//
+  |  |  **|**  | //Reg16//
   |  |  **|**  | //Integer// ``(`` //Reg16// ``)``
-  | //Source16// | -> | //Reg16//
+  | //Target16// | -> | //Reg16//
   |  |  **|**  | //Integer// ``(`` //Reg16// ``)``
   | //Reg16// | -> | ``%AX``
   |  |  **|**  | ``%BX``
@@ -212,9 +215,10 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13W``
   |  |  **|**  | ``%R14W``
   |  |  **|**  | ``%R15W``
-  | //Target8// | -> | //Reg8//
+  | //Source8// | -> | //Integer//
+  |  |  **|**  | //Reg8//
   |  |  **|**  | //Integer// ``(`` //Reg8// ``)``
-  | //Source8// | -> | //Reg8//
+  | //Target8// | -> | //Reg8//
   |  |  **|**  | //Integer// ``(`` //Reg8// ``)``
   | //Reg8// | -> | ``%AL``
   |  |  **|**  | ``%BL``
