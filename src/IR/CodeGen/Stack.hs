@@ -25,7 +25,7 @@ stackClearOverhead s =
 
 -- Increase the stack overhead with some unidentified value.
 stackPush :: X64.Size -> Stack -> Stack
-stackPush size s = s {stackOverheadSize = stackOverheadSize s + sizeInBytes size}
+stackPush size s = s {stackOverheadSize = stackOverheadSize s + X64.toBytes size}
 
 -- Align the stack to take a multiple of 16 bytes. Returns the applied additional offset
 -- and the aligned stack.

@@ -5,7 +5,9 @@ import           Data.List           (foldl')
 import qualified Data.Map            as Map
 import           IR.Syntax.Syntax
 import IR.Identifiers
-import           IR.Size         (sizeInBytes, typeSize)
+import           IR.Size         (typeSize)
+
+import qualified Backend.X64.Parser.Constructor as X64
 
 data CompiledClass = CompiledCl {
     clName   :: SymIdent,
@@ -43,7 +45,7 @@ layoutFields fldDefs =
     in  foldl' go ([], 0) fldBase
     where
         go (flds, offset) fld =
-            let fldSize = sizeInBytes (typeSize (fldType fld))
+            let fldSize = X64.toBytes (typeSize (fldType fld))
                 padding = if offset `mod` fldSize == 0
                             then 0
                             else fldSize - (offset `mod` fldSize)

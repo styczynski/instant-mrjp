@@ -34,7 +34,7 @@ generateModule cls mthds allConsts =
           commentField fld = ["    Field name:   " ++ toStr (fldName fld),
                               "    Field type:   " ++ show (fldType fld),
                               "    Field offset: " ++ show (fldOffset fld),
-                              "    Field size:   " ++ show (sizeInBytes $ typeSize $ fldType fld)]
+                              "    Field size:   " ++ show (X64.toBytes $ typeSize $ fldType fld)]
           vtable cl = if toStr (clName cl) == "~cl_TopLevel" then []
                       else [Emit.global (classDefIdent (clName cl))
                             ,Emit.global (vTableLabIdent (clName cl))
@@ -46,5 +46,5 @@ generateModule cls mthds allConsts =
                             ,Emit.quadDef "0"
                             ,Emit.label (vTableLabIdent (clName cl)) ""]++map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
           nullRef = [Emit.label nullrefLabel "runtime error on null dereference",
-                     Emit.and X64.Size64 (LocImm (-16)) (LocReg rsp) "16 bytes allign",
+                     Emit.and X64.Size64 (X64.LocConst (-16)) (X64.LocReg X64.RSP) "16 bytes allign",
                      Emit.callDirect "__errorNull"]

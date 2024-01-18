@@ -16,15 +16,15 @@ import           IR.Size
 withPrologue :: QIdent a -> RegisterAllocation -> CompiledMethod -> CompiledMethod
 withPrologue qi rs mthd =
     let locs = fromIntegral $ numLocals rs * 8
-        savedRegs = sort $ filter (\r -> regType r == CalleeSaved) $ usedRegs rs
+        savedRegs = sort $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
         needsAlignment = odd $ length savedRegs
         prologue =
             [colouredInterferenceComment, Emit.label (labelFor qi (LabIdent "")) ""] ++
-            map (\r -> Emit.push (LocReg r) "") savedRegs ++
+            map (\r -> Emit.push (X64.LocReg r) "") savedRegs ++
             [Emit.incrStack 8 "16 bytes alignment" | needsAlignment] ++
             [
-                Emit.push (LocReg rbp) "",
-                Emit.mov X64.Size64 (LocReg rsp) (LocReg rbp) "",
+                Emit.push (X64.LocReg X64.RBP) "",
+                Emit.mov X64.Size64 (X64.LocReg X64.RSP) (X64.LocReg X64.RBP) "",
                 Emit.incrStack locs "space for locals"
             ]
         -- Access to parameters passed on stack has to be offset by 8 for each saved

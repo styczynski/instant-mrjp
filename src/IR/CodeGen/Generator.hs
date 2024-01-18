@@ -88,7 +88,7 @@ genInstr instr =
                 resetStack
             IRet _ val -> do
                 loc <- getValLoc val
-                Emit.mov (valSize val) loc (LocReg rax) "move return value"
+                Emit.mov (valSize val) loc (X64.LocReg X64.RAX) "move return value"
                 resetStack
             IOp _ vi v1 op v2 -> do
                 dest <- getLoc vi
@@ -102,15 +102,15 @@ genInstr instr =
                         else if dest == src2 then
                           Emit.add src1 dest ""
                         else case (src1, src2) of
-                            (LocReg r1, LocReg r2) ->
-                                Emit.lea X64.Size32 (LocPtrCmplx r1 r2 0 X64.Size8) dest ("addition " ++ toStr vi)
-                            (LocImm n1, LocReg r2) ->
-                                Emit.lea X64.Size32 (LocPtr r2 (fromIntegral n1)) dest ("addition " ++ toStr vi)
-                            (LocReg r1, LocImm n2) ->
-                                Emit.lea X64.Size32 (LocPtr r1 (fromIntegral n2)) dest ("addition " ++ toStr vi)
+                            (X64.LocReg r1, X64.LocReg r2) ->
+                                Emit.lea X64.Size32 (X64.LocMemOffset r1 r2 0 X64.Size8) dest ("addition " ++ toStr vi)
+                            (X64.LocConst n1, X64.LocReg r2) ->
+                                Emit.lea X64.Size32 ( X64.LocMem (r2, fromIntegral n1)) dest ("addition " ++ toStr vi)
+                            (X64.LocReg r1, X64.LocConst n2) ->
+                                Emit.lea X64.Size32 ( X64.LocMem (r1, fromIntegral n2)) dest ("addition " ++ toStr vi)
                             _ -> error "internal error. invalid src locs in add"
                     OpAdd _ | isStr (valType v1) -> do
-                        genCall (CallDirect "lat_cat_strings") [v1, v2] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
+                        genCall (CallDirect "lat_cat_strings") [v1, v2] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
                     OpAdd _ -> error "internal error. invalid operand types for add."
                     OpSub _ -> do
                         if dest == src1 then
@@ -123,12 +123,12 @@ genInstr instr =
                           Emit.sub src2 dest
                     OpMul _ -> do
                         case (src1, src2) of
-                            (LocImm n, _) | isPowerOfTwo n -> do
+                            (X64.LocConst n, _) | isPowerOfTwo n -> do
                                 when (dest /= src2) (Emit.mov X64.Size32 src2 dest "")
-                                Emit.sal (log2 n) dest ("multiply by " ++ show n)
-                            (_, LocImm n) | isPowerOfTwo n -> do
+                                Emit.sal (log2 $ fromIntegral n) dest ("multiply by " ++ show n)
+                            (_, X64.LocConst n) | isPowerOfTwo n -> do
                                 when (dest == src1) (Emit.mov X64.Size32 src1 dest "")
-                                Emit.sal (log2 n) dest ("multiply by " ++ show n)
+                                Emit.sal (log2 $ fromIntegral n) dest ("multiply by " ++ show n)
                             _ -> do
                                 if dest == src1 then
                                   Emit.imul src2 dest
@@ -139,39 +139,39 @@ genInstr instr =
                                   Emit.imul src2 dest
                     OpDiv _ -> do
                         case src2 of
-                            LocImm n | isPowerOfTwo n -> do
+                            X64.LocConst n | isPowerOfTwo n -> do
                                 Emit.mov X64.Size32 src1 dest ""
-                                Emit.sar (log2 n) dest ("divide by " ++ show n)
-                            LocImm {} -> do
-                                Emit.mov X64.Size32 src1 (LocReg rax) ""
+                                Emit.sar (log2 $ fromIntegral n) dest ("divide by " ++ show n)
+                            X64.LocConst {} -> do
+                                Emit.mov X64.Size32 src1 (X64.LocReg X64.RAX) ""
                                 Emit.cdq
                                 Emit.mov X64.Size32 src2 src1 ""
                                 Emit.idiv X64.Size32 src1
-                                Emit.mov X64.Size32 (LocReg rax) dest ""
+                                Emit.mov X64.Size32 (X64.LocReg X64.RAX) dest ""
                             _ -> do
-                                Emit.mov X64.Size32 src1 (LocReg rax) ""
+                                Emit.mov X64.Size32 src1 (X64.LocReg X64.RAX) ""
                                 Emit.cdq
                                 Emit.idiv X64.Size32 src2
-                                Emit.mov X64.Size32 (LocReg rax) dest ""
+                                Emit.mov X64.Size32 (X64.LocReg X64.RAX) dest ""
                     OpMod _ -> do
                         case src2 of
-                            LocImm n | isPowerOfTwo n -> do
+                            X64.LocConst n | isPowerOfTwo n -> do
                                 -- n % 2^k
                                 -- is the same as
                                 -- n AND (2^k - 1)
                                 Emit.mov X64.Size32 src1 dest ""
-                                Emit.and X64.Size32 (LocImm (n - 1)) dest ("modulo by " ++ show n)
-                            LocImm {} -> do
-                                Emit.mov X64.Size32 src1 (LocReg rax) ""
+                                Emit.and X64.Size32 (X64.LocConst (n - 1)) dest ("modulo by " ++ show n)
+                            X64.LocConst {} -> do
+                                Emit.mov X64.Size32 src1 (X64.LocReg X64.RAX) ""
                                 Emit.cdq
                                 Emit.mov X64.Size32 src2 src1 ""
                                 Emit.idiv X64.Size32 src1
-                                Emit.mov X64.Size32 (LocReg rdx) dest ""
+                                Emit.mov X64.Size32 (X64.LocReg X64.RDX) dest ""
                             _ -> do
-                                Emit.mov X64.Size32 src1 (LocReg rax) ""
+                                Emit.mov X64.Size32 src1 (X64.LocReg X64.RAX) ""
                                 Emit.cdq
                                 Emit.idiv X64.Size32 src2
-                                Emit.mov X64.Size32 (LocReg rdx) dest ""
+                                Emit.mov X64.Size32 (X64.LocReg X64.RDX) dest ""
                     OpLTH _ -> emitCmpBin op dest src1 src2 size
                     OpLE _  -> emitCmpBin op dest src1 src2 size
                     OpGTH _ -> emitCmpBin op dest src1 src2 size
@@ -194,15 +194,15 @@ genInstr instr =
                 Emit.mov (typeSize t) src dest $ "setting " ++ toStr vi
                 case op of
                     UnOpNeg _ -> Emit.neg dest
-                    UnOpNot _ -> Emit.xor X64.Size8 (LocImm 1) dest
+                    UnOpNot _ -> Emit.xor X64.Size8 (X64.LocConst 1) dest
             IVCall _ call -> case call of
                     Call _ _ qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (return ())
                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
             ICall _ vi call -> do
                 dest <- getLoc vi
                 case call of
-                        Call _ t qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (Emit.mov (typeSize t) (LocReg rax) dest "")
-                        CallVirt _ t qi args -> genCallVirt qi args (Emit.mov (typeSize t) (LocReg rax) dest "")
+                        Call _ t qi args largs    -> genCall (CallDirect $ getCallTarget qi) args largs (Emit.mov (typeSize t) (X64.LocReg X64.RAX) dest "")
+                        CallVirt _ t qi args -> genCallVirt qi args (Emit.mov (typeSize t) (X64.LocReg X64.RAX) dest "")
             ILoad _ vi ptr -> do
                 let t = () <$ deref (ptrType ptr)
                 src <- getPtrLoc ptr
@@ -218,21 +218,21 @@ genInstr instr =
                     cl <- getClass clIdent
                     dest <- getLoc vi
                     let sizeArg = VInt () (toInteger $ clSize cl)
-                        (LocReg tmpReg) = argLoc 0
+                        (X64.LocReg tmpReg) = X64.argLoc 0
                     let clLabel = classDefIdent clIdent
                     genCall (CallDirect "__new") [] [clLabel] (do
                         --Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
-                        --Emit.mov X64.Size64 (LocReg tmpReg) (LocPtr rax 0) "store vtable"
-                        Emit.mov X64.Size64 (LocReg rax) dest "")
+                        --Emit.mov X64.Size64 (X64.LocReg tmpReg) ( X64.LocMem (X64.RAX 0) "store vtable"
+                        Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
                 _ -> error $ "internal error. new on nonclass " ++ show t
             INewStr _ vi str -> do
                 let t = Ref () strType
                 dest <- getLoc vi
                 strConst <- newStrConst str
                 case dest of
-                    LocReg reg_ -> Emit.leaOfConst (constName strConst) reg_
+                    X64.LocReg reg_ -> Emit.leaOfConst (constName strConst) reg_
                     _ -> error $ "internal error. invalid dest loc " ++ show dest
-                genCall (CallDirect "__createString") [VVal () t vi] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
+                genCall (CallDirect "__createString") [VVal () t vi] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
             INewArr _ vi t val -> do
                 dest <- getLoc vi
                 --let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
@@ -244,11 +244,11 @@ genInstr instr =
                 -- | Cl a SymIdent
                 -- | Ref a (SType a)
                 case t of 
-                    (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
-                    (Bool _) -> genCall (CallDirect "__newByteArray") [() <$ val] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
-                    (Void _) -> genCall (CallDirect "__newArray") [VInt () 0, () <$ val] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
+                    (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
+                    (Bool _) -> genCall (CallDirect "__newByteArray") [() <$ val] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
+                    (Void _) -> genCall (CallDirect "__newArray") [VInt () 0, () <$ val] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
                     (Cl _ name) -> error $ "internal error. cannot create array of class type " ++ show name
-                    (Ref _ _) -> genCall (CallDirect "__newRefArray") [() <$ val] [] (Emit.mov X64.Size64 (LocReg rax) dest "")
+                    (Ref _ _) -> genCall (CallDirect "__newRefArray") [() <$ val] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
                     _ -> error $ "internal error. invalid array type " ++ show t
             IJmp _ li -> do
                 li' <- label li
@@ -260,9 +260,9 @@ genInstr instr =
                 l2' <- label l2
                 resetStack
                 case loc of
-                    LocImm 0 -> do
+                    X64.LocConst 0 -> do
                         Emit.jmp l2'
-                    LocImm 1 -> do
+                    X64.LocConst 1 -> do
                         Emit.jmp l1'
                     _ -> do
                         Emit.test X64.Size8 loc loc
@@ -281,12 +281,12 @@ genCall :: CallTarget -> [Val a] -> [LabIdent] -> GenM () -> GenM ()
 genCall target varArgs labelArgs cont = do
         let args = (map CallArgVal varArgs) ++ (map CallArgLabel labelArgs)
         regs_ <- getPreservedRegs
-        let argsWithLocs = zip args (map argLoc [0..])
-            (argsWithLocReg,  argsWithLocStack) = partition (isReg . snd) argsWithLocs
-            argsInRegs = map (second asReg) argsWithLocReg
+        let argsWithLocs = zip args (map X64.argLoc [0..])
+            (argsWithLocReg,  argsWithLocStack) = partition (X64.isReg . snd) argsWithLocs
+            argsInRegs = map (second X64.asReg) argsWithLocReg
             argsOnStack = map fst argsWithLocStack
-            savedRegs = filter ((== CallerSaved) . regType) regs_
-        forM_ savedRegs (\r -> Emit.push (LocReg r) "save caller saved")
+            savedRegs = filter ((== X64.CallerSaved) . X64.regType) regs_
+        forM_ savedRegs (\r -> Emit.push (X64.LocReg r) "save caller saved")
         forM_ argsInRegs (uncurry passInReg)
         stackBefore <- gets (stackOverheadSize . stack)
         locs <- mapM prepOnStack (reverse argsOnStack)
@@ -296,30 +296,30 @@ genCall target varArgs labelArgs cont = do
         case target of
             CallDirect l              -> Emit.callDirect l
             CallVirtual offset s -> do
-                let self@(LocReg selfReg) = argLoc 0
+                let self@(X64.LocReg selfReg) = X64.argLoc 0
                 Emit.test X64.Size64 self self
                 Emit.jz nullrefLabel
-                Emit.mov X64.Size64 (LocPtr selfReg 20) (LocReg rax) "load address of vtable"
-                --Emit.mov X64.Size64 (LocPtr rax 12) (LocReg selfReg) "load address of vtable"
-                Emit.callAddress rax offset ("call " ++ s)
+                Emit.mov X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg X64.RAX) "load address of vtable"
+                --Emit.mov X64.Size64 ( X64.LocMem (X64.RAX 12) (X64.LocReg selfReg) "load address of vtable"
+                Emit.callAddress X64.RAX offset ("call " ++ s)
         Emit.decrStack (stackAfter - stackBefore)
         modify (\st -> st{stack = (stack st){stackOverheadSize = stackBefore}})
         cont
-        forM_ (reverse savedRegs) (Emit.pop . LocReg)
+        forM_ (reverse savedRegs) (Emit.pop . X64.LocReg)
     where
-          passInReg :: CallArg a -> Reg -> GenM ()
+          passInReg :: CallArg a -> X64.Reg -> GenM ()
           passInReg (CallArgLabel l) reg_ = do
             Emit.leaOfConst (toStr l) reg_
-            --Emit.mov (Quadruple) (LocLabel l) (LocReg reg_) "passing label arg"
+            --Emit.mov (Quadruple) (LocLabel l) (X64.LocReg reg_) "passing label arg"
           passInReg (CallArgVal val) reg_ = do
             loc <- getValLoc val
-            Emit.mov (valSize val) loc (LocReg reg_) "passing arg"
-          prepOnStack :: CallArg a -> GenM Loc
+            Emit.mov (valSize val) loc (X64.LocReg reg_) "passing arg"
+          prepOnStack :: CallArg a -> GenM X64.Loc
           prepOnStack ((CallArgLabel (LabIdent l))) = do
               s <- gets stack
               let s' = stackPush X64.Size64 s
               setStack s'
-              return (LocLabel l)
+              return (X64.LocLabel l)
           prepOnStack (CallArgVal val) = do
               s <- gets stack
               loc <- getValLoc val
@@ -340,20 +340,20 @@ genCallVirt (QIdent _ cli i) args cont = do
                     Nothing     -> error ""
     genCall (CallVirtual offset (toStr i)) args [] cont
 
-emitCmpBin :: Op a -> Loc -> Loc -> Loc -> X64.Size -> GenM ()
+emitCmpBin :: Op a -> X64.Loc -> X64.Loc -> X64.Loc -> X64.Size -> GenM ()
 emitCmpBin op dest src1 src2 size = do
     case src1 of
-        LocImm {} -> do
-            Emit.cmp size src1 src2
-            revCmpEmitter op dest
-        LocImm64 {} -> do
+        -- LocImm {} -> do
+        --     Emit.cmp size src1 src2
+        --     revCmpEmitter op dest
+        X64.LocConst {} -> do
             Emit.cmp size src1 src2
             revCmpEmitter op dest
         _ -> do
             Emit.cmp size src2 src1
             cmpEmitter op dest
 
-cmpEmitter :: Op a -> Loc -> GenM ()
+cmpEmitter :: Op a -> X64.Loc -> GenM ()
 cmpEmitter op = case op of
     OpLTH _ -> Emit.setl
     OpLE _  -> Emit.setle
@@ -363,7 +363,7 @@ cmpEmitter op = case op of
     OpNE _  -> Emit.setne
     _       -> error "internal error. invalid op to cmpEmitter."
 
-revCmpEmitter :: Op a -> Loc -> GenM ()
+revCmpEmitter :: Op a -> X64.Loc -> GenM ()
 revCmpEmitter op = case op of
     OpLTH _ -> Emit.setge
     OpLE _  -> Emit.setg
@@ -380,12 +380,12 @@ resetStack = do
     Emit.decrStack n
     setStack s'
 
-getPtrLoc :: Ptr a -> GenM Loc
+getPtrLoc :: Ptr a -> GenM X64.Loc
 getPtrLoc ptr = case ptr of
     PArrLen _ val -> do
         src <- getValLoc val
         case src of
-            LocReg reg_ -> return $ LocPtr reg_ 0
+            X64.LocReg reg_ -> return $  X64.LocMem (reg_, 0)
             _ -> error $ "internal error. invalid src loc for arrlen " ++ show src
     PElem _ elemT arrVal idxVal -> do
         let elemSize = typeSize $ deref elemT
@@ -396,24 +396,24 @@ getPtrLoc ptr = case ptr of
         arrSrc <- getValLoc arrVal
         idxSrc <- getValLoc idxVal
         case (arrSrc, idxSrc) of
-            (LocReg arrReg, LocReg idxReg) -> do
-                let (LocReg tmpReg) = argLoc 0
-                Emit.mov X64.Size64 (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
-                return $ LocPtrCmplx tmpReg idxReg idxOffset elemSize
-            (LocReg arrReg, LocImm idx) -> do
-                let (LocReg tmpReg) = argLoc 0
-                Emit.mov X64.Size64 (LocPtr arrReg 0x08) (LocReg tmpReg) ("load data (indirect)")
-                return $ LocPtr tmpReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
+            (X64.LocReg arrReg, X64.LocReg idxReg) -> do
+                let (X64.LocReg tmpReg) = X64.argLoc 0
+                Emit.mov X64.Size64 ( X64.LocMem (arrReg, 0x08)) (X64.LocReg tmpReg) ("load data (indirect)")
+                return $ X64.LocMemOffset tmpReg idxReg idxOffset elemSize
+            (X64.LocReg arrReg, X64.LocConst idx) -> do
+                let (X64.LocReg tmpReg) = X64.argLoc 0
+                Emit.mov X64.Size64 ( X64.LocMem (arrReg, 0x08)) (X64.LocReg tmpReg) ("load data (indirect)")
+                return $  X64.LocMem (tmpReg, fromIntegral idx * X64.toBytes elemSize + idxOffset)
             _ -> error $ "internal error. invalid src loc for elemptr " ++ show arrSrc ++ ", " ++ show idxSrc
     PFld _ _ val (QIdent _ cli fldi) -> do
         src <- getValLoc val
         cl <- getClass cli
         case Map.lookup fldi (clFlds cl) of
             Just fld -> case src of
-                LocReg reg_ -> do
-                    Emit.mov X64.Size64 (LocPtr reg_ 0x08) (LocReg rax) ("load data (indirect)")
-                    return $ LocPtr rax (fldOffset fld)
+                X64.LocReg reg_ -> do
+                    Emit.mov X64.Size64 ( X64.LocMem (reg_, 0x08)) (X64.LocReg X64.RAX) ("load data (indirect)")
+                    return $  X64.LocMem (X64.RAX, fldOffset fld)
                 _ -> error $ "internal error. invalid src loc for fldptr " ++ show src
             Nothing -> error $ "internal error. no such field " ++ toStr cli ++ "." ++ toStr fldi
-    PParam _ _ n _ -> return $ argLoc n
-    PLocal _ _ n   -> return $ LocPtr rbp (fromInteger $ (n + 1) * (-8))
+    PParam _ _ n _ -> return $ X64.argLoc n
+    PLocal _ _ n   -> return $  X64.LocMem (X64.RBP, fromInteger $ (n + 1) * (-8))

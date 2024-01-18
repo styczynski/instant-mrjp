@@ -9,13 +9,15 @@ import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
 import           IR.Registers
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 withEpilogue :: RegisterAllocation -> CompiledMethod -> CompiledMethod
 withEpilogue rs mthd =
-    let savedRegs = sortOn Down $ filter (\r -> regType r == CalleeSaved) $ usedRegs rs
+    let savedRegs = sortOn Down $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
         neededAlignment = odd $ length savedRegs
         epilogue =
             Emit.leave :
             [Emit.decrStack 8 | neededAlignment] ++
-            map (Emit.pop . LocReg) savedRegs ++
+            map (Emit.pop . X64.LocReg) savedRegs ++
             [Emit.ret]
     in mthd {mthdEpilogue = map Emit.emitAsString epilogue}

@@ -9,6 +9,8 @@ import           IR.Utils
 import           IR.RegisterAllocation.InterferenceGraph
 import           IR.Registers
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 -- Attempt to colour the graph with registers.
 -- If successful, return Right colouring.
 -- Otherwise, return Left nodes that were uncoloured and their neighbours as possible candidates
@@ -32,12 +34,12 @@ go (IG g) n =
 
 -- Find a colour for the node that does not collide with neighbours.
 -- Greedily prefer the preferred type of register.
-colourForNode :: InterferenceGraph -> InterferenceNode -> Maybe Reg
+colourForNode :: InterferenceGraph -> InterferenceNode -> Maybe X64.Reg
 colourForNode (IG g) node =
     let neighbourColours = Set.map (iNodeColour . (g Map.!)) (iNodeOut node)
         usedColours = Set.map fromJust $ Set.filter isJust neighbourColours
-        freeColours = filter (not . (`Set.member` usedColours)) allRegs
-        prefColours = filter ((== iNodeRegPref node) . regType) freeColours
+        freeColours = filter (not . (`Set.member` usedColours)) X64.allRegs
+        prefColours = filter ((== iNodeRegPref node) . X64.regType) freeColours
         prefColour = find (const True) prefColours
         freeColour = find (const True) freeColours
     in msum [prefColour, freeColour]

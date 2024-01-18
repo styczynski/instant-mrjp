@@ -18,14 +18,16 @@ import           IR.Utils
 import           IR.Loc
 import           IR.Registers
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 newtype InterferenceGraph = IG {
     ig :: Map.Map String InterferenceNode
 }
 
 data InterferenceNode = IN {
     iNodeLabel   :: String,
-    iNodeColour  :: Maybe Reg,
-    iNodeRegPref :: RegType,
+    iNodeColour  :: Maybe X64.Reg,
+    iNodeRegPref :: X64.RegType,
     iNodeOut     :: Set.Set String
 }
 
@@ -36,7 +38,7 @@ data InterferenceState = St {
     stCalls   :: Integer
 }
 
-getColouring :: InterferenceGraph -> Map.Map String Reg
+getColouring :: InterferenceGraph -> Map.Map String X64.Reg
 getColouring (IG g) = Map.map (fromJust . iNodeColour) g
 
 buildInterferenceGraph :: CFG Liveness -> InterferenceGraph
@@ -49,15 +51,15 @@ buildInterferenceGraph g = stIg $ execState (go (linearise g)) (St (IG Map.empty
         goOne instr = do
             let live = single instr
             case instr of
-                IOp _ vi lhs (OpDiv _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs rax
-                IOp _ vi lhs (OpMod _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs rdx
+                IOp _ vi lhs (OpDiv _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs X64.RAX
+                IOp _ vi lhs (OpMod _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs X64.RDX
                 IVCall _ call  -> do
                     createCallEdges call live
                     forM_ (HashMap.keysSet (liveIn live) `HashSet.intersection` HashMap.keysSet (liveOut live)) markSurvivesCall
                 ICall _ _ call -> do
                     createCallEdges call live
                     forM_ (HashMap.keysSet (liveIn live) `HashSet.intersection` HashMap.keysSet (liveOut live)) markSurvivesCall
-                ILoad _ _ (PParam _ _ n vi) | isReg (argLoc n) -> precolourI vi (asReg $ argLoc n)
+                ILoad _ _ (PParam _ _ n vi) | X64.isReg (X64.argLoc n) -> precolourI vi (X64.asReg $ X64.argLoc n)
                 ILoad _ _ (PParam _ _ _ vi) -> addIgnored (toStr vi)      -- Parameter already on stack. Ignore interference.
                 _ -> return ()
             addEdgesBetween (HashMap.keys $ liveOut live)
@@ -78,14 +80,14 @@ createCallEdges call l = do
     let vals = case call of
                 Call _ _ _ vs _     -> vs
                 CallVirt _ _ _ vs -> vs
-        valLocs = zip vals (map argLoc [0..])
+        valLocs = zip vals (map X64.argLoc [0..])
     forM_ valLocs (uncurry edgesForArg)
     where
-        edgesForArg val (LocReg reg_ ) = do
+        edgesForArg val (X64.LocReg reg_ ) = do
             n <- gets stCalls
             modify (\st -> st{stCalls = n + 1})
             let nArg = "~arg_" ++ show n ++ "_" ++ show reg_
-                nodeArg = IN nArg (Just reg_) CallerSaved Set.empty
+                nodeArg = IN nArg (Just reg_) X64.CallerSaved Set.empty
                 interfering = HashMap.keysSet $ liveUse l
                 interfering' = case val of
                     VVal _ _ (ValIdent vi) -> HashSet.delete vi interfering
@@ -101,15 +103,15 @@ createDivNodes = do
     modify (\st -> st{stDivs = n + 1})
     let nRes = "~div_" ++ show n ++ "_rax"
         nRem = "~div_" ++ show n ++ "_rdx"
-        nodeRes = IN nRes (Just rax) CallerSaved Set.empty
-        nodeRem = IN nRem (Just rdx) CallerSaved Set.empty
+        nodeRes = IN nRes (Just X64.RAX) X64.CallerSaved Set.empty
+        nodeRem = IN nRem (Just X64.RDX) X64.CallerSaved Set.empty
     modify (\st -> st{stIg = IG $ Map.insert nRes nodeRes $ ig $ stIg st})
     modify (\st -> st{stIg = IG $ Map.insert nRem nodeRem $ ig $ stIg st})
     addEdge nRes nRem
     addEdge nRem nRes
     return (nRes, nRem)
 
-precolourI :: ValIdent -> Reg -> State InterferenceState ()
+precolourI :: ValIdent -> X64.Reg -> State InterferenceState ()
 precolourI (ValIdent vi) col = do
     node <- getNode vi
     let node' = node {iNodeColour = Just col}
@@ -135,7 +137,7 @@ getNode n = do
     case mbnode of
         Just node -> return node
         Nothing -> do
-            let node = IN n Nothing CallerSaved Set.empty
+            let node = IN n Nothing X64.CallerSaved Set.empty
             modify (\st -> st{stIg = IG $ Map.insert n node $ ig $ stIg st})
             return node
 
@@ -152,7 +154,7 @@ removeNode n = do
         removeFromOthers n' = modifyNode n' (\node' -> node'{iNodeOut = Set.delete n (iNodeOut node')})
 
 markSurvivesCall :: String -> State InterferenceState ()
-markSurvivesCall n = modifyNode n (\node -> node{iNodeRegPref = CalleeSaved})
+markSurvivesCall n = modifyNode n (\node -> node{iNodeRegPref = X64.CalleeSaved})
 
 isSimpleDiv :: Val a -> Bool
 isSimpleDiv val = case val of

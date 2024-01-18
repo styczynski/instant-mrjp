@@ -71,7 +71,7 @@ emitAsString f = let PE s = f in s
 -- Saves the result in the destination.
 --   add<s> <src>, <dest> # <comment>
 -- where <s> is the AT&T instruction suffix based on <size>.
-add :: EmitM m => Loc -> Loc -> String -> m ()
+add :: EmitM m => X64.Loc -> X64.Loc -> String -> m ()
 add src dest comment_ =
     let srcString = loc X64.Size32 src
         destString = loc X64.Size32 dest
@@ -81,7 +81,7 @@ add src dest comment_ =
 -- Saves the result in the destination.
 --   and<s> <src>, <dest>
 -- where <s> is the AT&T instruction suffix based on <size>.
-and :: EmitM m => X64.Size -> Loc -> Loc -> String -> m ()
+and :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> String -> m ()
 and size src dest comment_ =
     let srcString = loc size src
         destString = loc size dest
@@ -89,7 +89,7 @@ and size src dest comment_ =
 
 -- Emit a call instruction to the address in the given memory location.
 --   call *<offset>(%<reg>) # <comment>
-callAddress :: EmitM m => Reg -> Int64 -> String -> m ()
+callAddress :: EmitM m => X64.Reg -> Int64 -> String -> m ()
 callAddress reg_ offset comment_ =
     emitInd $ "call *" ++ show offset ++ "(" ++ sizedReg X64.Size64 reg_ ++ ")" ++ comment comment_
 
@@ -108,7 +108,7 @@ cdq = emitInd "cdq"
 -- is logically the right-hand-side of the comparison.
 --   cmp<s> <src>, <dest>
 -- where <s> is the AT&T instruction suffix based on <size>.
-cmp :: EmitM m => X64.Size -> Loc -> Loc -> m ()
+cmp :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> m ()
 cmp size rhs lhs =
     let rhsString = loc size rhs
         lhsString = loc size lhs
@@ -148,16 +148,16 @@ incrStack n comment_ = emitInd $ "subq " ++ lit64 n ++ ", %rsp" ++ comment comme
 -- The division is stored in eax and the remainder in edx.
 --   idiv<s> <loc>
 -- where <s> is the AT&T instruction suffix based on <size>.
-idiv :: EmitM m => X64.Size -> Loc -> m ()
+idiv :: EmitM m => X64.Size -> X64.Loc -> m ()
 idiv size loc_ = case loc_ of
-    LocImm {} -> error "internal error. idiv on an immediate."
-    LocPtr {} -> error "internal error. idiv with ptr"
+    X64.LocConst {} -> error "internal error. idiv on an immediate."
+    X64.LocMem {} -> error "internal error. idiv with ptr"
     _         -> emitInd $ "idiv" ++ sizeSuf size ++ " " ++ loc size loc_
 
 -- Emit a multiplication operation between a source and destination location.
 --   imul<s> <src>, <dest>
 -- where <s> is the AT&T instruction suffix based on <size>.
-imul :: EmitM m => Loc -> Loc -> m ()
+imul :: EmitM m => X64.Loc -> X64.Loc -> m ()
 imul src dest =
     let srcString = loc X64.Size32 src
         destString = loc X64.Size32 dest
@@ -179,16 +179,16 @@ jz (LabIdent l) = emitInd $ "jz " ++ sanitiseAssembly l
 label :: EmitM m => LabIdent -> String -> m ()
 label (LabIdent l) comment_ = emit $ sanitiseAssembly l ++ ":" ++ comment comment_
 
-lea :: EmitM m => X64.Size -> Loc -> Loc -> String -> m ()
+lea :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> String -> m ()
 lea size src dest comment_ =
     emitInd $ bin "lea" size (loc size src) (loc size dest) comment_
 
 -- Emit an address load operation for a compile-time constant.
 --   lea <x>(%rip), %<reg>
 -- where <s> is the AT&T instruction suffix based on <size>.
-leaOfConst :: EmitM m => String -> Reg -> m ()
+leaOfConst :: EmitM m => String -> X64.Reg -> m ()
 leaOfConst x dest =
-    emitInd $ "lea " ++ sanitiseAssembly x ++ "(%rip), " ++ reg (reg64 dest)
+    emitInd $ "lea " ++ sanitiseAssembly x ++ "(%rip), " ++ reg (X64.showReg X64.Size64 dest)
 
 -- Emit a standard epilogue leave instruction
 -- that restores the rsp and rbp registers.
@@ -197,17 +197,17 @@ leave = emitInd "leave"
 
 -- Move the pointer to a constant into a location.
 --   movq $<i>, <loc>
-movConst :: EmitM m => LabIdent -> Reg -> m ()
+movConst :: EmitM m => LabIdent -> X64.Reg -> m ()
 movConst (LabIdent i) reg_ = emitInd $ bin "mov" X64.Size64 (i ++ "(%rip)") (sizedReg X64.Size64 reg_) ""
 
-mov :: EmitM m => X64.Size -> Loc -> Loc -> String -> m ()
+mov :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> String -> m ()
 mov size src dest comment_ = emitInd $ bin "mov" size (loc size src) (loc size dest) comment_
 
 {-
 -- Emit a move from a source location to a register.
 --   mov<s> <src>, %<dest> # <comment>
 -- where <s> is the AT&T instruction suffix based on <size>.
-movToReg :: EmitM m => X64.Size -> Loc -> Reg -> String -> m ()
+movToReg :: EmitM m => X64.Size -> X64.Loc -> Reg -> String -> m ()
 movToReg size src dest comment_ =
     let srcString = loc size src
     in  emitInd $ bin "mov" size srcString (sizedReg size dest) comment_
@@ -215,13 +215,13 @@ movToReg size src dest comment_ =
 -- Emit a move from a source location to a stack destination.
 --   mov<s> <src>, <stackDest>(%rbp) # <comment>
 -- where <s> is the AT&T instruction suffix based on <size>.
-movToStack :: EmitM m => X64.Size -> Loc -> Int64 -> String -> m ()
+movToStack :: EmitM m => X64.Size -> X64.Loc -> Int64 -> String -> m ()
 movToStack size src stackDest comment_ = case src of
-    LocReg reg_   -> emitInd $ bin "mov" size (sizedReg size reg_) (stack stackDest) comment_
-    LocPtr src' _ -> movToStack size src' stackDest comment_
-    LocImm int    -> emitInd $ bin "mov" size (lit32 int) (stack stackDest) comment_
-    LocImm64 int  -> emitInd $ bin "mov" size (lit64 int) (stack stackDest) comment_
-    LocStack _    -> error "internal error. mov from stack to stack"
+    X64.LocReg reg_   -> emitInd $ bin "mov" size (sizedReg size reg_) (stack stackDest) comment_
+    X64.LocPtr src' _ -> movToStack size src' stackDest comment_
+    X64.LocImm int    -> emitInd $ bin "mov" size (lit32 int) (stack stackDest) comment_
+    X64.LocImm64 int  -> emitInd $ bin "mov" size (lit64 int) (stack stackDest) comment_
+    X64.LocStack _    -> error "internal error. mov from stack to stack"
 
 -- Emit a move from a memory location pointed to by the value in the `ptrReg`
 -- offset by `ptrOffset` bytes to the destination register.
@@ -242,19 +242,19 @@ movFromRegToMem size srcReg ptrReg ptrOffset =
 
 -- Emit a negation operation on a register.
 --   neg %<reg>
-neg :: EmitM m => Loc -> m ()
+neg :: EmitM m => X64.Loc -> m ()
 neg l = emitInd $ "neg" ++ sizeSuf X64.Size32 ++ " " ++ loc X64.Size32 l
 
 -- Emit a pop instruction that pops the top of the stack into the location.
 -- The size of the pop is always 8 bytes.
 --   pop <loc>
-pop :: EmitM m => Loc -> m ()
+pop :: EmitM m => X64.Loc -> m ()
 pop srcloc = emitInd $ "pop " ++ loc X64.Size64 srcloc
 
 -- Emit a push instruction that pushes contents of the location on the stack.
 -- The size of the push is always 8 bytes.
 --   push <loc>
-push :: EmitM m => Loc -> String -> m ()
+push :: EmitM m => X64.Loc -> String -> m ()
 push srcloc comment_ = emitInd $ "push " ++ loc X64.Size64 srcloc ++ comment comment_
 
 -- Emit a definition of a quad value.
@@ -274,61 +274,61 @@ ret = emitInd "ret"
 -- Emit an instruction that shifts a register bitwise to the left by a given offset.
 -- Logically this is a multiply-by-2^n operation.
 --   sall $<n>, %<reg>
-sal :: EmitM m => Int -> Loc -> String -> m ()
+sal :: EmitM m => Int -> X64.Loc -> String -> m ()
 sal n loc_ comment_ = emitInd $ "sal " ++ lit n ++ ", " ++ loc X64.Size32 loc_ ++ comment comment_
 
 -- Emit an instruction that shifts a register bitwise to the right by a given offset.
 -- Logically this is a divide-by-2^n operation.
 --   sarl $<n>, %<reg>
-sar :: EmitM m => Int -> Loc -> String -> m ()
+sar :: EmitM m => Int -> X64.Loc -> String -> m ()
 sar n loc_ comment_ = emitInd $ "sar " ++ lit n ++ ", " ++ loc X64.Size32 loc_ ++ comment comment_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as an
 -- equal-to comparison.
 --   sete %<reg>
-sete :: EmitM m => Loc -> m ()
+sete :: EmitM m => X64.Loc -> m ()
 sete loc_ = emitInd $ "sete " ++ loc X64.Size8 loc_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as a
 -- greater-than comparison.
 --   setg %<reg>
-setg :: EmitM m => Loc -> m ()
+setg :: EmitM m => X64.Loc -> m ()
 setg loc_ = emitInd $ "setg " ++ loc X64.Size8 loc_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as a
 -- greater-than-or-equal-to comparison.
 --   setge %<reg>
-setge :: EmitM m => Loc -> m ()
+setge :: EmitM m => X64.Loc -> m ()
 setge loc_ = emitInd $ "setge " ++ loc X64.Size8 loc_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as a
 -- less-than comparison.
 --   setl %<reg>
-setl :: EmitM m => Loc -> m ()
+setl :: EmitM m => X64.Loc -> m ()
 setl loc_ = emitInd $ "setl " ++ loc X64.Size8 loc_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as a
 -- less-than-or-equal-to comparison.
 --   setle %<reg>
-setle :: EmitM m => Loc -> m ()
+setle :: EmitM m => X64.Loc -> m ()
 setle loc_ = emitInd $ "setle " ++ loc X64.Size8 loc_
 
 -- Emit an instruction that loads 1 or 0 into a register based on
 -- the result of the previous cmp operation interpreted as a
 -- not-equal-to comparison.
 --   setne %<reg>
-setne :: EmitM m => Loc -> m ()
+setne :: EmitM m => X64.Loc -> m ()
 setne loc_ = emitInd $ "setne " ++ loc X64.Size8 loc_
 
 -- Emit a subtraction operation between a source and destination location (dest - src).
 --   sub<s> <src>, <dest>
 -- where <s> is the AT&T instruction suffix based on <size>.
-sub :: EmitM m => Loc -> Loc -> m ()
+sub :: EmitM m => X64.Loc -> X64.Loc -> m ()
 sub src dest =
     let srcString = loc X64.Size32 src
         destString = loc X64.Size32 dest
@@ -338,13 +338,13 @@ sub src dest =
 -- based on the result of a bitwise-and performed on the operands.
 -- The operands are considered for their lower 8 bytes only.
 --   testb <op1>, <op2>
-test :: EmitM m => X64.Size -> Loc -> Loc -> m ()
+test :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> m ()
 test size op1 op2 =
     let op1String = loc size op1
         op2String = loc size op2
     in emitInd $ bin "test" size op1String op2String ""
 
-xchg :: EmitM m => X64.Size -> Loc -> Loc -> m ()
+xchg :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> m ()
 xchg size src dest =
     let srcString = loc size src
         destString = loc size dest
@@ -354,7 +354,7 @@ xchg size src dest =
 -- Saves the result in the destination.
 --   xor<s> <src>, <dest>
 -- where <s> is the AT&T instruction suffix based on <size>.
-xor :: EmitM m => X64.Size -> Loc -> Loc -> m ()
+xor :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> m ()
 xor size src dest =
     let srcString = loc size src
         destString = loc size dest
@@ -373,12 +373,12 @@ comment s  = ' ':'#':' ':s
 commentMultiline :: EmitM m => [String] -> m ()
 commentMultiline = emit . unlines . map comment
 
-complexPtr :: X64.Size -> Reg -> Int64 -> Reg -> X64.Size -> String
+complexPtr :: X64.Size -> X64.Reg -> Int64 -> X64.Reg -> X64.Size -> String
 complexPtr size baseLoc offset idxLoc scale =
     show offset ++ "("
                 ++ sizedReg size baseLoc ++ ","
                 ++ sizedReg size idxLoc ++ ","
-                ++ show (sizeInBytes scale) ++ ")"
+                ++ show (X64.toBytes scale) ++ ")"
 
 -- Emit an instruction indented by 2 spaces.
 emitInd :: EmitM m => String -> m ()
@@ -391,7 +391,7 @@ lit n = '$':show n
 -- String representation of a memory access,
 -- where the base is located in the given register and is offset
 -- by the passed offset.
-ptr :: X64.Size -> Reg -> Int64 -> String
+ptr :: X64.Size -> X64.Reg -> Int64 -> String
 ptr size r offset = show offset ++ "(" ++ sizedReg size r ++ ")"
 
 -- String representation of an integral literal.
@@ -403,25 +403,24 @@ lit64 :: Int64 -> String
 lit64 n = '$':show n
 
 -- String representation of a location.
-loc :: X64.Size -> Loc -> String
+loc :: X64.Size -> X64.Loc -> String
 loc size loc_ = case loc_ of
-    LocReg r                          -> sizedReg size r
-    LocPtr r n                        -> ptr X64.Size64 r n
-    LocPtrCmplx base idx offset scale -> complexPtr X64.Size64 base offset idx scale
-    LocImm n                          -> lit32 n
-    LocImm64 n                        -> lit64 n
-    LocLabel label                    -> label
+    X64.LocReg r                          -> sizedReg size r
+    X64.LocMem (r, n)                        -> ptr X64.Size64 r n
+    X64.LocMemOffset base idx offset scale -> complexPtr X64.Size64 base offset idx scale
+    X64.LocConst n                          -> lit64 $ fromIntegral n
+    X64.LocLabel label                    -> label
 
 -- String representation of a register (full 64-bits).
 reg :: String -> String
 reg r = '%':r
 
 -- String representation of a register identifier for a given size.
-sizedReg :: X64.Size -> Reg -> String
+sizedReg :: X64.Size -> X64.Reg -> String
 sizedReg size r = case size of
-    X64.Size8      -> reg $ reg8 r
-    X64.Size32    -> reg $ reg32 r
-    X64.Size64 -> reg $ reg64 r
+    X64.Size8      -> reg $ X64.showReg X64.Size8 r
+    X64.Size32    -> reg $ X64.showReg X64.Size32 r
+    X64.Size64 -> reg $ X64.showReg X64.Size64 r
 
 -- AT&T size suffix for a given operand size.
 sizeSuf :: X64.Size -> String

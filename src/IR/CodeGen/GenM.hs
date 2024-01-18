@@ -47,7 +47,7 @@ traceEnabled = False
 data VarState = VarS {
     varName :: ValIdent,
     varType :: SType (),
-    varLoc  :: Loc
+    varLoc  :: X64.Loc
 } deriving (Show)
 
 data VarKind = VarImm
@@ -107,10 +107,10 @@ updateLocs = do
             mbcol <- asks (Map.lookup vi . regAlloc . regs)
             case mbcol of
                 Just reg_ -> do
-                    modify (\st -> st{vars = Map.insert vi (VarS vi t (LocReg reg_)) (vars st)})
+                    modify (\st -> st{vars = Map.insert vi (VarS vi t (X64.LocReg reg_)) (vars st)})
                 Nothing -> return ()
 
-getLoc :: ValIdent -> GenM Loc
+getLoc :: ValIdent -> GenM X64.Loc
 getLoc vi = do
     mbvar <- gets (Map.lookup vi . vars)
     case mbvar of
@@ -119,18 +119,18 @@ getLoc vi = do
             vs <- gets vars
             error $ "internal error. value not found " ++ toStr vi ++ " in vars " ++ (show vs)
 
-getValLoc :: Val a -> GenM Loc
+getValLoc :: Val a -> GenM X64.Loc
 getValLoc val = case val of
-    VInt _ n    -> return $ LocImm (fromInteger n)
-    VNegInt _ n -> return $ LocImm (fromInteger $ -n)
-    VTrue _     -> return $ LocImm 1
-    VFalse _    -> return $ LocImm 0
+    VInt _ n    -> return $ X64.LocConst (fromInteger n)
+    VNegInt _ n -> return $ X64.LocConst (fromInteger $ -n)
+    VTrue _     -> return $ X64.LocConst 1
+    VFalse _    -> return $ X64.LocConst 0
     VVal _ _ vi -> do
         varS <- getVarS vi
         return $ varLoc varS
-    VNull {}    -> return $ LocImm 0
+    VNull {}    -> return $ X64.LocConst 0
 
-getPreservedRegs :: GenM [Reg]
+getPreservedRegs :: GenM [X64.Reg]
 getPreservedRegs = do
     l <- gets live
     cols <- asks (regAlloc . regs)

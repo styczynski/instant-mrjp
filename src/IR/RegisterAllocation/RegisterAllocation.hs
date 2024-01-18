@@ -16,8 +16,10 @@ import           IR.RegisterAllocation.SequenceColouring
 import           IR.RegisterAllocation.Spilling
 import           IR.Registers
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 data RegisterAllocation = RegAlloc {
-    regAlloc  :: Map.Map ValIdent Reg,
+    regAlloc  :: Map.Map ValIdent X64.Reg,
     numLocals :: Int
 }
 
@@ -43,7 +45,7 @@ getRegisterAllocation (CFG cfg_) ig_ =
         alloc = Map.fromList $ map (first ValIdent) $ Map.toList (getColouring ig_)
     in  RegAlloc alloc locCnt
 
-usedRegs :: RegisterAllocation -> [Reg]
+usedRegs :: RegisterAllocation -> [X64.Reg]
 usedRegs (RegAlloc r _) = dedup $ Map.elems r
 
 findPtrLocals :: Instr a -> Maybe Integer

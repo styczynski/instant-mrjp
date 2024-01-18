@@ -18,21 +18,70 @@ def create_data_types():
     #             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
     #         """
     #     ]
-    syms = syms + ["Reg(..)", "Loc(..)"]
+    syms = syms + ["Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
     ret = ret + [
         f"""
             data Reg = {"| ".join([reg.upper() for reg in REGISTERS['64']])}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+            data RegType = CallerSaved | CalleeSaved deriving (Eq, Show)
+
+            -- Caller saved registers are preferred over callee saved.
+            instance Ord RegType where
+                {INDENT}compare rt1 rt2 = case (rt1, rt2) of
+                    {INDENT}{INDENT}(CallerSaved, CallerSaved) -> EQ
+                    {INDENT}{INDENT}(CalleeSaved, CalleeSaved) -> EQ
+                    {INDENT}{INDENT}(CalleeSaved, CallerSaved) -> LT
+                    {INDENT}{INDENT}(CallerSaved, CalleeSaved) -> GT
+
+            allRegs :: [Reg]
+            allRegs = [{", ".join([reg.upper() for reg in REGISTERS['64']])}]
+
+            asLoc :: Reg -> Loc
+            asLoc reg = LocReg reg
+
         """
     ]
+    ret = ret + [f"""regType :: Reg -> RegType"""]
+    for reg in REGISTERS['64']:
+        reg_type = REGISTERS_TYPES[reg.upper()]
+        ret = ret + [f"""regType {reg.upper()} = {reg_type}"""]
+
+    ret = ret + [f"""showReg :: Size -> Reg -> String"""]
+    for size in REGISTERS:
+        for (index, reg) in enumerate(REGISTERS[size]):
+            reg64 = REGISTERS['64'][index]
+            ret = ret + [f"""showReg Size{size.upper()} {reg64.upper()} = \"{reg.upper()}\""""]
+
     ret = ret + [
         f"""
-            data Loc = LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
+
+            data Loc = LocLabel String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+            isReg :: Loc -> Bool
+            isReg loc = case loc of
+                {INDENT}LocReg _ -> True
+                {INDENT}_        -> False
+
+            asReg :: Loc -> Reg
+            asReg loc = case loc of
+                {INDENT}LocReg r -> r
+                {INDENT}_        -> error "asReg: not a reg"
 
             data Annotation a anno = NoAnnotation a | Annotation a anno
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
         """
+    ]
+    ret = ret + [f"""argLoc :: Integer -> Loc"""]
+    for (index, arg_reg) in enumerate(ARG_REGISTERS):
+        ret = ret + [
+            f"""argLoc {index} = LocReg {arg_reg.upper()}"""
+        ]
+    ret = ret + [
+        f"""argLoc argIndex = LocMem (RBP, (fromInteger argIndex - 6) * 8 + 8)
+        """,
     ]
     to_source_defs = [
         f"""_locToSource :: a -> Size -> Loc -> Syntax.Source' a""",
@@ -318,6 +367,7 @@ def generate_size_classes():
     #class_args = [f"target{rsize}" for rsize in REGISTERS]
     #convert_methods = [f"to{rsize} :: target -> target{rsize}" for rsize in REGISTERS]
     ret = []
+    syms = ["toBytes"]
     # for size in REGISTERS:
     #     ret = ret + [
     #         f"""
@@ -329,8 +379,12 @@ def generate_size_classes():
         f"""
             data Size = {' | '.join(['Size'+size for size in REGISTERS])}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+            toBytes :: Size -> Int64
         """
     ]
+    for size in REGISTERS:
+        ret = ret + [f"""toBytes Size{size} = {int(size) // 8}"""]
     # ret = ret + [
     #     f"""
     #         class IsTarget target size {" ".join(class_args)} | target -> size {" ".join(class_args)} where
@@ -396,7 +450,7 @@ def generate_size_classes():
     #             {INDENT}sizeOf _ = {size}
     #         """,
     #     ]
-    return "\n".join(ret)
+    return syms, "\n".join(ret)
 
 def generate_utils(module, module_name, syntax_module, syntax_postfix, output_haskell_path):
     newline="\n"
@@ -411,6 +465,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     directives = ["{-# LANGUAGE "+lang+" #-}" for lang in langs]
     syms1, data_types_code = create_data_types()
     syms2, instr_wrappers_code = create_instr_wrappers()
+    syms3, size_classes_code = generate_size_classes()
     instr_wrappers_code = newline.join(instr_wrappers_code)
     
     exports = [
@@ -422,7 +477,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
         "Data(..)",
         "Loc(..)",
         "Size(..)",
-    ] + [sym for sym in (syms1 + syms2)]
+    ] + [sym for sym in (syms1 + syms2 + syms3)]
 
     code = f"""
     {newline.join(directives)}
@@ -526,7 +581,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {data_types_code}
 
     -- Size classes
-    {generate_size_classes()}
+    {size_classes_code}
 
     -- Instruction wrappers
     {instr_wrappers_code}

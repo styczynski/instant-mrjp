@@ -11,6 +11,8 @@ import           IR.Syntax.Syntax
 import           IR.RegisterAllocation.RegisterAllocation
 import           IR.Registers
 
+import qualified Backend.X64.Parser.Constructor as X64
+
 data JumpRoute = JmpRt LabIdent LabIdent deriving (Eq, Ord)
 data DestCfg = LeaveDest | StoreDest (SType ()) (Ptr ())
 data SrcCfg = ValSrc (Val ()) | PtrSrc (Ptr ())
@@ -132,7 +134,7 @@ isVal _ _               = False
 -- and emit rt := rt'. All trivial assignments are also emitted now (rt := 42).
 generateSetInstructions :: RegisterAllocation -> [PhiInstr] -> [Instr ()]
 generateSetInstructions rs phis =
-    let regMap = Map.fromList (zip allRegs allRegs)
+    let regMap = Map.fromList (zip X64.allRegs X64.allRegs)
     in  reverse $ go [] regMap Map.empty phis []
     where
         go toSet regMap locked (x@(PhiInstr vi _ src):xs) acc =

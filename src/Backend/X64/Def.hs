@@ -88,7 +88,7 @@ updateLocs = do
             mbcol <- gContext (Map.lookup vi . regAlloc . (^. regs))
             case mbcol of
                 Just reg_ -> do
-                    gEnvSet (\env -> env & vars %~ Map.insert vi (VarState vi t (convertReg reg_)))
+                    gEnvSet (\env -> env & vars %~ Map.insert vi (VarState vi t (X64.asLoc reg_)))
                     return ()
                 Nothing -> return ()
 
@@ -113,7 +113,7 @@ getValLoc val = case val of
         return $ varS ^. varLoc 
     VNull {}    -> return $ X64.LocConst 0
 
-getPreservedRegs :: Generator [Reg]
+getPreservedRegs :: Generator [X64.Reg]
 getPreservedRegs = do
     l <- gEnvGet (^. live)
     cols <- gContext (regAlloc . (^. regs))

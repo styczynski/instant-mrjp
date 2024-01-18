@@ -15,6 +15,14 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , Size(..)
 , Reg(..)
 , Loc(..)
+, RegType(..)
+, isReg
+, asReg
+, argLoc
+, allRegs
+, regType
+, asLoc
+, showReg
 , Instr(..)
 , add
 , and
@@ -42,7 +50,8 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , ret
 , cdq
 , jmp
-, jz) where
+, jz
+, toBytes) where
 
 import Data.Generics.Product
 import Data.Generics.Sum
@@ -143,12 +152,132 @@ runASMGeneratorT generator externs = do
 data Reg = RAX| RBX| RCX| RDX| RDI| RSI| RSP| RBP| R8| R9| R10| R11| R12| R13| R14| R15
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
+data RegType = CallerSaved | CalleeSaved deriving (Eq, Show)
 
-data Loc = LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
+-- Caller saved registers are preferred over callee saved.
+instance Ord RegType where
+	compare rt1 rt2 = case (rt1, rt2) of
+		(CallerSaved, CallerSaved) -> EQ
+		(CalleeSaved, CalleeSaved) -> EQ
+		(CalleeSaved, CallerSaved) -> LT
+		(CallerSaved, CalleeSaved) -> GT
+
+allRegs :: [Reg]
+allRegs = [RAX, RBX, RCX, RDX, RDI, RSI, RSP, RBP, R8, R9, R10, R11, R12, R13, R14, R15]
+
+asLoc :: Reg -> Loc
+asLoc reg = LocReg reg
+
+
+regType :: Reg -> RegType
+regType RAX = CallerSaved
+regType RBX = CalleeSaved
+regType RCX = CallerSaved
+regType RDX = CallerSaved
+regType RDI = CallerSaved
+regType RSI = CallerSaved
+regType RSP = CallerSaved
+regType RBP = CalleeSaved
+regType R8 = CallerSaved
+regType R9 = CallerSaved
+regType R10 = CallerSaved
+regType R11 = CallerSaved
+regType R12 = CalleeSaved
+regType R13 = CalleeSaved
+regType R14 = CalleeSaved
+regType R15 = CalleeSaved
+showReg :: Size -> Reg -> String
+showReg Size64 RAX = "RAX"
+showReg Size64 RBX = "RBX"
+showReg Size64 RCX = "RCX"
+showReg Size64 RDX = "RDX"
+showReg Size64 RDI = "RDI"
+showReg Size64 RSI = "RSI"
+showReg Size64 RSP = "RSP"
+showReg Size64 RBP = "RBP"
+showReg Size64 R8 = "R8"
+showReg Size64 R9 = "R9"
+showReg Size64 R10 = "R10"
+showReg Size64 R11 = "R11"
+showReg Size64 R12 = "R12"
+showReg Size64 R13 = "R13"
+showReg Size64 R14 = "R14"
+showReg Size64 R15 = "R15"
+showReg Size32 RAX = "EAX"
+showReg Size32 RBX = "EBX"
+showReg Size32 RCX = "ECX"
+showReg Size32 RDX = "EDX"
+showReg Size32 RDI = "EDI"
+showReg Size32 RSI = "ESI"
+showReg Size32 RSP = "ESP"
+showReg Size32 RBP = "EBP"
+showReg Size32 R8 = "R8D"
+showReg Size32 R9 = "R9D"
+showReg Size32 R10 = "R10D"
+showReg Size32 R11 = "R11D"
+showReg Size32 R12 = "R12D"
+showReg Size32 R13 = "R13D"
+showReg Size32 R14 = "R14D"
+showReg Size32 R15 = "R15D"
+showReg Size16 RAX = "AX"
+showReg Size16 RBX = "BX"
+showReg Size16 RCX = "CX"
+showReg Size16 RDX = "DX"
+showReg Size16 RDI = "DI"
+showReg Size16 RSI = "SI"
+showReg Size16 RSP = "SP"
+showReg Size16 RBP = "BP"
+showReg Size16 R8 = "R8W"
+showReg Size16 R9 = "R9W"
+showReg Size16 R10 = "R10W"
+showReg Size16 R11 = "R11W"
+showReg Size16 R12 = "R12W"
+showReg Size16 R13 = "R13W"
+showReg Size16 R14 = "R14W"
+showReg Size16 R15 = "R15W"
+showReg Size8 RAX = "AL"
+showReg Size8 RBX = "BL"
+showReg Size8 RCX = "CL"
+showReg Size8 RDX = "DL"
+showReg Size8 RDI = "DIL"
+showReg Size8 RSI = "SIL"
+showReg Size8 RSP = "SPL"
+showReg Size8 RBP = "BPL"
+showReg Size8 R8 = "R8B"
+showReg Size8 R9 = "R9B"
+showReg Size8 R10 = "R10B"
+showReg Size8 R11 = "R11B"
+showReg Size8 R12 = "R12B"
+showReg Size8 R13 = "R13B"
+showReg Size8 R14 = "R14B"
+showReg Size8 R15 = "R15B"
+
+
+data Loc = LocLabel String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+isReg :: Loc -> Bool
+isReg loc = case loc of
+	LocReg _ -> True
+	_        -> False
+
+asReg :: Loc -> Reg
+asReg loc = case loc of
+	LocReg r -> r
+	_        -> error "asReg: not a reg"
 
 data Annotation a anno = NoAnnotation a | Annotation a anno
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
+
+argLoc :: Integer -> Loc
+argLoc 0 = LocReg RDI
+argLoc 1 = LocReg RSI
+argLoc 2 = LocReg RDX
+argLoc 3 = LocReg RCX
+argLoc 4 = LocReg R8
+argLoc 5 = LocReg R9
+argLoc argIndex = LocMem (RBP, (fromInteger argIndex - 6) * 8 + 8)
 
 _locToSource :: a -> Size -> Loc -> Syntax.Source' a
 _locToSource pos _ (LocConst val) = Syntax.FromConst pos val
@@ -415,6 +544,12 @@ _locToTarget pos Size8 (LocMem (R15, offset)) = Syntax.ToMem8 pos (fromIntegral 
 data Size = Size64 | Size32 | Size16 | Size8
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
+toBytes :: Size -> Int64
+
+toBytes Size64 = 8
+toBytes Size32 = 4
+toBytes Size16 = 2
+toBytes Size8 = 1
 
 -- Instruction wrappers
 
