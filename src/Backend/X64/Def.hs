@@ -14,7 +14,6 @@ import qualified Typings.Env as TypeChecker
 import qualified Reporting.Errors.Def as Errors
 import Reporting.Logs
 import Backend.X64.Env
-import           IR.Registers
 import IR.Flow.Liveness
 import IR.Syntax.Syntax
 import IR.CodeGen.Stack
@@ -25,13 +24,18 @@ import IR.Size
 import IR.RegisterAllocation.RegisterAllocation
 import qualified Backend.X64.Parser.Constructor as X64
 
-type Generator a = (StateT (GeneratorEnv) (ReaderT GeneratorContext (ExceptT Errors.Error (X64.ASMGeneratorT () () LattePipeline)))) a
+data ASMAnno = ASMAnno String
+
+type Generator a v = (StateT (GeneratorEnv) (ReaderT GeneratorContext (ExceptT Errors.Error (X64.ASMGeneratorT a (ASMAnno) LattePipeline)))) v
+
+comment :: String -> Maybe ASMAnno
+comment = Just . ASMAnno
 
 traceEnabled :: Bool
 traceEnabled = False
 
-liftGenerator :: (X64.ASMGeneratorT () () LattePipeline) a -> Generator a
-liftGenerator = lift . lift . lift
+gen :: (X64.ASMGeneratorT a (ASMAnno) LattePipeline) v -> Generator a v
+gen = lift . lift . lift
 
 -- isReg :: Loc -> Bool
 -- isReg loc = case loc of
@@ -57,32 +61,32 @@ argLoc idx = case idx of
     5 -> X64.LocReg X64.R9
     _ -> X64.LocMem (X64.RBP, (fromInteger idx - 6) * 8 + 8)
 
-gEnv :: Generator GeneratorEnv
+gEnv :: Generator a GeneratorEnv
 gEnv = get
 
-gContext :: (GeneratorContext -> t) -> Generator t
+gContext :: (GeneratorContext -> t) -> Generator a t
 gContext f = do 
     c <- asks f
     return c
 
-gEnvGet :: (GeneratorEnv -> t) -> Generator t
+gEnvGet :: (GeneratorEnv -> t) -> Generator a t
 gEnvGet = (flip (<$>)) gEnv
 
-gEnvSet :: (GeneratorEnv -> GeneratorEnv) -> Generator ()
+gEnvSet :: (GeneratorEnv -> GeneratorEnv) -> Generator a ()
 gEnvSet = modify 
 
-updateLive :: Liveness -> Generator ()
+updateLive :: Liveness -> Generator a ()
 updateLive l = do
     gEnvSet (\env -> env & live .~ l)
     updateLocs
 
 
-updateLocs :: Generator ()
+updateLocs :: Generator a ()
 updateLocs = do
     l <- gEnvGet (^. live)
     forM_ (HashMap.toList $ liveIn l `HashMap.union` liveOut l) updateLoc
     where
-        updateLoc :: (String, (Int, SType ())) -> Generator ()
+        updateLoc :: (String, (Int, SType ())) -> Generator a ()
         updateLoc (s, (_, t)) = do
             let vi = ValIdent s
             mbcol <- gContext (Map.lookup vi . regAlloc . (^. regs))
@@ -92,7 +96,7 @@ updateLocs = do
                     return ()
                 Nothing -> return ()
 
-getLoc :: ValIdent -> Generator X64.Loc
+getLoc :: ValIdent -> Generator a X64.Loc
 getLoc vi = do
     mbvar <- gEnvGet (Map.lookup vi . (^. vars))
     case mbvar of
@@ -101,7 +105,7 @@ getLoc vi = do
             vs <- gEnvGet (^. vars)
             error $ "internal error. value not found " ++ toStr vi ++ " in vars " ++ (show vs)
 
-getValLoc :: Val a -> Generator X64.Loc
+getValLoc :: Val b -> Generator a X64.Loc
 --getValLoc val = return $ argLoc 0
 getValLoc val = case val of
     VInt _ n    -> return $ X64.LocConst (fromInteger n)
@@ -113,7 +117,7 @@ getValLoc val = case val of
         return $ varS ^. varLoc 
     VNull {}    -> return $ X64.LocConst 0
 
-getPreservedRegs :: Generator [X64.Reg]
+getPreservedRegs :: Generator a [X64.Reg]
 getPreservedRegs = do
     l <- gEnvGet (^. live)
     cols <- gContext (regAlloc . (^. regs))
@@ -122,21 +126,21 @@ getPreservedRegs = do
     traceM' $ "occupied regs: " ++ show occupied ++ ", because unchange = " ++ show unchanged
     return $ Map.elems occupied
 
-newStrConst :: String -> Generator Const
+newStrConst :: String -> Generator a Const
 newStrConst s = do
     (c, cs) <- gEnvGet (constsAdd s . (^. consts))
     gEnvSet (\env -> env & consts .~ cs)
     return c
 
 -- Generate a label in the context of the current method.
-label :: LabIdent -> Generator LabIdent
+label :: LabIdent -> Generator a LabIdent
 label l = gContext ((\f -> f l) . (^. labelGen))
 
-setStack :: Stack -> Generator ()
+setStack :: Stack -> Generator a ()
 setStack s = gEnvSet (\env -> env & stack .~ s)
 
 -- Get the description of a variable.
-getVarS :: ValIdent -> Generator VarState
+getVarS :: ValIdent -> Generator a VarState
 getVarS vi = do
     mb <- gEnvGet (Map.lookup vi . (^. vars))
     case mb of
@@ -144,7 +148,7 @@ getVarS vi = do
         Just g  -> return g
 
 -- Get class metadata.
-getClass :: SymIdent -> Generator CompiledClass
+getClass :: SymIdent -> Generator a CompiledClass
 getClass i = do
     mb <- gContext (Map.lookup i . (^. classes))
     case mb of
@@ -156,14 +160,14 @@ varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varS ^. varType 
 
 -- Is the variable currently alive.
-isLive :: ValIdent -> Generator Bool
+isLive :: ValIdent -> Generator a Bool
 isLive (ValIdent vi) = do
     l <- gEnvGet (^. live)
     return $ HashMap.member vi $ liveIn l
 
 -- Debug
 
-fullTrace :: Generator ()
+fullTrace :: Generator a ()
 fullTrace = return ()
 -- fullTrace = do
 --     l <-gEnvGet (^. live)
@@ -175,7 +179,7 @@ fullTrace = return ()
 --             ++ "type: " ++ show (vs ^. varType)
 --             ++ " loc: " ++ show (vs ^. varLoc))) varSs
 
-traceM' :: String -> Generator ()
+traceM' :: String -> Generator a ()
 traceM' s = when traceEnabled (do
     gEnvSet (\env -> env & traceIdx %~ (+1))
     idx <- gEnvGet (^. traceIdx)

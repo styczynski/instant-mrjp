@@ -31,7 +31,6 @@ separator AsmInstr "\n" ;
 ADD64. AsmInstr ::= "addq" Source64 "," Target64 ;
 AND64. AsmInstr ::= "andq" Source64 "," Target64 ;
 CMP64. AsmInstr ::= "cmpq" Source64 "," Target64 ;
-IDIV64. AsmInstr ::= "idivq" Source64 "," Target64 ;
 IMUL64. AsmInstr ::= "imulq" Source64 "," Target64 ;
 LEA64. AsmInstr ::= "leaq" Source64 "," Target64 ;
 MOV64. AsmInstr ::= "movq" Source64 "," Target64 ;
@@ -45,7 +44,6 @@ SAR64. AsmInstr ::= "sarq" Source64 "," Target64 ;
 ADD32. AsmInstr ::= "addl" Source32 "," Target32 ;
 AND32. AsmInstr ::= "andl" Source32 "," Target32 ;
 CMP32. AsmInstr ::= "cmpl" Source32 "," Target32 ;
-IDIV32. AsmInstr ::= "idivl" Source32 "," Target32 ;
 IMUL32. AsmInstr ::= "imull" Source32 "," Target32 ;
 LEA32. AsmInstr ::= "leal" Source32 "," Target32 ;
 MOV32. AsmInstr ::= "movl" Source32 "," Target32 ;
@@ -59,7 +57,6 @@ SAR32. AsmInstr ::= "sarl" Source32 "," Target32 ;
 ADD16. AsmInstr ::= "addb" Source16 "," Target16 ;
 AND16. AsmInstr ::= "andb" Source16 "," Target16 ;
 CMP16. AsmInstr ::= "cmpb" Source16 "," Target16 ;
-IDIV16. AsmInstr ::= "idivb" Source16 "," Target16 ;
 IMUL16. AsmInstr ::= "imulb" Source16 "," Target16 ;
 LEA16. AsmInstr ::= "leab" Source16 "," Target16 ;
 MOV16. AsmInstr ::= "movb" Source16 "," Target16 ;
@@ -73,10 +70,18 @@ SAR16. AsmInstr ::= "sarb" Source16 "," Target16 ;
 
 -- 1-operand arithmetics
 NEG64. AsmInstr ::= "negq" Target64 ;
+IDIV64. AsmInstr ::= "idivq" Target64 ;
 
 NEG32. AsmInstr ::= "negl" Target32 ;
+IDIV32. AsmInstr ::= "idivl" Target32 ;
 
 NEG16. AsmInstr ::= "negb" Target16 ;
+IDIV16. AsmInstr ::= "idivb" Target16 ;
+
+
+-- Calls
+CALL. AsmInstr ::= "CALL" Label ;
+CALLINDIRECT. AsmInstr ::= "CALL" "*" Integer "(" Reg64 ")" ;
 
 
 -- Stack operations
@@ -110,6 +115,10 @@ ToReg64. Target64 ::= Reg64 ;
 ToMem64. Target64 ::= Integer "(" Reg64 ")" ;
 FromReg64. Source64 ::= Reg64 ;
 FromMem64. Source64 ::= Integer "(" Reg64 ")" ;
+FromLabel64. Source64 ::= Label ;
+FromLabelOffset64. Source64 ::= Label "(%RIP)" ;
+FromMemComplex64. Source64 ::= Integer "(" Reg64 "," Reg64 "," Integer ")" ;
+ToMemComplex64. Target64 ::= Integer "(" Reg64 "," Reg64 "," Integer ")" ;
 RAX. Reg64 ::= "%RAX" ;
 RBX. Reg64 ::= "%RBX" ;
 RCX. Reg64 ::= "%RCX" ;
@@ -131,6 +140,10 @@ ToReg32. Target32 ::= Reg32 ;
 ToMem32. Target32 ::= Integer "(" Reg32 ")" ;
 FromReg32. Source32 ::= Reg32 ;
 FromMem32. Source32 ::= Integer "(" Reg32 ")" ;
+FromLabel32. Source32 ::= Label ;
+FromLabelOffset32. Source32 ::= Label "(%RIP)" ;
+FromMemComplex32. Source32 ::= Integer "(" Reg32 "," Reg32 "," Integer ")" ;
+ToMemComplex32. Target32 ::= Integer "(" Reg32 "," Reg32 "," Integer ")" ;
 EAX. Reg32 ::= "%EAX" ;
 EBX. Reg32 ::= "%EBX" ;
 ECX. Reg32 ::= "%ECX" ;
@@ -152,6 +165,10 @@ ToReg16. Target16 ::= Reg16 ;
 ToMem16. Target16 ::= Integer "(" Reg16 ")" ;
 FromReg16. Source16 ::= Reg16 ;
 FromMem16. Source16 ::= Integer "(" Reg16 ")" ;
+FromLabel16. Source16 ::= Label ;
+FromLabelOffset16. Source16 ::= Label "(%RIP)" ;
+FromMemComplex16. Source16 ::= Integer "(" Reg16 "," Reg16 "," Integer ")" ;
+ToMemComplex16. Target16 ::= Integer "(" Reg16 "," Reg16 "," Integer ")" ;
 AX. Reg16 ::= "%AX" ;
 BX. Reg16 ::= "%BX" ;
 CX. Reg16 ::= "%CX" ;
@@ -173,6 +190,10 @@ ToReg8. Target8 ::= Reg8 ;
 ToMem8. Target8 ::= Integer "(" Reg8 ")" ;
 FromReg8. Source8 ::= Reg8 ;
 FromMem8. Source8 ::= Integer "(" Reg8 ")" ;
+FromLabel8. Source8 ::= Label ;
+FromLabelOffset8. Source8 ::= Label "(%RIP)" ;
+FromMemComplex8. Source8 ::= Integer "(" Reg8 "," Reg8 "," Integer ")" ;
+ToMemComplex8. Target8 ::= Integer "(" Reg8 "," Reg8 "," Integer ")" ;
 AL. Reg8 ::= "%AL" ;
 BL. Reg8 ::= "%BL" ;
 CL. Reg8 ::= "%CL" ;

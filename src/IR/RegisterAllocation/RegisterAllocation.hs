@@ -14,7 +14,6 @@ import           IR.RegisterAllocation.InterferenceGraph
 import           IR.RegisterAllocation.PerfectEliminationOrdering
 import           IR.RegisterAllocation.SequenceColouring
 import           IR.RegisterAllocation.Spilling
-import           IR.Registers
 
 import qualified Backend.X64.Parser.Constructor as X64
 

@@ -15,8 +15,6 @@ import           IR.Flow.CFG hiding (addEdge)
 import           IR.Flow.Liveness
 import           IR.Syntax.Syntax
 import           IR.Utils
-import           IR.Loc
-import           IR.Registers
 
 import qualified Backend.X64.Parser.Constructor as X64
 

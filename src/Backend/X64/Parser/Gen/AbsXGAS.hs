@@ -62,7 +62,6 @@ data AsmInstr' a
     | ADD64 a (Source' a) (Target' a)
     | AND64 a (Source' a) (Target' a)
     | CMP64 a (Source' a) (Target' a)
-    | IDIV64 a (Source' a) (Target' a)
     | IMUL64 a (Source' a) (Target' a)
     | LEA64 a (Source' a) (Target' a)
     | MOV64 a (Source' a) (Target' a)
@@ -75,7 +74,6 @@ data AsmInstr' a
     | ADD32 a (Source' a) (Target' a)
     | AND32 a (Source' a) (Target' a)
     | CMP32 a (Source' a) (Target' a)
-    | IDIV32 a (Source' a) (Target' a)
     | IMUL32 a (Source' a) (Target' a)
     | LEA32 a (Source' a) (Target' a)
     | MOV32 a (Source' a) (Target' a)
@@ -88,7 +86,6 @@ data AsmInstr' a
     | ADD16 a (Source' a) (Target' a)
     | AND16 a (Source' a) (Target' a)
     | CMP16 a (Source' a) (Target' a)
-    | IDIV16 a (Source' a) (Target' a)
     | IMUL16 a (Source' a) (Target' a)
     | LEA16 a (Source' a) (Target' a)
     | MOV16 a (Source' a) (Target' a)
@@ -99,8 +96,13 @@ data AsmInstr' a
     | SAL16 a (Source' a) (Target' a)
     | SAR16 a (Source' a) (Target' a)
     | NEG64 a (Target' a)
+    | IDIV64 a (Target' a)
     | NEG32 a (Target' a)
+    | IDIV32 a (Target' a)
     | NEG16 a (Target' a)
+    | IDIV16 a (Target' a)
+    | CALL a Label
+    | CALLINDIRECT a Integer (Reg' a)
     | POP a (Reg' a)
     | PUSH a (Reg' a)
     | LEAVE a
@@ -121,24 +123,40 @@ data Source' a
     = FromConst a Integer
     | FromReg64 a (Reg' a)
     | FromMem64 a Integer (Reg' a)
+    | FromLabel64 a Label
+    | FromLabelOffset64 a Label
+    | FromMemComplex64 a Integer (Reg' a) (Reg' a) Integer
     | FromReg32 a (Reg' a)
     | FromMem32 a Integer (Reg' a)
+    | FromLabel32 a Label
+    | FromLabelOffset32 a Label
+    | FromMemComplex32 a Integer (Reg' a) (Reg' a) Integer
     | FromReg16 a (Reg' a)
     | FromMem16 a Integer (Reg' a)
+    | FromLabel16 a Label
+    | FromLabelOffset16 a Label
+    | FromMemComplex16 a Integer (Reg' a) (Reg' a) Integer
     | FromReg8 a (Reg' a)
     | FromMem8 a Integer (Reg' a)
+    | FromLabel8 a Label
+    | FromLabelOffset8 a Label
+    | FromMemComplex8 a Integer (Reg' a) (Reg' a) Integer
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Target = Target' BNFC'Position
 data Target' a
     = ToReg64 a (Reg' a)
     | ToMem64 a Integer (Reg' a)
+    | ToMemComplex64 a Integer (Reg' a) (Reg' a) Integer
     | ToReg32 a (Reg' a)
     | ToMem32 a Integer (Reg' a)
+    | ToMemComplex32 a Integer (Reg' a) (Reg' a) Integer
     | ToReg16 a (Reg' a)
     | ToMem16 a Integer (Reg' a)
+    | ToMemComplex16 a Integer (Reg' a) (Reg' a) Integer
     | ToReg8 a (Reg' a)
     | ToMem8 a Integer (Reg' a)
+    | ToMemComplex8 a Integer (Reg' a) (Reg' a) Integer
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Reg = Reg' BNFC'Position
@@ -265,7 +283,6 @@ instance HasPosition AsmInstr where
     ADD64 p _ _ -> p
     AND64 p _ _ -> p
     CMP64 p _ _ -> p
-    IDIV64 p _ _ -> p
     IMUL64 p _ _ -> p
     LEA64 p _ _ -> p
     MOV64 p _ _ -> p
@@ -278,7 +295,6 @@ instance HasPosition AsmInstr where
     ADD32 p _ _ -> p
     AND32 p _ _ -> p
     CMP32 p _ _ -> p
-    IDIV32 p _ _ -> p
     IMUL32 p _ _ -> p
     LEA32 p _ _ -> p
     MOV32 p _ _ -> p
@@ -291,7 +307,6 @@ instance HasPosition AsmInstr where
     ADD16 p _ _ -> p
     AND16 p _ _ -> p
     CMP16 p _ _ -> p
-    IDIV16 p _ _ -> p
     IMUL16 p _ _ -> p
     LEA16 p _ _ -> p
     MOV16 p _ _ -> p
@@ -302,8 +317,13 @@ instance HasPosition AsmInstr where
     SAL16 p _ _ -> p
     SAR16 p _ _ -> p
     NEG64 p _ -> p
+    IDIV64 p _ -> p
     NEG32 p _ -> p
+    IDIV32 p _ -> p
     NEG16 p _ -> p
+    IDIV16 p _ -> p
+    CALL p _ -> p
+    CALLINDIRECT p _ _ -> p
     POP p _ -> p
     PUSH p _ -> p
     LEAVE p -> p
@@ -323,23 +343,39 @@ instance HasPosition Source where
     FromConst p _ -> p
     FromReg64 p _ -> p
     FromMem64 p _ _ -> p
+    FromLabel64 p _ -> p
+    FromLabelOffset64 p _ -> p
+    FromMemComplex64 p _ _ _ _ -> p
     FromReg32 p _ -> p
     FromMem32 p _ _ -> p
+    FromLabel32 p _ -> p
+    FromLabelOffset32 p _ -> p
+    FromMemComplex32 p _ _ _ _ -> p
     FromReg16 p _ -> p
     FromMem16 p _ _ -> p
+    FromLabel16 p _ -> p
+    FromLabelOffset16 p _ -> p
+    FromMemComplex16 p _ _ _ _ -> p
     FromReg8 p _ -> p
     FromMem8 p _ _ -> p
+    FromLabel8 p _ -> p
+    FromLabelOffset8 p _ -> p
+    FromMemComplex8 p _ _ _ _ -> p
 
 instance HasPosition Target where
   hasPosition = \case
     ToReg64 p _ -> p
     ToMem64 p _ _ -> p
+    ToMemComplex64 p _ _ _ _ -> p
     ToReg32 p _ -> p
     ToMem32 p _ _ -> p
+    ToMemComplex32 p _ _ _ _ -> p
     ToReg16 p _ -> p
     ToMem16 p _ _ -> p
+    ToMemComplex16 p _ _ _ _ -> p
     ToReg8 p _ -> p
     ToMem8 p _ _ -> p
+    ToMemComplex8 p _ _ _ _ -> p
 
 instance HasPosition Reg where
   hasPosition = \case

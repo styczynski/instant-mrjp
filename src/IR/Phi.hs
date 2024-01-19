@@ -9,7 +9,6 @@ import           IR.Flow.Phi
 import           IR.Flow.SSA
 import           IR.Syntax.Syntax
 import           IR.RegisterAllocation.RegisterAllocation
-import           IR.Registers
 
 import qualified Backend.X64.Parser.Constructor as X64
 

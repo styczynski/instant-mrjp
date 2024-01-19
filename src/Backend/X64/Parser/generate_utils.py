@@ -56,7 +56,7 @@ def create_data_types():
     ret = ret + [
         f"""
 
-            data Loc = LocLabel String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
+            data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
             isReg :: Loc -> Bool
@@ -91,15 +91,30 @@ def create_data_types():
         f"""_locToTarget :: a -> Size -> Loc -> Syntax.Target' a""",
     ]
     for size in REGISTERS:
+        to_source_defs = to_source_defs + [
+            f"""_locToSource pos Size{size} (LocLabel l) = Syntax.FromLabel{size} pos $ Syntax.Label l""",
+            f"""_locToSource pos Size{size} (LocLabelPIC l) = Syntax.FromLabelOffset{size} pos $ Syntax.Label l""",
+            f"""_locToSource pos Size{size} (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+                {INDENT}let (Syntax.FromReg{size} _ rBase) = _locToSource pos Size{size} (LocReg ptrBase) in
+                {INDENT}let (Syntax.FromReg{size} _ rIdx) =  _locToSource pos Size{size} (LocReg ptrIdx) in
+                {INDENT}Syntax.FromMemComplex{size} pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)""",
+        ]
+        to_target_defs = to_target_defs + [
+            f"""_locToTarget pos Size{size} (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+                {INDENT}let (Syntax.ToReg{size} _ rBase) = _locToTarget pos Size{size} (LocReg ptrBase) in
+                {INDENT}let (Syntax.ToReg{size} _ rIdx) =  _locToTarget pos Size{size} (LocReg ptrIdx) in
+                {INDENT}Syntax.ToMemComplex{size} pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)""",
+        ]
         for (index, reg) in enumerate(REGISTERS['64']):
             reg_resized = REGISTERS[size][index]
             to_source_defs = to_source_defs + [
                 f"""_locToSource pos Size{size} (LocReg {reg.upper()}) = Syntax.FromReg{size} pos $ Syntax.{reg_resized.upper()} pos""",
-                f"""_locToSource pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.FromMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos"""
+                f"""_locToSource pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.FromMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos""",
+                #baseLoc offset idxLoc scale offset(%baseLoc, %idxLoc, 2)
             ]
             to_target_defs = to_target_defs + [
                 f"""_locToTarget pos Size{size} (LocReg {reg.upper()}) = Syntax.ToReg{size} pos $ Syntax.{reg_resized.upper()} pos""",
-                f"""_locToTarget pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.ToMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos"""
+                f"""_locToTarget pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.ToMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos""",
             ]
     ret = ret + to_source_defs + to_target_defs
     return syms, "\n".join(ret)
@@ -135,7 +150,7 @@ def create_instr_wrappers():
         ]
     ret = ret + [
         f"""
-            data Instr a anno = {' | '.join(instr_variants)}
+            data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | {' | '.join(instr_variants)}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
         """
@@ -163,64 +178,84 @@ def create_instr_wrappers():
     #         if size != "8":
     #             ret = ret + [
     #                 f"""_instr_{instr} {size} = Syntax.{instr.upper()}{size}"""
-    #             ]
+    #            
+    syms = syms + ["label"]
+    ret = ret+[
+        f"""
+        label :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+        label pos l ann =
+            {INDENT}_emitInstr pos $ Label pos l $ maybe (NoAnnotation pos) (Annotation pos) ann
+        """
+    ]
     for instr in INSTR_ARITM_2OP:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-                {instr} pos size loc1 loc2 =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos size loc1 loc2 (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos size loc1 loc2 ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
     for instr in INSTR_ARITM_1OP:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> Size -> Loc -> ASMGeneratorT a anno m ()
-                {instr} pos size loc =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos size loc (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos size loc ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
     for instr in INSTR_SET:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-                {instr} pos loc =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos loc (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos loc ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
     for instr in INSTR_STACK:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-                {instr} pos loc =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos loc (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos loc ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
     for instr in INSTR_NOARG:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> ASMGeneratorT a anno m ()
-                {instr} pos =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
     for instr in INSTR_JMP:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
-                {instr} :: (Monad m) => a -> String -> ASMGeneratorT a anno m ()
-                {instr} pos label =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos label (NoAnnotation pos)
+                {instr} :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos label ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
-
+    # Calls
+    syms = syms + [f"call", "callIndirect"]
+    ret = ret+[
+        f"""
+            call :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+            call pos label ann =
+                {INDENT}_emitInstr pos $ CALL pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
+            callIndirect :: (Monad m) => a -> Reg -> Integer -> (Maybe anno) -> ASMGeneratorT a anno m ()
+            callIndirect pos reg offset ann =
+                {INDENT}_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
+        """
+    ]
     ret = ret + [
         f"""_convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)""",
+        f"""_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label l"""
     ]
     for instr in INSTR_ARITM_2OP:
         for size in REGISTERS:
@@ -257,6 +292,14 @@ def create_instr_wrappers():
     for instr in INSTR_NOARG:
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos _) = return $ Syntax.{instr.upper()} pos""",
+        ]
+    # Calls
+    ret = ret+[
+        f"""_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label l""",
+    ]
+    for reg in REGISTERS['64']:
+        ret = ret+[
+            f"""_convertInstr (CALL_INDIRECT pos {reg.upper()} offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.{reg.upper()} pos""",
         ]
 
     # TUTAJ POZMIENIAC!!!
@@ -470,6 +513,8 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     
     exports = [
         "runASMGeneratorT",
+        "execASMGeneratorT",
+        "continueASMGeneratorT",
         "ASMGenerator",
         "ASMGeneratorT",
         "dataDef",
@@ -556,18 +601,26 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     _emitDef :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
     _emitDef pos def = tell $ GeneratorOut (Just pos) [] [def]
 
+    continueASMGeneratorT :: (Monad m) => GeneratorOut a anno -> ASMGeneratorT a anno m ()
+    continueASMGeneratorT out = tell out
+
+    execASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> m (Either (GeneratorError a) (v, GeneratorOut a anno))
+    execASMGeneratorT generator = do
+    {INDENT}genResult <- runExceptT (runWriterT $ generator)
+    {INDENT}return genResult
+
     runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
     runASMGeneratorT generator externs = do
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
-    {INDENT}outResult <- runExceptT (runWriterT $ generateOut genResult)
+    {INDENT}outResult <- runExceptT (runWriterT $ generateOut externs genResult)
 	{INDENT}case outResult  of
     {INDENT}{INDENT}Left err -> return $ Left err
     {INDENT}{INDENT}Right ((result, fullProg), _) -> do
     {INDENT}{INDENT}{INDENT}let assemblyCodeStr = Printer.printTree fullProg
     {INDENT}{INDENT}{INDENT}return $ Right (assemblyCodeStr, result)
     {INDENT}where
-    {INDENT}{INDENT}generateOut :: (Monad m) => Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
-    {INDENT}{INDENT}generateOut r =
+    {INDENT}{INDENT}generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+    {INDENT}{INDENT}generateOut externs r =
     {INDENT}{INDENT}{INDENT}case r of
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> generatorFail err
     {INDENT}{INDENT}{INDENT}{INDENT}Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
@@ -587,7 +640,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {instr_wrappers_code}
 
     -- Data wrappers
-    dataDef :: a -> DataDef -> ASMGenerator a anno ()
+    dataDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
     dataDef pos def = _emitDef pos $ convertDataDef pos def
     """
     with open(output_haskell_path, "w") as f:

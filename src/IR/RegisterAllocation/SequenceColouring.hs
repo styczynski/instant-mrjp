@@ -7,7 +7,6 @@ import           Data.Maybe
 import qualified Data.Set                                    as Set
 import           IR.Utils
 import           IR.RegisterAllocation.InterferenceGraph
-import           IR.Registers
 
 import qualified Backend.X64.Parser.Constructor as X64
 

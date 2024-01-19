@@ -25,9 +25,7 @@ import           IR.CodeGen.GenM
 import           IR.CodeGen.Module
 import           IR.CodeGen.Prologue
 import           IR.CodeGen.Stack
-import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
-import           IR.Registers
 import           IR.Size
 import qualified Backend.X64.Parser.Constructor as X64
 

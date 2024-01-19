@@ -51,8 +51,6 @@ import           Data.Int
 import           IR.Syntax.Syntax
 import           Prelude               hiding (and)
 import           IR.CodeGen.Consts
-import           IR.Loc
-import           IR.Registers
 import           IR.Size
 
 class EmitM m where

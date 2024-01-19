@@ -89,72 +89,75 @@ import Backend.X64.Parser.Gen.LexXGAS
   '%SP'      { PT _ (TS _ 64)   }
   '%SPL'     { PT _ (TS _ 65)   }
   '('        { PT _ (TS _ 66)   }
-  ')'        { PT _ (TS _ 67)   }
-  ','        { PT _ (TS _ 68)   }
-  '.extern'  { PT _ (TS _ 69)   }
-  '.global'  { PT _ (TS _ 70)   }
-  '.long'    { PT _ (TS _ 71)   }
-  '.quad'    { PT _ (TS _ 72)   }
-  '.rodata'  { PT _ (TS _ 73)   }
-  '.section' { PT _ (TS _ 74)   }
-  '.string'  { PT _ (TS _ 75)   }
-  '.text'    { PT _ (TS _ 76)   }
-  ':'        { PT _ (TS _ 77)   }
-  'addb'     { PT _ (TS _ 78)   }
-  'addl'     { PT _ (TS _ 79)   }
-  'addq'     { PT _ (TS _ 80)   }
-  'andb'     { PT _ (TS _ 81)   }
-  'andl'     { PT _ (TS _ 82)   }
-  'andq'     { PT _ (TS _ 83)   }
-  'cdq'      { PT _ (TS _ 84)   }
-  'cmpb'     { PT _ (TS _ 85)   }
-  'cmpl'     { PT _ (TS _ 86)   }
-  'cmpq'     { PT _ (TS _ 87)   }
-  'idivb'    { PT _ (TS _ 88)   }
-  'idivl'    { PT _ (TS _ 89)   }
-  'idivq'    { PT _ (TS _ 90)   }
-  'imulb'    { PT _ (TS _ 91)   }
-  'imull'    { PT _ (TS _ 92)   }
-  'imulq'    { PT _ (TS _ 93)   }
-  'jmp'      { PT _ (TS _ 94)   }
-  'jz'       { PT _ (TS _ 95)   }
-  'leab'     { PT _ (TS _ 96)   }
-  'leal'     { PT _ (TS _ 97)   }
-  'leaq'     { PT _ (TS _ 98)   }
-  'leave'    { PT _ (TS _ 99)   }
-  'movb'     { PT _ (TS _ 100)  }
-  'movl'     { PT _ (TS _ 101)  }
-  'movq'     { PT _ (TS _ 102)  }
-  'negb'     { PT _ (TS _ 103)  }
-  'negl'     { PT _ (TS _ 104)  }
-  'negq'     { PT _ (TS _ 105)  }
-  'pop'      { PT _ (TS _ 106)  }
-  'push'     { PT _ (TS _ 107)  }
-  'ret'      { PT _ (TS _ 108)  }
-  'salb'     { PT _ (TS _ 109)  }
-  'sall'     { PT _ (TS _ 110)  }
-  'salq'     { PT _ (TS _ 111)  }
-  'sarb'     { PT _ (TS _ 112)  }
-  'sarl'     { PT _ (TS _ 113)  }
-  'sarq'     { PT _ (TS _ 114)  }
-  'sete'     { PT _ (TS _ 115)  }
-  'setg'     { PT _ (TS _ 116)  }
-  'setge'    { PT _ (TS _ 117)  }
-  'setl'     { PT _ (TS _ 118)  }
-  'setle'    { PT _ (TS _ 119)  }
-  'setne'    { PT _ (TS _ 120)  }
-  'subb'     { PT _ (TS _ 121)  }
-  'subl'     { PT _ (TS _ 122)  }
-  'subq'     { PT _ (TS _ 123)  }
-  'testb'    { PT _ (TS _ 124)  }
-  'testl'    { PT _ (TS _ 125)  }
-  'testq'    { PT _ (TS _ 126)  }
-  'xchgb'    { PT _ (TS _ 127)  }
-  'xchgl'    { PT _ (TS _ 128)  }
-  'xchgq'    { PT _ (TS _ 129)  }
-  'xorb'     { PT _ (TS _ 130)  }
-  'xorl'     { PT _ (TS _ 131)  }
-  'xorq'     { PT _ (TS _ 132)  }
+  '(%RIP)'   { PT _ (TS _ 67)   }
+  ')'        { PT _ (TS _ 68)   }
+  '*'        { PT _ (TS _ 69)   }
+  ','        { PT _ (TS _ 70)   }
+  '.extern'  { PT _ (TS _ 71)   }
+  '.global'  { PT _ (TS _ 72)   }
+  '.long'    { PT _ (TS _ 73)   }
+  '.quad'    { PT _ (TS _ 74)   }
+  '.rodata'  { PT _ (TS _ 75)   }
+  '.section' { PT _ (TS _ 76)   }
+  '.string'  { PT _ (TS _ 77)   }
+  '.text'    { PT _ (TS _ 78)   }
+  ':'        { PT _ (TS _ 79)   }
+  'CALL'     { PT _ (TS _ 80)   }
+  'addb'     { PT _ (TS _ 81)   }
+  'addl'     { PT _ (TS _ 82)   }
+  'addq'     { PT _ (TS _ 83)   }
+  'andb'     { PT _ (TS _ 84)   }
+  'andl'     { PT _ (TS _ 85)   }
+  'andq'     { PT _ (TS _ 86)   }
+  'cdq'      { PT _ (TS _ 87)   }
+  'cmpb'     { PT _ (TS _ 88)   }
+  'cmpl'     { PT _ (TS _ 89)   }
+  'cmpq'     { PT _ (TS _ 90)   }
+  'idivb'    { PT _ (TS _ 91)   }
+  'idivl'    { PT _ (TS _ 92)   }
+  'idivq'    { PT _ (TS _ 93)   }
+  'imulb'    { PT _ (TS _ 94)   }
+  'imull'    { PT _ (TS _ 95)   }
+  'imulq'    { PT _ (TS _ 96)   }
+  'jmp'      { PT _ (TS _ 97)   }
+  'jz'       { PT _ (TS _ 98)   }
+  'leab'     { PT _ (TS _ 99)   }
+  'leal'     { PT _ (TS _ 100)  }
+  'leaq'     { PT _ (TS _ 101)  }
+  'leave'    { PT _ (TS _ 102)  }
+  'movb'     { PT _ (TS _ 103)  }
+  'movl'     { PT _ (TS _ 104)  }
+  'movq'     { PT _ (TS _ 105)  }
+  'negb'     { PT _ (TS _ 106)  }
+  'negl'     { PT _ (TS _ 107)  }
+  'negq'     { PT _ (TS _ 108)  }
+  'pop'      { PT _ (TS _ 109)  }
+  'push'     { PT _ (TS _ 110)  }
+  'ret'      { PT _ (TS _ 111)  }
+  'salb'     { PT _ (TS _ 112)  }
+  'sall'     { PT _ (TS _ 113)  }
+  'salq'     { PT _ (TS _ 114)  }
+  'sarb'     { PT _ (TS _ 115)  }
+  'sarl'     { PT _ (TS _ 116)  }
+  'sarq'     { PT _ (TS _ 117)  }
+  'sete'     { PT _ (TS _ 118)  }
+  'setg'     { PT _ (TS _ 119)  }
+  'setge'    { PT _ (TS _ 120)  }
+  'setl'     { PT _ (TS _ 121)  }
+  'setle'    { PT _ (TS _ 122)  }
+  'setne'    { PT _ (TS _ 123)  }
+  'subb'     { PT _ (TS _ 124)  }
+  'subl'     { PT _ (TS _ 125)  }
+  'subq'     { PT _ (TS _ 126)  }
+  'testb'    { PT _ (TS _ 127)  }
+  'testl'    { PT _ (TS _ 128)  }
+  'testq'    { PT _ (TS _ 129)  }
+  'xchgb'    { PT _ (TS _ 130)  }
+  'xchgl'    { PT _ (TS _ 131)  }
+  'xchgq'    { PT _ (TS _ 132)  }
+  'xorb'     { PT _ (TS _ 133)  }
+  'xorl'     { PT _ (TS _ 134)  }
+  'xorq'     { PT _ (TS _ 135)  }
   L_integ    { PT _ (TI _)      }
   L_quoted   { PT _ (TL _)      }
   L_Label    { PT _ (T_Label _) }
@@ -230,7 +233,6 @@ AsmInstr
   | 'addq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.ADD64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'andq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.AND64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'cmpq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CMP64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
-  | 'idivq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'imulq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IMUL64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'leaq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.LEA64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'movq' Source64 ',' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.MOV64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
@@ -243,7 +245,6 @@ AsmInstr
   | 'addl' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.ADD32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'andl' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.AND32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'cmpl' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CMP32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
-  | 'idivl' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'imull' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IMUL32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'leal' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.LEA32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'movl' Source32 ',' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.MOV32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
@@ -256,7 +257,6 @@ AsmInstr
   | 'addb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.ADD16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'andb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.AND16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'cmpb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CMP16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
-  | 'idivb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'imulb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IMUL16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'leab' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.LEA16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'movb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.MOV16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
@@ -267,8 +267,13 @@ AsmInstr
   | 'salb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.SAL16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'sarb' Source16 ',' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.SAR16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
   | 'negq' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.NEG64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'idivq' Target64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'negl' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.NEG32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'idivl' Target32 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'negb' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.NEG16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'idivb' Target16 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'CALL' Label { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CALL (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'CALL' '*' Integer '(' Reg64 ')' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5)) }
   | 'pop' Reg64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.POP (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'push' Reg64 { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'leave' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.LEAVE (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1))) }
@@ -288,11 +293,15 @@ Source64
   : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
   | Reg64 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg64 (fst $1) (snd $1)) }
   | Integer '(' Reg64 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem64 (fst $1) (snd $1) (snd $3)) }
+  | Label { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabel64 (fst $1) (snd $1)) }
+  | Label '(%RIP)' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabelOffset64 (fst $1) (snd $1)) }
+  | Integer '(' Reg64 ',' Reg64 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMemComplex64 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Target64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target64
   : Reg64 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg64 (fst $1) (snd $1)) }
   | Integer '(' Reg64 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem64 (fst $1) (snd $1) (snd $3)) }
+  | Integer '(' Reg64 ',' Reg64 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMemComplex64 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Reg64 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg64
@@ -318,11 +327,15 @@ Source32
   : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
   | Reg32 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg32 (fst $1) (snd $1)) }
   | Integer '(' Reg32 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem32 (fst $1) (snd $1) (snd $3)) }
+  | Label { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabel32 (fst $1) (snd $1)) }
+  | Label '(%RIP)' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabelOffset32 (fst $1) (snd $1)) }
+  | Integer '(' Reg32 ',' Reg32 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMemComplex32 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Target32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target32
   : Reg32 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg32 (fst $1) (snd $1)) }
   | Integer '(' Reg32 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem32 (fst $1) (snd $1) (snd $3)) }
+  | Integer '(' Reg32 ',' Reg32 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMemComplex32 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Reg32 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg32
@@ -348,11 +361,15 @@ Source16
   : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
   | Reg16 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg16 (fst $1) (snd $1)) }
   | Integer '(' Reg16 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem16 (fst $1) (snd $1) (snd $3)) }
+  | Label { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabel16 (fst $1) (snd $1)) }
+  | Label '(%RIP)' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabelOffset16 (fst $1) (snd $1)) }
+  | Integer '(' Reg16 ',' Reg16 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMemComplex16 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Target16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target16
   : Reg16 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg16 (fst $1) (snd $1)) }
   | Integer '(' Reg16 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem16 (fst $1) (snd $1) (snd $3)) }
+  | Integer '(' Reg16 ',' Reg16 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMemComplex16 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Reg16 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg16
@@ -378,11 +395,15 @@ Source8
   : Integer { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromConst (fst $1) (snd $1)) }
   | Reg8 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromReg8 (fst $1) (snd $1)) }
   | Integer '(' Reg8 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMem8 (fst $1) (snd $1) (snd $3)) }
+  | Label { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabel8 (fst $1) (snd $1)) }
+  | Label '(%RIP)' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromLabelOffset8 (fst $1) (snd $1)) }
+  | Integer '(' Reg8 ',' Reg8 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.FromMemComplex8 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Target8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Target) }
 Target8
   : Reg8 { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToReg8 (fst $1) (snd $1)) }
   | Integer '(' Reg8 ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMem8 (fst $1) (snd $1) (snd $3)) }
+  | Integer '(' Reg8 ',' Reg8 ',' Integer ')' { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.ToMemComplex8 (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 Reg8 :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.Reg) }
 Reg8

@@ -29,42 +29,42 @@ Label literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in X64GAS are the following:
-  | ``addb`` | ``addl`` | ``addq`` | ``andb``
-  | ``andl`` | ``andq`` | ``cdq`` | ``cmpb``
-  | ``cmpl`` | ``cmpq`` | ``idivb`` | ``idivl``
-  | ``idivq`` | ``imulb`` | ``imull`` | ``imulq``
-  | ``jmp`` | ``jz`` | ``leab`` | ``leal``
-  | ``leaq`` | ``leave`` | ``movb`` | ``movl``
-  | ``movq`` | ``negb`` | ``negl`` | ``negq``
-  | ``pop`` | ``push`` | ``ret`` | ``salb``
-  | ``sall`` | ``salq`` | ``sarb`` | ``sarl``
-  | ``sarq`` | ``sete`` | ``setg`` | ``setge``
-  | ``setl`` | ``setle`` | ``setne`` | ``subb``
-  | ``subl`` | ``subq`` | ``testb`` | ``testl``
-  | ``testq`` | ``xchgb`` | ``xchgl`` | ``xchgq``
-  | ``xorb`` | ``xorl`` | ``xorq`` |
+  | ``CALL`` | ``addb`` | ``addl`` | ``addq``
+  | ``andb`` | ``andl`` | ``andq`` | ``cdq``
+  | ``cmpb`` | ``cmpl`` | ``cmpq`` | ``idivb``
+  | ``idivl`` | ``idivq`` | ``imulb`` | ``imull``
+  | ``imulq`` | ``jmp`` | ``jz`` | ``leab``
+  | ``leal`` | ``leaq`` | ``leave`` | ``movb``
+  | ``movl`` | ``movq`` | ``negb`` | ``negl``
+  | ``negq`` | ``pop`` | ``push`` | ``ret``
+  | ``salb`` | ``sall`` | ``salq`` | ``sarb``
+  | ``sarl`` | ``sarq`` | ``sete`` | ``setg``
+  | ``setge`` | ``setl`` | ``setle`` | ``setne``
+  | ``subb`` | ``subl`` | ``subq`` | ``testb``
+  | ``testl`` | ``testq`` | ``xchgb`` | ``xchgl``
+  | ``xchgq`` | ``xorb`` | ``xorl`` | ``xorq``
 
 The symbols used in X64GAS are the following:
   | .section | .rodata | .text | .global
   | : | .string | .quad | .long
-  | $ | .extern | , | (
-  | ) | %RAX | %RBX | %RCX
-  | %RDX | %RDI | %RSI | %RSP
-  | %RBP | %R8 | %R9 | %R10
-  | %R11 | %R12 | %R13 | %R14
-  | %R15 | %EAX | %EBX | %ECX
-  | %EDX | %EDI | %ESI | %ESP
-  | %EBP | %R8D | %R9D | %R10D
-  | %R11D | %R12D | %R13D | %R14D
-  | %R15D | %AX | %BX | %CX
-  | %DX | %DI | %SI | %SP
-  | %BP | %R8W | %R9W | %R10W
-  | %R11W | %R12W | %R13W | %R14W
-  | %R15W | %AL | %BL | %CL
-  | %DL | %DIL | %SIL | %SPL
-  | %BPL | %R8B | %R9B | %R10B
-  | %R11B | %R12B | %R13B | %R14B
-  | %R15B |  |  |
+  | $ | .extern | , | *
+  | ( | ) | (%RIP) | %RAX
+  | %RBX | %RCX | %RDX | %RDI
+  | %RSI | %RSP | %RBP | %R8
+  | %R9 | %R10 | %R11 | %R12
+  | %R13 | %R14 | %R15 | %EAX
+  | %EBX | %ECX | %EDX | %EDI
+  | %ESI | %ESP | %EBP | %R8D
+  | %R9D | %R10D | %R11D | %R12D
+  | %R13D | %R14D | %R15D | %AX
+  | %BX | %CX | %DX | %DI
+  | %SI | %SP | %BP | %R8W
+  | %R9W | %R10W | %R11W | %R12W
+  | %R13W | %R14W | %R15W | %AL
+  | %BL | %CL | %DL | %DIL
+  | %SIL | %SPL | %BPL | %R8B
+  | %R9B | %R10B | %R11B | %R12B
+  | %R13B | %R14B | %R15B |
 
 ===Comments===
 Single-line comments begin with #.There are no multiple-line comments in the grammar.
@@ -100,7 +100,6 @@ All other symbols are terminals.
   |  |  **|**  | ``addq`` //Source64// ``,`` //Target64//
   |  |  **|**  | ``andq`` //Source64// ``,`` //Target64//
   |  |  **|**  | ``cmpq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``idivq`` //Source64// ``,`` //Target64//
   |  |  **|**  | ``imulq`` //Source64// ``,`` //Target64//
   |  |  **|**  | ``leaq`` //Source64// ``,`` //Target64//
   |  |  **|**  | ``movq`` //Source64// ``,`` //Target64//
@@ -113,7 +112,6 @@ All other symbols are terminals.
   |  |  **|**  | ``addl`` //Source32// ``,`` //Target32//
   |  |  **|**  | ``andl`` //Source32// ``,`` //Target32//
   |  |  **|**  | ``cmpl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``idivl`` //Source32// ``,`` //Target32//
   |  |  **|**  | ``imull`` //Source32// ``,`` //Target32//
   |  |  **|**  | ``leal`` //Source32// ``,`` //Target32//
   |  |  **|**  | ``movl`` //Source32// ``,`` //Target32//
@@ -126,7 +124,6 @@ All other symbols are terminals.
   |  |  **|**  | ``addb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``andb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``idivb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``leab`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``movb`` //Source16// ``,`` //Target16//
@@ -137,8 +134,13 @@ All other symbols are terminals.
   |  |  **|**  | ``salb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16//
   |  |  **|**  | ``negq`` //Target64//
+  |  |  **|**  | ``idivq`` //Target64//
   |  |  **|**  | ``negl`` //Target32//
+  |  |  **|**  | ``idivl`` //Target32//
   |  |  **|**  | ``negb`` //Target16//
+  |  |  **|**  | ``idivb`` //Target16//
+  |  |  **|**  | ``CALL`` //Label//
+  |  |  **|**  | ``CALL`` ``*`` //Integer// ``(`` //Reg64// ``)``
   |  |  **|**  | ``pop`` //Reg64//
   |  |  **|**  | ``push`` //Reg64//
   |  |  **|**  | ``leave``
@@ -155,8 +157,12 @@ All other symbols are terminals.
   | //Source64// | -> | //Integer//
   |  |  **|**  | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``
+  |  |  **|**  | //Label//
+  |  |  **|**  | //Label// ``(%RIP)``
+  |  |  **|**  | //Integer// ``(`` //Reg64// ``,`` //Reg64// ``,`` //Integer// ``)``
   | //Target64// | -> | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``
+  |  |  **|**  | //Integer// ``(`` //Reg64// ``,`` //Reg64// ``,`` //Integer// ``)``
   | //Reg64// | -> | ``%RAX``
   |  |  **|**  | ``%RBX``
   |  |  **|**  | ``%RCX``
@@ -176,8 +182,12 @@ All other symbols are terminals.
   | //Source32// | -> | //Integer//
   |  |  **|**  | //Reg32//
   |  |  **|**  | //Integer// ``(`` //Reg32// ``)``
+  |  |  **|**  | //Label//
+  |  |  **|**  | //Label// ``(%RIP)``
+  |  |  **|**  | //Integer// ``(`` //Reg32// ``,`` //Reg32// ``,`` //Integer// ``)``
   | //Target32// | -> | //Reg32//
   |  |  **|**  | //Integer// ``(`` //Reg32// ``)``
+  |  |  **|**  | //Integer// ``(`` //Reg32// ``,`` //Reg32// ``,`` //Integer// ``)``
   | //Reg32// | -> | ``%EAX``
   |  |  **|**  | ``%EBX``
   |  |  **|**  | ``%ECX``
@@ -197,8 +207,12 @@ All other symbols are terminals.
   | //Source16// | -> | //Integer//
   |  |  **|**  | //Reg16//
   |  |  **|**  | //Integer// ``(`` //Reg16// ``)``
+  |  |  **|**  | //Label//
+  |  |  **|**  | //Label// ``(%RIP)``
+  |  |  **|**  | //Integer// ``(`` //Reg16// ``,`` //Reg16// ``,`` //Integer// ``)``
   | //Target16// | -> | //Reg16//
   |  |  **|**  | //Integer// ``(`` //Reg16// ``)``
+  |  |  **|**  | //Integer// ``(`` //Reg16// ``,`` //Reg16// ``,`` //Integer// ``)``
   | //Reg16// | -> | ``%AX``
   |  |  **|**  | ``%BX``
   |  |  **|**  | ``%CX``
@@ -218,8 +232,12 @@ All other symbols are terminals.
   | //Source8// | -> | //Integer//
   |  |  **|**  | //Reg8//
   |  |  **|**  | //Integer// ``(`` //Reg8// ``)``
+  |  |  **|**  | //Label//
+  |  |  **|**  | //Label// ``(%RIP)``
+  |  |  **|**  | //Integer// ``(`` //Reg8// ``,`` //Reg8// ``,`` //Integer// ``)``
   | //Target8// | -> | //Reg8//
   |  |  **|**  | //Integer// ``(`` //Reg8// ``)``
+  |  |  **|**  | //Integer// ``(`` //Reg8// ``,`` //Reg8// ``,`` //Integer// ``)``
   | //Reg8// | -> | ``%AL``
   |  |  **|**  | ``%BL``
   |  |  **|**  | ``%CL``

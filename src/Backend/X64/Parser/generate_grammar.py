@@ -24,6 +24,11 @@ def generate_reg_defs():
             rule(f"ToMem{size}", f"Target{size}", "Integer", lit("("), f"Reg{size}", lit(")")),
             rule(f"FromReg{size}", f"Source{size}", f"Reg{size}"),
             rule(f"FromMem{size}", f"Source{size}", "Integer", lit("("), f"Reg{size}", lit(")")),
+            rule(f"FromLabel{size}", f"Source{size}", f"Label"),
+            rule(f"FromLabelOffset{size}", f"Source{size}", f"Label", lit("(%RIP)")),
+            #--offset(%baseLoc, %idxLoc, 2)
+            rule(f"FromMemComplex{size}", f"Source{size}", "Integer", lit("("), f"Reg{size}", lit(","), f"Reg{size}", lit(","), "Integer", lit(")")),
+            rule(f"ToMemComplex{size}", f"Target{size}", "Integer", lit("("), f"Reg{size}", lit(","), f"Reg{size}", lit(","), "Integer", lit(")")),
         ] + [rule(f"{reg.upper()}", f"Reg{size}", lit(f"%{reg.upper()}")) for reg in regs]
     return rules
 
@@ -66,6 +71,12 @@ def generate_grammar(output_grammar_path):
         {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64") for instr in INSTR_ARITM_1OP])}
         {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32") for instr in INSTR_ARITM_1OP])}
         {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16") for instr in INSTR_ARITM_1OP])}
+
+        -- Calls
+        {embed([
+            rule("CALL", "AsmInstr", lit("CALL"), "Label"),
+            rule("CALLINDIRECT", "AsmInstr", lit("CALL"), lit("*"), "Integer", lit("("), "Reg64", lit(")")),
+        ])}
 
         -- Stack operations
         {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg64") for instr in INSTR_STACK])}

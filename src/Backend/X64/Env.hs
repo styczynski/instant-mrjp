@@ -34,7 +34,7 @@ data CompiledMethod = CompiledMethod {
     -- Label of the method start, the target for calls.
     _cmthdEntry    :: String,
     _cmthdPrologue :: [String],
-    _cmthdCode     :: [String],
+    _cmthdCode     :: String,
     _cmthdEpilogue :: [String]
 } deriving (Show)
 

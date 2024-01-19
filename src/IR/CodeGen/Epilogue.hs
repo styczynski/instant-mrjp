@@ -5,10 +5,7 @@ import           Data.List                 (sortOn)
 import           Data.Ord                  (Down (Down))
 import qualified IR.CodeGen.Emit       as Emit
 import           IR.CodeGen.GenM
-import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
-import           IR.Registers
-
 import qualified Backend.X64.Parser.Constructor as X64
 
 withEpilogue :: RegisterAllocation -> CompiledMethod -> CompiledMethod

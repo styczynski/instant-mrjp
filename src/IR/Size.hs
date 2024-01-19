@@ -5,8 +5,6 @@ import           IR.Syntax.Syntax
 
 import qualified Backend.X64.Parser.Constructor as X64
 
---data Size = Byte | Double | Quadruple deriving (Eq, Show, Ord)
-
 typeSize :: SType a -> X64.Size
 typeSize t = case t of
     Int _   -> X64.Size32

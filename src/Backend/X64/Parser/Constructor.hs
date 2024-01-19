@@ -6,6 +6,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleInstances #-}
 module Backend.X64.Parser.Constructor(runASMGeneratorT
+, execASMGeneratorT
+, continueASMGeneratorT
 , ASMGenerator
 , ASMGeneratorT
 , dataDef
@@ -24,10 +26,10 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , asLoc
 , showReg
 , Instr(..)
+, label
 , add
 , and
 , cmp
-, idiv
 , imul
 , lea
 , mov
@@ -38,6 +40,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , sal
 , sar
 , neg
+, idiv
 , sete
 , setg
 , setge
@@ -51,6 +54,8 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , cdq
 , jmp
 , jz
+, call
+, callIndirect
 , toBytes) where
 
 import Data.Generics.Product
@@ -126,18 +131,26 @@ _emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] []
 _emitDef :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
 _emitDef pos def = tell $ GeneratorOut (Just pos) [] [def]
 
+continueASMGeneratorT :: (Monad m) => GeneratorOut a anno -> ASMGeneratorT a anno m ()
+continueASMGeneratorT out = tell out
+
+execASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> m (Either (GeneratorError a) (v, GeneratorOut a anno))
+execASMGeneratorT generator = do
+	genResult <- runExceptT (runWriterT $ generator)
+	return genResult
+
 runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
 runASMGeneratorT generator externs = do
 	genResult <- runExceptT (runWriterT $ generator)
-	outResult <- runExceptT (runWriterT $ generateOut genResult)
+	outResult <- runExceptT (runWriterT $ generateOut externs genResult)
 	case outResult  of
 		Left err -> return $ Left err
 		Right ((result, fullProg), _) -> do
 			let assemblyCodeStr = Printer.printTree fullProg
 			return $ Right (assemblyCodeStr, result)
 	where
-		generateOut :: (Monad m) => Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
-		generateOut r =
+		generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+		generateOut externs r =
 			case r of
 				Left err -> generatorFail err
 				Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
@@ -253,7 +266,7 @@ showReg Size8 R14 = "R14B"
 showReg Size8 R15 = "R15B"
 
 
-data Loc = LocLabel String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
+data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 isReg :: Loc -> Bool
@@ -281,6 +294,12 @@ argLoc argIndex = LocMem (RBP, (fromInteger argIndex - 6) * 8 + 8)
 
 _locToSource :: a -> Size -> Loc -> Syntax.Source' a
 _locToSource pos _ (LocConst val) = Syntax.FromConst pos val
+_locToSource pos Size64 (LocLabel l) = Syntax.FromLabel64 pos $ Syntax.Label l
+_locToSource pos Size64 (LocLabelPIC l) = Syntax.FromLabelOffset64 pos $ Syntax.Label l
+_locToSource pos Size64 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.FromReg64 _ rBase) = _locToSource pos Size64 (LocReg ptrBase) in
+	let (Syntax.FromReg64 _ rIdx) =  _locToSource pos Size64 (LocReg ptrIdx) in
+	Syntax.FromMemComplex64 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size64 (LocReg RAX) = Syntax.FromReg64 pos $ Syntax.RAX pos
 _locToSource pos Size64 (LocMem (RAX, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToSource pos Size64 (LocReg RBX) = Syntax.FromReg64 pos $ Syntax.RBX pos
@@ -313,6 +332,12 @@ _locToSource pos Size64 (LocReg R14) = Syntax.FromReg64 pos $ Syntax.R14 pos
 _locToSource pos Size64 (LocMem (R14, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToSource pos Size64 (LocReg R15) = Syntax.FromReg64 pos $ Syntax.R15 pos
 _locToSource pos Size64 (LocMem (R15, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.R15 pos
+_locToSource pos Size32 (LocLabel l) = Syntax.FromLabel32 pos $ Syntax.Label l
+_locToSource pos Size32 (LocLabelPIC l) = Syntax.FromLabelOffset32 pos $ Syntax.Label l
+_locToSource pos Size32 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.FromReg32 _ rBase) = _locToSource pos Size32 (LocReg ptrBase) in
+	let (Syntax.FromReg32 _ rIdx) =  _locToSource pos Size32 (LocReg ptrIdx) in
+	Syntax.FromMemComplex32 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size32 (LocReg RAX) = Syntax.FromReg32 pos $ Syntax.EAX pos
 _locToSource pos Size32 (LocMem (RAX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EAX pos
 _locToSource pos Size32 (LocReg RBX) = Syntax.FromReg32 pos $ Syntax.EBX pos
@@ -345,6 +370,12 @@ _locToSource pos Size32 (LocReg R14) = Syntax.FromReg32 pos $ Syntax.R14D pos
 _locToSource pos Size32 (LocMem (R14, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R14D pos
 _locToSource pos Size32 (LocReg R15) = Syntax.FromReg32 pos $ Syntax.R15D pos
 _locToSource pos Size32 (LocMem (R15, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R15D pos
+_locToSource pos Size16 (LocLabel l) = Syntax.FromLabel16 pos $ Syntax.Label l
+_locToSource pos Size16 (LocLabelPIC l) = Syntax.FromLabelOffset16 pos $ Syntax.Label l
+_locToSource pos Size16 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.FromReg16 _ rBase) = _locToSource pos Size16 (LocReg ptrBase) in
+	let (Syntax.FromReg16 _ rIdx) =  _locToSource pos Size16 (LocReg ptrIdx) in
+	Syntax.FromMemComplex16 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size16 (LocReg RAX) = Syntax.FromReg16 pos $ Syntax.AX pos
 _locToSource pos Size16 (LocMem (RAX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.AX pos
 _locToSource pos Size16 (LocReg RBX) = Syntax.FromReg16 pos $ Syntax.BX pos
@@ -377,6 +408,12 @@ _locToSource pos Size16 (LocReg R14) = Syntax.FromReg16 pos $ Syntax.R14W pos
 _locToSource pos Size16 (LocMem (R14, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R14W pos
 _locToSource pos Size16 (LocReg R15) = Syntax.FromReg16 pos $ Syntax.R15W pos
 _locToSource pos Size16 (LocMem (R15, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R15W pos
+_locToSource pos Size8 (LocLabel l) = Syntax.FromLabel8 pos $ Syntax.Label l
+_locToSource pos Size8 (LocLabelPIC l) = Syntax.FromLabelOffset8 pos $ Syntax.Label l
+_locToSource pos Size8 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.FromReg8 _ rBase) = _locToSource pos Size8 (LocReg ptrBase) in
+	let (Syntax.FromReg8 _ rIdx) =  _locToSource pos Size8 (LocReg ptrIdx) in
+	Syntax.FromMemComplex8 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size8 (LocReg RAX) = Syntax.FromReg8 pos $ Syntax.AL pos
 _locToSource pos Size8 (LocMem (RAX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.AL pos
 _locToSource pos Size8 (LocReg RBX) = Syntax.FromReg8 pos $ Syntax.BL pos
@@ -410,6 +447,10 @@ _locToSource pos Size8 (LocMem (R14, offset)) = Syntax.FromMem8 pos (fromIntegra
 _locToSource pos Size8 (LocReg R15) = Syntax.FromReg8 pos $ Syntax.R15B pos
 _locToSource pos Size8 (LocMem (R15, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R15B pos
 _locToTarget :: a -> Size -> Loc -> Syntax.Target' a
+_locToTarget pos Size64 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.ToReg64 _ rBase) = _locToTarget pos Size64 (LocReg ptrBase) in
+	let (Syntax.ToReg64 _ rIdx) =  _locToTarget pos Size64 (LocReg ptrIdx) in
+	Syntax.ToMemComplex64 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size64 (LocReg RAX) = Syntax.ToReg64 pos $ Syntax.RAX pos
 _locToTarget pos Size64 (LocMem (RAX, offset)) = Syntax.ToMem64 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToTarget pos Size64 (LocReg RBX) = Syntax.ToReg64 pos $ Syntax.RBX pos
@@ -442,6 +483,10 @@ _locToTarget pos Size64 (LocReg R14) = Syntax.ToReg64 pos $ Syntax.R14 pos
 _locToTarget pos Size64 (LocMem (R14, offset)) = Syntax.ToMem64 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToTarget pos Size64 (LocReg R15) = Syntax.ToReg64 pos $ Syntax.R15 pos
 _locToTarget pos Size64 (LocMem (R15, offset)) = Syntax.ToMem64 pos (fromIntegral offset) $ Syntax.R15 pos
+_locToTarget pos Size32 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.ToReg32 _ rBase) = _locToTarget pos Size32 (LocReg ptrBase) in
+	let (Syntax.ToReg32 _ rIdx) =  _locToTarget pos Size32 (LocReg ptrIdx) in
+	Syntax.ToMemComplex32 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size32 (LocReg RAX) = Syntax.ToReg32 pos $ Syntax.EAX pos
 _locToTarget pos Size32 (LocMem (RAX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EAX pos
 _locToTarget pos Size32 (LocReg RBX) = Syntax.ToReg32 pos $ Syntax.EBX pos
@@ -474,6 +519,10 @@ _locToTarget pos Size32 (LocReg R14) = Syntax.ToReg32 pos $ Syntax.R14D pos
 _locToTarget pos Size32 (LocMem (R14, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R14D pos
 _locToTarget pos Size32 (LocReg R15) = Syntax.ToReg32 pos $ Syntax.R15D pos
 _locToTarget pos Size32 (LocMem (R15, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R15D pos
+_locToTarget pos Size16 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.ToReg16 _ rBase) = _locToTarget pos Size16 (LocReg ptrBase) in
+	let (Syntax.ToReg16 _ rIdx) =  _locToTarget pos Size16 (LocReg ptrIdx) in
+	Syntax.ToMemComplex16 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size16 (LocReg RAX) = Syntax.ToReg16 pos $ Syntax.AX pos
 _locToTarget pos Size16 (LocMem (RAX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.AX pos
 _locToTarget pos Size16 (LocReg RBX) = Syntax.ToReg16 pos $ Syntax.BX pos
@@ -506,6 +555,10 @@ _locToTarget pos Size16 (LocReg R14) = Syntax.ToReg16 pos $ Syntax.R14W pos
 _locToTarget pos Size16 (LocMem (R14, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R14W pos
 _locToTarget pos Size16 (LocReg R15) = Syntax.ToReg16 pos $ Syntax.R15W pos
 _locToTarget pos Size16 (LocMem (R15, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R15W pos
+_locToTarget pos Size8 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
+	let (Syntax.ToReg8 _ rBase) = _locToTarget pos Size8 (LocReg ptrBase) in
+	let (Syntax.ToReg8 _ rIdx) =  _locToTarget pos Size8 (LocReg ptrIdx) in
+	Syntax.ToMemComplex8 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size8 (LocReg RAX) = Syntax.ToReg8 pos $ Syntax.AL pos
 _locToTarget pos Size8 (LocMem (RAX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.AL pos
 _locToTarget pos Size8 (LocReg RBX) = Syntax.ToReg8 pos $ Syntax.BL pos
@@ -553,146 +606,160 @@ toBytes Size8 = 1
 
 -- Instruction wrappers
 
-data Instr a anno = ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IDIV a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | JZ a (String) (Annotation a anno) | SETE a (Loc) (Annotation a anno) | SETG a (Loc) (Annotation a anno) | SETGE a (Loc) (Annotation a anno) | SETL a (Loc) (Annotation a anno) | SETLE a (Loc) (Annotation a anno) | SETNE a (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | PUSH a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
+data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | IDIV a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | JZ a (String) (Annotation a anno) | SETE a (Loc) (Annotation a anno) | SETG a (Loc) (Annotation a anno) | SETGE a (Loc) (Annotation a anno) | SETL a (Loc) (Annotation a anno) | SETLE a (Loc) (Annotation a anno) | SETNE a (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | PUSH a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
 
 
-add :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-add pos size loc1 loc2 =
-	_emitInstr pos $ ADD pos size loc1 loc2 (NoAnnotation pos)
+label :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+label pos l ann =
+	_emitInstr pos $ Label pos l $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-and :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-and pos size loc1 loc2 =
-	_emitInstr pos $ AND pos size loc1 loc2 (NoAnnotation pos)
+add :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+add pos size loc1 loc2 ann =
+	_emitInstr pos $ ADD pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-cmp :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-cmp pos size loc1 loc2 =
-	_emitInstr pos $ CMP pos size loc1 loc2 (NoAnnotation pos)
+and :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+and pos size loc1 loc2 ann =
+	_emitInstr pos $ AND pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-idiv :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-idiv pos size loc1 loc2 =
-	_emitInstr pos $ IDIV pos size loc1 loc2 (NoAnnotation pos)
+cmp :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+cmp pos size loc1 loc2 ann =
+	_emitInstr pos $ CMP pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-imul :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-imul pos size loc1 loc2 =
-	_emitInstr pos $ IMUL pos size loc1 loc2 (NoAnnotation pos)
+imul :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+imul pos size loc1 loc2 ann =
+	_emitInstr pos $ IMUL pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-lea :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-lea pos size loc1 loc2 =
-	_emitInstr pos $ LEA pos size loc1 loc2 (NoAnnotation pos)
+lea :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+lea pos size loc1 loc2 ann =
+	_emitInstr pos $ LEA pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-mov :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-mov pos size loc1 loc2 =
-	_emitInstr pos $ MOV pos size loc1 loc2 (NoAnnotation pos)
+mov :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+mov pos size loc1 loc2 ann =
+	_emitInstr pos $ MOV pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-sub :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-sub pos size loc1 loc2 =
-	_emitInstr pos $ SUB pos size loc1 loc2 (NoAnnotation pos)
+sub :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+sub pos size loc1 loc2 ann =
+	_emitInstr pos $ SUB pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-test :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-test pos size loc1 loc2 =
-	_emitInstr pos $ TEST pos size loc1 loc2 (NoAnnotation pos)
+test :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+test pos size loc1 loc2 ann =
+	_emitInstr pos $ TEST pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-xor :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-xor pos size loc1 loc2 =
-	_emitInstr pos $ XOR pos size loc1 loc2 (NoAnnotation pos)
+xor :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+xor pos size loc1 loc2 ann =
+	_emitInstr pos $ XOR pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-xchg :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-xchg pos size loc1 loc2 =
-	_emitInstr pos $ XCHG pos size loc1 loc2 (NoAnnotation pos)
+xchg :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+xchg pos size loc1 loc2 ann =
+	_emitInstr pos $ XCHG pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-sal :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-sal pos size loc1 loc2 =
-	_emitInstr pos $ SAL pos size loc1 loc2 (NoAnnotation pos)
+sal :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+sal pos size loc1 loc2 ann =
+	_emitInstr pos $ SAL pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-sar :: (Monad m) => a -> Size -> Loc -> Loc -> ASMGeneratorT a anno m ()
-sar pos size loc1 loc2 =
-	_emitInstr pos $ SAR pos size loc1 loc2 (NoAnnotation pos)
+sar :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+sar pos size loc1 loc2 ann =
+	_emitInstr pos $ SAR pos size loc1 loc2 $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-neg :: (Monad m) => a -> Size -> Loc -> ASMGeneratorT a anno m ()
-neg pos size loc =
-	_emitInstr pos $ NEG pos size loc (NoAnnotation pos)
+neg :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+neg pos size loc ann =
+	_emitInstr pos $ NEG pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-sete :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-sete pos loc =
-	_emitInstr pos $ SETE pos loc (NoAnnotation pos)
+idiv :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+idiv pos size loc ann =
+	_emitInstr pos $ IDIV pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-setg :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-setg pos loc =
-	_emitInstr pos $ SETG pos loc (NoAnnotation pos)
+sete :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+sete pos loc ann =
+	_emitInstr pos $ SETE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-setge :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-setge pos loc =
-	_emitInstr pos $ SETGE pos loc (NoAnnotation pos)
+setg :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setg pos loc ann =
+	_emitInstr pos $ SETG pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-setl :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-setl pos loc =
-	_emitInstr pos $ SETL pos loc (NoAnnotation pos)
+setge :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setge pos loc ann =
+	_emitInstr pos $ SETGE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-setle :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-setle pos loc =
-	_emitInstr pos $ SETLE pos loc (NoAnnotation pos)
+setl :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setl pos loc ann =
+	_emitInstr pos $ SETL pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-setne :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-setne pos loc =
-	_emitInstr pos $ SETNE pos loc (NoAnnotation pos)
+setle :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setle pos loc ann =
+	_emitInstr pos $ SETLE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-pop :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-pop pos loc =
-	_emitInstr pos $ POP pos loc (NoAnnotation pos)
+setne :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setne pos loc ann =
+	_emitInstr pos $ SETNE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-push :: (Monad m) => a -> Loc -> ASMGeneratorT a anno m ()
-push pos loc =
-	_emitInstr pos $ PUSH pos loc (NoAnnotation pos)
+pop :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+pop pos loc ann =
+	_emitInstr pos $ POP pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-leave :: (Monad m) => a -> ASMGeneratorT a anno m ()
-leave pos =
-	_emitInstr pos $ LEAVE pos (NoAnnotation pos)
+push :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+push pos loc ann =
+	_emitInstr pos $ PUSH pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-ret :: (Monad m) => a -> ASMGeneratorT a anno m ()
-ret pos =
-	_emitInstr pos $ RET pos (NoAnnotation pos)
+leave :: (Monad m) => a -> (Maybe anno) -> ASMGeneratorT a anno m ()
+leave pos ann =
+	_emitInstr pos $ LEAVE pos $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-cdq :: (Monad m) => a -> ASMGeneratorT a anno m ()
-cdq pos =
-	_emitInstr pos $ CDQ pos (NoAnnotation pos)
+ret :: (Monad m) => a -> (Maybe anno) -> ASMGeneratorT a anno m ()
+ret pos ann =
+	_emitInstr pos $ RET pos $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-jmp :: (Monad m) => a -> String -> ASMGeneratorT a anno m ()
-jmp pos label =
-	_emitInstr pos $ JMP pos label (NoAnnotation pos)
+cdq :: (Monad m) => a -> (Maybe anno) -> ASMGeneratorT a anno m ()
+cdq pos ann =
+	_emitInstr pos $ CDQ pos $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
-jz :: (Monad m) => a -> String -> ASMGeneratorT a anno m ()
-jz pos label =
-	_emitInstr pos $ JZ pos label (NoAnnotation pos)
+jmp :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jmp pos label ann =
+	_emitInstr pos $ JMP pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jz :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jz pos label ann =
+	_emitInstr pos $ JZ pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+call :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+call pos label ann =
+	_emitInstr pos $ CALL pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
+callIndirect :: (Monad m) => a -> Reg -> Integer -> (Maybe anno) -> ASMGeneratorT a anno m ()
+callIndirect pos reg offset ann =
+	_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 _convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)
+_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label l
 _convertInstr (ADD pos Size64 loc1 loc2 _) = return $ Syntax.ADD64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
 _convertInstr (ADD pos Size32 loc1 loc2 _) = return $ Syntax.ADD32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
 _convertInstr (ADD pos Size16 loc1 loc2 _) = return $ Syntax.ADD16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
@@ -705,10 +772,6 @@ _convertInstr (CMP pos Size64 loc1 loc2 _) = return $ Syntax.CMP64 pos (_locToSo
 _convertInstr (CMP pos Size32 loc1 loc2 _) = return $ Syntax.CMP32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
 _convertInstr (CMP pos Size16 loc1 loc2 _) = return $ Syntax.CMP16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
 _convertInstr (CMP pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (IDIV pos Size64 loc1 loc2 _) = return $ Syntax.IDIV64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (IDIV pos Size32 loc1 loc2 _) = return $ Syntax.IDIV32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (IDIV pos Size16 loc1 loc2 _) = return $ Syntax.IDIV16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
-_convertInstr (IDIV pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
 _convertInstr (IMUL pos Size64 loc1 loc2 _) = return $ Syntax.IMUL64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
 _convertInstr (IMUL pos Size32 loc1 loc2 _) = return $ Syntax.IMUL32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
 _convertInstr (IMUL pos Size16 loc1 loc2 _) = return $ Syntax.IMUL16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
@@ -749,6 +812,10 @@ _convertInstr (NEG pos Size64 loc _) = return $ Syntax.NEG64 pos (_locToTarget p
 _convertInstr (NEG pos Size32 loc _) = return $ Syntax.NEG32 pos (_locToTarget pos Size32 loc)
 _convertInstr (NEG pos Size16 loc _) = return $ Syntax.NEG16 pos (_locToTarget pos Size16 loc)
 _convertInstr (NEG pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
+_convertInstr (IDIV pos Size64 loc _) = return $ Syntax.IDIV64 pos (_locToTarget pos Size64 loc)
+_convertInstr (IDIV pos Size32 loc _) = return $ Syntax.IDIV32 pos (_locToTarget pos Size32 loc)
+_convertInstr (IDIV pos Size16 loc _) = return $ Syntax.IDIV16 pos (_locToTarget pos Size16 loc)
+_convertInstr (IDIV pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
 _convertInstr (SETE pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r
 _convertInstr (SETE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
 _convertInstr (SETG pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r
@@ -770,7 +837,24 @@ _convertInstr (JZ pos label _) = return $ Syntax.JZ pos (Syntax.Label label)
 _convertInstr (LEAVE pos _) = return $ Syntax.LEAVE pos
 _convertInstr (RET pos _) = return $ Syntax.RET pos
 _convertInstr (CDQ pos _) = return $ Syntax.CDQ pos
+_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label l
+_convertInstr (CALL_INDIRECT pos RAX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RAX pos
+_convertInstr (CALL_INDIRECT pos RBX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RBX pos
+_convertInstr (CALL_INDIRECT pos RCX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RCX pos
+_convertInstr (CALL_INDIRECT pos RDX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RDX pos
+_convertInstr (CALL_INDIRECT pos RDI offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RDI pos
+_convertInstr (CALL_INDIRECT pos RSI offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RSI pos
+_convertInstr (CALL_INDIRECT pos RSP offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RSP pos
+_convertInstr (CALL_INDIRECT pos RBP offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RBP pos
+_convertInstr (CALL_INDIRECT pos R8 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R8 pos
+_convertInstr (CALL_INDIRECT pos R9 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R9 pos
+_convertInstr (CALL_INDIRECT pos R10 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R10 pos
+_convertInstr (CALL_INDIRECT pos R11 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R11 pos
+_convertInstr (CALL_INDIRECT pos R12 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R12 pos
+_convertInstr (CALL_INDIRECT pos R13 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R13 pos
+_convertInstr (CALL_INDIRECT pos R14 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R14 pos
+_convertInstr (CALL_INDIRECT pos R15 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R15 pos
 
 -- Data wrappers
-dataDef :: a -> DataDef -> ASMGenerator a anno ()
+dataDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
 dataDef pos def = _emitDef pos $ convertDataDef pos def

@@ -35,9 +35,7 @@ import           IR.Class
 import           IR.CodeGen.Consts
 import qualified IR.CodeGen.Emit           as Emit
 import           IR.CodeGen.Stack
-import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
-import           IR.Registers
 import           IR.Size
 import qualified Backend.X64.Parser.Constructor as X64
 

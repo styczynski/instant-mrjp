@@ -32,7 +32,6 @@ INSTR_ARITM_2OP = [
     "add",
     "and",
     "cmp",
-    "idiv",
     "imul",
     "lea",
     "mov",
@@ -51,6 +50,7 @@ INSTR_JMP = [
 
 INSTR_ARITM_1OP = [
     "neg",
+    "idiv",
 ]
 
 INSTR_STACK = [

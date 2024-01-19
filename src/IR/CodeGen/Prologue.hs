@@ -8,9 +8,7 @@ import           IR.Syntax.Syntax
 
 import qualified IR.CodeGen.Emit       as Emit
 import           IR.CodeGen.GenM
-import           IR.Loc
 import           IR.RegisterAllocation.RegisterAllocation
-import           IR.Registers
 import           IR.Size
 
 withPrologue :: QIdent a -> RegisterAllocation -> CompiledMethod -> CompiledMethod
