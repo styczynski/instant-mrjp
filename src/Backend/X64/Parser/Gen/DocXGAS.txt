@@ -21,6 +21,10 @@ except ``"`` unless preceded by ``\``.
 
 
 
+
+ConstIntRef literals are recognized by the regular expression
+`````'$' digit+`````
+
 Label literals are recognized by the regular expression
 `````(["'_"] | digit | letter)+`````
 
@@ -29,8 +33,8 @@ Label literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in X64GAS are the following:
-  | ``CALL`` | ``addb`` | ``addl`` | ``addq``
-  | ``andb`` | ``andl`` | ``andq`` | ``cdq``
+  | ``addb`` | ``addl`` | ``addq`` | ``andb``
+  | ``andl`` | ``andq`` | ``call`` | ``cdq``
   | ``cmpb`` | ``cmpl`` | ``cmpq`` | ``idivb``
   | ``idivl`` | ``idivq`` | ``imulb`` | ``imull``
   | ``imulq`` | ``jmp`` | ``jz`` | ``leab``
@@ -45,9 +49,9 @@ The reserved words used in X64GAS are the following:
   | ``xchgq`` | ``xorb`` | ``xorl`` | ``xorq``
 
 The symbols used in X64GAS are the following:
-  | .section | .rodata | .text | .global
-  | : | .string | .quad | .long
-  | $ | .extern | , | *
+  | <ENDL> | .section | .rodata | .text
+  | .global | : | .string | .quad
+  | .long | .extern | , | *
   | ( | ) | (%RIP) | %RAX
   | %RBX | %RCX | %RDX | %RDI
   | %RSI | %RSP | %RBP | %R8
@@ -75,86 +79,86 @@ The symbols -> (production),  **|**  (union)
 and **eps** (empty rule) belong to the BNF notation.
 All other symbols are terminals.
 
-  | //AsmProgram// | -> | //[Directive]// //SectionData// //SectionCode//
+  | //AsmProgram// | -> | //[Directive]// ``<ENDL>`` //SectionData// ``<ENDL>`` //SectionCode//
   | //[AsmInstr]// | -> | **eps**
   |  |  **|**  | //AsmInstr// //[AsmInstr]//
   |  |  **|**  | **eps**
   |  |  **|**  | //AsmInstr// //[AsmInstr]//
-  | //SectionData// | -> | ``.section`` ``.rodata`` //[AsmDataDef]//
-  | //SectionCode// | -> | ``.section`` ``.text`` //[AsmInstr]//
-  | //AsmDataDef// | -> | ``.global`` //Label//
-  |  |  **|**  | //Label// ``:`` //[Data]//
+  | //SectionData// | -> | ``.section`` ``.rodata`` ``<ENDL>`` //[AsmDataDef]//
+  | //SectionCode// | -> | ``.section`` ``.text`` ``<ENDL>`` //[AsmInstr]//
+  | //AsmDataDef// | -> | ``.global`` //Label// ``<ENDL>``
+  |  |  **|**  | //Label// ``:`` ``<ENDL>`` //[Data]// ``<ENDL>``
   | //[AsmDataDef]// | -> | **eps**
   |  |  **|**  | //AsmDataDef// //[AsmDataDef]//
-  | //Data// | -> | ``.string`` //String//
-  |  |  **|**  | ``.quad`` //DataConst//
-  |  |  **|**  | ``.long`` //DataConst//
+  | //Data// | -> | ``.string`` //String// ``<ENDL>``
+  |  |  **|**  | ``.quad`` //DataConst// ``<ENDL>``
+  |  |  **|**  | ``.long`` //DataConst// ``<ENDL>``
   | //[Data]// | -> | **eps**
   |  |  **|**  | //Data// //[Data]//
-  | //DataConst// | -> | ``$`` //Integer//
+  | //DataConst// | -> | //Integer//
   |  |  **|**  | //Label//
-  | //Directive// | -> | ``.extern`` //Label//
+  | //Directive// | -> | ``.extern`` //Label// ``<ENDL>``
   | //[Directive]// | -> | **eps**
   |  |  **|**  | //Directive// //[Directive]//
-  | //AsmInstr// | -> | //Label// ``:``
-  |  |  **|**  | ``addq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``andq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``cmpq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``imulq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``leaq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``movq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``subq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``testq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``xorq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``xchgq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``salq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``sarq`` //Source64// ``,`` //Target64//
-  |  |  **|**  | ``addl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``andl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``cmpl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``imull`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``leal`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``movl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``subl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``testl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``xorl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``xchgl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``sall`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``sarl`` //Source32// ``,`` //Target32//
-  |  |  **|**  | ``addb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``andb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``leab`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``movb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``subb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``testb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``xorb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``xchgb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``salb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16//
-  |  |  **|**  | ``negq`` //Target64//
-  |  |  **|**  | ``idivq`` //Target64//
-  |  |  **|**  | ``negl`` //Target32//
-  |  |  **|**  | ``idivl`` //Target32//
-  |  |  **|**  | ``negb`` //Target16//
-  |  |  **|**  | ``idivb`` //Target16//
-  |  |  **|**  | ``CALL`` //Label//
-  |  |  **|**  | ``CALL`` ``*`` //Integer// ``(`` //Reg64// ``)``
-  |  |  **|**  | ``pop`` //Reg64//
-  |  |  **|**  | ``push`` //Reg64//
-  |  |  **|**  | ``leave``
-  |  |  **|**  | ``ret``
-  |  |  **|**  | ``cdq``
-  |  |  **|**  | ``sete`` //Reg8//
-  |  |  **|**  | ``setg`` //Reg8//
-  |  |  **|**  | ``setge`` //Reg8//
-  |  |  **|**  | ``setl`` //Reg8//
-  |  |  **|**  | ``setle`` //Reg8//
-  |  |  **|**  | ``setne`` //Reg8//
-  |  |  **|**  | ``jmp`` //Label//
-  |  |  **|**  | ``jz`` //Label//
-  | //Source64// | -> | //Integer//
+  | //AsmInstr// | -> | //Label// ``:`` ``<ENDL>``
+  |  |  **|**  | ``addq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``andq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``cmpq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``imulq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``leaq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``movq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``subq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``testq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``xorq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``xchgq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``salq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``sarq`` //Source64// ``,`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``addl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``andl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``cmpl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``imull`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``leal`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``movl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``subl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``testl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``xorl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``xchgl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``sall`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``sarl`` //Source32// ``,`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``addb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``andb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``leab`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``movb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``subb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``testb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``xorb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``xchgb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``salb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``negq`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``idivq`` //Target64// ``<ENDL>``
+  |  |  **|**  | ``negl`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``idivl`` //Target32// ``<ENDL>``
+  |  |  **|**  | ``negb`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``idivb`` //Target16// ``<ENDL>``
+  |  |  **|**  | ``call`` //Label// ``<ENDL>``
+  |  |  **|**  | ``call`` ``*`` //Integer// ``(`` //Reg64// ``)`` ``<ENDL>``
+  |  |  **|**  | ``pop`` //Reg64// ``<ENDL>``
+  |  |  **|**  | ``push`` //Reg64// ``<ENDL>``
+  |  |  **|**  | ``leave`` ``<ENDL>``
+  |  |  **|**  | ``ret`` ``<ENDL>``
+  |  |  **|**  | ``cdq`` ``<ENDL>``
+  |  |  **|**  | ``sete`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``setg`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``setge`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``setl`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``setle`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``setne`` //Reg8// ``<ENDL>``
+  |  |  **|**  | ``jmp`` //Label// ``<ENDL>``
+  |  |  **|**  | ``jz`` //Label// ``<ENDL>``
+  | //Source64// | -> | //ConstIntRef//
   |  |  **|**  | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``
   |  |  **|**  | //Label//
@@ -179,7 +183,7 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13``
   |  |  **|**  | ``%R14``
   |  |  **|**  | ``%R15``
-  | //Source32// | -> | //Integer//
+  | //Source32// | -> | //ConstIntRef//
   |  |  **|**  | //Reg32//
   |  |  **|**  | //Integer// ``(`` //Reg32// ``)``
   |  |  **|**  | //Label//
@@ -204,7 +208,7 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13D``
   |  |  **|**  | ``%R14D``
   |  |  **|**  | ``%R15D``
-  | //Source16// | -> | //Integer//
+  | //Source16// | -> | //ConstIntRef//
   |  |  **|**  | //Reg16//
   |  |  **|**  | //Integer// ``(`` //Reg16// ``)``
   |  |  **|**  | //Label//
@@ -229,7 +233,7 @@ All other symbols are terminals.
   |  |  **|**  | ``%R13W``
   |  |  **|**  | ``%R14W``
   |  |  **|**  | ``%R15W``
-  | //Source8// | -> | //Integer//
+  | //Source8// | -> | //ConstIntRef//
   |  |  **|**  | //Reg8//
   |  |  **|**  | //Integer// ``(`` //Reg8// ``)``
   |  |  **|**  | //Label//

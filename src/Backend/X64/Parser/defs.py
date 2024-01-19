@@ -2,6 +2,25 @@ ARG_REGISTERS = [
     "RDI", "RSI", "RDX", "RCX", "R8", "R9"
 ]
 
+REGISTERS_ALLOCABLE = {
+    "RAX": True,
+    "RDX": True,
+    "RBX": True,
+    "RCX": True,
+    "RSI": True,
+    "RDI": True,
+    "RSP": False,
+    "RBP": False,
+    "R8": True,
+    "R9": True,
+    "R10": True,
+    "R11": True,
+    "R12": True,
+    "R13": True,
+    "R14": True,
+    "R15": True,
+}
+
 REGISTERS = {
     '64': ["RAX", "RBX", "RCX", "RDX", "RDI", "RSI", "RSP", "RBP"] + [f"R{i}"  for i in range(8, 16)],
     '32': ["EAX", "EBX", "ECX", "EDX", "EDI", "ESI", "ESP", "EBP"] + [f"R{i}D" for i in range(8, 16)],

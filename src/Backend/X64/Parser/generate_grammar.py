@@ -19,7 +19,7 @@ def generate_reg_defs():
     for size in REGISTERS:
         regs = REGISTERS[size]
         rules = rules + [
-            rule(f"FromConst", f"Source{size}", f"Integer"),
+            rule(f"FromConst", f"Source{size}", f"ConstIntRef"),
             rule(f"ToReg{size}", f"Target{size}", f"Reg{size}"),
             rule(f"ToMem{size}", f"Target{size}", "Integer", lit("("), f"Reg{size}", lit(")")),
             rule(f"FromReg{size}", f"Source{size}", f"Reg{size}"),
@@ -33,62 +33,64 @@ def generate_reg_defs():
     return rules
 
 def generate_grammar(output_grammar_path):
+    newline = lit("<ENDL>")
     grammar = f"""
         entrypoints AsmProgram ;
 
-        AsmProgram.   AsmProgram ::= [Directive] SectionData SectionCode ;
+        AsmProgram.   AsmProgram ::= [Directive] {newline} SectionData {newline} SectionCode ;
         separator  AsmInstr "" ;
 
-        SectionData. SectionData ::= ".section" ".rodata" [AsmDataDef];
-        SectionCode. SectionCode ::= ".section" ".text" [AsmInstr] ;
+        SectionData. SectionData ::= ".section" ".rodata" {newline} [AsmDataDef];
+        SectionCode. SectionCode ::= ".section" ".text" {newline} [AsmInstr] ;
 
-        AsmDataGlobal .AsmDataDef ::= ".global" Label ;
-        AsmDataDef. AsmDataDef ::= Label ":" [Data] ;
-        separator AsmDataDef "\\n" ;
+        AsmDataGlobal .AsmDataDef ::= ".global" Label {newline} ;
+        AsmDataDef. AsmDataDef ::= Label ":" {newline} [Data] {newline} ;
+        separator AsmDataDef "" ;
 
-        DataString. Data ::= ".string" String ;
-        Data64. Data ::= ".quad" DataConst ;
-        Data32. Data ::= ".long" DataConst ;
-        separator Data "\\n" ;
+        DataString. Data ::= ".string" String {newline} ;
+        Data64. Data ::= ".quad" DataConst {newline} ;
+        Data32. Data ::= ".long" DataConst {newline} ;
+        separator Data "" ;
 
-        ConstInt. DataConst ::= "$" Integer ;
+        ConstInt. DataConst ::= Integer ;
         ConstLabel. DataConst ::= Label ;
 
-        Extern. Directive ::= ".extern " Label ;
-        separator Directive "\\n" ;
+        Extern. Directive ::= ".extern " Label {newline} ;
+        separator Directive "" ;
 
+        token ConstIntRef '$' (digit)+ ;
         token Label (letter | digit | '_' | '\\\'')+ ;
 
-        LabelDef. AsmInstr ::= Label ":" ;
-        separator AsmInstr "\\n" ;
+        LabelDef. AsmInstr ::= Label ":" {newline};
+        separator AsmInstr "" ;
 
         -- 2-operand arithmetics
-        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", comma, "Target64") for instr in INSTR_ARITM_2OP])}
-        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", comma, "Target32") for instr in INSTR_ARITM_2OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Source16", comma, "Target16") for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", comma, "Target64", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", comma, "Target32", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Source16", comma, "Target16", newline) for instr in INSTR_ARITM_2OP])}
 
         -- 1-operand arithmetics
-        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64") for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32") for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16") for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16", newline) for instr in INSTR_ARITM_1OP])}
 
         -- Calls
         {embed([
-            rule("CALL", "AsmInstr", lit("CALL"), "Label"),
-            rule("CALLINDIRECT", "AsmInstr", lit("CALL"), lit("*"), "Integer", lit("("), "Reg64", lit(")")),
+            rule("CALL", "AsmInstr", lit("call"), "Label", newline),
+            rule("CALLINDIRECT", "AsmInstr", lit("call"), lit("*"), "Integer", lit("("), "Reg64", lit(")"), newline),
         ])}
 
         -- Stack operations
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg64") for instr in INSTR_STACK])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg64", newline) for instr in INSTR_STACK])}
 
         -- Zero arg instructions
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr)) for instr in INSTR_NOARG])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), newline) for instr in INSTR_NOARG])}
 
         -- Set instructions
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg8") for instr in INSTR_SET])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg8", newline) for instr in INSTR_SET])}
 
         -- Jumps
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Label") for instr in INSTR_JMP])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Label", newline) for instr in INSTR_JMP])}
 
         -- Registers
         {embed(generate_reg_defs())}

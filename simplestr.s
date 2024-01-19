@@ -26,277 +26,236 @@
 .extern readInt
 .extern readString
 .extern __cast
-.global main
-__const_1:
-  .string "!!!"
- # Class metadata:
- # Class A:
- #   Fields:
- #     Field name:   a
- #     Field type:   Int ()
- #     Field offset: 0
- #     Field size:   4
- # Class Array:
- #   Fields:
- #     Field name:   elements
- #     Field type:   Ref () (Cl () (SymIdent "Object"))
- #     Field offset: 0
- #     Field size:   8
- #     Field name:   length
- #     Field type:   Int ()
- #     Field offset: 8
- #     Field size:   4
- #     Field name:   elementSize
- #     Field type:   Int ()
- #     Field offset: 12
- #     Field size:   4
- # Class B:
- #   Fields:
- #     Field name:   a
- #     Field type:   Int ()
- #     Field offset: 0
- #     Field size:   4
- # Class Object:
- #   Fields:
- # Class String:
- #   Fields:
- # Class ~cl_TopLevel:
- #   Fields:
+
+.section .rodata
+__const_1 :
+.string "!!!"
 
 .global _class_A
+_class_A :
+.quad _class_Object
+.long 8
+.quad _class_A_methods
+.long 0
+.quad 0
+
 .global _class_A_methods
-_class_A:
-  .quad _class_Object
-  .long 8
-  .quad _class_A_methods
-  .long 0
-  .quad 0
-_class_A_methods:
-  .quad _Object_equals
-  .quad _Object_getHashCode
-  .quad _Object_toString
-  .quad A.bar
+_class_A_methods :
+.quad _Object_equals
+.quad _Object_getHashCode
+.quad _Object_toString
+.quad A.bar
+
 .global _class_Array
+_class_Array :
+.quad _class_Object
+.long 16
+.quad _class_Array_methods
+.long 0
+.quad 0
+
 .global _class_Array_methods
-_class_Array:
-  .quad _class_Object
-  .long 16
-  .quad _class_Array_methods
-  .long 0
-  .quad 0
-_class_Array_methods:
-  .quad _Object_equals
-  .quad _Object_getHashCode
-  .quad _Array_toString
+_class_Array_methods :
+.quad _Object_equals
+.quad _Object_getHashCode
+.quad _Array_toString
+
 .global _class_B
+_class_B :
+.quad _class_A
+.long 8
+.quad _class_B_methods
+.long 0
+.quad 0
+
 .global _class_B_methods
-_class_B:
-  .quad _class_A
-  .long 8
-  .quad _class_B_methods
-  .long 0
-  .quad 0
-_class_B_methods:
-  .quad _Object_equals
-  .quad _Object_getHashCode
-  .quad _Object_toString
-  .quad B.bar
+_class_B_methods :
+.quad _Object_equals
+.quad _Object_getHashCode
+.quad _Object_toString
+.quad B.bar
+
 .global _class_Object
+_class_Object :
+.quad 0
+.long 0
+.quad _class_Object_methods
+.long 0
+.quad 0
+
 .global _class_Object_methods
-_class_Object:
-  .quad 0
-  .long 0
-  .quad _class_Object_methods
-  .long 0
-  .quad 0
-_class_Object_methods:
-  .quad _Object_equals
-  .quad _Object_getHashCode
-  .quad _Object_toString
+_class_Object_methods :
+.quad _Object_equals
+.quad _Object_getHashCode
+.quad _Object_toString
+
 .global _class_String
+_class_String :
+.quad _class_Object
+.long 0
+.quad _class_String_methods
+.long 0
+.quad 0
+
 .global _class_String_methods
-_class_String:
-  .quad _class_Object
-  .long 0
-  .quad _class_String_methods
-  .long 0
-  .quad 0
-_class_String_methods:
-  .quad _String_charAt
-  .quad _String_equals
-  .quad _String_concat
-  .quad _String_startsWith
-  .quad _String_endsWith
-  .quad _String_getBytes
-  .quad _String_indexOf
-  .quad _String_length
-  .quad _String_substring
-  .quad _String_toString
-  .quad _String_getHashCode
+_class_String_methods :
+.quad _String_charAt
+.quad _String_equals
+.quad _String_concat
+.quad _String_startsWith
+.quad _String_endsWith
+.quad _String_getBytes
+.quad _String_indexOf
+.quad _String_length
+.quad _String_substring
+.quad _String_toString
+.quad _String_getHashCode
 
-__errorNull: # runtime error on null dereference
-  andq $-16, %rsp # 16 bytes allign
-  call __errorNull
+.global main
 
-
- # Register allocation:
- # [(ValIdent "%a_t_1",rsi),(ValIdent "%v_t_1",rax),(ValIdent "%v_t_3",rax)]
-
-A.bar:
-  push %rbp
-  movq %rsp, %rbp
-  subq $0, %rsp # space for locals
-A.bar.L_entry:
-  movl %esi, %eax # load %v_t_1
-  movl %eax, %eax
-  sal $1, %eax # multiply by 2
-  movl %eax, %eax # move return value
-  addq $0, %rsp
-  leave
-  ret
-
- # Register allocation:
- # [(ValIdent "%a_t_4",rdi),(ValIdent "%a_t_5",rsi),(ValIdent "%v_t_10",rdx),(ValIdent "%v_t_12",rax),(ValIdent "%v_t_13",rax),(ValIdent "%v_t_14",rax),(ValIdent "%v_t_4",rbx),(ValIdent "%v_t_5",r12),(ValIdent "%v_t_6",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi)]
-
-B.bar:
-  push %r12
-  push %rbx
-  push %rbp
-  movq %rsp, %rbp
-  subq $0, %rsp # space for locals
-B.bar.L_entry:
-  movq %rdi, %rbx # load %v_t_4
-  movl %esi, %r12d # load %v_t_5
-  movq 8(%rbx), %rax # load data (indirect)
-  movl 0(%rax), %eax # load %v_t_6
-  movl %eax, %edi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call printInt
-  addq $0, %rsp
-  movl %r12d, %edi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call printInt
-  addq $0, %rsp
-  leal 2(%r12), %edx # addition %v_t_10
-  movq 8(%rbx), %rax # load data (indirect)
-  movl 0(%rax), %eax # load %v_t_12
-  movl %eax, %eax
-  sal $1, %eax # multiply by 2
-  addl %edx, %eax
-  movl %eax, %eax # move return value
-  addq $0, %rsp
-  leave
-  pop %rbx
-  pop %r12
-  ret
-
- # Register allocation:
- # [(ValIdent "%a_t_15",rdi),(ValIdent "%v_t_15",rdx),(ValIdent "%v_t_17",rax),(ValIdent "%v_t_18",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rsi",rsi)]
-
-__cl_TopLevel.foo:
-  push %rbp
-  movq %rsp, %rbp
-  subq $0, %rsp # space for locals
-__cl_TopLevel.foo.L_entry:
-  movq %rdi, %rdx # load %v_t_15
-  lea __const_1(%rip), %rax
-  push %rdx # save caller saved
-  movq %rax, %rdi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call __createString
-  addq $0, %rsp
-  movq %rax, %rax
-  pop %rdx
-  movq %rdx, %rdi # passing arg
-  movq %rax, %rsi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  testq %rdi, %rdi
-  jz __errorNull
-  movq 20(%rdi), %rax # load address of vtable
-  call *16(%rax) # call concat
-  addq $0, %rsp
-  movq %rax, %rax
-  movq %rax, %rax # move return value
-  addq $0, %rsp
-  leave
-  ret
-
- # Register allocation:
- # [(ValIdent "%a_t_19",rdi),(ValIdent "%v_t_19",rax),(ValIdent "%v_t_21",rax)]
-
-__cl_TopLevel.bar:
-  push %rbp
-  movq %rsp, %rbp
-  subq $0, %rsp # space for locals
-__cl_TopLevel.bar.L_entry:
-  movl %edi, %eax # load %v_t_19
-  movl %eax, %eax
-  sal $1, %eax # multiply by 2
-  movl %eax, %eax # move return value
-  addq $0, %rsp
-  leave
-  ret
-
-main:
- # Register allocation:
- # [(ValIdent "%v_t_22",r12),(ValIdent "%v_t_24",rax),(ValIdent "%v_t_25",rbx),(ValIdent "%v_t_32",rax),(ValIdent "%v_t_35",rax),(ValIdent "~arg_0_rdi",rdi),(ValIdent "~arg_1_rdi",rdi),(ValIdent "~arg_2_rsi",rsi),(ValIdent "~arg_3_rdi",rdi),(ValIdent "~arg_4_rdi",rdi),(ValIdent "~arg_5_rsi",rsi),(ValIdent "~arg_6_rdi",rdi)]
-
-__cl_TopLevel.main:
-  push %r12
-  push %rbx
-  push %rbp
-  movq %rsp, %rbp
-  subq $0, %rsp # space for locals
-__cl_TopLevel.main.L_entry:
-  lea _class_A(%rip), %rdi
-  subq $0, %rsp # 16 bytes alignment
-  call __new
-  addq $0, %rsp
-  movq %rax, %r12
-  lea _class_B(%rip), %rdi
-  subq $0, %rsp # 16 bytes alignment
-  call __new
-  addq $0, %rsp
-  movq %rax, %rax
-  movq %rax, %rdi # passing arg
-  lea _class_A(%rip), %rsi
-  subq $0, %rsp # 16 bytes alignment
-  call __cast
-  addq $0, %rsp
-  movq %rax, %rbx
-  movq 8(%r12), %rax # load data (indirect)
-  movl $42, 0(%rax)
-  movq 8(%rbx), %rax # load data (indirect)
-  movl $42, 0(%rax)
-  movq %r12, %rdi # passing arg
-  movl $15, %esi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  testq %rdi, %rdi
-  jz __errorNull
-  movq 20(%rdi), %rax # load address of vtable
-  call *24(%rax) # call bar
-  addq $0, %rsp
-  movl %eax, %eax
-  movl %eax, %edi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call printInt
-  addq $0, %rsp
-  movq %rbx, %rdi # passing arg
-  movl $15, %esi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  testq %rdi, %rdi
-  jz __errorNull
-  movq 20(%rdi), %rax # load address of vtable
-  call *24(%rax) # call bar
-  addq $0, %rsp
-  movl %eax, %eax
-  movl %eax, %edi # passing arg
-  subq $0, %rsp # 16 bytes alignment
-  call printInt
-  addq $0, %rsp
-  movl $0, %eax # move return value
-  addq $0, %rsp
-  leave
-  pop %rbx
-  pop %r12
-  ret
+.section .text
+main :
+__cl_TopLevel.main :
+push %R12
+push %RBX
+push %RBP
+movq %RSP, %RBP
+subq $0, %RSP
+__cl_TopLevel.main.L_entry :
+leaq _class_A (%RIP), %RDI
+subq $0, %RSP
+call __new
+addq $0, %RSP
+movq %RAX, %R12
+leaq _class_B (%RIP), %RDI
+subq $0, %RSP
+call __new
+addq $0, %RSP
+movq %RAX, %RAX
+movq %RAX, %RDI
+leaq _class_A (%RIP), %RSI
+subq $0, %RSP
+call __cast
+addq $0, %RSP
+movq %RAX, %RBX
+movq 8 (%R12), %RAX
+movl $42, 0 (%RAX)
+movq 8 (%RBX), %RAX
+movl $42, 0 (%RAX)
+movq %R12, %RDI
+movl $15, %ESI
+subq $0, %RSP
+testq %RDI, %RDI
+jz __errorNull
+movq 20 (%RDI), %RAX
+call * 24 (%RAX)
+addq $0, %RSP
+movl %EAX, %EAX
+movl %EAX, %EDI
+subq $0, %RSP
+call printInt
+addq $0, %RSP
+movq %RBX, %RDI
+movl $15, %ESI
+subq $0, %RSP
+testq %RDI, %RDI
+jz __errorNull
+movq 20 (%RDI), %RAX
+call * 24 (%RAX)
+addq $0, %RSP
+movl %EAX, %EAX
+movl %EAX, %EDI
+subq $0, %RSP
+call printInt
+addq $0, %RSP
+movl $0, %EAX
+addq $0, %RSP
+leave
+pop %R12
+pop %RBX
+ret
+__cl_TopLevel.bar :
+push %RBP
+movq %RSP, %RBP
+subq $0, %RSP
+__cl_TopLevel.bar.L_entry :
+movl %EDI, %EAX
+movl %EAX, %EAX
+sall $1, %EAX
+movl %EAX, %EAX
+addq $0, %RSP
+leave
+ret
+__cl_TopLevel.foo :
+push %RBP
+movq %RSP, %RBP
+subq $0, %RSP
+__cl_TopLevel.foo.L_entry :
+movq %RDI, %RCX
+leaq __const_1 (%RIP), %RAX
+push %RCX
+movq %RAX, %RDI
+subq $0, %RSP
+call __createString
+addq $0, %RSP
+movq %RAX, %RAX
+pop %RCX
+movq %RCX, %RDI
+movq %RAX, %RSI
+subq $0, %RSP
+testq %RDI, %RDI
+jz __errorNull
+movq 20 (%RDI), %RAX
+call * 16 (%RAX)
+addq $0, %RSP
+movq %RAX, %RAX
+movq %RAX, %RAX
+addq $0, %RSP
+leave
+ret
+B.bar :
+push %R12
+push %RBX
+push %RBP
+movq %RSP, %RBP
+subq $0, %RSP
+B.bar.L_entry :
+movq %RDI, %RBX
+movl %ESI, %R12D
+movq 8 (%RBX), %RAX
+movl 0 (%RAX), %EAX
+movl %EAX, %EDI
+subq $0, %RSP
+call printInt
+addq $0, %RSP
+movl %R12D, %EDI
+subq $0, %RSP
+call printInt
+addq $0, %RSP
+leal 2 (%R12), %ECX
+movq 8 (%RBX), %RAX
+movl 0 (%RAX), %EAX
+movl %EAX, %EAX
+sall $1, %EAX
+addl %ECX, %EAX
+movl %EAX, %EAX
+addq $0, %RSP
+leave
+pop %R12
+pop %RBX
+ret
+A.bar :
+push %RBP
+movq %RSP, %RBP
+subq $0, %RSP
+A.bar.L_entry :
+movl %ESI, %EAX
+movl %EAX, %EAX
+sall $1, %EAX
+movl %EAX, %EAX
+addq $0, %RSP
+leave
+ret
+__errorNull :
+andq $-16, %RSP
+call __errorNull

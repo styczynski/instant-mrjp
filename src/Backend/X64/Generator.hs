@@ -45,21 +45,31 @@ import Data.Foldable
 -- genInstr instr = do
 --     liftGenerator $ X64.mov () X64.Size64 (X64.LocReg X64.RAX) (X64.LocReg X64.RDX)
 
-generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> Generator Liveness ()
-generate (Meta () clDefs) mthds = do
+generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> LattePipeline String
+generate meta methods = do
+    let externs = runtimeSymbols
+    result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs
+    -- X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod emptyLiveness g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
+    case result of
+        (Left _) -> return ""
+        (Right (_, Left err)) -> return ""
+        (Right (compiledCodeStr, Right _)) -> do
+            return compiledCodeStr
+
+
+genProgram :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> Generator Liveness ()
+genProgram (Meta () clDefs) mthds = do
     let compiledClasses = map compileClass clDefs
     let compiledClassesMap = Map.fromList $ map (\cl -> (clName cl, cl)) compiledClasses
     cs <- foldrM (emitMethod compiledClassesMap) (constsEmpty) mthds
     genData emptyLiveness compiledClasses cs
-    return ()
 
-genData :: a -> [CompiledClass] -> ConstSet -> Generator a [String]
+genData :: a -> [CompiledClass] -> ConstSet -> Generator a ()
 genData pos cls allConsts = do
-        let externs = runtimeSymbols
         mapM_ (\cns -> gen $ X64.dataDef pos $ X64.DataDef (constName cns) [X64.DataStr $ constValue cns]) $ constsElems allConsts
         mapM_ (genClassDef pos) cls
         genNullRefCheck pos
-        return externs
+        gen $ X64.dataDef pos $ X64.DataGlobal "main"
         where
             genConst :: a -> Const -> Generator a ()
             genConst pos const = do
@@ -89,11 +99,16 @@ genData pos cls allConsts = do
                         return ()
 
 emitMethod :: (M.Map SymIdent CompiledClass) -> (CFG Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator Liveness ConstSet
-emitMethod classMap (CFG g, Mthd _ _ qi _ _, rs) cs = do
+emitMethod classMap (CFG g, m@(Mthd _ _ qi _ _), rs) cs = do
     let initStack = stackNew (numLocals rs)
         initState = GeneratorEnv [] [] cs initStack Map.empty emptyLiveness 0
-    result <- return $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod emptyLiveness g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
-    return cs
+    result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod emptyLiveness g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
+    case result of 
+        (Left _) -> return cs
+        (Right ((Left _), _)) -> return cs
+        (Right ((Right env), cnt)) -> do
+            gen $ X64.continueASMGeneratorT cnt
+            return $ env ^. consts
     -- case result of
     --      (Left _) -> return (xs, cs)
     --      (Right (_, Left err)) -> return (xs, cs)
@@ -121,7 +136,10 @@ emitMethod classMap (CFG g, Mthd _ _ qi _ _, rs) cs = do
             let savedRegs = sortOn Down $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
             let needsAlignment = odd $ length savedRegs
             let locs = fromIntegral $ numLocals rs * 8
+            let (LabIdent mainEntryStr) = labelFor (QIdent () (SymIdent "~cl_TopLevel") (SymIdent "main")) entryLabel
+            let (LabIdent entryStr) = labelFor qi entryLabel
             let (LabIdent labStr) = labelFor qi (LabIdent "")
+            when (entryStr == mainEntryStr) (gen $ X64.label pos "main" Nothing)
             gen $ X64.label pos labStr Nothing
             mapM_ (\r -> gen $ X64.push pos (X64.LocReg r) Nothing) savedRegs
             when (needsAlignment) (incrStack pos 8 "16 bytes alignment")

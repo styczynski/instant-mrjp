@@ -66,6 +66,25 @@ data GeneratorContext = GeneratorContext {
     _gecClasses  :: Map.Map SymIdent CompiledClass
 }
 
+
+emptyGeneratorEnv :: GeneratorEnv
+emptyGeneratorEnv = GeneratorEnv {
+    _geeAllCode = []
+    , _geeCode = []
+    , _geeConsts = constsEmpty
+    , _geeStack = stackNew 0
+    , _geeVars = Map.empty
+    , _geeLive = emptyLiveness
+    , _geeTraceIdx = 0
+}
+
+emptyGeneratorContext :: GeneratorContext
+emptyGeneratorContext = GeneratorContext {
+    _gecLabelGen = id
+    , _gecRegs = emptyRegisterAllocation
+    , _gecClasses = Map.empty
+}
+
 makeLensesWith abbreviatedFields ''GeneratorEnv
 makeLensesWith abbreviatedFields ''GeneratorContext
 makeLensesWith abbreviatedFields ''CompiledMethod

@@ -19,6 +19,7 @@ def create_data_types():
     #         """
     #     ]
     syms = syms + ["Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
+    allocable_registers = [reg.upper() for reg in REGISTERS['64'] if REGISTERS_ALLOCABLE[reg.upper()]]
     ret = ret + [
         f"""
             data Reg = {"| ".join([reg.upper() for reg in REGISTERS['64']])}
@@ -35,10 +36,16 @@ def create_data_types():
                     {INDENT}{INDENT}(CallerSaved, CalleeSaved) -> GT
 
             allRegs :: [Reg]
-            allRegs = [{", ".join([reg.upper() for reg in REGISTERS['64']])}]
+            allRegs = [{", ".join(allocable_registers)}]
 
             asLoc :: Reg -> Loc
             asLoc reg = LocReg reg
+
+            sanitizeLabel :: String -> String
+            sanitizeLabel s = case s of
+                {INDENT}[]     -> []
+                {INDENT}'~':xs -> '_':'_':sanitizeLabel xs
+                {INDENT}x:xs   -> x:sanitizeLabel xs
 
         """
     ]
@@ -85,36 +92,36 @@ def create_data_types():
     ]
     to_source_defs = [
         f"""_locToSource :: a -> Size -> Loc -> Syntax.Source' a""",
-        f"""_locToSource pos _ (LocConst val) = Syntax.FromConst pos val"""
+        f"""_locToSource pos _ (LocConst val) = Syntax.FromConst pos $ Syntax.ConstIntRef $ "$" ++ show val"""
     ]
     to_target_defs = [
         f"""_locToTarget :: a -> Size -> Loc -> Syntax.Target' a""",
     ]
     for size in REGISTERS:
         to_source_defs = to_source_defs + [
-            f"""_locToSource pos Size{size} (LocLabel l) = Syntax.FromLabel{size} pos $ Syntax.Label l""",
-            f"""_locToSource pos Size{size} (LocLabelPIC l) = Syntax.FromLabelOffset{size} pos $ Syntax.Label l""",
+            f"""_locToSource pos Size{size} (LocLabel l) = Syntax.FromLabel{size} pos $ Syntax.Label $ sanitizeLabel l""",
+            f"""_locToSource pos Size{size} (LocLabelPIC l) = Syntax.FromLabelOffset{size} pos $ Syntax.Label $ sanitizeLabel l""",
             f"""_locToSource pos Size{size} (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-                {INDENT}let (Syntax.FromReg{size} _ rBase) = _locToSource pos Size{size} (LocReg ptrBase) in
-                {INDENT}let (Syntax.FromReg{size} _ rIdx) =  _locToSource pos Size{size} (LocReg ptrIdx) in
+                {INDENT}let (Syntax.FromMem{size} _ _ rBase) = _locToSource pos Size{size} (LocMem (ptrBase, 0)) in
+                {INDENT}let (Syntax.FromMem{size} _ _ rIdx) =  _locToSource pos Size{size} (LocMem (ptrIdx, 0)) in
                 {INDENT}Syntax.FromMemComplex{size} pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)""",
         ]
         to_target_defs = to_target_defs + [
             f"""_locToTarget pos Size{size} (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-                {INDENT}let (Syntax.ToReg{size} _ rBase) = _locToTarget pos Size{size} (LocReg ptrBase) in
-                {INDENT}let (Syntax.ToReg{size} _ rIdx) =  _locToTarget pos Size{size} (LocReg ptrIdx) in
+                {INDENT}let (Syntax.ToMem{size} _ _ rBase) = _locToTarget pos Size{size} (LocMem (ptrBase, 0)) in
+                {INDENT}let (Syntax.ToMem{size} _ _ rIdx) =  _locToTarget pos Size{size} (LocMem (ptrIdx, 0)) in
                 {INDENT}Syntax.ToMemComplex{size} pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)""",
         ]
         for (index, reg) in enumerate(REGISTERS['64']):
             reg_resized = REGISTERS[size][index]
             to_source_defs = to_source_defs + [
                 f"""_locToSource pos Size{size} (LocReg {reg.upper()}) = Syntax.FromReg{size} pos $ Syntax.{reg_resized.upper()} pos""",
-                f"""_locToSource pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.FromMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos""",
+                f"""_locToSource pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.FromMem{size} pos (fromIntegral offset) $ Syntax.{reg.upper()} pos""",
                 #baseLoc offset idxLoc scale offset(%baseLoc, %idxLoc, 2)
             ]
             to_target_defs = to_target_defs + [
                 f"""_locToTarget pos Size{size} (LocReg {reg.upper()}) = Syntax.ToReg{size} pos $ Syntax.{reg_resized.upper()} pos""",
-                f"""_locToTarget pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.ToMem{size} pos (fromIntegral offset) $ Syntax.{reg_resized.upper()} pos""",
+                f"""_locToTarget pos Size{size} (LocMem ({reg.upper()}, offset)) = Syntax.ToMem{size} pos (fromIntegral offset) $ Syntax.{reg.upper()} pos""",
             ]
     ret = ret + to_source_defs + to_target_defs
     return syms, "\n".join(ret)
@@ -184,7 +191,7 @@ def create_instr_wrappers():
         f"""
         label :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
         label pos l ann =
-            {INDENT}_emitInstr pos $ Label pos l $ maybe (NoAnnotation pos) (Annotation pos) ann
+            {INDENT}_emitInstr pos $ Label pos (sanitizeLabel l) $ maybe (NoAnnotation pos) (Annotation pos) ann
         """
     ]
     for instr in INSTR_ARITM_2OP:
@@ -255,7 +262,7 @@ def create_instr_wrappers():
     ]
     ret = ret + [
         f"""_convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)""",
-        f"""_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label l"""
+        f"""_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label $ sanitizeLabel l"""
     ]
     for instr in INSTR_ARITM_2OP:
         for size in REGISTERS:
@@ -287,7 +294,7 @@ def create_instr_wrappers():
         ]
     for instr in INSTR_JMP:
         ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos label _) = return $ Syntax.{instr.upper()} pos (Syntax.Label label)""",
+            f"""_convertInstr ({instr.upper()} pos label _) = return $ Syntax.{instr.upper()} pos (Syntax.Label $ sanitizeLabel label)""",
         ]
     for instr in INSTR_NOARG:
         ret = ret+[
@@ -295,7 +302,7 @@ def create_instr_wrappers():
         ]
     # Calls
     ret = ret+[
-        f"""_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label l""",
+        f"""_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label $ sanitizeLabel l""",
     ]
     for reg in REGISTERS['64']:
         ret = ret+[
@@ -538,6 +545,8 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     import Control.Monad.Reader
     import Control.Monad.Writer.Lazy
 
+    import qualified Data.Text as T
+
     import Prelude hiding (and)
     import Data.Int
 
@@ -558,15 +567,15 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
 
     convertDataDef :: a -> DataDef -> Syntax.AsmDataDef' a
-    convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label label
-    convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label label) (map (convertData pos) datas)
+    convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label $ sanitizeLabel label
+    convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label $ sanitizeLabel label) (map (convertData pos) datas)
         {INDENT}where
             {INDENT}{INDENT}convertData :: a -> Data -> Syntax.Data' a
             {INDENT}{INDENT}convertData pos (DataStr str) = Syntax.DataString pos str
-            {INDENT}{INDENT}convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos val
-            {INDENT}{INDENT}convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos val
-            {INDENT}{INDENT}convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label label
-            {INDENT}{INDENT}convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label label
+            {INDENT}{INDENT}convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos $ val
+            {INDENT}{INDENT}convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos $ val
+            {INDENT}{INDENT}convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
+            {INDENT}{INDENT}convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
 
 
     -- Error definition
@@ -612,12 +621,16 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
     runASMGeneratorT generator externs = do
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
-    {INDENT}outResult <- runExceptT (runWriterT $ generateOut externs genResult)
-	{INDENT}case outResult  of
+    {INDENT}case genResult of 
     {INDENT}{INDENT}Left err -> return $ Left err
-    {INDENT}{INDENT}Right ((result, fullProg), _) -> do
-    {INDENT}{INDENT}{INDENT}let assemblyCodeStr = Printer.printTree fullProg
-    {INDENT}{INDENT}{INDENT}return $ Right (assemblyCodeStr, result)
+    {INDENT}{INDENT}Right (result, _) -> do
+    {INDENT}{INDENT}{INDENT}outResult <- runExceptT (runWriterT $ generateOut externs genResult)
+    {INDENT}{INDENT}{INDENT}case outResult  of
+    {INDENT}{INDENT}{INDENT}{INDENT}Left err -> return $ Left err
+    {INDENT}{INDENT}{INDENT}{INDENT}Right ((_, fullProg), _) -> do
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let assemblyCodeStr = Printer.printTree fullProg
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let formattedCode = T.unpack $ T.unlines $ map (T.strip) $ T.lines $ T.replace "<ENDL>" "\\n" $ T.pack assemblyCodeStr
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return $ Right (formattedCode, result)
     {INDENT}where
     {INDENT}{INDENT}generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
     {INDENT}{INDENT}generateOut externs r =
@@ -626,7 +639,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}{INDENT}{INDENT}{INDENT}Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
     {INDENT}{INDENT}{INDENT}{INDENT}Right (result, GeneratorOut (Just pos) instrs defs) -> do
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs' <- mapM _convertInstr instrs
-    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let topDirectives = map (Syntax.Extern pos . Syntax.Label) externs
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return (result, fullProg)
 

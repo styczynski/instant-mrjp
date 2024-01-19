@@ -31,10 +31,10 @@
  .global _class_Array 
  _class_Array : 
  .quad _class_Object 
- .long 16 
+ .long $16 
  .quad _class_Array_methods 
- .long 0 
- .quad 0 
+ .long $0 
+ .quad $0 
  
  .global _class_Array_methods 
  _class_Array_methods : 
@@ -45,10 +45,10 @@
  .global _class_Object 
  _class_Object : 
  .quad 0 
- .long 0 
+ .long $0 
  .quad _class_Object_methods 
- .long 0 
- .quad 0 
+ .long $0 
+ .quad $0 
  
  .global _class_Object_methods 
  _class_Object_methods : 
@@ -59,10 +59,10 @@
  .global _class_String 
  _class_String : 
  .quad _class_Object 
- .long 0 
+ .long $0 
  .quad _class_String_methods 
- .long 0 
- .quad 0 
+ .long $0 
+ .quad $0 
  
  .global _class_String_methods 
  _class_String_methods : 
@@ -78,39 +78,37 @@
  .quad _String_toString 
  .quad _String_getHashCode 
  
- .global main 
  
  .section .text 
- main : 
  __cl_TopLevel.main : 
  push %RBP 
  movq %RSP, %RBP 
- subq $0, %RSP 
+ subq 0, %RSP 
  __cl_TopLevel.main.L_entry : 
- movl $4, %EDI 
- subq $0, %RSP 
+ movl 4, %EDI 
+ subq 0, %RSP 
  CALL __cl_TopLevel.foo 
- addq $0, %RSP 
+ addq 0, %RSP 
  movl %EAX, %EAX 
  movl %EAX, %EDI 
- subq $0, %RSP 
+ subq 0, %RSP 
  CALL printInt 
- addq $0, %RSP 
- movl $0, %EAX 
- addq $0, %RSP 
+ addq 0, %RSP 
+ movl 0, %EAX 
+ addq 0, %RSP 
  leave 
  ret 
  __cl_TopLevel.foo : 
  push %RBP 
  movq %RSP, %RBP 
- subq $0, %RSP 
+ subq 0, %RSP 
  __cl_TopLevel.foo.L_entry : 
  movl %EDI, %EAX 
- addl $2, %EAX 
+ addl 2, %EAX 
  movl %EAX, %EAX 
- addq $0, %RSP 
+ addq 0, %RSP 
  leave 
  ret 
  __errorNull : 
- andq $-16, %RSP 
+ andq -16, %RSP 
  CALL __errorNull 

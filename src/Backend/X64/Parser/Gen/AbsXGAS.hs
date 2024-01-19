@@ -120,7 +120,7 @@ data AsmInstr' a
 
 type Source = Source' BNFC'Position
 data Source' a
-    = FromConst a Integer
+    = FromConst a ConstIntRef
     | FromReg64 a (Reg' a)
     | FromMem64 a Integer (Reg' a)
     | FromLabel64 a Label
@@ -226,6 +226,9 @@ data Reg' a
     | R14B a
     | R15B a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
+
+newtype ConstIntRef = ConstIntRef String
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
 
 newtype Label = Label String
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)

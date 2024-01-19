@@ -22,6 +22,12 @@ data RegisterAllocation = RegAlloc {
     numLocals :: Int
 }
 
+emptyRegisterAllocation :: RegisterAllocation
+emptyRegisterAllocation = RegAlloc {
+    regAlloc = Map.empty
+    , numLocals = 0
+}
+
 -- Colour the interference graph, spilling variables if necessary.
 getColouredInterferenceGraph :: SSA Liveness -> (InterferenceGraph, SSA Liveness)
 getColouredInterferenceGraph (SSA g_) = go g_ 0

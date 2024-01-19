@@ -15,6 +15,10 @@ type Result = Err String
 failure :: Show a => a -> Result
 failure x = Left $ "Undefined case: " ++ show x
 
+transConstIntRef :: Backend.X64.Parser.Gen.AbsXGAS.ConstIntRef -> Result
+transConstIntRef x = case x of
+  Backend.X64.Parser.Gen.AbsXGAS.ConstIntRef string -> failure x
+
 transLabel :: Backend.X64.Parser.Gen.AbsXGAS.Label -> Result
 transLabel x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.Label string -> failure x
@@ -114,7 +118,7 @@ transAsmInstr x = case x of
 
 transSource :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Source' a -> Result
 transSource x = case x of
-  Backend.X64.Parser.Gen.AbsXGAS.FromConst _ integer -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.FromConst _ constintref -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.FromReg64 _ reg -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.FromMem64 _ integer reg -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.FromLabel64 _ label -> failure x

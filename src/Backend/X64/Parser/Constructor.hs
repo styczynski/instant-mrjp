@@ -68,6 +68,8 @@ import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.Writer.Lazy
 
+import qualified Data.Text as T
+
 import Prelude hiding (and)
 import Data.Int
 
@@ -88,15 +90,15 @@ data Data
 	deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
 
 convertDataDef :: a -> DataDef -> Syntax.AsmDataDef' a
-convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label label
-convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label label) (map (convertData pos) datas)
+convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label $ sanitizeLabel label
+convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label $ sanitizeLabel label) (map (convertData pos) datas)
 	where
 		convertData :: a -> Data -> Syntax.Data' a
 		convertData pos (DataStr str) = Syntax.DataString pos str
-		convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos val
-		convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos val
-		convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label label
-		convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label label
+		convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos $ val
+		convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos $ val
+		convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
+		convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
 
 
 -- Error definition
@@ -142,12 +144,16 @@ execASMGeneratorT generator = do
 runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
 runASMGeneratorT generator externs = do
 	genResult <- runExceptT (runWriterT $ generator)
-	outResult <- runExceptT (runWriterT $ generateOut externs genResult)
-	case outResult  of
+	case genResult of
 		Left err -> return $ Left err
-		Right ((result, fullProg), _) -> do
-			let assemblyCodeStr = Printer.printTree fullProg
-			return $ Right (assemblyCodeStr, result)
+		Right (result, _) -> do
+			outResult <- runExceptT (runWriterT $ generateOut externs genResult)
+			case outResult  of
+				Left err -> return $ Left err
+				Right ((_, fullProg), _) -> do
+					let assemblyCodeStr = Printer.printTree fullProg
+					let formattedCode = T.unpack $ T.unlines $ map (T.strip) $ T.lines $ T.replace "<ENDL>" "\n" $ T.pack assemblyCodeStr
+					return $ Right (formattedCode, result)
 	where
 		generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
 		generateOut externs r =
@@ -156,7 +162,7 @@ runASMGeneratorT generator externs = do
 				Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
 				Right (result, GeneratorOut (Just pos) instrs defs) -> do
 					instrs' <- mapM _convertInstr instrs
-					let topDirectives = map (Syntax.Extern pos . Syntax.Label) externs
+					let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
 					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
 					return (result, fullProg)
 
@@ -176,10 +182,16 @@ instance Ord RegType where
 		(CallerSaved, CalleeSaved) -> GT
 
 allRegs :: [Reg]
-allRegs = [RAX, RBX, RCX, RDX, RDI, RSI, RSP, RBP, R8, R9, R10, R11, R12, R13, R14, R15]
+allRegs = [RAX, RBX, RCX, RDX, RDI, RSI, R8, R9, R10, R11, R12, R13, R14, R15]
 
 asLoc :: Reg -> Loc
 asLoc reg = LocReg reg
+
+sanitizeLabel :: String -> String
+sanitizeLabel s = case s of
+	[]     -> []
+	'~':xs -> '_':'_':sanitizeLabel xs
+	x:xs   -> x:sanitizeLabel xs
 
 
 regType :: Reg -> RegType
@@ -293,12 +305,12 @@ argLoc 5 = LocReg R9
 argLoc argIndex = LocMem (RBP, (fromInteger argIndex - 6) * 8 + 8)
 
 _locToSource :: a -> Size -> Loc -> Syntax.Source' a
-_locToSource pos _ (LocConst val) = Syntax.FromConst pos val
-_locToSource pos Size64 (LocLabel l) = Syntax.FromLabel64 pos $ Syntax.Label l
-_locToSource pos Size64 (LocLabelPIC l) = Syntax.FromLabelOffset64 pos $ Syntax.Label l
+_locToSource pos _ (LocConst val) = Syntax.FromConst pos $ Syntax.ConstIntRef $ "$" ++ show val
+_locToSource pos Size64 (LocLabel l) = Syntax.FromLabel64 pos $ Syntax.Label $ sanitizeLabel l
+_locToSource pos Size64 (LocLabelPIC l) = Syntax.FromLabelOffset64 pos $ Syntax.Label $ sanitizeLabel l
 _locToSource pos Size64 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.FromReg64 _ rBase) = _locToSource pos Size64 (LocReg ptrBase) in
-	let (Syntax.FromReg64 _ rIdx) =  _locToSource pos Size64 (LocReg ptrIdx) in
+	let (Syntax.FromMem64 _ _ rBase) = _locToSource pos Size64 (LocMem (ptrBase, 0)) in
+	let (Syntax.FromMem64 _ _ rIdx) =  _locToSource pos Size64 (LocMem (ptrIdx, 0)) in
 	Syntax.FromMemComplex64 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size64 (LocReg RAX) = Syntax.FromReg64 pos $ Syntax.RAX pos
 _locToSource pos Size64 (LocMem (RAX, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.RAX pos
@@ -332,124 +344,124 @@ _locToSource pos Size64 (LocReg R14) = Syntax.FromReg64 pos $ Syntax.R14 pos
 _locToSource pos Size64 (LocMem (R14, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToSource pos Size64 (LocReg R15) = Syntax.FromReg64 pos $ Syntax.R15 pos
 _locToSource pos Size64 (LocMem (R15, offset)) = Syntax.FromMem64 pos (fromIntegral offset) $ Syntax.R15 pos
-_locToSource pos Size32 (LocLabel l) = Syntax.FromLabel32 pos $ Syntax.Label l
-_locToSource pos Size32 (LocLabelPIC l) = Syntax.FromLabelOffset32 pos $ Syntax.Label l
+_locToSource pos Size32 (LocLabel l) = Syntax.FromLabel32 pos $ Syntax.Label $ sanitizeLabel l
+_locToSource pos Size32 (LocLabelPIC l) = Syntax.FromLabelOffset32 pos $ Syntax.Label $ sanitizeLabel l
 _locToSource pos Size32 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.FromReg32 _ rBase) = _locToSource pos Size32 (LocReg ptrBase) in
-	let (Syntax.FromReg32 _ rIdx) =  _locToSource pos Size32 (LocReg ptrIdx) in
+	let (Syntax.FromMem32 _ _ rBase) = _locToSource pos Size32 (LocMem (ptrBase, 0)) in
+	let (Syntax.FromMem32 _ _ rIdx) =  _locToSource pos Size32 (LocMem (ptrIdx, 0)) in
 	Syntax.FromMemComplex32 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size32 (LocReg RAX) = Syntax.FromReg32 pos $ Syntax.EAX pos
-_locToSource pos Size32 (LocMem (RAX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EAX pos
+_locToSource pos Size32 (LocMem (RAX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToSource pos Size32 (LocReg RBX) = Syntax.FromReg32 pos $ Syntax.EBX pos
-_locToSource pos Size32 (LocMem (RBX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EBX pos
+_locToSource pos Size32 (LocMem (RBX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToSource pos Size32 (LocReg RCX) = Syntax.FromReg32 pos $ Syntax.ECX pos
-_locToSource pos Size32 (LocMem (RCX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.ECX pos
+_locToSource pos Size32 (LocMem (RCX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToSource pos Size32 (LocReg RDX) = Syntax.FromReg32 pos $ Syntax.EDX pos
-_locToSource pos Size32 (LocMem (RDX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EDX pos
+_locToSource pos Size32 (LocMem (RDX, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToSource pos Size32 (LocReg RDI) = Syntax.FromReg32 pos $ Syntax.EDI pos
-_locToSource pos Size32 (LocMem (RDI, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EDI pos
+_locToSource pos Size32 (LocMem (RDI, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToSource pos Size32 (LocReg RSI) = Syntax.FromReg32 pos $ Syntax.ESI pos
-_locToSource pos Size32 (LocMem (RSI, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.ESI pos
+_locToSource pos Size32 (LocMem (RSI, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToSource pos Size32 (LocReg RSP) = Syntax.FromReg32 pos $ Syntax.ESP pos
-_locToSource pos Size32 (LocMem (RSP, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.ESP pos
+_locToSource pos Size32 (LocMem (RSP, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToSource pos Size32 (LocReg RBP) = Syntax.FromReg32 pos $ Syntax.EBP pos
-_locToSource pos Size32 (LocMem (RBP, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.EBP pos
+_locToSource pos Size32 (LocMem (RBP, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToSource pos Size32 (LocReg R8) = Syntax.FromReg32 pos $ Syntax.R8D pos
-_locToSource pos Size32 (LocMem (R8, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R8D pos
+_locToSource pos Size32 (LocMem (R8, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToSource pos Size32 (LocReg R9) = Syntax.FromReg32 pos $ Syntax.R9D pos
-_locToSource pos Size32 (LocMem (R9, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R9D pos
+_locToSource pos Size32 (LocMem (R9, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToSource pos Size32 (LocReg R10) = Syntax.FromReg32 pos $ Syntax.R10D pos
-_locToSource pos Size32 (LocMem (R10, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R10D pos
+_locToSource pos Size32 (LocMem (R10, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToSource pos Size32 (LocReg R11) = Syntax.FromReg32 pos $ Syntax.R11D pos
-_locToSource pos Size32 (LocMem (R11, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R11D pos
+_locToSource pos Size32 (LocMem (R11, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToSource pos Size32 (LocReg R12) = Syntax.FromReg32 pos $ Syntax.R12D pos
-_locToSource pos Size32 (LocMem (R12, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R12D pos
+_locToSource pos Size32 (LocMem (R12, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToSource pos Size32 (LocReg R13) = Syntax.FromReg32 pos $ Syntax.R13D pos
-_locToSource pos Size32 (LocMem (R13, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R13D pos
+_locToSource pos Size32 (LocMem (R13, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToSource pos Size32 (LocReg R14) = Syntax.FromReg32 pos $ Syntax.R14D pos
-_locToSource pos Size32 (LocMem (R14, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R14D pos
+_locToSource pos Size32 (LocMem (R14, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToSource pos Size32 (LocReg R15) = Syntax.FromReg32 pos $ Syntax.R15D pos
-_locToSource pos Size32 (LocMem (R15, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R15D pos
-_locToSource pos Size16 (LocLabel l) = Syntax.FromLabel16 pos $ Syntax.Label l
-_locToSource pos Size16 (LocLabelPIC l) = Syntax.FromLabelOffset16 pos $ Syntax.Label l
+_locToSource pos Size32 (LocMem (R15, offset)) = Syntax.FromMem32 pos (fromIntegral offset) $ Syntax.R15 pos
+_locToSource pos Size16 (LocLabel l) = Syntax.FromLabel16 pos $ Syntax.Label $ sanitizeLabel l
+_locToSource pos Size16 (LocLabelPIC l) = Syntax.FromLabelOffset16 pos $ Syntax.Label $ sanitizeLabel l
 _locToSource pos Size16 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.FromReg16 _ rBase) = _locToSource pos Size16 (LocReg ptrBase) in
-	let (Syntax.FromReg16 _ rIdx) =  _locToSource pos Size16 (LocReg ptrIdx) in
+	let (Syntax.FromMem16 _ _ rBase) = _locToSource pos Size16 (LocMem (ptrBase, 0)) in
+	let (Syntax.FromMem16 _ _ rIdx) =  _locToSource pos Size16 (LocMem (ptrIdx, 0)) in
 	Syntax.FromMemComplex16 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size16 (LocReg RAX) = Syntax.FromReg16 pos $ Syntax.AX pos
-_locToSource pos Size16 (LocMem (RAX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.AX pos
+_locToSource pos Size16 (LocMem (RAX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToSource pos Size16 (LocReg RBX) = Syntax.FromReg16 pos $ Syntax.BX pos
-_locToSource pos Size16 (LocMem (RBX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.BX pos
+_locToSource pos Size16 (LocMem (RBX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToSource pos Size16 (LocReg RCX) = Syntax.FromReg16 pos $ Syntax.CX pos
-_locToSource pos Size16 (LocMem (RCX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.CX pos
+_locToSource pos Size16 (LocMem (RCX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToSource pos Size16 (LocReg RDX) = Syntax.FromReg16 pos $ Syntax.DX pos
-_locToSource pos Size16 (LocMem (RDX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.DX pos
+_locToSource pos Size16 (LocMem (RDX, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToSource pos Size16 (LocReg RDI) = Syntax.FromReg16 pos $ Syntax.DI pos
-_locToSource pos Size16 (LocMem (RDI, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.DI pos
+_locToSource pos Size16 (LocMem (RDI, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToSource pos Size16 (LocReg RSI) = Syntax.FromReg16 pos $ Syntax.SI pos
-_locToSource pos Size16 (LocMem (RSI, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.SI pos
+_locToSource pos Size16 (LocMem (RSI, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToSource pos Size16 (LocReg RSP) = Syntax.FromReg16 pos $ Syntax.SP pos
-_locToSource pos Size16 (LocMem (RSP, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.SP pos
+_locToSource pos Size16 (LocMem (RSP, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToSource pos Size16 (LocReg RBP) = Syntax.FromReg16 pos $ Syntax.BP pos
-_locToSource pos Size16 (LocMem (RBP, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.BP pos
+_locToSource pos Size16 (LocMem (RBP, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToSource pos Size16 (LocReg R8) = Syntax.FromReg16 pos $ Syntax.R8W pos
-_locToSource pos Size16 (LocMem (R8, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R8W pos
+_locToSource pos Size16 (LocMem (R8, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToSource pos Size16 (LocReg R9) = Syntax.FromReg16 pos $ Syntax.R9W pos
-_locToSource pos Size16 (LocMem (R9, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R9W pos
+_locToSource pos Size16 (LocMem (R9, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToSource pos Size16 (LocReg R10) = Syntax.FromReg16 pos $ Syntax.R10W pos
-_locToSource pos Size16 (LocMem (R10, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R10W pos
+_locToSource pos Size16 (LocMem (R10, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToSource pos Size16 (LocReg R11) = Syntax.FromReg16 pos $ Syntax.R11W pos
-_locToSource pos Size16 (LocMem (R11, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R11W pos
+_locToSource pos Size16 (LocMem (R11, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToSource pos Size16 (LocReg R12) = Syntax.FromReg16 pos $ Syntax.R12W pos
-_locToSource pos Size16 (LocMem (R12, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R12W pos
+_locToSource pos Size16 (LocMem (R12, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToSource pos Size16 (LocReg R13) = Syntax.FromReg16 pos $ Syntax.R13W pos
-_locToSource pos Size16 (LocMem (R13, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R13W pos
+_locToSource pos Size16 (LocMem (R13, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToSource pos Size16 (LocReg R14) = Syntax.FromReg16 pos $ Syntax.R14W pos
-_locToSource pos Size16 (LocMem (R14, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R14W pos
+_locToSource pos Size16 (LocMem (R14, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToSource pos Size16 (LocReg R15) = Syntax.FromReg16 pos $ Syntax.R15W pos
-_locToSource pos Size16 (LocMem (R15, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R15W pos
-_locToSource pos Size8 (LocLabel l) = Syntax.FromLabel8 pos $ Syntax.Label l
-_locToSource pos Size8 (LocLabelPIC l) = Syntax.FromLabelOffset8 pos $ Syntax.Label l
+_locToSource pos Size16 (LocMem (R15, offset)) = Syntax.FromMem16 pos (fromIntegral offset) $ Syntax.R15 pos
+_locToSource pos Size8 (LocLabel l) = Syntax.FromLabel8 pos $ Syntax.Label $ sanitizeLabel l
+_locToSource pos Size8 (LocLabelPIC l) = Syntax.FromLabelOffset8 pos $ Syntax.Label $ sanitizeLabel l
 _locToSource pos Size8 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.FromReg8 _ rBase) = _locToSource pos Size8 (LocReg ptrBase) in
-	let (Syntax.FromReg8 _ rIdx) =  _locToSource pos Size8 (LocReg ptrIdx) in
+	let (Syntax.FromMem8 _ _ rBase) = _locToSource pos Size8 (LocMem (ptrBase, 0)) in
+	let (Syntax.FromMem8 _ _ rIdx) =  _locToSource pos Size8 (LocMem (ptrIdx, 0)) in
 	Syntax.FromMemComplex8 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToSource pos Size8 (LocReg RAX) = Syntax.FromReg8 pos $ Syntax.AL pos
-_locToSource pos Size8 (LocMem (RAX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.AL pos
+_locToSource pos Size8 (LocMem (RAX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToSource pos Size8 (LocReg RBX) = Syntax.FromReg8 pos $ Syntax.BL pos
-_locToSource pos Size8 (LocMem (RBX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.BL pos
+_locToSource pos Size8 (LocMem (RBX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToSource pos Size8 (LocReg RCX) = Syntax.FromReg8 pos $ Syntax.CL pos
-_locToSource pos Size8 (LocMem (RCX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.CL pos
+_locToSource pos Size8 (LocMem (RCX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToSource pos Size8 (LocReg RDX) = Syntax.FromReg8 pos $ Syntax.DL pos
-_locToSource pos Size8 (LocMem (RDX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.DL pos
+_locToSource pos Size8 (LocMem (RDX, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToSource pos Size8 (LocReg RDI) = Syntax.FromReg8 pos $ Syntax.DIL pos
-_locToSource pos Size8 (LocMem (RDI, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.DIL pos
+_locToSource pos Size8 (LocMem (RDI, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToSource pos Size8 (LocReg RSI) = Syntax.FromReg8 pos $ Syntax.SIL pos
-_locToSource pos Size8 (LocMem (RSI, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.SIL pos
+_locToSource pos Size8 (LocMem (RSI, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToSource pos Size8 (LocReg RSP) = Syntax.FromReg8 pos $ Syntax.SPL pos
-_locToSource pos Size8 (LocMem (RSP, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.SPL pos
+_locToSource pos Size8 (LocMem (RSP, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToSource pos Size8 (LocReg RBP) = Syntax.FromReg8 pos $ Syntax.BPL pos
-_locToSource pos Size8 (LocMem (RBP, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.BPL pos
+_locToSource pos Size8 (LocMem (RBP, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToSource pos Size8 (LocReg R8) = Syntax.FromReg8 pos $ Syntax.R8B pos
-_locToSource pos Size8 (LocMem (R8, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R8B pos
+_locToSource pos Size8 (LocMem (R8, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToSource pos Size8 (LocReg R9) = Syntax.FromReg8 pos $ Syntax.R9B pos
-_locToSource pos Size8 (LocMem (R9, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R9B pos
+_locToSource pos Size8 (LocMem (R9, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToSource pos Size8 (LocReg R10) = Syntax.FromReg8 pos $ Syntax.R10B pos
-_locToSource pos Size8 (LocMem (R10, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R10B pos
+_locToSource pos Size8 (LocMem (R10, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToSource pos Size8 (LocReg R11) = Syntax.FromReg8 pos $ Syntax.R11B pos
-_locToSource pos Size8 (LocMem (R11, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R11B pos
+_locToSource pos Size8 (LocMem (R11, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToSource pos Size8 (LocReg R12) = Syntax.FromReg8 pos $ Syntax.R12B pos
-_locToSource pos Size8 (LocMem (R12, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R12B pos
+_locToSource pos Size8 (LocMem (R12, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToSource pos Size8 (LocReg R13) = Syntax.FromReg8 pos $ Syntax.R13B pos
-_locToSource pos Size8 (LocMem (R13, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R13B pos
+_locToSource pos Size8 (LocMem (R13, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToSource pos Size8 (LocReg R14) = Syntax.FromReg8 pos $ Syntax.R14B pos
-_locToSource pos Size8 (LocMem (R14, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R14B pos
+_locToSource pos Size8 (LocMem (R14, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToSource pos Size8 (LocReg R15) = Syntax.FromReg8 pos $ Syntax.R15B pos
-_locToSource pos Size8 (LocMem (R15, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R15B pos
+_locToSource pos Size8 (LocMem (R15, offset)) = Syntax.FromMem8 pos (fromIntegral offset) $ Syntax.R15 pos
 _locToTarget :: a -> Size -> Loc -> Syntax.Target' a
 _locToTarget pos Size64 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.ToReg64 _ rBase) = _locToTarget pos Size64 (LocReg ptrBase) in
-	let (Syntax.ToReg64 _ rIdx) =  _locToTarget pos Size64 (LocReg ptrIdx) in
+	let (Syntax.ToMem64 _ _ rBase) = _locToTarget pos Size64 (LocMem (ptrBase, 0)) in
+	let (Syntax.ToMem64 _ _ rIdx) =  _locToTarget pos Size64 (LocMem (ptrIdx, 0)) in
 	Syntax.ToMemComplex64 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size64 (LocReg RAX) = Syntax.ToReg64 pos $ Syntax.RAX pos
 _locToTarget pos Size64 (LocMem (RAX, offset)) = Syntax.ToMem64 pos (fromIntegral offset) $ Syntax.RAX pos
@@ -484,113 +496,113 @@ _locToTarget pos Size64 (LocMem (R14, offset)) = Syntax.ToMem64 pos (fromIntegra
 _locToTarget pos Size64 (LocReg R15) = Syntax.ToReg64 pos $ Syntax.R15 pos
 _locToTarget pos Size64 (LocMem (R15, offset)) = Syntax.ToMem64 pos (fromIntegral offset) $ Syntax.R15 pos
 _locToTarget pos Size32 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.ToReg32 _ rBase) = _locToTarget pos Size32 (LocReg ptrBase) in
-	let (Syntax.ToReg32 _ rIdx) =  _locToTarget pos Size32 (LocReg ptrIdx) in
+	let (Syntax.ToMem32 _ _ rBase) = _locToTarget pos Size32 (LocMem (ptrBase, 0)) in
+	let (Syntax.ToMem32 _ _ rIdx) =  _locToTarget pos Size32 (LocMem (ptrIdx, 0)) in
 	Syntax.ToMemComplex32 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size32 (LocReg RAX) = Syntax.ToReg32 pos $ Syntax.EAX pos
-_locToTarget pos Size32 (LocMem (RAX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EAX pos
+_locToTarget pos Size32 (LocMem (RAX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToTarget pos Size32 (LocReg RBX) = Syntax.ToReg32 pos $ Syntax.EBX pos
-_locToTarget pos Size32 (LocMem (RBX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EBX pos
+_locToTarget pos Size32 (LocMem (RBX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToTarget pos Size32 (LocReg RCX) = Syntax.ToReg32 pos $ Syntax.ECX pos
-_locToTarget pos Size32 (LocMem (RCX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.ECX pos
+_locToTarget pos Size32 (LocMem (RCX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToTarget pos Size32 (LocReg RDX) = Syntax.ToReg32 pos $ Syntax.EDX pos
-_locToTarget pos Size32 (LocMem (RDX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EDX pos
+_locToTarget pos Size32 (LocMem (RDX, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToTarget pos Size32 (LocReg RDI) = Syntax.ToReg32 pos $ Syntax.EDI pos
-_locToTarget pos Size32 (LocMem (RDI, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EDI pos
+_locToTarget pos Size32 (LocMem (RDI, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToTarget pos Size32 (LocReg RSI) = Syntax.ToReg32 pos $ Syntax.ESI pos
-_locToTarget pos Size32 (LocMem (RSI, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.ESI pos
+_locToTarget pos Size32 (LocMem (RSI, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToTarget pos Size32 (LocReg RSP) = Syntax.ToReg32 pos $ Syntax.ESP pos
-_locToTarget pos Size32 (LocMem (RSP, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.ESP pos
+_locToTarget pos Size32 (LocMem (RSP, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToTarget pos Size32 (LocReg RBP) = Syntax.ToReg32 pos $ Syntax.EBP pos
-_locToTarget pos Size32 (LocMem (RBP, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.EBP pos
+_locToTarget pos Size32 (LocMem (RBP, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToTarget pos Size32 (LocReg R8) = Syntax.ToReg32 pos $ Syntax.R8D pos
-_locToTarget pos Size32 (LocMem (R8, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R8D pos
+_locToTarget pos Size32 (LocMem (R8, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToTarget pos Size32 (LocReg R9) = Syntax.ToReg32 pos $ Syntax.R9D pos
-_locToTarget pos Size32 (LocMem (R9, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R9D pos
+_locToTarget pos Size32 (LocMem (R9, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToTarget pos Size32 (LocReg R10) = Syntax.ToReg32 pos $ Syntax.R10D pos
-_locToTarget pos Size32 (LocMem (R10, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R10D pos
+_locToTarget pos Size32 (LocMem (R10, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToTarget pos Size32 (LocReg R11) = Syntax.ToReg32 pos $ Syntax.R11D pos
-_locToTarget pos Size32 (LocMem (R11, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R11D pos
+_locToTarget pos Size32 (LocMem (R11, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToTarget pos Size32 (LocReg R12) = Syntax.ToReg32 pos $ Syntax.R12D pos
-_locToTarget pos Size32 (LocMem (R12, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R12D pos
+_locToTarget pos Size32 (LocMem (R12, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToTarget pos Size32 (LocReg R13) = Syntax.ToReg32 pos $ Syntax.R13D pos
-_locToTarget pos Size32 (LocMem (R13, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R13D pos
+_locToTarget pos Size32 (LocMem (R13, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToTarget pos Size32 (LocReg R14) = Syntax.ToReg32 pos $ Syntax.R14D pos
-_locToTarget pos Size32 (LocMem (R14, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R14D pos
+_locToTarget pos Size32 (LocMem (R14, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToTarget pos Size32 (LocReg R15) = Syntax.ToReg32 pos $ Syntax.R15D pos
-_locToTarget pos Size32 (LocMem (R15, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R15D pos
+_locToTarget pos Size32 (LocMem (R15, offset)) = Syntax.ToMem32 pos (fromIntegral offset) $ Syntax.R15 pos
 _locToTarget pos Size16 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.ToReg16 _ rBase) = _locToTarget pos Size16 (LocReg ptrBase) in
-	let (Syntax.ToReg16 _ rIdx) =  _locToTarget pos Size16 (LocReg ptrIdx) in
+	let (Syntax.ToMem16 _ _ rBase) = _locToTarget pos Size16 (LocMem (ptrBase, 0)) in
+	let (Syntax.ToMem16 _ _ rIdx) =  _locToTarget pos Size16 (LocMem (ptrIdx, 0)) in
 	Syntax.ToMemComplex16 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size16 (LocReg RAX) = Syntax.ToReg16 pos $ Syntax.AX pos
-_locToTarget pos Size16 (LocMem (RAX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.AX pos
+_locToTarget pos Size16 (LocMem (RAX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToTarget pos Size16 (LocReg RBX) = Syntax.ToReg16 pos $ Syntax.BX pos
-_locToTarget pos Size16 (LocMem (RBX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.BX pos
+_locToTarget pos Size16 (LocMem (RBX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToTarget pos Size16 (LocReg RCX) = Syntax.ToReg16 pos $ Syntax.CX pos
-_locToTarget pos Size16 (LocMem (RCX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.CX pos
+_locToTarget pos Size16 (LocMem (RCX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToTarget pos Size16 (LocReg RDX) = Syntax.ToReg16 pos $ Syntax.DX pos
-_locToTarget pos Size16 (LocMem (RDX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.DX pos
+_locToTarget pos Size16 (LocMem (RDX, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToTarget pos Size16 (LocReg RDI) = Syntax.ToReg16 pos $ Syntax.DI pos
-_locToTarget pos Size16 (LocMem (RDI, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.DI pos
+_locToTarget pos Size16 (LocMem (RDI, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToTarget pos Size16 (LocReg RSI) = Syntax.ToReg16 pos $ Syntax.SI pos
-_locToTarget pos Size16 (LocMem (RSI, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.SI pos
+_locToTarget pos Size16 (LocMem (RSI, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToTarget pos Size16 (LocReg RSP) = Syntax.ToReg16 pos $ Syntax.SP pos
-_locToTarget pos Size16 (LocMem (RSP, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.SP pos
+_locToTarget pos Size16 (LocMem (RSP, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToTarget pos Size16 (LocReg RBP) = Syntax.ToReg16 pos $ Syntax.BP pos
-_locToTarget pos Size16 (LocMem (RBP, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.BP pos
+_locToTarget pos Size16 (LocMem (RBP, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToTarget pos Size16 (LocReg R8) = Syntax.ToReg16 pos $ Syntax.R8W pos
-_locToTarget pos Size16 (LocMem (R8, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R8W pos
+_locToTarget pos Size16 (LocMem (R8, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToTarget pos Size16 (LocReg R9) = Syntax.ToReg16 pos $ Syntax.R9W pos
-_locToTarget pos Size16 (LocMem (R9, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R9W pos
+_locToTarget pos Size16 (LocMem (R9, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToTarget pos Size16 (LocReg R10) = Syntax.ToReg16 pos $ Syntax.R10W pos
-_locToTarget pos Size16 (LocMem (R10, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R10W pos
+_locToTarget pos Size16 (LocMem (R10, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToTarget pos Size16 (LocReg R11) = Syntax.ToReg16 pos $ Syntax.R11W pos
-_locToTarget pos Size16 (LocMem (R11, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R11W pos
+_locToTarget pos Size16 (LocMem (R11, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToTarget pos Size16 (LocReg R12) = Syntax.ToReg16 pos $ Syntax.R12W pos
-_locToTarget pos Size16 (LocMem (R12, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R12W pos
+_locToTarget pos Size16 (LocMem (R12, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToTarget pos Size16 (LocReg R13) = Syntax.ToReg16 pos $ Syntax.R13W pos
-_locToTarget pos Size16 (LocMem (R13, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R13W pos
+_locToTarget pos Size16 (LocMem (R13, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToTarget pos Size16 (LocReg R14) = Syntax.ToReg16 pos $ Syntax.R14W pos
-_locToTarget pos Size16 (LocMem (R14, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R14W pos
+_locToTarget pos Size16 (LocMem (R14, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToTarget pos Size16 (LocReg R15) = Syntax.ToReg16 pos $ Syntax.R15W pos
-_locToTarget pos Size16 (LocMem (R15, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R15W pos
+_locToTarget pos Size16 (LocMem (R15, offset)) = Syntax.ToMem16 pos (fromIntegral offset) $ Syntax.R15 pos
 _locToTarget pos Size8 (LocMemOffset ptrBase ptrIdx ptrOffset ptrScale) =
-	let (Syntax.ToReg8 _ rBase) = _locToTarget pos Size8 (LocReg ptrBase) in
-	let (Syntax.ToReg8 _ rIdx) =  _locToTarget pos Size8 (LocReg ptrIdx) in
+	let (Syntax.ToMem8 _ _ rBase) = _locToTarget pos Size8 (LocMem (ptrBase, 0)) in
+	let (Syntax.ToMem8 _ _ rIdx) =  _locToTarget pos Size8 (LocMem (ptrIdx, 0)) in
 	Syntax.ToMemComplex8 pos (fromIntegral ptrOffset) rBase rIdx (fromIntegral $ toBytes $ ptrScale)
 _locToTarget pos Size8 (LocReg RAX) = Syntax.ToReg8 pos $ Syntax.AL pos
-_locToTarget pos Size8 (LocMem (RAX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.AL pos
+_locToTarget pos Size8 (LocMem (RAX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RAX pos
 _locToTarget pos Size8 (LocReg RBX) = Syntax.ToReg8 pos $ Syntax.BL pos
-_locToTarget pos Size8 (LocMem (RBX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.BL pos
+_locToTarget pos Size8 (LocMem (RBX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RBX pos
 _locToTarget pos Size8 (LocReg RCX) = Syntax.ToReg8 pos $ Syntax.CL pos
-_locToTarget pos Size8 (LocMem (RCX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.CL pos
+_locToTarget pos Size8 (LocMem (RCX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RCX pos
 _locToTarget pos Size8 (LocReg RDX) = Syntax.ToReg8 pos $ Syntax.DL pos
-_locToTarget pos Size8 (LocMem (RDX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.DL pos
+_locToTarget pos Size8 (LocMem (RDX, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RDX pos
 _locToTarget pos Size8 (LocReg RDI) = Syntax.ToReg8 pos $ Syntax.DIL pos
-_locToTarget pos Size8 (LocMem (RDI, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.DIL pos
+_locToTarget pos Size8 (LocMem (RDI, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RDI pos
 _locToTarget pos Size8 (LocReg RSI) = Syntax.ToReg8 pos $ Syntax.SIL pos
-_locToTarget pos Size8 (LocMem (RSI, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.SIL pos
+_locToTarget pos Size8 (LocMem (RSI, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RSI pos
 _locToTarget pos Size8 (LocReg RSP) = Syntax.ToReg8 pos $ Syntax.SPL pos
-_locToTarget pos Size8 (LocMem (RSP, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.SPL pos
+_locToTarget pos Size8 (LocMem (RSP, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RSP pos
 _locToTarget pos Size8 (LocReg RBP) = Syntax.ToReg8 pos $ Syntax.BPL pos
-_locToTarget pos Size8 (LocMem (RBP, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.BPL pos
+_locToTarget pos Size8 (LocMem (RBP, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.RBP pos
 _locToTarget pos Size8 (LocReg R8) = Syntax.ToReg8 pos $ Syntax.R8B pos
-_locToTarget pos Size8 (LocMem (R8, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R8B pos
+_locToTarget pos Size8 (LocMem (R8, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R8 pos
 _locToTarget pos Size8 (LocReg R9) = Syntax.ToReg8 pos $ Syntax.R9B pos
-_locToTarget pos Size8 (LocMem (R9, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R9B pos
+_locToTarget pos Size8 (LocMem (R9, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R9 pos
 _locToTarget pos Size8 (LocReg R10) = Syntax.ToReg8 pos $ Syntax.R10B pos
-_locToTarget pos Size8 (LocMem (R10, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R10B pos
+_locToTarget pos Size8 (LocMem (R10, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R10 pos
 _locToTarget pos Size8 (LocReg R11) = Syntax.ToReg8 pos $ Syntax.R11B pos
-_locToTarget pos Size8 (LocMem (R11, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R11B pos
+_locToTarget pos Size8 (LocMem (R11, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R11 pos
 _locToTarget pos Size8 (LocReg R12) = Syntax.ToReg8 pos $ Syntax.R12B pos
-_locToTarget pos Size8 (LocMem (R12, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R12B pos
+_locToTarget pos Size8 (LocMem (R12, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R12 pos
 _locToTarget pos Size8 (LocReg R13) = Syntax.ToReg8 pos $ Syntax.R13B pos
-_locToTarget pos Size8 (LocMem (R13, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R13B pos
+_locToTarget pos Size8 (LocMem (R13, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R13 pos
 _locToTarget pos Size8 (LocReg R14) = Syntax.ToReg8 pos $ Syntax.R14B pos
-_locToTarget pos Size8 (LocMem (R14, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R14B pos
+_locToTarget pos Size8 (LocMem (R14, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R14 pos
 _locToTarget pos Size8 (LocReg R15) = Syntax.ToReg8 pos $ Syntax.R15B pos
-_locToTarget pos Size8 (LocMem (R15, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R15B pos
+_locToTarget pos Size8 (LocMem (R15, offset)) = Syntax.ToMem8 pos (fromIntegral offset) $ Syntax.R15 pos
 
 -- Size classes
 
@@ -613,7 +625,7 @@ data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Inte
 
 label :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
 label pos l ann =
-	_emitInstr pos $ Label pos l $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ Label pos (sanitizeLabel l) $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 add :: (Monad m) => a -> Size -> Loc -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
@@ -759,7 +771,7 @@ callIndirect pos reg offset ann =
 	_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 _convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)
-_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label l
+_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label $ sanitizeLabel l
 _convertInstr (ADD pos Size64 loc1 loc2 _) = return $ Syntax.ADD64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
 _convertInstr (ADD pos Size32 loc1 loc2 _) = return $ Syntax.ADD32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
 _convertInstr (ADD pos Size16 loc1 loc2 _) = return $ Syntax.ADD16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
@@ -832,12 +844,12 @@ _convertInstr (POP pos loc@(LocReg reg) _) = let (Syntax.ToReg64 _ r) = (_locToT
 _convertInstr (POP pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
 _convertInstr (PUSH pos loc@(LocReg reg) _) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.PUSH pos r
 _convertInstr (PUSH pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (JMP pos label _) = return $ Syntax.JMP pos (Syntax.Label label)
-_convertInstr (JZ pos label _) = return $ Syntax.JZ pos (Syntax.Label label)
+_convertInstr (JMP pos label _) = return $ Syntax.JMP pos (Syntax.Label $ sanitizeLabel label)
+_convertInstr (JZ pos label _) = return $ Syntax.JZ pos (Syntax.Label $ sanitizeLabel label)
 _convertInstr (LEAVE pos _) = return $ Syntax.LEAVE pos
 _convertInstr (RET pos _) = return $ Syntax.RET pos
 _convertInstr (CDQ pos _) = return $ Syntax.CDQ pos
-_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label l
+_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label $ sanitizeLabel l
 _convertInstr (CALL_INDIRECT pos RAX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RAX pos
 _convertInstr (CALL_INDIRECT pos RBX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RBX pos
 _convertInstr (CALL_INDIRECT pos RCX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RCX pos

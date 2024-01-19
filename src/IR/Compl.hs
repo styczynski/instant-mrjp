@@ -17,7 +17,9 @@ import IR.Phi
 import IR.CodeGen.Generator
 import IR.Syntax.Syntax
 
-compl_ :: (Program ()) -> String
+data CompiledProg = CompiledProg (Metadata ()) [(CFG Liveness, Method (), RegisterAllocation)]
+
+compl_ :: (Program ()) -> CompiledProg
 compl_ (Program _ meta mthds) = 
     let cfgs = zip (map cfg mthds) mthds
         cfgsLin = map (uncurry removeUnreachable) cfgs
@@ -35,4 +37,4 @@ compl_ (Program _ meta mthds) =
     --assembly
     in
     --show $ (map (\(c, m, _) -> (c, m)) finalCfgs)
-    generate meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)
+    CompiledProg meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)

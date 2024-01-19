@@ -17,8 +17,8 @@ import Parser.Transform
 import Typings.Checker as TypeChecker
 import Optimizer.Optimizer as Optimizer
 import Linearized.Linearizer as Linearizer
---import Backend.Base as Backend
---import Backend.X86.X86 as BackendX86
+import Backend.Base as Backend
+import Backend.X64.X64 as BackendX64
 import Reporting.Errors.Errors
 
 import System.Environment
@@ -32,8 +32,8 @@ import Utils.Similarity
 import IR.Syntax.Print(printTree)
 import qualified IR.Compl as Compl
 
--- usedBackend :: Backend.LatteBackend
--- usedBackend = BackendX86.backend
+usedBackend :: Backend.LatteBackend
+usedBackend = BackendX64.backend
 
 runCLI :: () -> IO ()
 runCLI backend = evaluateLattePipeline $ runPipeline backend
@@ -80,18 +80,17 @@ runPipeline backend = do
                       latteError "IR conversion failed"
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
-                      res <- return $ Compl.compl_ (fmap (const ()) ir)
-                      printLogInfo $ "Compilation done" <> (T.pack file) <> "\n\n" <> (T.pack $ res)
-
-                      -- let outputPath = replaceExtension file (inputExtension usedBackend)
-                      -- backendResult <- Backend.runBackend outputPath (takeFileName outputPath) ir usedBackend
-                      -- case backendResult of 
-                      --   (Left err) -> do
-                      --     printLogInfo $ T.pack $ "Backend code generation has failed"
-                      --     printErrors err file contents parsedAST
-                      --     latteError "Backend code generation has failed"
-                      --   (Right (outputFilePath, _)) -> do
-                      --     printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
-                      --     printLogInfo $ "DONE"
-                      --     latteSuccess
+                      compiledProg <- return $ Compl.compl_ (fmap (const ()) ir)
+                      --printLogInfo $ "Compilation done" <> (T.pack file) <> "\n\n" <> (T.pack $ res)
+                      let outputPath = replaceExtension file (inputExtension usedBackend)
+                      backendResult <- Backend.runBackend outputPath (takeFileName outputPath) compiledProg usedBackend
+                      case backendResult of 
+                        (Left err) -> do
+                          printLogInfo $ T.pack $ "Backend code generation has failed"
+                          printErrors err file contents parsedAST
+                          latteError "Backend code generation has failed"
+                        (Right (outputFilePath, _)) -> do
+                          printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
+                          printLogInfo $ "DONE"
+                          latteSuccess
     _ -> latteError "BAD ARGS"
