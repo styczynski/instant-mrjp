@@ -1,5 +1,7 @@
 module IR.Optimisation.DeadCode (removeDeadCode, removeDeadCodeSSA) where
 
+import Control.Lens hiding (Const)
+
 import qualified Data.HashMap.Strict           as Map
 import           IR.Flow.CFG
 import           IR.Flow.Liveness
@@ -8,16 +10,16 @@ import           IR.Syntax.Syntax
 import           IR.Utils
 
 -- Remove assignments to dead variables and unreachable code.
-removeDeadCode :: CFG Liveness -> CFG Liveness
-removeDeadCode = linearMap (\n -> n {nodeCode = loopRemove True (nodeCode n)})
+removeDeadCode :: CFG a Liveness -> CFG a Liveness
+removeDeadCode = linearMap (\n -> n & nodeBody %~ loopRemove True)
 
-removeDeadCodeSSA :: SSA Liveness -> SSA Liveness
+removeDeadCodeSSA :: SSA a Liveness -> SSA a Liveness
 removeDeadCodeSSA (SSA g) = SSA $ removeDeadCode g
 
-loopRemove :: Bool -> [Instr Liveness] -> [Instr Liveness]
+loopRemove :: Bool -> [Instr (a, Liveness)] -> [Instr (a, Liveness)]
 loopRemove _ [] = []
 loopRemove reachable (instr:instrs) =
-    let live = liveOut $ single instr
+    let live = liveOut $ snd $ single instr
     in case instr of
             ILabel {}         -> instr:cont True
             ILabelAnn {}      -> instr:cont True

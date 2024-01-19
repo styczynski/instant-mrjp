@@ -1,5 +1,7 @@
+{-# LANGUAGE DeriveTraversable #-}
 module IR.Compl where
 
+import Data.Functor
 import           Data.Bifunctor                              (Bifunctor (first))
 import           IR.Flow.CFG
 import           IR.Flow.Liveness               (Liveness,
@@ -14,13 +16,27 @@ import IR.RegisterAllocation.InterferenceGraph
 import IR.RegisterAllocation.RegisterAllocation
 import IR.Utils
 import IR.Phi
-import IR.CodeGen.Generator
+--import IR.CodeGen.Generator
 import IR.Syntax.Syntax
 
-data CompiledProg = CompiledProg (Metadata ()) [(CFG Liveness, Method (), RegisterAllocation)]
+data CompiledProg a =
+    CompiledProg a (Metadata a) [(CFG a Liveness, Method a, RegisterAllocation)]
+    deriving (Show)
 
-compl_ :: (Program ()) -> CompiledProg
-compl_ (Program _ meta mthds) = 
+instance Eq (CompiledProg a) where
+    (==) (CompiledProg _ meta1 methods1) (CompiledProg _ meta2 methods2) =
+        let normalizeMethod = (\(cfg, method, reg) -> (() <$ cfg, () <$ method)) in
+        let methods1' = map normalizeMethod methods1 in
+        let methods2' = map normalizeMethod methods2 in
+        (() <$ meta1) == (() <$ meta2) && methods1' == methods2'
+
+instance Functor (CompiledProg) where
+    fmap f (CompiledProg pos meta methods) = CompiledProg (f pos) (fmap f meta) (map (\(cfg, method, reg) -> (mapCFGPos f cfg, fmap f method, reg)) methods)
+
+
+
+compl_ :: (Program a) -> CompiledProg a
+compl_ (Program pos meta mthds) = 
     let cfgs = zip (map cfg mthds) mthds
         cfgsLin = map (uncurry removeUnreachable) cfgs
         cfgsWithLiveness = map (first analyseLiveness) cfgsLin
@@ -37,4 +53,4 @@ compl_ (Program _ meta mthds) =
     --assembly
     in
     --show $ (map (\(c, m, _) -> (c, m)) finalCfgs)
-    CompiledProg meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)
+    CompiledProg pos meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)

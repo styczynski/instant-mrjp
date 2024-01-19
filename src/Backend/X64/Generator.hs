@@ -13,7 +13,6 @@ import           Data.Bifunctor                (Bifunctor (second))
 import           Data.Int
 import           Data.List                     (partition)
 import qualified Data.Map                      as Map
-import           IR.Flow.CFG      (CFG (..), Node (..))
 import           IR.Flow.Liveness
 import           IR.Syntax.Syntax
 import           IR.Types                (deref, isInt, isStr, ptrType,
@@ -40,8 +39,9 @@ import Reporting.Logs
 import Control.Monad.Trans.Writer
 import Data.Foldable
 
+import IR.Flow.CFG
 
-generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> LattePipeline String
+generate :: (Show a) => Metadata a -> [(CFG a Liveness, Method a, RegisterAllocation)] -> LattePipeline String
 generate meta methods = do
     let externs = runtimeSymbols
     result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs
@@ -52,14 +52,14 @@ generate meta methods = do
             return compiledCodeStr
 
 
-genProgram :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> Generator Liveness ()
-genProgram (Meta () clDefs) mthds = do
+genProgram :: (Show a) => Metadata a -> [(CFG a Liveness, Method a, RegisterAllocation)] -> Generator a ()
+genProgram (Meta pos clDefs) mthds = do
     let compiledClasses = map compileClass clDefs
     let compiledClassesMap = Map.fromList $ map (\cl -> (clName cl, cl)) compiledClasses
     cs <- foldrM (emitMethod compiledClassesMap) (constsEmpty) mthds
-    genData emptyLiveness compiledClasses cs
+    genData pos compiledClasses cs
 
-genData :: a -> [CompiledClass] -> ConstSet -> Generator a ()
+genData :: (Show a) => a -> [CompiledClass] -> ConstSet -> Generator a ()
 genData pos cls allConsts = do
         mapM_ (\cns -> gen $ X64.dataDef pos $ X64.DataDef (constName cns) [X64.DataStr $ constValue cns]) $ constsElems allConsts
         mapM_ (genClassDef pos) cls
@@ -93,11 +93,11 @@ genData pos cls allConsts = do
                         gen $ X64.dataDef pos $ X64.DataDef methodsTableName $ map (\(name, _) -> X64.Data64From name)  (vtabMthds $ clVTable cls)
                         return ()
 
-emitMethod :: (M.Map SymIdent CompiledClass) -> (CFG Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator Liveness ConstSet
-emitMethod classMap (CFG g, m@(Mthd _ _ qi _ _), rs) cs = do
+emitMethod :: (Show a) => (M.Map SymIdent CompiledClass) -> (CFG a Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator a ConstSet
+emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
     let initStack = stackNew (numLocals rs)
         initState = GeneratorEnv [] [] cs initStack Map.empty emptyLiveness 0
-    result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod emptyLiveness g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
+    result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod pos g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
     case result of 
         (Left _) -> return cs
         (Right ((Left _), _)) -> return cs
@@ -105,14 +105,14 @@ emitMethod classMap (CFG g, m@(Mthd _ _ qi _ _), rs) cs = do
             gen $ X64.continueASMGeneratorT cnt
             return $ env ^. consts
     where
-        genMethod :: Liveness -> (Map.Map LabIdent (Node Liveness)) -> QIdent a -> RegisterAllocation -> Generator Liveness ()
+        genMethod :: (Show a) => a -> (Map.Map LabIdent (Node a Liveness)) -> QIdent a -> RegisterAllocation -> Generator a ()
         genMethod pos g qi rs = do
             traceM' ("register allocation: " ++ show (Map.toList $ regAlloc rs))
             traceM' ("========== starting method: " ++ toStr (labelFor qi (LabIdent "")))
             let nodes = Map.elems g
-                entryNode = single $ filter ((== entryLabel) . nodeLabel) nodes
-                exitNode = single $ filter (any isRet . nodeCode) nodes
-                otherNodes = filter ((\l -> l /= nodeLabel entryNode && l /= nodeLabel exitNode) . nodeLabel) nodes
+                entryNode = single $ filter ((== entryLabel) . (^.nodeLabel)) nodes
+                exitNode = single $ filter (any isRet . (^.nodeBody)) nodes
+                otherNodes = filter ((\l -> l /= (entryNode^.nodeLabel) && l /= (exitNode^.nodeLabel)) . (^.nodeLabel)) nodes
             -- Prologue
             let savedRegs = sortOn Down $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
             let needsAlignment = odd $ length savedRegs
@@ -132,43 +132,45 @@ emitMethod classMap (CFG g, m@(Mthd _ _ qi _ _), rs) cs = do
             -- End
             genNode entryNode
             mapM_ genNode otherNodes
-            when (nodeLabel entryNode /= nodeLabel exitNode) (genNode exitNode)
+            when ((entryNode^.nodeLabel) /= (exitNode^.nodeLabel)) (genNode exitNode)
             -- Epilogue
             gen $ X64.leave pos Nothing
             when (needsAlignment) (decrStack pos 8)
             mapM_ (\r -> gen $ X64.pop pos (X64.LocReg r) Nothing) savedRegs
             gen $ X64.ret pos Nothing
-        genNode :: Node Liveness -> Generator Liveness ()
+        genNode :: (Show a) => Node a Liveness -> Generator a ()
         genNode node = do
-            traceM' ("===== starting block: " ++ toStr (nodeLabel node))
-            mapM_ genInstr (nodeCode node)
+            traceM' ("===== starting block: " ++ toStr (node ^. nodeLabel))
+            mapM_ genInstr (node ^. nodeBody)
             gEnvSet (\env -> env & allCode %~ ((++) (env ^. code)) & code .~ [])
         isRet instr = case instr of
             IRet _ _ -> True
             IVRet _  -> True
             _        -> False
 
-genInstr :: Instr Liveness -> Generator Liveness ()
-genInstr instr =
-    let instrLiveness = single instr
+genInstr :: (Show a) => Instr (a, Liveness) -> Generator a ()
+genInstr baseInstr =
+    let pos = fst $ single baseInstr in
+    let instr = fmap (fst) baseInstr in
+    let instrLiveness = snd $ single baseInstr
     in do
         updateLive instrLiveness
         traceM' (show instr)
         fullTrace
         case instr of
-            ILabel pos l -> do
+            ILabel _ l -> do
                 (LabIdent l') <- label l
                 gen $ X64.label pos l' Nothing
-            ILabelAnn pos l f t -> do
+            ILabelAnn _ l f t -> do
                 (LabIdent l') <- label l
                 gen $ X64.label pos l' $ comment $ "lines " ++ show f ++ "-" ++ show t
-            IVRet pos -> do
+            IVRet _ -> do
                 resetStack pos
-            IRet pos val -> do
+            IRet _ val -> do
                 loc <- getValLoc val
                 gen $ X64.mov pos (valSize val) loc (X64.LocReg X64.RAX) $ comment "move return value"
                 resetStack pos
-            IOp pos vi v1 op v2 -> do
+            IOp _ vi v1 op v2 -> do
                 dest <- getLoc vi
                 src1 <- getValLoc v1
                 src2 <- getValLoc v2
@@ -256,16 +258,16 @@ genInstr instr =
                     OpGE _  -> emitCmpBin pos op dest src1 src2 size
                     OpEQU _ -> emitCmpBin pos op dest src1 src2 size
                     OpNE _  -> emitCmpBin pos op dest src1 src2 size
-            ISet pos vi v -> do
+            ISet _ vi v -> do
                 let t = valType v
                 dest <- getLoc vi
                 src <- getValLoc v
                 gen $ X64.mov pos (typeSize t) src dest $ comment $ "setting " ++ toStr vi
-            ISwap pos t vi1 vi2 -> do
+            ISwap _ t vi1 vi2 -> do
                 loc1 <- getLoc vi1
                 loc2 <- getLoc vi2
                 gen $ X64.xchg pos (typeSize t) loc1 loc2 Nothing
-            IUnOp pos vi op v -> do
+            IUnOp _ vi op v -> do
                 let t = valType v
                 src <- getValLoc v
                 dest <- getLoc vi
@@ -273,25 +275,25 @@ genInstr instr =
                 case op of
                     UnOpNeg _ -> gen $ X64.neg pos X64.Size32 dest Nothing
                     UnOpNot _ -> gen $ X64.xor pos X64.Size8 (X64.LocConst 1) dest Nothing
-            IVCall pos call -> case call of
+            IVCall _ call -> case call of
                     Call _ _ qi args largs    -> genCall pos (CallDirect $ getCallTarget qi) args largs (return ())
                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
-            ICall pos vi call -> do
+            ICall _ vi call -> do
                 dest <- getLoc vi
                 case call of
                         Call _ t qi args largs    -> genCall pos (CallDirect $ getCallTarget qi) args largs (gen $ X64.mov pos (typeSize t) (X64.LocReg X64.RAX) dest Nothing)
                         CallVirt _ t qi args -> genCallVirt qi args (gen $ X64.mov pos (typeSize t) (X64.LocReg X64.RAX) dest Nothing)
-            ILoad pos vi ptr -> do
+            ILoad _ vi ptr -> do
                 let t = () <$ deref (ptrType ptr)
                 src <- getPtrLoc ptr
                 dest <- getLoc vi
                 gen $ X64.mov pos (typeSize t) src dest (comment $ "load " ++ toStr vi)
-            IStore pos v ptr -> do
+            IStore _ v ptr -> do
                 let t = valType v
                 src <- getValLoc v
                 dest <- getPtrLoc ptr
                 gen $ X64.mov pos (typeSize t) src dest Nothing
-            INew pos vi t -> case t of
+            INew _ vi t -> case t of
                 Cl _ clIdent -> do
                     cl <- getClass clIdent
                     dest <- getLoc vi
@@ -303,7 +305,7 @@ genInstr instr =
                         --X64.mov X64.Size64 (X64.LocReg tmpReg) ( X64.LocMem (X64.RAX 0) "store vtable"
                         gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
                 _ -> error $ "internal error. new on nonclass " ++ show t
-            INewStr pos vi str -> do
+            INewStr _ vi str -> do
                 let t = Ref () strType
                 dest <- getLoc vi
                 strConst <- newStrConst str
@@ -311,7 +313,7 @@ genInstr instr =
                     X64.LocReg reg_ -> gen $ X64.lea pos X64.Size64 (X64.LocLabelPIC $ constName strConst) (X64.LocReg reg_) Nothing
                     _ -> error $ "internal error. invalid dest loc " ++ show dest
                 genCall pos (CallDirect "__createString") [VVal () t vi] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
-            INewArr pos vi t val -> do
+            INewArr _ vi t val -> do
                 dest <- getLoc vi
                 --let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
                 --() <$ val, 
@@ -328,11 +330,11 @@ genInstr instr =
                     (Cl _ name) -> error $ "internal error. cannot create array of class type " ++ show name
                     (Ref _ _) -> genCall pos (CallDirect "__newRefArray") [() <$ val] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
                     _ -> error $ "internal error. invalid array type " ++ show t
-            IJmp pos li -> do
+            IJmp _ li -> do
                 (LabIdent li') <- label li
                 resetStack pos
                 gen $ X64.jmp pos li' Nothing
-            ICondJmp pos v l1 l2 -> do
+            ICondJmp _ v l1 l2 -> do
                 loc <- getValLoc v
                 (LabIdent l1') <- label l1
                 (LabIdent l2') <- label l2

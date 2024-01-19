@@ -2,7 +2,11 @@
 {-# LANGUAGE DeriveFoldable   #-}
 {-# LANGUAGE DeriveFunctor    #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell #-}
 module IR.Flow.CFG where
+
+import Control.Lens hiding (Const)
 
 import Data.Foldable
 import Data.Maybe
@@ -14,41 +18,59 @@ import           IR.Syntax.Syntax
 -- import           Utilities           (single)
 
 -- A CFG is a set of nodes representing basic blocks, identified by their starting labels.
-newtype CFG a = CFG (Map.Map LabIdent (Node a)) deriving (Eq, Functor, Foldable)
+newtype CFG a d = CFG (Map.Map LabIdent (Node a d)) deriving (Functor, Foldable)
 
-data Node a = Node {
+data Node a d = Node {
     -- Starting label of this basic block.
-    nodeLabel :: LabIdent,
+    _nNodeLabel :: LabIdent,
     -- All code in this basic block.
-    nodeCode  :: [Instr a],
+    _nNodeBody  :: [Instr (a, d)],
     -- All basic blocks reachable from this block.
-    nodeOut   :: Set.Set LabIdent,
+    _nNodeOut   :: Set.Set LabIdent,
     -- All basic blocks that can reach this block.
-    nodeIn    :: Set.Set LabIdent
-} deriving (Eq, Functor, Foldable)
+    _nNodeIn    :: Set.Set LabIdent
+} deriving (Functor, Foldable)
 
-instance Show (Node a) where
-    show = toStr . nodeLabel
+makeLensesWith abbreviatedFields ''Node
+
+mapCFGPos :: (a -> b) -> CFG a d -> CFG b d
+mapCFGPos f (CFG m) = CFG $ Map.map (mapNodePos f) m
+
+mapNodePos :: (a -> b) -> Node a d -> Node b d
+mapNodePos f node = node { _nNodeBody = map (fmap (\(p, d) -> (f p, d))) (node^.nodeBody)}
+
+instance Eq (CFG a d) where
+    (==) cfg1 cfg2 = (mapCFGPos (const ()) cfg1) == (mapCFGPos (const ()) cfg2)
+
+instance Eq (Node a d) where
+    (==) (Node l1 b1 o1 i1) (Node l2 b2 o2 i2) = (l1 == l2) && ((fmap (const ()) b1) == (fmap (const ()) b2)) && (o1 == o2) && (i1 == i2)
+
+
+nodeCode :: Node a d -> [Instr d]
+nodeCode = map (fmap snd) . (^. nodeBody)
+
+instance Show (Node a d) where
+    show = toStr . (^. nodeLabel)
 
 -- Convert an Espresso method to a CFG. Code that is unreachable within a basic block,
 -- that is instructions occuring after a jump, are removed.
-cfg :: Method a -> CFG a
-cfg (Mthd _ _ _ _ instrs) =
+cfg :: Method a -> CFG a ()
+cfg (Mthd pos _ _ _ instrs) =
     let basicBlocks = splitBasicBlocks instrs
         initial = Map.fromList $ map (\(l, is) -> (l, Node l is Set.empty Set.empty)) basicBlocks
     in  execState (construct basicBlocks) (CFG initial)
 
-linearMap :: (Node a -> Node b) -> CFG a -> CFG b
-linearMap f g = CFG (Map.fromList $ map (\n -> (nodeLabel n, f n)) $ lineariseNodes g)
+linearMap :: (Node a d -> Node b e) -> CFG a d -> CFG b e
+linearMap f g = CFG (Map.fromList $ map (\n -> (n ^. nodeLabel, f n)) $ lineariseNodes g)
 
-lineariseNodes :: CFG a -> [Node a]
+lineariseNodes :: CFG a d -> [Node a d]
 lineariseNodes (CFG g) =
     case Map.lookup entryLabel g of
         Just entry -> evalState (go entry) Set.empty
         Nothing    -> error "internal error. malformed graph, no entry label"
     where
         go node = do
-            rest <- mapM expand (Set.elems $ nodeOut node)
+            rest <- mapM expand (Set.elems $ node ^. nodeOut)
             return $ node : concat rest
         expand l = do
             case Map.lookup l g of
@@ -61,15 +83,15 @@ lineariseNodes (CFG g) =
 
 -- Convert a CFG to a sequence of instructions. It is guaranteed to start with the
 -- .L_entry block. Blocks that are unreachable from the entry block will be ignored.
-linearise :: CFG a -> [Instr a]
-linearise = concatMap nodeCode . lineariseNodes
+linearise :: CFG a d -> [Instr (a, d)]
+linearise = concatMap (^. nodeBody) . lineariseNodes
 
 
 -- Split the instruction sequence into basic blocks. A basic block spans from a label
 -- to the first consecutive jump instruction. All instructions after a jump are dead
 -- code and are ignored.
-splitBasicBlocks :: [Instr a] -> [(LabIdent, [Instr a])]
-splitBasicBlocks = go []
+splitBasicBlocks :: [Instr a] -> [(LabIdent, [Instr (a, ())])]
+splitBasicBlocks = map (\(lab, instrs) -> (lab, map (fmap (\d -> (d, ()))) instrs)) . go []
     where
         go bbs []                         = map finalizeBlock bbs
         go bbs (i@(ILabel _ l):is)        = go ((l, [i]):bbs) is
@@ -82,7 +104,7 @@ splitBasicBlocks = go []
         finalizeBlock (l, _)  = error ("basic block not ending with a jump: " ++ toStr l)
 
 -- Constructs a CFG from basic blocks.
-construct :: [(LabIdent, [Instr a])] -> State (CFG a) ()
+construct :: [(LabIdent, [Instr (a, d)])] -> State (CFG a d) ()
 construct = mapM_ fromJumps
     where fromJumps (_, [])      = return ()
           fromJumps (from, i:is) = fromInstr from i >> fromJumps (from, is)
@@ -92,23 +114,23 @@ construct = mapM_ fromJumps
               _                    -> return ()
 
 -- Add an edge between two blocks to the current CFG.
-addEdge :: LabIdent -> LabIdent -> State (CFG a) ()
+addEdge :: LabIdent -> LabIdent -> State (CFG a d) ()
 addEdge from to = do
     mbfromNode <- gets (\(CFG g) -> Map.lookup from g)
     mbtoNode <- gets (\(CFG g) -> Map.lookup to g)
     let fromNode' = case mbfromNode of
-            Just fromNode -> fromNode {nodeOut = Set.insert to (nodeOut fromNode)}
+            Just fromNode -> fromNode & nodeOut %~ (Set.insert to)
             Nothing -> error $ "internal error. no src label " ++ toStr from
         toNode' = case mbtoNode of
-            Just toNode -> toNode {nodeIn = Set.insert from (nodeIn toNode)}
+            Just toNode -> toNode & nodeIn %~ (Set.insert from)
             Nothing     -> error $ "internal error. no dest label " ++ toStr to
     modify (\(CFG g) -> CFG $ Map.insert from fromNode' g)
     modify (\(CFG g) -> CFG $ Map.insert to toNode' g)
 
-instance Show (CFG a) where
+instance Show (CFG a d) where
     show (CFG g) = unlines (nodes:map edges (Map.elems g))
         where nodes = show (map toStr $ Map.keys g)
-              edges node = show (toStr $ nodeLabel node) ++ " -> " ++ show (nodeOut node)
+              edges node = show (toStr $ node ^. nodeLabel) ++ " -> " ++ show (node ^. nodeOut)
 
 isJump :: Instr a -> Bool
 isJump instr = case instr of

@@ -2,6 +2,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module IR.Flow.SSA (transformToSSA, unwrapSSA, SSA(..)) where
 
+import Control.Lens hiding (Const)
+
 import           Control.Monad.State
 import           Data.Bifunctor
 import qualified Data.HashMap.Strict           as HashMap
@@ -15,18 +17,20 @@ import           IR.Flow.Phi
 import           IR.Syntax.Syntax
 --import           Identifiers
 
+import IR.Utils
+
 newtype RenameDictionary = Dict {
     dict :: Map.Map ValIdent ValIdent
 } deriving Eq
 
-newtype SSA a = SSA (CFG a) deriving (Eq, Functor)
+newtype SSA a d = SSA (CFG a d) deriving (Eq, Functor)
 
 data RenamedValIdent = NewValIdent {_ident :: ValIdent, version :: Integer}
 
-unwrapSSA :: SSA a -> CFG a
+unwrapSSA :: SSA a d -> CFG a d
 unwrapSSA (SSA g) = g
 
-transformToSSA :: CFG Liveness -> Method () -> SSA ()
+transformToSSA :: CFG a Liveness -> Method a -> SSA a ()
 transformToSSA g (Mthd _ _ _ params _) =
     let g' = insertEmptyPhis g
         (g'', dicts) = transformLocally g' params
@@ -35,36 +39,43 @@ transformToSSA g (Mthd _ _ _ params _) =
 -- For each node u and its predecessors v1, ..., vn insert
 -- empty phi instructions for every variable x alive at the start of u:
 --- x = phi(v1: x, ..., vn: x)
-insertEmptyPhis :: CFG Liveness -> CFG ()
+insertEmptyPhis :: CFG a Liveness -> CFG a ()
 insertEmptyPhis = linearMap insertInNode
     where
+        removeData :: (Functor f) => f (a, b) -> f (a, ())
+        removeData = fmap (\(pos, _) -> (pos, ()))
+        insertInNode :: Node a Liveness -> Node a ()
         insertInNode node =
-            let (ls, code) = partition isLabel (nodeCode node)
-                ls' = map (() <$) ls
-                code' = map (() <$) code
-                phis' = map (() <$) (phis node)
-                endPhi = [IEndPhi () | not (any isEndPhi code)]
-            in  node {nodeCode = ls' ++ phis' ++ endPhi ++ code'}
-        phis node = map fst $ foldl' addPhiVars (emptyPhis node) (Set.elems $ nodeIn node)
-        addPhiVars xs n = map (\(IPhi _ vi phiVars, t) -> (IPhi () vi (PhiVar () n (VVal () t vi):phiVars), t)) xs
-        emptyPhis node = map (\(vi, (_, t)) -> (IPhi () (ValIdent vi) [], t)) (HashMap.toList $ liveIn $ nodeLiveness node)
+            let (pos, _) = single $ single (node ^. nodeBody)
+                (ls, code) = partition isLabel (node ^. nodeBody)
+                ls' = map (removeData) ls
+                code' = map (removeData) code
+                phis' = map (removeData) (phis pos node)
+                endPhi = [IEndPhi (pos, ()) | not (any isEndPhi code)]
+            in  node {_nNodeBody = ls' ++ phis' ++ endPhi ++ code'}
+        phis :: a -> Node a Liveness -> [Instr (a, ())]
+        phis pos node = map fst $ foldl' (addPhiVars pos) (emptyPhis pos node) (Set.elems $ node ^. nodeIn)
+        addPhiVars :: a -> [(Instr (a, ()), SType (a, ()))] -> LabIdent -> [(Instr (a, ()), SType (a, ()))]
+        addPhiVars pos xs n = map (\(IPhi p vi phiVars, t) -> (IPhi p vi (PhiVar p n (VVal p t vi):(phiVars)), t)) xs
+        emptyPhis :: a -> Node a Liveness -> [(Instr (a, ()), SType (a, ()))]
+        emptyPhis pos node = map (\(vi, (_, t)) -> (IPhi (pos, ()) (ValIdent vi) [], fmap (const (pos, ())) t)) (HashMap.toList $ liveIn $ nodeLiveness node)
 
 -- Given the translations for each incoming label, replace the empty phi instruction
 -- with the actual values from each node.
-fillPhis :: CFG () -> Map.Map LabIdent RenameDictionary -> CFG ()
+fillPhis :: CFG a () -> Map.Map LabIdent RenameDictionary -> CFG a ()
 fillPhis g dicts = linearMap fillInNode g
     where
         fillInNode node =
-            let (ls, x) = partition isLabel (nodeCode node)
+            let (ls, x) = partition isLabel (node ^. nodeBody)
                 (phis, code) = partition isPhi x
                 phis' = map fillPhi phis
-            in  node {nodeCode = ls ++ phis' ++ code}
-        fillPhi (IPhi _ vi phiVars) =
-            IPhi () vi (map fillPhiVar phiVars)
+            in  node { _nNodeBody = (ls ++ phis' ++ code) }
+        fillPhi (IPhi p vi phiVars) =
+            IPhi p vi (map fillPhiVar phiVars)
         fillPhi _ = error "impossible"
-        fillPhiVar (PhiVar _ n (VVal _ t vi)) =
+        fillPhiVar (PhiVar p n (VVal _ t vi)) =
             let vi' = fromMaybe vi (Map.lookup vi (dict $ dicts Map.! n))
-            in  PhiVar () n (VVal () t vi')
+            in  PhiVar p n (VVal p t vi')
         fillPhiVar _ = error "impossible"
 
 -- Perform SSA translation without touching the contents of phi instructions.
@@ -72,18 +83,19 @@ fillPhis g dicts = linearMap fillInNode g
 -- That version is valid until next static assignment.
 -- The resulting RenameDictionary is the version of the value at end of a block.
 type TransformState = (Map.Map ValIdent ValIdent, Map.Map ValIdent RenamedValIdent)
-transformLocally :: CFG a -> [Param ()] -> (CFG a, Map.Map LabIdent RenameDictionary)
+transformLocally :: CFG a d -> [Param a] -> (CFG a d, Map.Map LabIdent RenameDictionary)
 transformLocally g params =
     let paramMap = Map.fromList (map (\(Param _ _ vi) -> (vi, NewValIdent vi 1)) params)
         g' = Map.fromList $ evalState (mapM transformNode (lineariseNodes g)) (Map.empty, paramMap)
     in (CFG $ Map.map fst g', Map.map snd g')
     where
-        transformNode :: Node a -> State TransformState (LabIdent, (Node a, RenameDictionary))
+        transformNode :: Node a d -> State TransformState (LabIdent, (Node a d, RenameDictionary))
         transformNode node = do
-            instrs <- mapM transformInstr (nodeCode node)
+            instrs <- mapM transformInstr (node ^. nodeBody)
             (d, _) <- get
             modify (first (const Map.empty))
-            return (nodeLabel node, (node {nodeCode = instrs}, Dict d))
+            return (node^.nodeLabel, (node { _nNodeBody = instrs}, Dict d))
+        transformInstr :: Instr a -> State TransformState (Instr a)
         transformInstr instr = case instr of
             IRet a val -> do
                 x <- renameVal val

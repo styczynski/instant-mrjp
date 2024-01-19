@@ -20,7 +20,7 @@ import qualified Backend.X64.Parser.Constructor as X64
 data RegisterAllocation = RegAlloc {
     regAlloc  :: Map.Map ValIdent X64.Reg,
     numLocals :: Int
-}
+} deriving (Show)
 
 emptyRegisterAllocation :: RegisterAllocation
 emptyRegisterAllocation = RegAlloc {
@@ -29,7 +29,7 @@ emptyRegisterAllocation = RegAlloc {
 }
 
 -- Colour the interference graph, spilling variables if necessary.
-getColouredInterferenceGraph :: SSA Liveness -> (InterferenceGraph, SSA Liveness)
+getColouredInterferenceGraph :: SSA a Liveness -> (InterferenceGraph, SSA a Liveness)
 getColouredInterferenceGraph (SSA g_) = go g_ 0
     where
         go g spilledLocals =
@@ -43,7 +43,7 @@ getColouredInterferenceGraph (SSA g_) = go g_ 0
                         newCFG = analyseLiveness (spilledCFG best)
                     in go newCFG (spilledLocals + 1)
 
-getRegisterAllocation :: CFG a -> InterferenceGraph -> RegisterAllocation
+getRegisterAllocation :: CFG a d -> InterferenceGraph -> RegisterAllocation
 getRegisterAllocation (CFG cfg_) ig_ =
     let ptrLocals = concatMap (mapMaybe findPtrLocals . nodeCode) $ Map.elems cfg_
         locCnt = length $ dedup ptrLocals

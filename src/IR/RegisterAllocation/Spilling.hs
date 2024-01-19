@@ -1,5 +1,7 @@
 module IR.RegisterAllocation.Spilling where
 
+import Control.Lens hiding (Const)
+
 import           Control.Monad.State
 import qualified Data.HashMap.Strict                         as HashMap
 import qualified Data.HashSet                                as HashSet
@@ -10,8 +12,8 @@ import           IR.Syntax.Syntax
 import           IR.Utils
 import           IR.RegisterAllocation.InterferenceGraph
 
-data Spill = Spill {
-    spilledCFG :: CFG (),
+data Spill a = Spill {
+    spilledCFG :: CFG a (),
     spilledVar :: String,
     estCost    :: Float
 }
@@ -26,45 +28,47 @@ freshIdx = do
     modify (\st -> st{idx = i + 1})
     return i
 
-spill :: CFG Liveness -> Integer -> InterferenceNode -> Spill
+spill :: CFG a Liveness -> Integer -> InterferenceNode -> Spill a
 spill (CFG g) locN iNode = evalState go (St 0)
     where go = do
             spills <- mapM (spillInBlock (ValIdent $ iNodeLabel iNode) locN) (Map.elems g)
             let combCost = foldr (\n x -> x + costInNode (iNodeLabel iNode) n locN) 0 spills
                 combCost' = if combCost == 0 then read "Infinity" else combCost
-                g' = Map.fromList $ map (\n -> (nodeLabel n, n)) spills
+                g' = Map.fromList $ map (\n -> (n ^. nodeLabel, n)) spills
             return $ Spill (CFG g') (iNodeLabel iNode) (combCost' / fromIntegral (length (iNodeOut iNode)))
 
-spillInBlock :: ValIdent -> Integer -> Node Liveness -> State SpillState (Node ())
+spillInBlock :: ValIdent -> Integer -> Node a Liveness -> State SpillState (Node a ())
 spillInBlock vi locN node = do
-    instrs' <- addLoad vi locN (addStore vi locN (nodeCode node))
-    return node {nodeCode = instrs'}
+    instrs' <- addLoad vi locN (addStore vi locN (node ^. nodeBody))
+    return node {_nNodeBody = instrs'}
 
-addStore :: ValIdent -> Integer -> [Instr Liveness] -> [Instr Liveness]
+addStore :: ValIdent -> Integer -> [Instr (a, Liveness)] -> [Instr (a, Liveness)]
 addStore _ _ [] = []
 addStore vi locN (instr:instrs) =
-    let live = single instr
+    let live = snd $ single instr in
+    let pos = fst $ single instr
     in case HashMap.lookup (toStr vi) (liveOut live) of
         Just (_, t) | HashSet.member (toStr vi) (liveKill live) ->
-            let t' = emptyLiveness <$ t
-            in  instr:IStore emptyLiveness (VVal emptyLiveness t' vi) (PLocal emptyLiveness t' locN):addStore vi locN instrs
+            let t' = (pos, emptyLiveness) <$ t
+            in  instr:IStore (pos, emptyLiveness) (VVal (pos, emptyLiveness) t' vi) (PLocal (pos, emptyLiveness) t' locN):addStore vi locN instrs
         _ -> instr:addStore vi locN instrs
 
-addLoad :: ValIdent -> Integer -> [Instr Liveness] -> State SpillState [Instr ()]
+addLoad :: ValIdent -> Integer -> [Instr (a, Liveness)] -> State SpillState [Instr (a, ())]
 addLoad _ _ [] = return []
 addLoad vi locN (instr:instrs) =
-    let instr' = () <$ instr
-        live = single instr
+    let live = snd $ single instr
+        pos = fst $ single instr
+        instr' = (pos, ()) <$ instr
     in case HashMap.lookup (toStr vi) (liveUse live) of
          Just t -> do
              i <- freshIdx
              let vi' = suffix vi locN i
              rest <- addLoad vi locN instrs
-             return $ ILoad () vi' (PLocal () t locN):
+             return $ ILoad (pos, ()) vi' (PLocal (pos, ()) (fmap (const $ (pos, ())) t) locN):
                       rename vi vi' instr':rest
          Nothing -> (instr':) <$> addLoad vi locN instrs
 
-costInNode :: String -> Node a -> Integer -> Float
+costInNode :: String -> Node a d -> Integer -> Float
 costInNode vi node locN = foldr (\i x -> instrCost vi i locN + x) 0 (nodeCode node)
 
 instrCost :: String -> Instr a -> Integer -> Float
@@ -75,22 +79,22 @@ instrCost _ _ _ = 0
 suffix :: ValIdent -> Integer -> Integer -> ValIdent
 suffix (ValIdent vi) n i = ValIdent $ vi ++ "~loc_" ++ show n ++ "_" ++ show i
 
-rename :: ValIdent -> ValIdent -> Instr () -> Instr ()
+rename :: ValIdent -> ValIdent -> Instr a -> Instr a
 rename vif vit instr = case instr of
-    IRet _ v           -> IRet () (f v)
-    IOp _ vi v1 op v2  -> IOp () vi (f v1) op (f v2)
-    ISet _ vi v        -> ISet () vi (f v)
-    IUnOp _ vi op v    -> IUnOp () vi op (f v)
-    IVCall _ call      -> IVCall () (fc call)
-    ICall _ vi call    -> ICall () vi (fc call)
-    INewArr _ vi t v   -> INewArr () vi t (f v)
-    ICondJmp _ v l1 l2 -> ICondJmp () (f v) l1 l2
-    IPhi _ vi phiVars  -> IPhi () vi (map fp phiVars)
+    IRet p v           -> IRet p (f v)
+    IOp p vi v1 op v2  -> IOp p vi (f v1) op (f v2)
+    ISet p vi v        -> ISet p vi (f v)
+    IUnOp p vi op v    -> IUnOp p vi op (f v)
+    IVCall p call      -> IVCall p (fc call)
+    ICall p vi call    -> ICall p vi (fc call)
+    INewArr p vi t v   -> INewArr p vi t (f v)
+    ICondJmp p v l1 l2 -> ICondJmp p (f v) l1 l2
+    IPhi p vi phiVars  -> IPhi p vi (map fp phiVars)
     ISwap {}           -> error "swap should not occur before phi removal"
-    _                  -> () <$ instr
+    _                  -> instr
     where
-        f (VVal _ t vi) | vi == vif = VVal () t vit
+        f (VVal p t vi) | vi == vif = VVal p t vit
         f val = val
-        fc (Call _ t qi vs labs)     = Call () t qi (map f vs) labs
-        fc (CallVirt _ t qi vs) = CallVirt () t qi (map f vs)
-        fp (PhiVar _ l v) = PhiVar () l (f v)
+        fc (Call p t qi vs labs)     = Call p t qi (map f vs) labs
+        fc (CallVirt p t qi vs) = CallVirt p t qi (map f vs)
+        fp (PhiVar p l v) = PhiVar p l (f v)

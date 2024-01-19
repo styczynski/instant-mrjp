@@ -32,7 +32,6 @@ import Utils.Similarity
 import IR.Syntax.Print(printTree)
 import qualified IR.Compl as Compl
 
-usedBackend :: Backend.LatteBackend
 usedBackend = BackendX64.backend
 
 runCLI :: () -> IO ()
@@ -81,7 +80,7 @@ runPipeline backend = do
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
                       compiledProg <- return $ Compl.compl_ (fmap (const ()) ir)
-                      --printLogInfo $ "Compilation done" <> (T.pack file) <> "\n\n" <> (T.pack $ res)
+                      printLogInfo $ "COMPL_ DONE" <> (T.pack file) <> "\n\n" <> (T.pack $ show compiledProg)
                       let outputPath = replaceExtension file (inputExtension usedBackend)
                       backendResult <- Backend.runBackend outputPath (takeFileName outputPath) compiledProg usedBackend
                       case backendResult of 

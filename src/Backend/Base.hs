@@ -23,24 +23,24 @@ type BackendPipeline = (ExceptT Errors.Error LattePipeline)
 liftPipelineToBackend :: LattePipeline a -> BackendPipeline a
 liftPipelineToBackend = lift
 
-type LatteBackendFn = String -> (IR.CompiledProg) -> BackendPipeline String
+type LatteBackendFn a = String -> (IR.CompiledProg a) -> BackendPipeline String
 
 class SerializableInstruction a where
   toCode :: a -> String
 
-data LatteBackend = LatteBackend
+data LatteBackend a = LatteBackend
   { backendName :: String,
     inputExtension :: String,
-    run :: LatteBackendFn,
+    run :: LatteBackendFn a,
     compileExecutable :: String -> BackendPipeline ()
   }
 
-runBackend :: String -> String -> (IR.CompiledProg) -> LatteBackend -> LattePipeline (Either Errors.Error (String, String))
+runBackend :: String -> String -> (IR.CompiledProg a) -> LatteBackend a -> LattePipeline (Either Errors.Error (String, String))
 runBackend filePath fileName ast backend = do
   p <- runExceptT (runBackend' filePath fileName ast backend)
   return p
   where
-    runBackend' :: String -> String -> (IR.CompiledProg) -> LatteBackend -> BackendPipeline (String, String)
+    runBackend' :: String -> String -> (IR.CompiledProg a) -> LatteBackend a -> BackendPipeline (String, String)
     runBackend' filePath fileName ast backend = do
       lift $ printLogInfo $ "Running correct compiler backend: " <> (T.pack $ backendName backend)
       outputCode <- (run backend) fileName ast

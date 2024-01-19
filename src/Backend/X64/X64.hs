@@ -20,16 +20,17 @@ import qualified IR.Compl as IR
 -- import qualified Backend.X86.Formatter as X86Formatter
 -- import qualified Backend.X86.Syntax as ASM
 import qualified Backend.X64.Generator as Generator
+import qualified Linearized.Syntax as LSyntax
 
-compileCode :: String -> (IR.CompiledProg) -> BackendPipeline String
-compileCode fileName (IR.CompiledProg meta cfgs) = do
+compileCode :: (Show a) => String -> (IR.CompiledProg a) -> BackendPipeline String
+compileCode fileName (IR.CompiledProg pos meta cfgs) = do
   asm <- lift $ Generator.generate meta cfgs
   -- (asm, _) <- captureEmittedInstr $ X86Emitter.emit code
   -- (asm', _) <- captureEmittedInstr $ X86Optimizer.cleanupX86 asm
   --X86Formatter.format ["lib/runtime.ext"] fileName asm
   return asm
 
-backend :: LatteBackend
+backend :: (Show a) => LatteBackend a
 backend =
   LatteBackend
     { backendName = "X64"

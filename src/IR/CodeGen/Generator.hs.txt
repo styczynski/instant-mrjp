@@ -4,13 +4,15 @@
 {-# LANGUAGE FlexibleInstances #-}
 module  IR.CodeGen.Generator (generate) where
 
+import Control.Lens hiding (Const)
+
 import           Control.Monad.Reader
 import           Control.Monad.State
 import           Data.Bifunctor                (Bifunctor (second))
 import           Data.Int
 import           Data.List                     (partition)
 import qualified Data.Map                      as Map
-import           IR.Flow.CFG      (CFG (..), Node (..))
+import           IR.Flow.CFG
 import           IR.Flow.Liveness
 import           IR.Syntax.Syntax
 import           IR.Types                (deref, isInt, isStr, ptrType,
@@ -29,7 +31,9 @@ import           IR.RegisterAllocation.RegisterAllocation
 import           IR.Size
 import qualified Backend.X64.Parser.Constructor as X64
 
-generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> String
+import IR.Flow.CFG
+
+generate :: Metadata () -> [(CFG a Liveness, Method a, RegisterAllocation)] -> String
 generate (Meta () clDefs) mthds =
     let (mthds', cs) = foldr go ([], constsEmpty) mthds
     in  generateModule cls mthds' cs
@@ -48,15 +52,15 @@ generate (Meta () clDefs) mthds =
                 traceM' ("register allocation: " ++ show (Map.toList $ regAlloc rs))
                 traceM' ("========== starting method: " ++ toStr (labelFor qi (LabIdent "")))
                 let nodes = Map.elems g
-                    entryNode = single $ filter ((== entryLabel) . nodeLabel) nodes
-                    exitNode = single $ filter (any isRet . nodeCode) nodes
-                    otherNodes = filter ((\l -> l /= nodeLabel entryNode && l /= nodeLabel exitNode) . nodeLabel) nodes
+                    entryNode = single $ filter ((== entryLabel) . (^.nodeLabel)) nodes
+                    exitNode = single $ filter (any isRet . (^.nodeBody)) nodes
+                    otherNodes = filter ((\l -> l /= (entryNode^.nodeLabel) && l /= (exitNode^.nodeLabel)) . (^.nodeLabel)) nodes
                 genNode entryNode
                 mapM_ genNode otherNodes
-                when (nodeLabel entryNode /= nodeLabel exitNode) (genNode exitNode)
+                when ((entryNode ^. nodeLabel) /= (exitNode ^. nodeLabel)) (genNode exitNode)
             genNode node = do
-                traceM' ("===== starting block: " ++ toStr (nodeLabel node))
-                mapM_ genInstr (nodeCode node)
+                traceM' ("===== starting block: " ++ toStr (node ^. nodeLabel))
+                mapM_ genInstr (node^.nodeBody)
                 modify (\st -> st{allCode = bbCode st ++ allCode st, bbCode = []})
             isRet instr = case instr of
                 IRet _ _ -> True

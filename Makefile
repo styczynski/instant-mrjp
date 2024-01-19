@@ -39,3 +39,5 @@ src/Runtime/dependencies/_built_/done.txt:
 	cd src/Runtime/dependencies/libunistring-1.1 && CFLAGS=$(CFLAGS) make
 	cd src/Runtime/dependencies/libunistring-1.1 && CFLAGS=$(CFLAGS) make install
 	touch src/Runtime/dependencies/_built_/done.txt
+
+# stack exec --profile -- ./latc_x86 ./simple.lat +RTS -p

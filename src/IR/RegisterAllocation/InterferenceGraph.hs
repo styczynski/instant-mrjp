@@ -39,7 +39,7 @@ data InterferenceState = St {
 getColouring :: InterferenceGraph -> Map.Map String X64.Reg
 getColouring (IG g) = Map.map (fromJust . iNodeColour) g
 
-buildInterferenceGraph :: CFG Liveness -> InterferenceGraph
+buildInterferenceGraph :: CFG a Liveness -> InterferenceGraph
 buildInterferenceGraph g = stIg $ execState (go (linearise g)) (St (IG Map.empty) Set.empty 0 0)
     where
         go instrs = do
@@ -47,7 +47,7 @@ buildInterferenceGraph g = stIg $ execState (go (linearise g)) (St (IG Map.empty
             ign <- gets stIgnored
             forM_ (Set.elems ign) removeNode
         goOne instr = do
-            let live = single instr
+            let live = snd $ single instr
             case instr of
                 IOp _ vi lhs (OpDiv _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs X64.RAX
                 IOp _ vi lhs (OpMod _) rhs | not $ isSimpleDiv rhs -> goDiv live vi lhs rhs X64.RDX

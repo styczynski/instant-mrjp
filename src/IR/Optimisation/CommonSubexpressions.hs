@@ -1,6 +1,10 @@
 -- Implementation of Global Common Subexpression Elimination for Espresso.
 -- Since this step has proven to be computationally costly, hashmaps are utilised.
+{-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE FlexibleInstances #-}
 module IR.Optimisation.CommonSubexpressions where
+
+import Control.Lens hiding (Const)
 
 import           Control.Monad.State
 import qualified Data.HashMap.Strict           as Map
@@ -12,12 +16,13 @@ import           IR.Flow.SSA
 import           IR.Syntax.Syntax
 import           IR.Utils
 
-data Subexpression = SOp (Val ()) (Op ()) (Val ())
-                   | SStr String
-                   | SUnOp (Val ()) (UnOp ())
-                   | SPhi [PhiVariant ()] deriving Eq
+data Subexpression a = SOp (Val a) (Op a) (Val a)
+    | SStr String
+    | SUnOp (Val a) (UnOp a)
+    | SPhi [PhiVariant a]
+    deriving (Eq, Functor, Foldable)
 
-instance Hashable Subexpression where
+instance Hashable (Subexpression ()) where
     hashWithSalt salt val = case val of
         SOp v1 op v2          -> hashWithSalt salt (0 :: Int8, v1, op, v2)
         SStr s                -> hashWithSalt salt (1 :: Int8, s, False, False)
@@ -25,113 +30,118 @@ instance Hashable Subexpression where
         SPhi vs               -> hashWithSalt salt (3 :: Int8, map (\(PhiVar _ _ v) -> v) vs, False, False)
 
 -- Run GCSE.
-globalCommonSubexpressionElimination :: SSA Liveness -> SSA ()
-globalCommonSubexpressionElimination (SSA g) = SSA $ linearMap (\n -> n {nodeCode = eliminate $ nodeCode n}) g
+globalCommonSubexpressionElimination :: SSA a Liveness -> SSA a ()
+globalCommonSubexpressionElimination (SSA g) = SSA $ linearMap (\n -> n {_nNodeBody = eliminate $ n ^. nodeBody}) g
+
 data GCSEState = St {
-    subexprs :: Map.HashMap Subexpression ValIdent,
+    subexprs :: Map.HashMap (Subexpression ()) ValIdent,
     dict     :: Map.HashMap ValIdent ValIdent
 }
 
 -- Since the input is in SSA the operation is a simple static replacement of identical right-hand-sides.
 -- The induced copies will be eliminated later.
-eliminate :: [Instr Liveness] -> [Instr ()]
-eliminate instrs = evalState (mapM go instrs >>= mapM replaceInInstr) (St Map.empty Map.empty)
-    where go instr = do
-            let live = liveOut $ single instr
-            instr' <- replaceInInstr (() <$ instr)
-            case split instr' of
+eliminate :: [Instr (a, Liveness)] -> [Instr (a, ())]
+eliminate instrs = evalState (mapM go instrs >>= mapM replaceInInstr >>= mapM (\instr -> return $ fmap (\(pos, _) -> (pos, ())) instr)) (St Map.empty Map.empty)
+    where
+        go :: Instr (a, Liveness) -> State (GCSEState) (Instr (a, Liveness))
+        go instr = do
+            let liveData = snd $ single instr
+            let pos = single instr
+            let live = liveOut liveData
+            instr' <- (replaceInInstr instr)
+            case split (() <$ instr') of
                 Just (vi, subexpr) -> do
                     mbvi <- gets (Map.lookup subexpr . subexprs)
                     case mbvi of
                         Just vi' -> do
                             let (_, t) = live Map.! toStr vi
                             modify (\st -> st {dict = Map.insert vi vi' (dict st)})
-                            return $ ISet () vi (VVal () t vi')
+                            return $ ISet pos vi (VVal pos (pos <$ t) vi')
                         Nothing -> do
                             modify (\st -> st {subexprs = Map.insert subexpr vi (subexprs st)})
                             return instr'
                 Nothing -> return instr'
 
 
-replaceInInstr :: Instr () -> State GCSEState (Instr ())
+replaceInInstr :: Instr a -> State (GCSEState) (Instr a)
 replaceInInstr instr = case instr of
-    IRet _ v -> do
+    IRet pos v -> do
         x <- replaceInVal v
-        return $ IRet () x
-    IOp _ vi v1 op v2 -> do
+        return $ IRet pos x
+    IOp pos vi v1 op v2 -> do
         x1 <- replaceInVal v1
         x2 <- replaceInVal v2
-        return $ IOp () vi x1 op x2
-    ISet _ vi v -> do
+        return $ IOp pos vi x1 op x2
+    ISet pos vi v -> do
         x <- replaceInVal v
-        return $ ISet () vi x
-    IUnOp _ vi op v -> do
+        return $ ISet pos vi x
+    IUnOp pos vi op v -> do
         x <- replaceInVal v
-        return $ IUnOp () vi op x
-    IVCall _ call -> do
+        return $ IUnOp pos vi op x
+    IVCall pos call -> do
         call' <- replaceInCall call
-        return $ IVCall () call'
-    ICall _ vi call -> do
+        return $ IVCall pos call'
+    ICall pos vi call -> do
         call' <- replaceInCall call
-        return $ ICall () vi call'
-    INewArr _ vi t v -> do
+        return $ ICall pos vi call'
+    INewArr pos vi t v -> do
         x <- replaceInVal v
-        return $ INewArr () vi t x
-    ICondJmp _ v l1 l2 -> do
+        return $ INewArr pos vi t x
+    ICondJmp pos v l1 l2 -> do
         x <- replaceInVal v
-        return $ ICondJmp () x l1 l2
-    ILoad _ vi ptr -> do
+        return $ ICondJmp pos x l1 l2
+    ILoad pos vi ptr -> do
         ptr' <- replaceInPtr ptr
-        return $ ILoad () vi ptr'
-    IStore _ v ptr -> do
+        return $ ILoad pos vi ptr'
+    IStore pos v ptr -> do
         x <- replaceInVal v
         ptr' <- replaceInPtr ptr
-        return $ IStore () x ptr'
-    IPhi _ vi phiVars -> do
+        return $ IStore pos x ptr'
+    IPhi pos vi phiVars -> do
         phiVars' <- mapM replaceInPhiVar phiVars
-        return $ IPhi () vi phiVars'
+        return $ IPhi pos vi phiVars'
     _ -> return instr
 
-replaceInCall :: Call () -> State GCSEState (Call ())
+replaceInCall :: Call a -> State (GCSEState) (Call a)
 replaceInCall call = case call of
-    Call _ t qi vs labs -> do
+    Call pos t qi vs labs -> do
         xs <- mapM replaceInVal vs
-        return $ Call () t qi xs labs
-    CallVirt _ t qi vs -> do
+        return $ Call pos t qi xs labs
+    CallVirt pos t qi vs -> do
         xs <- mapM replaceInVal vs
-        return $ CallVirt () t qi xs
+        return $ CallVirt pos t qi xs
 
-replaceInPhiVar :: PhiVariant () -> State GCSEState (PhiVariant ())
-replaceInPhiVar (PhiVar _ l val) = PhiVar () l <$> replaceInVal val
+replaceInPhiVar :: PhiVariant a -> State (GCSEState) (PhiVariant a)
+replaceInPhiVar (PhiVar pos l val) = PhiVar pos l <$> replaceInVal val
 
-replaceInPtr :: Ptr () -> State GCSEState (Ptr ())
+replaceInPtr :: Ptr a -> State (GCSEState) (Ptr a)
 replaceInPtr ptr = case ptr of
-    PArrLen _ v -> do
+    PArrLen pos v -> do
         x <- replaceInVal v
-        return $ PArrLen () x
-    PElem _ t v1 v2 -> do
+        return $ PArrLen pos x
+    PElem pos t v1 v2 -> do
         x1 <- replaceInVal v1
         x2 <- replaceInVal v2
-        return $ PElem () t x1 x2
-    PFld _ t v qi -> do
+        return $ PElem pos t x1 x2
+    PFld pos t v qi -> do
         x <- replaceInVal v
-        return $ PFld () t x qi
+        return $ PFld pos t x qi
     PLocal {} -> return ptr
     PParam {} -> return ptr
 
-replaceInVal :: Val () -> State GCSEState (Val ())
+replaceInVal :: Val a -> State (GCSEState) (Val a)
 replaceInVal val = case val of
-    VVal _ t vi -> do
+    VVal pos t vi -> do
         mbvi <- gets (Map.lookup vi . dict)
         return $ case mbvi of
-            Just vi' -> VVal () t vi'
-            Nothing  -> VVal () t vi
+            Just vi' -> VVal pos t vi'
+            Nothing  -> VVal pos t vi
     _ -> return val
 
 -- If the instruction is a valid one to propagate, split it into
 -- the left-hand-side (identifier) and the right-hand-side (subexpression).
-split :: Instr () -> Maybe (ValIdent, Subexpression)
-split instr = case instr of
+split :: Instr a -> Maybe (ValIdent, Subexpression ())
+split instr = case (() <$ instr) of
     IOp _ vi v1 op v2 -> Just (vi, SOp v1 op v2)
     INewStr _ vi s    -> Just (vi, SStr s)
     IUnOp _ vi op v   -> Just (vi, SUnOp v op)
@@ -153,9 +163,9 @@ split instr = case instr of
     IStore {}         -> Nothing -- Nontrivial memory operation.
     IEndPhi {}        -> Nothing -- Not an assignment.
 
-fuse :: ValIdent -> Subexpression -> Instr ()
-fuse vi subexpr = case subexpr of
-    SOp v1 op v2 -> IOp () vi v1 op v2
-    SStr s       -> INewStr () vi s
-    SUnOp v op   -> IUnOp () vi op v
-    SPhi vs      -> IPhi () vi vs
+fuse :: a -> ValIdent -> Subexpression () -> Instr a
+fuse pos vi subexpr = case (pos <$ subexpr) of
+    SOp v1 op v2 -> IOp pos vi v1 op v2
+    SStr s       -> INewStr pos vi s
+    SUnOp v op   -> IUnOp pos vi op v
+    SPhi vs      -> IPhi pos vi vs

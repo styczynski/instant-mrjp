@@ -9,12 +9,12 @@ import           IR.Syntax.Syntax
 import           IR.Utils
 
 -- Main optimisation pipeline.
-optimise :: SSA () -> Method () -> SSA ()
+optimise :: SSA a () -> Method a -> SSA a ()
 optimise ssa mthd = fixpoint ((`propagateCopiesAndConsts` mthd) .
                     (() <$) .
                     globalCommonSubexpressionElimination .
                     removeDeadCodeSSA .
                     analyseLivenessSSA) ssa
 
-analyseLivenessSSA :: SSA () -> SSA Liveness
+analyseLivenessSSA :: SSA a () -> SSA a Liveness
 analyseLivenessSSA (SSA g) = SSA $ analyseLiveness g

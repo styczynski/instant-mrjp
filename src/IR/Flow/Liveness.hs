@@ -4,12 +4,14 @@
 -- in optimisation pipeline, so hashed containers are used to amp the performance.
 module IR.Flow.Liveness where
 
+import Control.Lens hiding (Const)
+
 import           Data.Bifunctor
 import qualified Data.HashMap.Strict      as Map
 import qualified Data.HashSet             as Set
 import qualified Data.Map                 as OrdMap
 import qualified Data.Set                 as OrdSet
-import           IR.Flow.CFG (CFG (..), Node (..), linearMap)
+import           IR.Flow.CFG
 import           IR.Syntax.Syntax
 import IR.Utils
 --import           Identifiers
@@ -41,14 +43,17 @@ emptyLiveness = Liveness Map.empty Map.empty Map.empty Set.empty
 -- Annotate a CFG with liveness data for every instruction in every node.
 -- This is done by iterating the liveness data until reaching a fixpoint,
 -- in each step propagating the liveness data locally within a basic block.
-analyseLiveness :: CFG a -> CFG Liveness
+analyseLiveness :: CFG a d -> CFG a Liveness
 analyseLiveness g = let start = initialLiveness g
                     in  fixpoint iterateLiveness start
 
 -- Starting point for the algorithm containing use and kill data for each instruction.
-initialLiveness :: CFG a -> CFG Liveness
+initialLiveness :: CFG a d -> CFG a Liveness
 initialLiveness = linearMap nodeInitLive
-    where nodeInitLive node = node { nodeCode = map instrInitLive (nodeCode node) }
+    where
+          nodeInitLive :: Node a d -> Node a Liveness
+          nodeInitLive node = node { _nNodeBody = map instrInitLive (node ^. nodeBody) }
+          instrInitLive :: Instr (a, b) -> Instr (a, Liveness)
           instrInitLive instr =
               let (use, kill) = case instr of
                     IRet _ v          -> (valSet v, Set.empty)
@@ -66,47 +71,47 @@ initialLiveness = linearMap nodeInitLive
                     IStore _ v p      -> (valSet v `Map.union` ptrValSet p, Set.empty)
                     IPhi _ vi phis    -> (phiUseSet phis, valISet vi)
                     _                 -> (Map.empty, Set.empty)
-              in emptyLiveness { liveUse = use, liveKill = kill } <$ instr
+              in fmap (\(pos, _) -> (pos, emptyLiveness { liveUse = use, liveKill = kill })) instr
 
 -- Propagate current liveness data locally within basic blocks
 -- and then propagate once through edges in the graph.
-iterateLiveness :: CFG Liveness -> CFG Liveness
+iterateLiveness :: CFG a Liveness -> CFG a Liveness
 iterateLiveness = globalLiveness . linearMap localLiveness
 
 -- For each edge (v, u) in the graph mark the variables alive at the beginning of u
 -- as alive at the end of v.
-globalLiveness :: CFG Liveness -> CFG Liveness
+globalLiveness :: CFG a Liveness -> CFG a Liveness
 globalLiveness cfg_@(CFG g) = linearMap go cfg_
     where
         go node =
             let -- Look at each outgoing edge and get the next uses of all live variables,
                 -- taking the minimum if a variable is used in more than one block.
-                out = foldr (Map.unionWith min . liveIn . nodeLiveness . (g OrdMap.!)) Map.empty (OrdSet.elems $ nodeOut node)
-                (lastInstr, instrs) = splitLast $ nodeCode node
+                out = foldr (Map.unionWith min . liveIn . nodeLiveness . (g OrdMap.!)) Map.empty (OrdSet.elems $ node ^. nodeOut)
+                (lastInstr, instrs) = splitLast $ node ^. nodeBody
                 -- Put the data from the target nodes in the last instruction to be propagated
                 -- during localLiveness step.
-                lastInstr' = (\l -> l {liveOut = Map.map (first (+1)) out}) <$> lastInstr
-            in  node {nodeCode = instrs ++ [lastInstr']}
+                lastInstr' = fmap (\(p, l) -> (p, l {liveOut = Map.map (first (+1)) out})) lastInstr
+            in  node & nodeBody .~ (instrs ++ [lastInstr'])
 
 -- Propagate variable usage down-to-top through a node.
-localLiveness :: Node Liveness -> Node Liveness
-localLiveness node = node {nodeCode = go (nodeCode node)}
+localLiveness :: Node a Liveness -> Node a Liveness
+localLiveness node = node & nodeBody %~ go
     where
-        go :: [Instr Liveness] -> [Instr Liveness]
+        go :: [Instr (a, Liveness)] -> [Instr (a, Liveness)]
         go []             = []
         go (instr:instrs) =
             let xs = go instrs
-                instr' = (\live ->
+                instr' = (\(p, live) ->
                     let -- If this is the last instruction the liveOut
                         -- set will be unchanged in this step.
                         out = case xs of
                             []  -> liveOut live
-                            x:_ -> liveIn $ single x
+                            x:_ -> liveIn $ snd $ single x
                         -- in = (out - kill) \cup use
                         fromOut = Map.filterWithKey (\k _ -> not $ k `Set.member` liveKill live) $ Map.map (first (+1)) out
                         fromThis = Map.map (0,) (liveUse live)
                         in_ = fromThis `Map.union` fromOut
-                    in  live {liveOut = out, liveIn = in_})
+                    in (p, live {liveOut = out, liveIn = in_}))
                     <$> instr
             in  instr':xs
 
@@ -137,7 +142,7 @@ callUseSet call = case call of
 phiUseSet :: [PhiVariant a] -> TypedVarSet
 phiUseSet phis = valsSet $ map (\(PhiVar _ _ v) -> v) phis
 
-nodeLiveness :: Node Liveness -> Liveness
+nodeLiveness :: Node a Liveness -> Liveness
 nodeLiveness node = single $ head $ nodeCode node
 
 instance Show Liveness where
