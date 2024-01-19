@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 module Backend.X64.Def where
 
 import Control.Lens hiding (Const)
@@ -25,6 +26,9 @@ import IR.RegisterAllocation.RegisterAllocation
 import qualified Backend.X64.Parser.Constructor as X64
 
 data ASMAnno = ASMAnno String
+
+instance X64.CommentProvider a ASMAnno where
+    toComment _ (ASMAnno comment) = comment
 
 type Generator a v = (StateT (GeneratorEnv) (ReaderT GeneratorContext (ExceptT Errors.Error (X64.ASMGeneratorT a (ASMAnno) LattePipeline)))) v
 

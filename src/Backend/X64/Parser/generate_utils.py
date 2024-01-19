@@ -18,7 +18,7 @@ def create_data_types():
     #             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
     #         """
     #     ]
-    syms = syms + ["Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
+    syms = syms + ["CommentProvider(..)", "Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
     allocable_registers = [reg.upper() for reg in REGISTERS['64'] if REGISTERS_ALLOCABLE[reg.upper()]]
     ret = ret + [
         f"""
@@ -78,6 +78,13 @@ def create_data_types():
 
             data Annotation a anno = NoAnnotation a | Annotation a anno
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
+            class CommentProvider a anno where
+            {INDENT}toComment :: a -> anno -> String
+
+            _convert_annotation :: (CommentProvider a anno) => Annotation a anno -> Syntax.CommentAnn' a 
+            _convert_annotation (NoAnnotation pos) = Syntax.NoComment pos
+            _convert_annotation (Annotation pos ann) = Syntax.Comment pos $ Syntax.CommentLike $ "#-- " ++ (toComment pos ann) ++ " --#"
 
         """
     ]
@@ -261,14 +268,14 @@ def create_instr_wrappers():
         """
     ]
     ret = ret + [
-        f"""_convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)""",
-        f"""_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label $ sanitizeLabel l"""
+        f"""_convertInstr :: (Monad m, CommentProvider a anno) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)""",
+        f"""_convertInstr (Label pos l ann) = return $ Syntax.LabelDef pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)"""
     ]
     for instr in INSTR_ARITM_2OP:
         for size in REGISTERS:
             if size != '8':
                 ret = ret+[
-                    f"""_convertInstr ({instr.upper()} pos Size{size} loc1 loc2 _) = return $ Syntax.{instr.upper()}{size} pos (_locToSource pos Size{size} loc1) (_locToTarget pos Size{size} loc2)""",
+                    f"""_convertInstr ({instr.upper()} pos Size{size} loc1 loc2 ann) = return $ Syntax.{instr.upper()}{size} pos (_locToSource pos Size{size} loc1) (_locToTarget pos Size{size} loc2) (_convert_annotation ann)""",
                 ]
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size"""
@@ -277,36 +284,36 @@ def create_instr_wrappers():
         for size in REGISTERS:
             if size != '8':
                 ret = ret+[
-                    f"""_convertInstr ({instr.upper()} pos Size{size} loc _) = return $ Syntax.{instr.upper()}{size} pos (_locToTarget pos Size{size} loc)""",
+                    f"""_convertInstr ({instr.upper()} pos Size{size} loc ann) = return $ Syntax.{instr.upper()}{size} pos (_locToTarget pos Size{size} loc) (_convert_annotation ann)""",
                 ]
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos size _ _) = generatorFail $ EDataUnexpectedSize pos size"""
         ]
     for instr in INSTR_SET:
         ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.{instr.upper()} pos r""",
+            f"""_convertInstr ({instr.upper()} pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.{instr.upper()} pos r (_convert_annotation ann)""",
             f"""_convertInstr ({instr.upper()} pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
         ]
     for instr in INSTR_STACK:
         ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos loc@(LocReg reg) _) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.{instr.upper()} pos r""",
+            f"""_convertInstr ({instr.upper()} pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.{instr.upper()} pos r (_convert_annotation ann)""",
             f"""_convertInstr ({instr.upper()} pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
         ]
     for instr in INSTR_JMP:
         ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos label _) = return $ Syntax.{instr.upper()} pos (Syntax.Label $ sanitizeLabel label)""",
+            f"""_convertInstr ({instr.upper()} pos label ann) = return $ Syntax.{instr.upper()} pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)""",
         ]
     for instr in INSTR_NOARG:
         ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos _) = return $ Syntax.{instr.upper()} pos""",
+            f"""_convertInstr ({instr.upper()} pos ann) = return $ Syntax.{instr.upper()} pos (_convert_annotation ann)""",
         ]
     # Calls
     ret = ret+[
-        f"""_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label $ sanitizeLabel l""",
+        f"""_convertInstr (CALL pos l ann) = return $ Syntax.CALL pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)""",
     ]
     for reg in REGISTERS['64']:
         ret = ret+[
-            f"""_convertInstr (CALL_INDIRECT pos {reg.upper()} offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.{reg.upper()} pos""",
+            f"""_convertInstr (CALL_INDIRECT pos {reg.upper()} offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.{reg.upper()} pos) (_convert_annotation ann)""",
         ]
 
     # TUTAJ POZMIENIAC!!!
@@ -618,7 +625,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
     {INDENT}return genResult
 
-    runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
+    runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
     runASMGeneratorT generator externs = do
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
     {INDENT}case genResult of 
@@ -629,10 +636,11 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> return $ Left err
     {INDENT}{INDENT}{INDENT}{INDENT}Right ((_, fullProg), _) -> do
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let assemblyCodeStr = Printer.printTree fullProg
-    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let formattedCode = T.unpack $ T.unlines $ map (T.strip) $ T.lines $ T.replace "<ENDL>" "\\n" $ T.pack assemblyCodeStr
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let codeLines = map (T.strip) $ T.lines $ T.replace "<ENDL>" "\\n" $ T.pack assemblyCodeStr
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let formattedCode = alignASMCommentsText codeLines
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return $ Right (formattedCode, result)
     {INDENT}where
-    {INDENT}{INDENT}generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+    {INDENT}{INDENT}generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
     {INDENT}{INDENT}generateOut externs r =
     {INDENT}{INDENT}{INDENT}case r of
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> generatorFail err
@@ -642,6 +650,15 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return (result, fullProg)
+    {INDENT}{INDENT}alignASMCommentsText :: [T.Text] -> String
+    {INDENT}{INDENT}alignASMCommentsText fileContents =
+    {INDENT}{INDENT}{INDENT}let codeLines = map (\line -> let chunks = T.splitOn (T.pack "#") line in if null chunks then (T.pack "", T.pack "") else (head chunks, T.intercalate "#" $ tail chunks)) $ fileContents in
+    {INDENT}{INDENT}{INDENT}let codeWidth = maximum $ map (\(code, _) -> T.length code) codeLines in
+    {INDENT}{INDENT}{INDENT}let formattedCodeLines = map (\(code, comment) -> let c' = paddingTo code codeWidth in if T.null comment then code else c' <> (T.pack " #") <> comment) codeLines in
+    {INDENT}{INDENT}{INDENT}T.unpack $ T.unlines formattedCodeLines
+    {INDENT}{INDENT}paddingTo :: T.Text -> Int -> T.Text
+    {INDENT}{INDENT}paddingTo line width = line <> (T.pack (concat $ replicate (width - (T.length line)) " "))
+
 
     -- Registers
     {data_types_code}

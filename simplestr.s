@@ -132,43 +132,43 @@ subq $0, %RSP
 call __new
 addq $0, %RSP
 movq %RAX, %RAX
-movq %RAX, %RDI
+movq %RAX, %RDI               #-- passing arg --#
 leaq _class_A (%RIP), %RSI
 subq $0, %RSP
 call __cast
 addq $0, %RSP
 movq %RAX, %RBX
-movq 8 (%R12), %RAX
+movq 8 (%R12), %RAX           #-- load data (indirect) --#
 movl $42, 0 (%RAX)
-movq 8 (%RBX), %RAX
+movq 8 (%RBX), %RAX           #-- load data (indirect) --#
 movl $42, 0 (%RAX)
-movq %R12, %RDI
-movl $15, %ESI
+movq %R12, %RDI               #-- passing arg --#
+movl $15, %ESI                #-- passing arg --#
 subq $0, %RSP
 testq %RDI, %RDI
 jz __errorNull
-movq 20 (%RDI), %RAX
-call * 24 (%RAX)
+movq 20 (%RDI), %RAX          #-- load address of vtable --#
+call * 24 (%RAX)              #-- call bar --#
 addq $0, %RSP
 movl %EAX, %EAX
-movl %EAX, %EDI
+movl %EAX, %EDI               #-- passing arg --#
 subq $0, %RSP
 call printInt
 addq $0, %RSP
-movq %RBX, %RDI
-movl $15, %ESI
+movq %RBX, %RDI               #-- passing arg --#
+movl $15, %ESI                #-- passing arg --#
 subq $0, %RSP
 testq %RDI, %RDI
 jz __errorNull
-movq 20 (%RDI), %RAX
-call * 24 (%RAX)
+movq 20 (%RDI), %RAX          #-- load address of vtable --#
+call * 24 (%RAX)              #-- call bar --#
 addq $0, %RSP
 movl %EAX, %EAX
-movl %EAX, %EDI
+movl %EAX, %EDI               #-- passing arg --#
 subq $0, %RSP
 call printInt
 addq $0, %RSP
-movl $0, %EAX
+movl $0, %EAX                 #-- move return value --#
 addq $0, %RSP
 leave
 pop %R12
@@ -179,10 +179,10 @@ push %RBP
 movq %RSP, %RBP
 subq $0, %RSP
 __cl_TopLevel.bar.L_entry :
-movl %EDI, %EAX
+movl %EDI, %EAX               #-- load %v_t_19 --#
 movl %EAX, %EAX
-sall $1, %EAX
-movl %EAX, %EAX
+sall $1, %EAX                 #-- multiply by 2 --#
+movl %EAX, %EAX               #-- move return value --#
 addq $0, %RSP
 leave
 ret
@@ -191,25 +191,25 @@ push %RBP
 movq %RSP, %RBP
 subq $0, %RSP
 __cl_TopLevel.foo.L_entry :
-movq %RDI, %RCX
+movq %RDI, %RCX               #-- load %v_t_15 --#
 leaq __const_1 (%RIP), %RAX
-push %RCX
-movq %RAX, %RDI
+push %RCX                     #-- save caller saved --#
+movq %RAX, %RDI               #-- passing arg --#
 subq $0, %RSP
 call __createString
 addq $0, %RSP
 movq %RAX, %RAX
 pop %RCX
-movq %RCX, %RDI
-movq %RAX, %RSI
+movq %RCX, %RDI               #-- passing arg --#
+movq %RAX, %RSI               #-- passing arg --#
 subq $0, %RSP
 testq %RDI, %RDI
 jz __errorNull
-movq 20 (%RDI), %RAX
-call * 16 (%RAX)
+movq 20 (%RDI), %RAX          #-- load address of vtable --#
+call * 16 (%RAX)              #-- call concat --#
 addq $0, %RSP
 movq %RAX, %RAX
-movq %RAX, %RAX
+movq %RAX, %RAX               #-- move return value --#
 addq $0, %RSP
 leave
 ret
@@ -220,25 +220,25 @@ push %RBP
 movq %RSP, %RBP
 subq $0, %RSP
 B.bar.L_entry :
-movq %RDI, %RBX
-movl %ESI, %R12D
-movq 8 (%RBX), %RAX
-movl 0 (%RAX), %EAX
-movl %EAX, %EDI
+movq %RDI, %RBX               #-- load %v_t_4 --#
+movl %ESI, %R12D              #-- load %v_t_5 --#
+movq 8 (%RBX), %RAX           #-- load data (indirect) --#
+movl 0 (%RAX), %EAX           #-- load %v_t_6 --#
+movl %EAX, %EDI               #-- passing arg --#
 subq $0, %RSP
 call printInt
 addq $0, %RSP
-movl %R12D, %EDI
+movl %R12D, %EDI              #-- passing arg --#
 subq $0, %RSP
 call printInt
 addq $0, %RSP
-leal 2 (%R12), %ECX
-movq 8 (%RBX), %RAX
-movl 0 (%RAX), %EAX
+leal 2 (%R12), %ECX           #--  addition %v_t_10 --#
+movq 8 (%RBX), %RAX           #-- load data (indirect) --#
+movl 0 (%RAX), %EAX           #-- load %v_t_12 --#
 movl %EAX, %EAX
-sall $1, %EAX
+sall $1, %EAX                 #-- multiply by 2 --#
 addl %ECX, %EAX
-movl %EAX, %EAX
+movl %EAX, %EAX               #-- move return value --#
 addq $0, %RSP
 leave
 pop %R12
@@ -249,13 +249,13 @@ push %RBP
 movq %RSP, %RBP
 subq $0, %RSP
 A.bar.L_entry :
-movl %ESI, %EAX
+movl %ESI, %EAX               #-- load %v_t_1 --#
 movl %EAX, %EAX
-sall $1, %EAX
-movl %EAX, %EAX
+sall $1, %EAX                 #-- multiply by 2 --#
+movl %EAX, %EAX               #-- move return value --#
 addq $0, %RSP
 leave
 ret
-__errorNull :
-andq $-16, %RSP
+__errorNull :                 #-- runtime error on null dereference --#
+andq $-16, %RSP               #-- 16 bytes allign --#
 call __errorNull

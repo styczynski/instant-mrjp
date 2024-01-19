@@ -41,6 +41,10 @@ data AsmDataDef' a
     = AsmDataGlobal a Label | AsmDataDef a Label [Data' a]
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
+type CommentAnn = CommentAnn' BNFC'Position
+data CommentAnn' a = Comment a CommentLike | NoComment a
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
+
 type Data = Data' BNFC'Position
 data Data' a
     = DataString a String
@@ -58,64 +62,64 @@ data Directive' a = Extern a Label
 
 type AsmInstr = AsmInstr' BNFC'Position
 data AsmInstr' a
-    = LabelDef a Label
-    | ADD64 a (Source' a) (Target' a)
-    | AND64 a (Source' a) (Target' a)
-    | CMP64 a (Source' a) (Target' a)
-    | IMUL64 a (Source' a) (Target' a)
-    | LEA64 a (Source' a) (Target' a)
-    | MOV64 a (Source' a) (Target' a)
-    | SUB64 a (Source' a) (Target' a)
-    | TEST64 a (Source' a) (Target' a)
-    | XOR64 a (Source' a) (Target' a)
-    | XCHG64 a (Source' a) (Target' a)
-    | SAL64 a (Source' a) (Target' a)
-    | SAR64 a (Source' a) (Target' a)
-    | ADD32 a (Source' a) (Target' a)
-    | AND32 a (Source' a) (Target' a)
-    | CMP32 a (Source' a) (Target' a)
-    | IMUL32 a (Source' a) (Target' a)
-    | LEA32 a (Source' a) (Target' a)
-    | MOV32 a (Source' a) (Target' a)
-    | SUB32 a (Source' a) (Target' a)
-    | TEST32 a (Source' a) (Target' a)
-    | XOR32 a (Source' a) (Target' a)
-    | XCHG32 a (Source' a) (Target' a)
-    | SAL32 a (Source' a) (Target' a)
-    | SAR32 a (Source' a) (Target' a)
-    | ADD16 a (Source' a) (Target' a)
-    | AND16 a (Source' a) (Target' a)
-    | CMP16 a (Source' a) (Target' a)
-    | IMUL16 a (Source' a) (Target' a)
-    | LEA16 a (Source' a) (Target' a)
-    | MOV16 a (Source' a) (Target' a)
-    | SUB16 a (Source' a) (Target' a)
-    | TEST16 a (Source' a) (Target' a)
-    | XOR16 a (Source' a) (Target' a)
-    | XCHG16 a (Source' a) (Target' a)
-    | SAL16 a (Source' a) (Target' a)
-    | SAR16 a (Source' a) (Target' a)
-    | NEG64 a (Target' a)
-    | IDIV64 a (Target' a)
-    | NEG32 a (Target' a)
-    | IDIV32 a (Target' a)
-    | NEG16 a (Target' a)
-    | IDIV16 a (Target' a)
-    | CALL a Label
-    | CALLINDIRECT a Integer (Reg' a)
-    | POP a (Reg' a)
-    | PUSH a (Reg' a)
-    | LEAVE a
-    | RET a
-    | CDQ a
-    | SETE a (Reg' a)
-    | SETG a (Reg' a)
-    | SETGE a (Reg' a)
-    | SETL a (Reg' a)
-    | SETLE a (Reg' a)
-    | SETNE a (Reg' a)
-    | JMP a Label
-    | JZ a Label
+    = LabelDef a Label (CommentAnn' a)
+    | ADD64 a (Source' a) (Target' a) (CommentAnn' a)
+    | AND64 a (Source' a) (Target' a) (CommentAnn' a)
+    | CMP64 a (Source' a) (Target' a) (CommentAnn' a)
+    | IMUL64 a (Source' a) (Target' a) (CommentAnn' a)
+    | LEA64 a (Source' a) (Target' a) (CommentAnn' a)
+    | MOV64 a (Source' a) (Target' a) (CommentAnn' a)
+    | SUB64 a (Source' a) (Target' a) (CommentAnn' a)
+    | TEST64 a (Source' a) (Target' a) (CommentAnn' a)
+    | XOR64 a (Source' a) (Target' a) (CommentAnn' a)
+    | XCHG64 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAL64 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAR64 a (Source' a) (Target' a) (CommentAnn' a)
+    | ADD32 a (Source' a) (Target' a) (CommentAnn' a)
+    | AND32 a (Source' a) (Target' a) (CommentAnn' a)
+    | CMP32 a (Source' a) (Target' a) (CommentAnn' a)
+    | IMUL32 a (Source' a) (Target' a) (CommentAnn' a)
+    | LEA32 a (Source' a) (Target' a) (CommentAnn' a)
+    | MOV32 a (Source' a) (Target' a) (CommentAnn' a)
+    | SUB32 a (Source' a) (Target' a) (CommentAnn' a)
+    | TEST32 a (Source' a) (Target' a) (CommentAnn' a)
+    | XOR32 a (Source' a) (Target' a) (CommentAnn' a)
+    | XCHG32 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAL32 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAR32 a (Source' a) (Target' a) (CommentAnn' a)
+    | ADD16 a (Source' a) (Target' a) (CommentAnn' a)
+    | AND16 a (Source' a) (Target' a) (CommentAnn' a)
+    | CMP16 a (Source' a) (Target' a) (CommentAnn' a)
+    | IMUL16 a (Source' a) (Target' a) (CommentAnn' a)
+    | LEA16 a (Source' a) (Target' a) (CommentAnn' a)
+    | MOV16 a (Source' a) (Target' a) (CommentAnn' a)
+    | SUB16 a (Source' a) (Target' a) (CommentAnn' a)
+    | TEST16 a (Source' a) (Target' a) (CommentAnn' a)
+    | XOR16 a (Source' a) (Target' a) (CommentAnn' a)
+    | XCHG16 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAL16 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAR16 a (Source' a) (Target' a) (CommentAnn' a)
+    | NEG64 a (Target' a) (CommentAnn' a)
+    | IDIV64 a (Target' a) (CommentAnn' a)
+    | NEG32 a (Target' a) (CommentAnn' a)
+    | IDIV32 a (Target' a) (CommentAnn' a)
+    | NEG16 a (Target' a) (CommentAnn' a)
+    | IDIV16 a (Target' a) (CommentAnn' a)
+    | CALL a Label (CommentAnn' a)
+    | CALLINDIRECT a Integer (Reg' a) (CommentAnn' a)
+    | POP a (Reg' a) (CommentAnn' a)
+    | PUSH a (Reg' a) (CommentAnn' a)
+    | LEAVE a (CommentAnn' a)
+    | RET a (CommentAnn' a)
+    | CDQ a (CommentAnn' a)
+    | SETE a (Reg' a) (CommentAnn' a)
+    | SETG a (Reg' a) (CommentAnn' a)
+    | SETGE a (Reg' a) (CommentAnn' a)
+    | SETL a (Reg' a) (CommentAnn' a)
+    | SETLE a (Reg' a) (CommentAnn' a)
+    | SETNE a (Reg' a) (CommentAnn' a)
+    | JMP a Label (CommentAnn' a)
+    | JZ a Label (CommentAnn' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Source = Source' BNFC'Position
@@ -227,6 +231,9 @@ data Reg' a
     | R15B a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
+newtype CommentLike = CommentLike String
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
+
 newtype ConstIntRef = ConstIntRef String
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
 
@@ -265,6 +272,11 @@ instance HasPosition AsmDataDef where
     AsmDataGlobal p _ -> p
     AsmDataDef p _ _ -> p
 
+instance HasPosition CommentAnn where
+  hasPosition = \case
+    Comment p _ -> p
+    NoComment p -> p
+
 instance HasPosition Data where
   hasPosition = \case
     DataString p _ -> p
@@ -282,64 +294,64 @@ instance HasPosition Directive where
 
 instance HasPosition AsmInstr where
   hasPosition = \case
-    LabelDef p _ -> p
-    ADD64 p _ _ -> p
-    AND64 p _ _ -> p
-    CMP64 p _ _ -> p
-    IMUL64 p _ _ -> p
-    LEA64 p _ _ -> p
-    MOV64 p _ _ -> p
-    SUB64 p _ _ -> p
-    TEST64 p _ _ -> p
-    XOR64 p _ _ -> p
-    XCHG64 p _ _ -> p
-    SAL64 p _ _ -> p
-    SAR64 p _ _ -> p
-    ADD32 p _ _ -> p
-    AND32 p _ _ -> p
-    CMP32 p _ _ -> p
-    IMUL32 p _ _ -> p
-    LEA32 p _ _ -> p
-    MOV32 p _ _ -> p
-    SUB32 p _ _ -> p
-    TEST32 p _ _ -> p
-    XOR32 p _ _ -> p
-    XCHG32 p _ _ -> p
-    SAL32 p _ _ -> p
-    SAR32 p _ _ -> p
-    ADD16 p _ _ -> p
-    AND16 p _ _ -> p
-    CMP16 p _ _ -> p
-    IMUL16 p _ _ -> p
-    LEA16 p _ _ -> p
-    MOV16 p _ _ -> p
-    SUB16 p _ _ -> p
-    TEST16 p _ _ -> p
-    XOR16 p _ _ -> p
-    XCHG16 p _ _ -> p
-    SAL16 p _ _ -> p
-    SAR16 p _ _ -> p
-    NEG64 p _ -> p
-    IDIV64 p _ -> p
-    NEG32 p _ -> p
-    IDIV32 p _ -> p
-    NEG16 p _ -> p
-    IDIV16 p _ -> p
-    CALL p _ -> p
-    CALLINDIRECT p _ _ -> p
-    POP p _ -> p
-    PUSH p _ -> p
-    LEAVE p -> p
-    RET p -> p
-    CDQ p -> p
-    SETE p _ -> p
-    SETG p _ -> p
-    SETGE p _ -> p
-    SETL p _ -> p
-    SETLE p _ -> p
-    SETNE p _ -> p
-    JMP p _ -> p
-    JZ p _ -> p
+    LabelDef p _ _ -> p
+    ADD64 p _ _ _ -> p
+    AND64 p _ _ _ -> p
+    CMP64 p _ _ _ -> p
+    IMUL64 p _ _ _ -> p
+    LEA64 p _ _ _ -> p
+    MOV64 p _ _ _ -> p
+    SUB64 p _ _ _ -> p
+    TEST64 p _ _ _ -> p
+    XOR64 p _ _ _ -> p
+    XCHG64 p _ _ _ -> p
+    SAL64 p _ _ _ -> p
+    SAR64 p _ _ _ -> p
+    ADD32 p _ _ _ -> p
+    AND32 p _ _ _ -> p
+    CMP32 p _ _ _ -> p
+    IMUL32 p _ _ _ -> p
+    LEA32 p _ _ _ -> p
+    MOV32 p _ _ _ -> p
+    SUB32 p _ _ _ -> p
+    TEST32 p _ _ _ -> p
+    XOR32 p _ _ _ -> p
+    XCHG32 p _ _ _ -> p
+    SAL32 p _ _ _ -> p
+    SAR32 p _ _ _ -> p
+    ADD16 p _ _ _ -> p
+    AND16 p _ _ _ -> p
+    CMP16 p _ _ _ -> p
+    IMUL16 p _ _ _ -> p
+    LEA16 p _ _ _ -> p
+    MOV16 p _ _ _ -> p
+    SUB16 p _ _ _ -> p
+    TEST16 p _ _ _ -> p
+    XOR16 p _ _ _ -> p
+    XCHG16 p _ _ _ -> p
+    SAL16 p _ _ _ -> p
+    SAR16 p _ _ _ -> p
+    NEG64 p _ _ -> p
+    IDIV64 p _ _ -> p
+    NEG32 p _ _ -> p
+    IDIV32 p _ _ -> p
+    NEG16 p _ _ -> p
+    IDIV16 p _ _ -> p
+    CALL p _ _ -> p
+    CALLINDIRECT p _ _ _ -> p
+    POP p _ _ -> p
+    PUSH p _ _ -> p
+    LEAVE p _ -> p
+    RET p _ -> p
+    CDQ p _ -> p
+    SETE p _ _ -> p
+    SETG p _ _ -> p
+    SETGE p _ _ -> p
+    SETL p _ _ -> p
+    SETLE p _ _ -> p
+    SETNE p _ _ -> p
+    JMP p _ _ -> p
+    JZ p _ _ -> p
 
 instance HasPosition Source where
   hasPosition = \case

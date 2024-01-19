@@ -22,6 +22,10 @@ except ``"`` unless preceded by ``\``.
 
 
 
+
+CommentLike literals are recognized by the regular expression
+`````{"#--"} (char - [""\"] | '\' [""\fnrt"])* '-' '-' '#'`````
+
 ConstIntRef literals are recognized by the regular expression
 `````'$' digit+`````
 
@@ -71,7 +75,7 @@ The symbols used in X64GAS are the following:
   | %R13B | %R14B | %R15B |
 
 ===Comments===
-Single-line comments begin with #.There are no multiple-line comments in the grammar.
+There are no single-line comments in the grammar.There are no multiple-line comments in the grammar.
 
 ==The syntactic structure of X64GAS==
 Non-terminals are enclosed between < and >.
@@ -90,6 +94,8 @@ All other symbols are terminals.
   |  |  **|**  | //Label// ``:`` ``<ENDL>`` //[Data]// ``<ENDL>``
   | //[AsmDataDef]// | -> | **eps**
   |  |  **|**  | //AsmDataDef// //[AsmDataDef]//
+  | //CommentAnn// | -> | //CommentLike//
+  |  |  **|**  | **eps**
   | //Data// | -> | ``.string`` //String// ``<ENDL>``
   |  |  **|**  | ``.quad`` //DataConst// ``<ENDL>``
   |  |  **|**  | ``.long`` //DataConst// ``<ENDL>``
@@ -100,64 +106,64 @@ All other symbols are terminals.
   | //Directive// | -> | ``.extern`` //Label// ``<ENDL>``
   | //[Directive]// | -> | **eps**
   |  |  **|**  | //Directive// //[Directive]//
-  | //AsmInstr// | -> | //Label// ``:`` ``<ENDL>``
-  |  |  **|**  | ``addq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``andq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``cmpq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``imulq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``leaq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``movq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``subq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``testq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``xorq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``xchgq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``salq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``sarq`` //Source64// ``,`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``addl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``andl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``cmpl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``imull`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``leal`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``movl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``subl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``testl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``xorl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``xchgl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``sall`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``sarl`` //Source32// ``,`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``addb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``andb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``leab`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``movb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``subb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``testb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``xorb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``xchgb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``salb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``negq`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``idivq`` //Target64// ``<ENDL>``
-  |  |  **|**  | ``negl`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``idivl`` //Target32// ``<ENDL>``
-  |  |  **|**  | ``negb`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``idivb`` //Target16// ``<ENDL>``
-  |  |  **|**  | ``call`` //Label// ``<ENDL>``
-  |  |  **|**  | ``call`` ``*`` //Integer// ``(`` //Reg64// ``)`` ``<ENDL>``
-  |  |  **|**  | ``pop`` //Reg64// ``<ENDL>``
-  |  |  **|**  | ``push`` //Reg64// ``<ENDL>``
-  |  |  **|**  | ``leave`` ``<ENDL>``
-  |  |  **|**  | ``ret`` ``<ENDL>``
-  |  |  **|**  | ``cdq`` ``<ENDL>``
-  |  |  **|**  | ``sete`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``setg`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``setge`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``setl`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``setle`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``setne`` //Reg8// ``<ENDL>``
-  |  |  **|**  | ``jmp`` //Label// ``<ENDL>``
-  |  |  **|**  | ``jz`` //Label// ``<ENDL>``
+  | //AsmInstr// | -> | //Label// ``:`` //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``addq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``andq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cmpq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``imulq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leaq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``movq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``subq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``testq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xorq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xchgq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``salq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sarq`` //Source64// ``,`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``addl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``andl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cmpl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``imull`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leal`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``movl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``subl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``testl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xorl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xchgl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sall`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sarl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``addb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``andb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leab`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``movb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``subb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``testb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xorb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xchgb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``salb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``negq`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``idivq`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``negl`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``idivl`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``negb`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``idivb`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``call`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``call`` ``*`` //Integer// ``(`` //Reg64// ``)`` //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``pop`` //Reg64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``push`` //Reg64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leave`` //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``ret`` //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cdq`` //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sete`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setg`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setge`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setl`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setle`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setne`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jmp`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jz`` //Label// //CommentAnn// ``<ENDL>``
   | //Source64// | -> | //ConstIntRef//
   |  |  **|**  | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``

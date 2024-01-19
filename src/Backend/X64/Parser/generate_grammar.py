@@ -47,6 +47,9 @@ def generate_grammar(output_grammar_path):
         AsmDataDef. AsmDataDef ::= Label ":" {newline} [Data] {newline} ;
         separator AsmDataDef "" ;
 
+        Comment. CommentAnn ::= CommentLike ;
+        NoComment. CommentAnn ::= ;
+
         DataString. Data ::= ".string" String {newline} ;
         Data64. Data ::= ".quad" DataConst {newline} ;
         Data32. Data ::= ".long" DataConst {newline} ;
@@ -58,44 +61,46 @@ def generate_grammar(output_grammar_path):
         Extern. Directive ::= ".extern " Label {newline} ;
         separator Directive "" ;
 
+        token CommentLike '#' '-' '-' ((char - ["\\"\\\\"]) | ('\\\\' ["\\"\\\\tnrf"]))* '-' '-' '#';
+
         token ConstIntRef '$' (digit)+ ;
         token Label (letter | digit | '_' | '\\\'')+ ;
 
-        LabelDef. AsmInstr ::= Label ":" {newline};
+        LabelDef. AsmInstr ::= Label ":" CommentAnn {newline};
         separator AsmInstr "" ;
 
         -- 2-operand arithmetics
-        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", comma, "Target64", newline) for instr in INSTR_ARITM_2OP])}
-        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", comma, "Target32", newline) for instr in INSTR_ARITM_2OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Source16", comma, "Target16", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", comma, "Target64", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", comma, "Target32", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Source16", comma, "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
 
         -- 1-operand arithmetics
-        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64", newline) for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32", newline) for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
 
         -- Calls
         {embed([
-            rule("CALL", "AsmInstr", lit("call"), "Label", newline),
-            rule("CALLINDIRECT", "AsmInstr", lit("call"), lit("*"), "Integer", lit("("), "Reg64", lit(")"), newline),
+            rule("CALL", "AsmInstr", lit("call"), "Label", "CommentAnn", newline),
+            rule("CALLINDIRECT", "AsmInstr", lit("call"), lit("*"), "Integer", lit("("), "Reg64", lit(")"), "CommentAnn", newline),
         ])}
 
         -- Stack operations
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg64", newline) for instr in INSTR_STACK])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg64", "CommentAnn", newline) for instr in INSTR_STACK])}
 
         -- Zero arg instructions
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), newline) for instr in INSTR_NOARG])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "CommentAnn", newline) for instr in INSTR_NOARG])}
 
         -- Set instructions
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg8", newline) for instr in INSTR_SET])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg8", "CommentAnn", newline) for instr in INSTR_SET])}
 
         -- Jumps
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Label", newline) for instr in INSTR_JMP])}
+        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Label", "CommentAnn", newline) for instr in INSTR_JMP])}
 
         -- Registers
         {embed(generate_reg_defs())}
 
-        comment    "#" ;
+        -- comment    "#" ;
     """
     with open(output_grammar_path, "w") as f:
         f.write("\n".join([line.strip() for line in grammar.splitlines()]))

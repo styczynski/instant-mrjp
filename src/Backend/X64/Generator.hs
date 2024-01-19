@@ -41,15 +41,10 @@ import Control.Monad.Trans.Writer
 import Data.Foldable
 
 
--- genInstr :: Instr Liveness -> Generator ()
--- genInstr instr = do
---     liftGenerator $ X64.mov () X64.Size64 (X64.LocReg X64.RAX) (X64.LocReg X64.RDX)
-
 generate :: Metadata () -> [(CFG Liveness, Method a, RegisterAllocation)] -> LattePipeline String
 generate meta methods = do
     let externs = runtimeSymbols
     result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs
-    -- X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod emptyLiveness g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
     case result of
         (Left _) -> return ""
         (Right (_, Left err)) -> return ""
@@ -109,20 +104,6 @@ emitMethod classMap (CFG g, m@(Mthd _ _ qi _ _), rs) cs = do
         (Right ((Right env), cnt)) -> do
             gen $ X64.continueASMGeneratorT cnt
             return $ env ^. consts
-    -- case result of
-    --      (Left _) -> return (xs, cs)
-    --      (Right (_, Left err)) -> return (xs, cs)
-    --      (Right (code, Right env)) -> do
-    --         let rawMthd = CompiledMethod (toStr $ labelFor qi entryLabel) [] code []
-    --         let mthd = withEpilogue rs $ withPrologue qi rs rawMthd
-    --         return (mthd : xs, env ^. consts)
-    -- case result of
-    --     (Left _) -> return (xs, cs)
-    --     (Right (_, Left err)) -> return (xs, cs)
-    --     (Right (code, Right env)) -> do
-    --         let rawMthd = CompiledMethod (toStr $ labelFor qi entryLabel) [] code []
-    --         let mthd = withEpilogue rs $ withPrologue qi rs rawMthd
-    --         return (mthd : xs, env ^. consts)
     where
         genMethod :: Liveness -> (Map.Map LabIdent (Node Liveness)) -> QIdent a -> RegisterAllocation -> Generator Liveness ()
         genMethod pos g qi rs = do
@@ -204,7 +185,7 @@ genInstr instr =
                             (X64.LocConst n1, X64.LocReg r2) ->
                                 gen $ X64.lea pos X64.Size32 ( X64.LocMem (r2, fromIntegral n1)) dest (comment $ "addition " ++ toStr vi)
                             (X64.LocReg r1, X64.LocConst n2) ->
-                                gen $ X64.lea pos X64.Size32 ( X64.LocMem (r1, fromIntegral n2)) dest (comment $" addition " ++ toStr vi)
+                                gen $ X64.lea pos X64.Size32 ( X64.LocMem (r1, fromIntegral n2)) dest (comment $ " addition " ++ toStr vi)
                             _ -> error "internal error. invalid src locs in add"
                     OpAdd _ | isStr (valType v1) -> do
                         genCall pos (CallDirect "lat_cat_strings") [v1, v2] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)

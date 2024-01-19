@@ -15,6 +15,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , Data(..)
 , Loc(..)
 , Size(..)
+, CommentProvider(..)
 , Reg(..)
 , Loc(..)
 , RegType(..)
@@ -141,7 +142,7 @@ execASMGeneratorT generator = do
 	genResult <- runExceptT (runWriterT $ generator)
 	return genResult
 
-runASMGeneratorT :: (Monad m) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
+runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
 runASMGeneratorT generator externs = do
 	genResult <- runExceptT (runWriterT $ generator)
 	case genResult of
@@ -152,10 +153,11 @@ runASMGeneratorT generator externs = do
 				Left err -> return $ Left err
 				Right ((_, fullProg), _) -> do
 					let assemblyCodeStr = Printer.printTree fullProg
-					let formattedCode = T.unpack $ T.unlines $ map (T.strip) $ T.lines $ T.replace "<ENDL>" "\n" $ T.pack assemblyCodeStr
+					let codeLines = map (T.strip) $ T.lines $ T.replace "<ENDL>" "\n" $ T.pack assemblyCodeStr
+					let formattedCode = alignASMCommentsText codeLines
 					return $ Right (formattedCode, result)
 	where
-		generateOut :: (Monad m) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+		generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
 		generateOut externs r =
 			case r of
 				Left err -> generatorFail err
@@ -165,6 +167,15 @@ runASMGeneratorT generator externs = do
 					let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
 					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
 					return (result, fullProg)
+		alignASMCommentsText :: [T.Text] -> String
+		alignASMCommentsText fileContents =
+			let codeLines = map (\line -> let chunks = T.splitOn (T.pack "#") line in if null chunks then (T.pack "", T.pack "") else (head chunks, T.intercalate "#" $ tail chunks)) $ fileContents in
+			let codeWidth = maximum $ map (\(code, _) -> T.length code) codeLines in
+			let formattedCodeLines = map (\(code, comment) -> let c' = paddingTo code codeWidth in if T.null comment then code else c' <> (T.pack " #") <> comment) codeLines in
+			T.unpack $ T.unlines formattedCodeLines
+		paddingTo :: T.Text -> Int -> T.Text
+		paddingTo line width = line <> (T.pack (concat $ replicate (width - (T.length line)) " "))
+
 
 -- Registers
 
@@ -293,6 +304,13 @@ asReg loc = case loc of
 
 data Annotation a anno = NoAnnotation a | Annotation a anno
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
+class CommentProvider a anno where
+	toComment :: a -> anno -> String
+
+_convert_annotation :: (CommentProvider a anno) => Annotation a anno -> Syntax.CommentAnn' a
+_convert_annotation (NoAnnotation pos) = Syntax.NoComment pos
+_convert_annotation (Annotation pos ann) = Syntax.Comment pos $ Syntax.CommentLike $ "#-- " ++ (toComment pos ann) ++ " --#"
 
 
 argLoc :: Integer -> Loc
@@ -770,102 +788,102 @@ callIndirect :: (Monad m) => a -> Reg -> Integer -> (Maybe anno) -> ASMGenerator
 callIndirect pos reg offset ann =
 	_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
 
-_convertInstr :: (Monad m) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)
-_convertInstr (Label pos l _) = return $ Syntax.LabelDef pos $ Syntax.Label $ sanitizeLabel l
-_convertInstr (ADD pos Size64 loc1 loc2 _) = return $ Syntax.ADD64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (ADD pos Size32 loc1 loc2 _) = return $ Syntax.ADD32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (ADD pos Size16 loc1 loc2 _) = return $ Syntax.ADD16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr :: (Monad m, CommentProvider a anno) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)
+_convertInstr (Label pos l ann) = return $ Syntax.LabelDef pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)
+_convertInstr (ADD pos Size64 loc1 loc2 ann) = return $ Syntax.ADD64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (ADD pos Size32 loc1 loc2 ann) = return $ Syntax.ADD32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (ADD pos Size16 loc1 loc2 ann) = return $ Syntax.ADD16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (ADD pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (AND pos Size64 loc1 loc2 _) = return $ Syntax.AND64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (AND pos Size32 loc1 loc2 _) = return $ Syntax.AND32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (AND pos Size16 loc1 loc2 _) = return $ Syntax.AND16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (AND pos Size64 loc1 loc2 ann) = return $ Syntax.AND64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (AND pos Size32 loc1 loc2 ann) = return $ Syntax.AND32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (AND pos Size16 loc1 loc2 ann) = return $ Syntax.AND16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (AND pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (CMP pos Size64 loc1 loc2 _) = return $ Syntax.CMP64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (CMP pos Size32 loc1 loc2 _) = return $ Syntax.CMP32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (CMP pos Size16 loc1 loc2 _) = return $ Syntax.CMP16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (CMP pos Size64 loc1 loc2 ann) = return $ Syntax.CMP64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (CMP pos Size32 loc1 loc2 ann) = return $ Syntax.CMP32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (CMP pos Size16 loc1 loc2 ann) = return $ Syntax.CMP16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (CMP pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (IMUL pos Size64 loc1 loc2 _) = return $ Syntax.IMUL64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (IMUL pos Size32 loc1 loc2 _) = return $ Syntax.IMUL32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (IMUL pos Size16 loc1 loc2 _) = return $ Syntax.IMUL16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (IMUL pos Size64 loc1 loc2 ann) = return $ Syntax.IMUL64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (IMUL pos Size32 loc1 loc2 ann) = return $ Syntax.IMUL32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (IMUL pos Size16 loc1 loc2 ann) = return $ Syntax.IMUL16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (IMUL pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (LEA pos Size64 loc1 loc2 _) = return $ Syntax.LEA64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (LEA pos Size32 loc1 loc2 _) = return $ Syntax.LEA32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (LEA pos Size16 loc1 loc2 _) = return $ Syntax.LEA16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (LEA pos Size64 loc1 loc2 ann) = return $ Syntax.LEA64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (LEA pos Size32 loc1 loc2 ann) = return $ Syntax.LEA32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (LEA pos Size16 loc1 loc2 ann) = return $ Syntax.LEA16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (LEA pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (MOV pos Size64 loc1 loc2 _) = return $ Syntax.MOV64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (MOV pos Size32 loc1 loc2 _) = return $ Syntax.MOV32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (MOV pos Size16 loc1 loc2 _) = return $ Syntax.MOV16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (MOV pos Size64 loc1 loc2 ann) = return $ Syntax.MOV64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (MOV pos Size32 loc1 loc2 ann) = return $ Syntax.MOV32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (MOV pos Size16 loc1 loc2 ann) = return $ Syntax.MOV16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (MOV pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (SUB pos Size64 loc1 loc2 _) = return $ Syntax.SUB64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (SUB pos Size32 loc1 loc2 _) = return $ Syntax.SUB32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (SUB pos Size16 loc1 loc2 _) = return $ Syntax.SUB16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (SUB pos Size64 loc1 loc2 ann) = return $ Syntax.SUB64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (SUB pos Size32 loc1 loc2 ann) = return $ Syntax.SUB32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (SUB pos Size16 loc1 loc2 ann) = return $ Syntax.SUB16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (SUB pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (TEST pos Size64 loc1 loc2 _) = return $ Syntax.TEST64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (TEST pos Size32 loc1 loc2 _) = return $ Syntax.TEST32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (TEST pos Size16 loc1 loc2 _) = return $ Syntax.TEST16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (TEST pos Size64 loc1 loc2 ann) = return $ Syntax.TEST64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (TEST pos Size32 loc1 loc2 ann) = return $ Syntax.TEST32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (TEST pos Size16 loc1 loc2 ann) = return $ Syntax.TEST16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (TEST pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (XOR pos Size64 loc1 loc2 _) = return $ Syntax.XOR64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (XOR pos Size32 loc1 loc2 _) = return $ Syntax.XOR32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (XOR pos Size16 loc1 loc2 _) = return $ Syntax.XOR16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (XOR pos Size64 loc1 loc2 ann) = return $ Syntax.XOR64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (XOR pos Size32 loc1 loc2 ann) = return $ Syntax.XOR32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (XOR pos Size16 loc1 loc2 ann) = return $ Syntax.XOR16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (XOR pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (XCHG pos Size64 loc1 loc2 _) = return $ Syntax.XCHG64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (XCHG pos Size32 loc1 loc2 _) = return $ Syntax.XCHG32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (XCHG pos Size16 loc1 loc2 _) = return $ Syntax.XCHG16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (XCHG pos Size64 loc1 loc2 ann) = return $ Syntax.XCHG64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (XCHG pos Size32 loc1 loc2 ann) = return $ Syntax.XCHG32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (XCHG pos Size16 loc1 loc2 ann) = return $ Syntax.XCHG16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (XCHG pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (SAL pos Size64 loc1 loc2 _) = return $ Syntax.SAL64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (SAL pos Size32 loc1 loc2 _) = return $ Syntax.SAL32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (SAL pos Size16 loc1 loc2 _) = return $ Syntax.SAL16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (SAL pos Size64 loc1 loc2 ann) = return $ Syntax.SAL64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (SAL pos Size32 loc1 loc2 ann) = return $ Syntax.SAL32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (SAL pos Size16 loc1 loc2 ann) = return $ Syntax.SAL16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (SAL pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (SAR pos Size64 loc1 loc2 _) = return $ Syntax.SAR64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2)
-_convertInstr (SAR pos Size32 loc1 loc2 _) = return $ Syntax.SAR32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2)
-_convertInstr (SAR pos Size16 loc1 loc2 _) = return $ Syntax.SAR16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2)
+_convertInstr (SAR pos Size64 loc1 loc2 ann) = return $ Syntax.SAR64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
+_convertInstr (SAR pos Size32 loc1 loc2 ann) = return $ Syntax.SAR32 pos (_locToSource pos Size32 loc1) (_locToTarget pos Size32 loc2) (_convert_annotation ann)
+_convertInstr (SAR pos Size16 loc1 loc2 ann) = return $ Syntax.SAR16 pos (_locToSource pos Size16 loc1) (_locToTarget pos Size16 loc2) (_convert_annotation ann)
 _convertInstr (SAR pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (NEG pos Size64 loc _) = return $ Syntax.NEG64 pos (_locToTarget pos Size64 loc)
-_convertInstr (NEG pos Size32 loc _) = return $ Syntax.NEG32 pos (_locToTarget pos Size32 loc)
-_convertInstr (NEG pos Size16 loc _) = return $ Syntax.NEG16 pos (_locToTarget pos Size16 loc)
+_convertInstr (NEG pos Size64 loc ann) = return $ Syntax.NEG64 pos (_locToTarget pos Size64 loc) (_convert_annotation ann)
+_convertInstr (NEG pos Size32 loc ann) = return $ Syntax.NEG32 pos (_locToTarget pos Size32 loc) (_convert_annotation ann)
+_convertInstr (NEG pos Size16 loc ann) = return $ Syntax.NEG16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
 _convertInstr (NEG pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (IDIV pos Size64 loc _) = return $ Syntax.IDIV64 pos (_locToTarget pos Size64 loc)
-_convertInstr (IDIV pos Size32 loc _) = return $ Syntax.IDIV32 pos (_locToTarget pos Size32 loc)
-_convertInstr (IDIV pos Size16 loc _) = return $ Syntax.IDIV16 pos (_locToTarget pos Size16 loc)
+_convertInstr (IDIV pos Size64 loc ann) = return $ Syntax.IDIV64 pos (_locToTarget pos Size64 loc) (_convert_annotation ann)
+_convertInstr (IDIV pos Size32 loc ann) = return $ Syntax.IDIV32 pos (_locToTarget pos Size32 loc) (_convert_annotation ann)
+_convertInstr (IDIV pos Size16 loc ann) = return $ Syntax.IDIV16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
 _convertInstr (IDIV pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (SETE pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r
+_convertInstr (SETE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r (_convert_annotation ann)
 _convertInstr (SETE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETG pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r
+_convertInstr (SETG pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r (_convert_annotation ann)
 _convertInstr (SETG pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETGE pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETGE pos r
+_convertInstr (SETGE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETGE pos r (_convert_annotation ann)
 _convertInstr (SETGE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETL pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETL pos r
+_convertInstr (SETL pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETL pos r (_convert_annotation ann)
 _convertInstr (SETL pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETLE pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETLE pos r
+_convertInstr (SETLE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETLE pos r (_convert_annotation ann)
 _convertInstr (SETLE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETNE pos loc _) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNE pos r
+_convertInstr (SETNE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNE pos r (_convert_annotation ann)
 _convertInstr (SETNE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (POP pos loc@(LocReg reg) _) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.POP pos r
+_convertInstr (POP pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.POP pos r (_convert_annotation ann)
 _convertInstr (POP pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (PUSH pos loc@(LocReg reg) _) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.PUSH pos r
+_convertInstr (PUSH pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.PUSH pos r (_convert_annotation ann)
 _convertInstr (PUSH pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (JMP pos label _) = return $ Syntax.JMP pos (Syntax.Label $ sanitizeLabel label)
-_convertInstr (JZ pos label _) = return $ Syntax.JZ pos (Syntax.Label $ sanitizeLabel label)
-_convertInstr (LEAVE pos _) = return $ Syntax.LEAVE pos
-_convertInstr (RET pos _) = return $ Syntax.RET pos
-_convertInstr (CDQ pos _) = return $ Syntax.CDQ pos
-_convertInstr (CALL pos l _) = return $ Syntax.CALL pos $ Syntax.Label $ sanitizeLabel l
-_convertInstr (CALL_INDIRECT pos RAX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RAX pos
-_convertInstr (CALL_INDIRECT pos RBX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RBX pos
-_convertInstr (CALL_INDIRECT pos RCX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RCX pos
-_convertInstr (CALL_INDIRECT pos RDX offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RDX pos
-_convertInstr (CALL_INDIRECT pos RDI offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RDI pos
-_convertInstr (CALL_INDIRECT pos RSI offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RSI pos
-_convertInstr (CALL_INDIRECT pos RSP offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RSP pos
-_convertInstr (CALL_INDIRECT pos RBP offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.RBP pos
-_convertInstr (CALL_INDIRECT pos R8 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R8 pos
-_convertInstr (CALL_INDIRECT pos R9 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R9 pos
-_convertInstr (CALL_INDIRECT pos R10 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R10 pos
-_convertInstr (CALL_INDIRECT pos R11 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R11 pos
-_convertInstr (CALL_INDIRECT pos R12 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R12 pos
-_convertInstr (CALL_INDIRECT pos R13 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R13 pos
-_convertInstr (CALL_INDIRECT pos R14 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R14 pos
-_convertInstr (CALL_INDIRECT pos R15 offset _) = return $ Syntax.CALLINDIRECT pos offset $ Syntax.R15 pos
+_convertInstr (JMP pos label ann) = return $ Syntax.JMP pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (JZ pos label ann) = return $ Syntax.JZ pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (LEAVE pos ann) = return $ Syntax.LEAVE pos (_convert_annotation ann)
+_convertInstr (RET pos ann) = return $ Syntax.RET pos (_convert_annotation ann)
+_convertInstr (CDQ pos ann) = return $ Syntax.CDQ pos (_convert_annotation ann)
+_convertInstr (CALL pos l ann) = return $ Syntax.CALL pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RAX offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RAX pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RBX offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RBX pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RCX offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RCX pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RDX offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RDX pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RDI offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RDI pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RSI offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RSI pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RSP offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RSP pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos RBP offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.RBP pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R8 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R8 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R9 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R9 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R10 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R10 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R11 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R11 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R12 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R12 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R13 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R13 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R14 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R14 pos) (_convert_annotation ann)
+_convertInstr (CALL_INDIRECT pos R15 offset ann) = return $ Syntax.CALLINDIRECT pos offset (Syntax.R15 pos) (_convert_annotation ann)
 
 -- Data wrappers
 dataDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()

@@ -32,15 +32,16 @@ $u = [. \n]          -- universal: any character
 
 :-
 
--- Line comment "#"
-"#" [.]* ;
-
 -- Whitespace (skipped)
 $white+ ;
 
 -- Symbols
 @rsyms
     { tok (eitherResIdent TV) }
+
+-- token CommentLike
+\# \- \- ([$u # [\" \\]] | \\ [\" \\ f n r t]) * \- \- \#
+    { tok (eitherResIdent T_CommentLike) }
 
 -- token ConstIntRef
 \$ $d +
@@ -75,6 +76,7 @@ data Tok
   | TV !String                    -- ^ Identifier.
   | TD !String                    -- ^ Float literal.
   | TC !String                    -- ^ Character literal.
+  | T_CommentLike !String
   | T_ConstIntRef !String
   | T_Label !String
   deriving (Eq, Show, Ord)
@@ -139,6 +141,7 @@ tokenText t = case t of
   PT _ (TD s)   -> s
   PT _ (TC s)   -> s
   Err _         -> "#error"
+  PT _ (T_CommentLike s) -> s
   PT _ (T_ConstIntRef s) -> s
   PT _ (T_Label s) -> s
 

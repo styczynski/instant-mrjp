@@ -15,6 +15,10 @@ type Result = Err String
 failure :: Show a => a -> Result
 failure x = Left $ "Undefined case: " ++ show x
 
+transCommentLike :: Backend.X64.Parser.Gen.AbsXGAS.CommentLike -> Result
+transCommentLike x = case x of
+  Backend.X64.Parser.Gen.AbsXGAS.CommentLike string -> failure x
+
 transConstIntRef :: Backend.X64.Parser.Gen.AbsXGAS.ConstIntRef -> Result
 transConstIntRef x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.ConstIntRef string -> failure x
@@ -40,6 +44,11 @@ transAsmDataDef x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.AsmDataGlobal _ label -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.AsmDataDef _ label datas -> failure x
 
+transCommentAnn :: Show a => Backend.X64.Parser.Gen.AbsXGAS.CommentAnn' a -> Result
+transCommentAnn x = case x of
+  Backend.X64.Parser.Gen.AbsXGAS.Comment _ commentlike -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.NoComment _ -> failure x
+
 transData :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Data' a -> Result
 transData x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.DataString _ string -> failure x
@@ -57,64 +66,64 @@ transDirective x = case x of
 
 transAsmInstr :: Show a => Backend.X64.Parser.Gen.AbsXGAS.AsmInstr' a -> Result
 transAsmInstr x = case x of
-  Backend.X64.Parser.Gen.AbsXGAS.LabelDef _ label -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.ADD64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.AND64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CMP64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IMUL64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.LEA64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.MOV64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SUB64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.TEST64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XOR64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XCHG64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAL64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAR64 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.ADD32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.AND32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CMP32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IMUL32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.LEA32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.MOV32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SUB32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.TEST32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XOR32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XCHG32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAL32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAR32 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.ADD16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.AND16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CMP16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IMUL16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.LEA16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.MOV16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SUB16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.TEST16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XOR16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.XCHG16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAL16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SAR16 _ source target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.NEG64 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IDIV64 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.NEG32 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IDIV32 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.NEG16 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.IDIV16 _ target -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CALL _ label -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT _ integer reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.POP _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.PUSH _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.LEAVE _ -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.RET _ -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.CDQ _ -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETE _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETG _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETGE _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETL _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETLE _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.SETNE _ reg -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.JMP _ label -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.JZ _ label -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LabelDef _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.ADD64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.AND64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CMP64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IMUL64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LEA64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.MOV64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SUB64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.TEST64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XOR64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XCHG64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAL64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAR64 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.ADD32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.AND32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CMP32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IMUL32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LEA32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.MOV32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SUB32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.TEST32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XOR32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XCHG32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAL32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAR32 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.ADD16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.AND16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CMP16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IMUL16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LEA16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.MOV16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SUB16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.TEST16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XOR16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XCHG16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAL16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAR16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.NEG64 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IDIV64 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.NEG32 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IDIV32 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.NEG16 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IDIV16 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CALL _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT _ integer reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.POP _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.PUSH _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LEAVE _ commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.RET _ commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CDQ _ commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETE _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETG _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETGE _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETL _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETLE _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETNE _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JMP _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JZ _ label commentann -> failure x
 
 transSource :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Source' a -> Result
 transSource x = case x of

@@ -11,6 +11,9 @@ AsmDataGlobal .AsmDataDef ::= ".global" Label "<ENDL>" ;
 AsmDataDef. AsmDataDef ::= Label ":" "<ENDL>" [Data] "<ENDL>" ;
 separator AsmDataDef "" ;
 
+Comment. CommentAnn ::= CommentLike ;
+NoComment. CommentAnn ::= ;
+
 DataString. Data ::= ".string" String "<ENDL>" ;
 Data64. Data ::= ".quad" DataConst "<ENDL>" ;
 Data32. Data ::= ".long" DataConst "<ENDL>" ;
@@ -22,92 +25,94 @@ ConstLabel. DataConst ::= Label ;
 Extern. Directive ::= ".extern " Label "<ENDL>" ;
 separator Directive "" ;
 
+token CommentLike '#' '-' '-' ((char - ["\"\\"]) | ('\\' ["\"\\tnrf"]))* '-' '-' '#';
+
 token ConstIntRef '$' (digit)+ ;
 token Label (letter | digit | '_' | '\'')+ ;
 
-LabelDef. AsmInstr ::= Label ":" "<ENDL>";
+LabelDef. AsmInstr ::= Label ":" CommentAnn "<ENDL>";
 separator AsmInstr "" ;
 
 -- 2-operand arithmetics
-ADD64. AsmInstr ::= "addq" Source64 "," Target64 "<ENDL>" ;
-AND64. AsmInstr ::= "andq" Source64 "," Target64 "<ENDL>" ;
-CMP64. AsmInstr ::= "cmpq" Source64 "," Target64 "<ENDL>" ;
-IMUL64. AsmInstr ::= "imulq" Source64 "," Target64 "<ENDL>" ;
-LEA64. AsmInstr ::= "leaq" Source64 "," Target64 "<ENDL>" ;
-MOV64. AsmInstr ::= "movq" Source64 "," Target64 "<ENDL>" ;
-SUB64. AsmInstr ::= "subq" Source64 "," Target64 "<ENDL>" ;
-TEST64. AsmInstr ::= "testq" Source64 "," Target64 "<ENDL>" ;
-XOR64. AsmInstr ::= "xorq" Source64 "," Target64 "<ENDL>" ;
-XCHG64. AsmInstr ::= "xchgq" Source64 "," Target64 "<ENDL>" ;
-SAL64. AsmInstr ::= "salq" Source64 "," Target64 "<ENDL>" ;
-SAR64. AsmInstr ::= "sarq" Source64 "," Target64 "<ENDL>" ;
+ADD64. AsmInstr ::= "addq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+AND64. AsmInstr ::= "andq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+CMP64. AsmInstr ::= "cmpq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+IMUL64. AsmInstr ::= "imulq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+LEA64. AsmInstr ::= "leaq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+MOV64. AsmInstr ::= "movq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+SUB64. AsmInstr ::= "subq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+TEST64. AsmInstr ::= "testq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+XOR64. AsmInstr ::= "xorq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+XCHG64. AsmInstr ::= "xchgq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+SAL64. AsmInstr ::= "salq" Source64 "," Target64 CommentAnn "<ENDL>" ;
+SAR64. AsmInstr ::= "sarq" Source64 "," Target64 CommentAnn "<ENDL>" ;
 
-ADD32. AsmInstr ::= "addl" Source32 "," Target32 "<ENDL>" ;
-AND32. AsmInstr ::= "andl" Source32 "," Target32 "<ENDL>" ;
-CMP32. AsmInstr ::= "cmpl" Source32 "," Target32 "<ENDL>" ;
-IMUL32. AsmInstr ::= "imull" Source32 "," Target32 "<ENDL>" ;
-LEA32. AsmInstr ::= "leal" Source32 "," Target32 "<ENDL>" ;
-MOV32. AsmInstr ::= "movl" Source32 "," Target32 "<ENDL>" ;
-SUB32. AsmInstr ::= "subl" Source32 "," Target32 "<ENDL>" ;
-TEST32. AsmInstr ::= "testl" Source32 "," Target32 "<ENDL>" ;
-XOR32. AsmInstr ::= "xorl" Source32 "," Target32 "<ENDL>" ;
-XCHG32. AsmInstr ::= "xchgl" Source32 "," Target32 "<ENDL>" ;
-SAL32. AsmInstr ::= "sall" Source32 "," Target32 "<ENDL>" ;
-SAR32. AsmInstr ::= "sarl" Source32 "," Target32 "<ENDL>" ;
+ADD32. AsmInstr ::= "addl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+AND32. AsmInstr ::= "andl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+CMP32. AsmInstr ::= "cmpl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+IMUL32. AsmInstr ::= "imull" Source32 "," Target32 CommentAnn "<ENDL>" ;
+LEA32. AsmInstr ::= "leal" Source32 "," Target32 CommentAnn "<ENDL>" ;
+MOV32. AsmInstr ::= "movl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+SUB32. AsmInstr ::= "subl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+TEST32. AsmInstr ::= "testl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+XOR32. AsmInstr ::= "xorl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+XCHG32. AsmInstr ::= "xchgl" Source32 "," Target32 CommentAnn "<ENDL>" ;
+SAL32. AsmInstr ::= "sall" Source32 "," Target32 CommentAnn "<ENDL>" ;
+SAR32. AsmInstr ::= "sarl" Source32 "," Target32 CommentAnn "<ENDL>" ;
 
-ADD16. AsmInstr ::= "addb" Source16 "," Target16 "<ENDL>" ;
-AND16. AsmInstr ::= "andb" Source16 "," Target16 "<ENDL>" ;
-CMP16. AsmInstr ::= "cmpb" Source16 "," Target16 "<ENDL>" ;
-IMUL16. AsmInstr ::= "imulb" Source16 "," Target16 "<ENDL>" ;
-LEA16. AsmInstr ::= "leab" Source16 "," Target16 "<ENDL>" ;
-MOV16. AsmInstr ::= "movb" Source16 "," Target16 "<ENDL>" ;
-SUB16. AsmInstr ::= "subb" Source16 "," Target16 "<ENDL>" ;
-TEST16. AsmInstr ::= "testb" Source16 "," Target16 "<ENDL>" ;
-XOR16. AsmInstr ::= "xorb" Source16 "," Target16 "<ENDL>" ;
-XCHG16. AsmInstr ::= "xchgb" Source16 "," Target16 "<ENDL>" ;
-SAL16. AsmInstr ::= "salb" Source16 "," Target16 "<ENDL>" ;
-SAR16. AsmInstr ::= "sarb" Source16 "," Target16 "<ENDL>" ;
+ADD16. AsmInstr ::= "addb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+AND16. AsmInstr ::= "andb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+CMP16. AsmInstr ::= "cmpb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+IMUL16. AsmInstr ::= "imulb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+LEA16. AsmInstr ::= "leab" Source16 "," Target16 CommentAnn "<ENDL>" ;
+MOV16. AsmInstr ::= "movb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+SUB16. AsmInstr ::= "subb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+TEST16. AsmInstr ::= "testb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+XOR16. AsmInstr ::= "xorb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+XCHG16. AsmInstr ::= "xchgb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+SAL16. AsmInstr ::= "salb" Source16 "," Target16 CommentAnn "<ENDL>" ;
+SAR16. AsmInstr ::= "sarb" Source16 "," Target16 CommentAnn "<ENDL>" ;
 
 
 -- 1-operand arithmetics
-NEG64. AsmInstr ::= "negq" Target64 "<ENDL>" ;
-IDIV64. AsmInstr ::= "idivq" Target64 "<ENDL>" ;
+NEG64. AsmInstr ::= "negq" Target64 CommentAnn "<ENDL>" ;
+IDIV64. AsmInstr ::= "idivq" Target64 CommentAnn "<ENDL>" ;
 
-NEG32. AsmInstr ::= "negl" Target32 "<ENDL>" ;
-IDIV32. AsmInstr ::= "idivl" Target32 "<ENDL>" ;
+NEG32. AsmInstr ::= "negl" Target32 CommentAnn "<ENDL>" ;
+IDIV32. AsmInstr ::= "idivl" Target32 CommentAnn "<ENDL>" ;
 
-NEG16. AsmInstr ::= "negb" Target16 "<ENDL>" ;
-IDIV16. AsmInstr ::= "idivb" Target16 "<ENDL>" ;
+NEG16. AsmInstr ::= "negb" Target16 CommentAnn "<ENDL>" ;
+IDIV16. AsmInstr ::= "idivb" Target16 CommentAnn "<ENDL>" ;
 
 
 -- Calls
-CALL. AsmInstr ::= "call" Label "<ENDL>" ;
-CALLINDIRECT. AsmInstr ::= "call" "*" Integer "(" Reg64 ")" "<ENDL>" ;
+CALL. AsmInstr ::= "call" Label CommentAnn "<ENDL>" ;
+CALLINDIRECT. AsmInstr ::= "call" "*" Integer "(" Reg64 ")" CommentAnn "<ENDL>" ;
 
 
 -- Stack operations
-POP. AsmInstr ::= "pop" Reg64 "<ENDL>" ;
-PUSH. AsmInstr ::= "push" Reg64 "<ENDL>" ;
+POP. AsmInstr ::= "pop" Reg64 CommentAnn "<ENDL>" ;
+PUSH. AsmInstr ::= "push" Reg64 CommentAnn "<ENDL>" ;
 
 
 -- Zero arg instructions
-LEAVE. AsmInstr ::= "leave" "<ENDL>" ;
-RET. AsmInstr ::= "ret" "<ENDL>" ;
-CDQ. AsmInstr ::= "cdq" "<ENDL>" ;
+LEAVE. AsmInstr ::= "leave" CommentAnn "<ENDL>" ;
+RET. AsmInstr ::= "ret" CommentAnn "<ENDL>" ;
+CDQ. AsmInstr ::= "cdq" CommentAnn "<ENDL>" ;
 
 
 -- Set instructions
-SETE. AsmInstr ::= "sete" Reg8 "<ENDL>" ;
-SETG. AsmInstr ::= "setg" Reg8 "<ENDL>" ;
-SETGE. AsmInstr ::= "setge" Reg8 "<ENDL>" ;
-SETL. AsmInstr ::= "setl" Reg8 "<ENDL>" ;
-SETLE. AsmInstr ::= "setle" Reg8 "<ENDL>" ;
-SETNE. AsmInstr ::= "setne" Reg8 "<ENDL>" ;
+SETE. AsmInstr ::= "sete" Reg8 CommentAnn "<ENDL>" ;
+SETG. AsmInstr ::= "setg" Reg8 CommentAnn "<ENDL>" ;
+SETGE. AsmInstr ::= "setge" Reg8 CommentAnn "<ENDL>" ;
+SETL. AsmInstr ::= "setl" Reg8 CommentAnn "<ENDL>" ;
+SETLE. AsmInstr ::= "setle" Reg8 CommentAnn "<ENDL>" ;
+SETNE. AsmInstr ::= "setne" Reg8 CommentAnn "<ENDL>" ;
 
 
 -- Jumps
-JMP. AsmInstr ::= "jmp" Label "<ENDL>" ;
-JZ. AsmInstr ::= "jz" Label "<ENDL>" ;
+JMP. AsmInstr ::= "jmp" Label CommentAnn "<ENDL>" ;
+JZ. AsmInstr ::= "jz" Label CommentAnn "<ENDL>" ;
 
 
 -- Registers
@@ -213,4 +218,4 @@ R14B. Reg8 ::= "%R14B" ;
 R15B. Reg8 ::= "%R15B" ;
 
 
-comment    "#" ;
+-- comment    "#" ;
