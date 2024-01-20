@@ -36,15 +36,27 @@ makeLensesWith abbreviatedFields ''Node
 mapCFGPos :: (a -> b) -> CFG a d -> CFG b d
 mapCFGPos f (CFG m) = CFG $ Map.map (mapNodePos f) m
 
+mapCFG :: ((a, d) -> (b, e)) -> CFG a d -> CFG b e
+mapCFG f (CFG m) = CFG $ Map.map (mapNode f) m
+
 mapNodePos :: (a -> b) -> Node a d -> Node b d
 mapNodePos f node = node { _nNodeBody = map (fmap (\(p, d) -> (f p, d))) (node^.nodeBody)}
 
+mapNode :: ((a, d) -> (b, e)) -> Node a d -> Node b e
+mapNode f node = node { _nNodeBody = map (fmap f) (node^.nodeBody)}
 
-instance Eq (CFG a d) where
-    (==) cfg1 cfg2 = let (CFG m1) = (mapCFGPos (const ()) cfg1) in let (CFG m2) = (mapCFGPos (const ()) cfg2) in m1 == m2
 
-instance Eq (Node a d) where
-    (==) (Node l1 b1 o1 i1) (Node l2 b2 o2 i2) = (l1 == l2) && ((fmap (const ()) b1) == (fmap (const ()) b2)) && (o1 == o2) && (i1 == i2)
+instance (Eq d) => Eq (CFG a d) where
+    (==) cfg1 cfg2 =
+        let (CFG m1) = cfg1 in
+        let (CFG m2) = cfg2 in
+        m1 == m2
+
+instance (Eq d) => Eq (Node a d) where
+    (==) (Node l1 b1 o1 i1) (Node l2 b2 o2 i2) =
+        let b1' = map (fmap (snd)) b1 in
+        let b2' = map (fmap (snd)) b2 in
+        (l1 == l2) && (b1' == b2') && (o1 == o2) && (i1 == i2)
 
 
 nodeCode :: Node a d -> [Instr d]

@@ -99,7 +99,7 @@ addq $0, %RSP
 addq $0, %RSP
 jmp __cl_TopLevel.main.L_exit
 __cl_TopLevel.main.L_exit :
-movl %EAX, %EAX               #-- move return value --#
+movl $0, %EAX                 #-- move return value --#
 addq $0, %RSP
 leave
 ret
@@ -108,6 +108,8 @@ push %RBP
 movq %RSP, %RBP
 subq $0, %RSP
 __cl_TopLevel.foo.L_entry :
+movl %EDI, %EAX               #-- load %v_t_0 --#
+addl $2, %EAX
 addq $0, %RSP
 jmp __cl_TopLevel.foo.L_exit
 __cl_TopLevel.foo.L_exit :

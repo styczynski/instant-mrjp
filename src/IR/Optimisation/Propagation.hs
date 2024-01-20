@@ -15,10 +15,10 @@ import           IR.Utils
 data ValKind a = ValSimple (Val a)   -- Value is a simple copy of another value.
              | ValString String     -- Value is a string constant.
              | ValComplex           -- Value is computed by a complex expression and irreducible.
-    deriving (Eq, Functor, Foldable)
+    deriving (Show, Eq, Functor, Foldable)
 
 newtype PropagationState a = St {
-    values :: Map.Map ValIdent (ValKind a)
+    values :: Map.Map ValIdent (ValKind ())
 } deriving Eq
 
 propagateCopiesAndConsts :: SSA a () -> Method a -> SSA a ()
@@ -26,7 +26,7 @@ propagateCopiesAndConsts (SSA g) (Mthd pos t qi ps _) =
     let instrs = linearise g
         psKinds = map (\(Param _ _ vi) -> (vi, ValComplex)) ps
         f (is, s) = first concat $ runState (mapM propagate is) s
-        (instrs', _) = fixpointBy (fmap (const ()). values . snd) f (instrs, St $ Map.fromList psKinds)
+        (instrs', _) = fixpointBy (values . snd) f (instrs, St $ Map.fromList psKinds)
     in  SSA $ cfg (Mthd pos t qi ps (map (fmap fst) instrs'))
 
 propagate :: Instr a -> State (PropagationState a) [Instr a]
@@ -143,14 +143,14 @@ setSimple :: a -> ValIdent -> Val a -> State (PropagationState a) ()
 setSimple pos vi val = do
     x <- tryPropagate val
     let vk = ValSimple x
-    modify (St . Map.insert vi vk . values)
+    modify (St . Map.insert vi (fmap (const ()) vk) . values)
 
 tryPropagate :: Val a -> State (PropagationState a) (Val a)
 tryPropagate val = case val of
-    (VVal _ _ vi) -> do
+    (VVal pos _ vi) -> do
         mbvk <- gets (Map.lookup vi . values)
         case mbvk of
-            Just (ValSimple val') -> return val'
+            Just (ValSimple val') -> return (pos <$ val')
             Just ValComplex       -> return val
             Just (ValString _)    -> return val
             Nothing               -> return val
@@ -195,7 +195,7 @@ trySimplifyBinOp v1 op v2 = case op of
             (VTrue _, VFalse _)          -> Just $ boolToVal pos (1 `relOp` 0)
             (VTrue _, VTrue _)           -> Just $ boolToVal pos (1 `relOp` 1)
             (VVal _ _ vi1, VVal _ _ vi2)
-                | vi1 == vi2             -> Just $ boolToVal pos (1 `relOp` 1)
+                | (vi1 == vi2)             -> Just $ boolToVal pos (1 `relOp` 1)
             _                            -> Nothing
         simplifyEqBinOp pos modif = case (v1, v2) of
             (VInt _ n1, VInt _ n2)       -> Just $ boolToVal pos $ modif $ n1 == n2
@@ -208,7 +208,7 @@ trySimplifyBinOp v1 op v2 = case op of
             (VFalse _, VTrue _)          -> Just $ boolToVal pos $ modif False
             (VNull _ _, VNull _ _)       -> Just $ boolToVal pos $ modif True
             (VVal _ _ vi1, VVal _ _ vi2)
-                | vi1 == vi2             -> Just $ boolToVal pos $ modif True
+                | (vi1 == vi2)             -> Just $ boolToVal pos $ modif True
             _                            -> Nothing
 
 trySimplifyUnOp :: Val a -> UnOp a -> Maybe (Val a)
