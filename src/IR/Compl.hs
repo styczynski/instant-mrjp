@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveTraversable #-}
 module IR.Compl where
 
+import Data.Tuple.Append
+
 import Control.Lens hiding (Const)
 import Data.Functor
 import           Data.Bifunctor                              (Bifunctor (first))
@@ -114,7 +116,10 @@ compl_ (Program pos meta mthds) = do
             let (ig_, cfg') = getColouredInterferenceGraph cfg_
             in  (cfg', mthd, ig_)) optimisedWithLiveness
     let unfoldedPhi = map (\(SSA c, m, g) -> (unfoldPhi (SSA c) m (getRegisterAllocation c g), m, g)) allocatedCfgs
-    let optimisedCfgs = map (\(c, m, g) -> let(c', m') = removeUnreachable (inlineTrivialBlocks c) m in (c', m', g)) unfoldedPhi
+    optimisedCfgs <- mapM (\(c, m, g) -> do
+        c' <- inlineTrivialBlocks c
+        let (c'', m'') = removeUnreachable c' m
+        return (c'', m'', g)) unfoldedPhi
     let finalCfgs = map (\(c, m, g) -> (removeDeadCode $ analyseLiveness c, m, g)) optimisedCfgs
     printLogInfoStr $ ">> GENERATED CFGS\n\n" ++ (showCfgs cfgs)
     genEspStep meta cfgsLin "Removing unreachable blocks..."

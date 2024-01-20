@@ -72,12 +72,14 @@ def generate_grammar(output_grammar_path):
         -- 2-operand arithmetics
         {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", comma, "Target64", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
         {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", comma, "Target32", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Source16", comma, "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"w"), "Source16", comma, "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
+        {embed([rule(instr.upper()+"8", "AsmInstr", lit(instr+"b"), "Source8", comma, "Target8", "CommentAnn", newline) for instr in INSTR_ARITM_2OP])}
 
         -- 1-operand arithmetics
         {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
         {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"b"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"w"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"8", "AsmInstr", lit(instr+"b"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
 
         -- Calls
         {embed([

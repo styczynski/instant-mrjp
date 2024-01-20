@@ -132,7 +132,7 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | Return a
           | SetLabel a (Label a)
           | Jump a (Label a)
-          | JumpCmp a (Cmp a) (Label a) (Value a) (Value a)
+          | JumpCmp a (Cmp a) (Label a) (Label a) (Value a) (Value a)
           deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData, NFData1)
 instance IsIR Stmt
 
@@ -224,7 +224,7 @@ instance Show (Stmt a) where
     show (Return _) = "    return"
     show (SetLabel _ l) = "  "++show l++":"
     show (Jump _ l) = "    jump "++show l
-    show (JumpCmp _ cmp l vl vr) = "    jump "++show l++" if "++show vl++" "++show cmp++" "++show vr
+    show (JumpCmp _ cmp l l' vl vr) = "    jump "++show l++" if "++show vl++" "++show cmp++" "++show vr++" or pass-through to " ++show l'
     show (VCall _ t l args) = "    discard<"++show t++"> call<function> " ++ show l ++ "(" ++ intercalate ", " (map show args) ++ ")"
     show (VMCall _ t n cls i args) = "    discard<"++show t++"> call<method:" ++ show i ++ ", class:" ++ show cls ++ "> " ++ show n ++ "(" ++ intercalate ", " (map show args) ++ ")"
 

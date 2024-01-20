@@ -179,12 +179,15 @@ convertStmtToFIR (A.Return p) = return [B.IJmp p $ B.LabIdent ".L_exit"]
     --return [B.IVRet p]
 convertStmtToFIR (A.SetLabel p (A.Label _ l)) = return [B.ILabel p $ B.LabIdent l]
 convertStmtToFIR (A.Jump p (A.Label _ l)) = return [B.IJmp p $ B.LabIdent l]
-convertStmtToFIR (A.JumpCmp p cmp (A.Label _ l) v1 v2) = do 
+convertStmtToFIR (A.JumpCmp p cmp (A.Label _ l) (A.Label _ lpass) v1 v2) = do 
     cndName <- newRetTempName p
     return [
         B.IOp p (nameToValIdent cndName) (convertValue v1) (cmpToOp cmp) (convertValue v2)
-        , B.ICondJmp p (B.VVal p (B.Bool p) $ nameToValIdent cndName) (B.LabIdent l) (B.LabIdent $ "_easy_" ++ l)
-        , B.ILabel p $ B.LabIdent $ "_easy_" ++ l]
+        , B.ICondJmp p (B.VVal p (B.Bool p) $ nameToValIdent cndName) (B.LabIdent l) (B.LabIdent lpass)]
+    -- return [
+    --     B.IOp p (nameToValIdent cndName) (convertValue v1) (cmpToOp cmp) (convertValue v2)
+    --     , B.ICondJmp p (B.VVal p (B.Bool p) $ nameToValIdent cndName) (B.LabIdent l) (B.LabIdent $ "_easy_" ++ l)
+    --     , B.ILabel p $ B.LabIdent $ "_easy_" ++ l]
 
 --cmpToOp
 --ICondJmp a (Val a) LabIdent LabIdent

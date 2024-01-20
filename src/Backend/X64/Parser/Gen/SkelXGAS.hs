@@ -103,12 +103,26 @@ transAsmInstr x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.XCHG16 _ source target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.SAL16 _ source target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.SAR16 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.ADD8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.AND8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.CMP8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IMUL8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.LEA8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.MOV8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SUB8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.TEST8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XOR8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.XCHG8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAL8 _ source target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SAR8 _ source target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG64 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV64 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG32 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV32 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG16 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV16 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.NEG8 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.IDIV8 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALL _ label commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT _ integer reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.POP _ reg commentann -> failure x

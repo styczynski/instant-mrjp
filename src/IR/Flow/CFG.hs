@@ -45,6 +45,11 @@ mapNodePos f node = node { _nNodeBody = map (fmap (\(p, d) -> (f p, d))) (node^.
 mapNode :: ((a, d) -> (b, e)) -> Node a d -> Node b e
 mapNode f node = node { _nNodeBody = map (fmap f) (node^.nodeBody)}
 
+lookupCFGNode :: (CFG a d) -> LabIdent -> Node a d
+lookupCFGNode cfg@(CFG m) name = case Map.lookup name m of 
+    Nothing -> error $ "lookupCFGNode: Cannot find CFG Node labelled " ++ (show name) ++ " in CFG: " ++ (show $ mapCFG (const ((), ())) cfg)
+    (Just node) -> node
+
 
 instance (Eq d) => Eq (CFG a d) where
     (==) cfg1 cfg2 =
@@ -143,7 +148,7 @@ addEdge from to = do
 instance Show (CFG a d) where
     show (CFG g) = unlines (nodes:map edges (Map.elems g))
         where nodes = show (map toStr $ Map.keys g)
-              edges node = show (toStr $ node ^. nodeLabel) ++ " -> " ++ show (node ^. nodeOut)
+              edges node = show (toStr $ node ^. nodeLabel) ++ " -> " ++ show (node ^. nodeOut) ++ " <- " ++ show (node ^. nodeIn)
 
 isJump :: Instr a -> Bool
 isJump instr = case instr of

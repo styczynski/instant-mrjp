@@ -139,11 +139,11 @@ propagateValuesStmt (L.ReturnVal p t e : ss) = do
     e' <- propE e
     next <- propagateValuesStmt ss
     return $ [L.ReturnVal p t e'] ++ next
-propagateValuesStmt (L.JumpCmp p cmp l vl vr : ss) = do
+propagateValuesStmt (L.JumpCmp p cmp l lpass vl vr : ss) = do
     vl' <- updatedVal vl
     vr' <- updatedVal vr
     next <- propagateValuesStmt ss
-    return $ [L.JumpCmp p cmp l vl' vr'] ++ next
+    return $ [L.JumpCmp p cmp l lpass vl' vr'] ++ next
 propagateValuesStmt (s@(L.SetLabel p (L.Label _ ('_':'W':_))) : ss) = do
     let assignedInFuture = concat $ map VP.assigned ss
     mapM_ removeVar assignedInFuture

@@ -37,20 +37,24 @@ Label literals are recognized by the regular expression
 The set of reserved words is the set of terminals appearing in the grammar. Those reserved words that consist of non-letter characters are called symbols, and they are treated in a different way from those that are similar to identifiers. The lexer follows rules familiar from languages like Haskell, C, and Java, including longest match and spacing conventions.
 
 The reserved words used in X64GAS are the following:
-  | ``addb`` | ``addl`` | ``addq`` | ``andb``
-  | ``andl`` | ``andq`` | ``call`` | ``cdq``
-  | ``cmpb`` | ``cmpl`` | ``cmpq`` | ``idivb``
-  | ``idivl`` | ``idivq`` | ``imulb`` | ``imull``
-  | ``imulq`` | ``jmp`` | ``jz`` | ``leab``
-  | ``leal`` | ``leaq`` | ``leave`` | ``movb``
-  | ``movl`` | ``movq`` | ``negb`` | ``negl``
-  | ``negq`` | ``pop`` | ``push`` | ``ret``
-  | ``salb`` | ``sall`` | ``salq`` | ``sarb``
-  | ``sarl`` | ``sarq`` | ``sete`` | ``setg``
-  | ``setge`` | ``setl`` | ``setle`` | ``setne``
-  | ``subb`` | ``subl`` | ``subq`` | ``testb``
-  | ``testl`` | ``testq`` | ``xchgb`` | ``xchgl``
-  | ``xchgq`` | ``xorb`` | ``xorl`` | ``xorq``
+  | ``addb`` | ``addl`` | ``addq`` | ``addw``
+  | ``andb`` | ``andl`` | ``andq`` | ``andw``
+  | ``call`` | ``cdq`` | ``cmpb`` | ``cmpl``
+  | ``cmpq`` | ``cmpw`` | ``idivb`` | ``idivl``
+  | ``idivq`` | ``idivw`` | ``imulb`` | ``imull``
+  | ``imulq`` | ``imulw`` | ``jmp`` | ``jz``
+  | ``leab`` | ``leal`` | ``leaq`` | ``leave``
+  | ``leaw`` | ``movb`` | ``movl`` | ``movq``
+  | ``movw`` | ``negb`` | ``negl`` | ``negq``
+  | ``negw`` | ``pop`` | ``push`` | ``ret``
+  | ``salb`` | ``sall`` | ``salq`` | ``salw``
+  | ``sarb`` | ``sarl`` | ``sarq`` | ``sarw``
+  | ``sete`` | ``setg`` | ``setge`` | ``setl``
+  | ``setle`` | ``setne`` | ``subb`` | ``subl``
+  | ``subq`` | ``subw`` | ``testb`` | ``testl``
+  | ``testq`` | ``testw`` | ``xchgb`` | ``xchgl``
+  | ``xchgq`` | ``xchgw`` | ``xorb`` | ``xorl``
+  | ``xorq`` | ``xorw`` |  |
 
 The symbols used in X64GAS are the following:
   | <ENDL> | .section | .rodata | .text
@@ -131,22 +135,36 @@ All other symbols are terminals.
   |  |  **|**  | ``xchgl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``sall`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``sarl`` //Source32// ``,`` //Target32// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``addb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``andb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``cmpb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``imulb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``leab`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``movb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``subb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``testb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``xorb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``xchgb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``salb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``sarb`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``addw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``andw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cmpw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``imulw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leaw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``movw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``subw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``testw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xorw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xchgw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``salw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sarw`` //Source16// ``,`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``addb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``andb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``cmpb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``imulb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``leab`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``movb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``subb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``testb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xorb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``xchgb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``salb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``sarb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negq`` //Target64// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivq`` //Target64// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negl`` //Target32// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivl`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``negw`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``idivw`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negb`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivb`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``call`` //Label// //CommentAnn// ``<ENDL>``

@@ -99,12 +99,26 @@ data AsmInstr' a
     | XCHG16 a (Source' a) (Target' a) (CommentAnn' a)
     | SAL16 a (Source' a) (Target' a) (CommentAnn' a)
     | SAR16 a (Source' a) (Target' a) (CommentAnn' a)
+    | ADD8 a (Source' a) (Target' a) (CommentAnn' a)
+    | AND8 a (Source' a) (Target' a) (CommentAnn' a)
+    | CMP8 a (Source' a) (Target' a) (CommentAnn' a)
+    | IMUL8 a (Source' a) (Target' a) (CommentAnn' a)
+    | LEA8 a (Source' a) (Target' a) (CommentAnn' a)
+    | MOV8 a (Source' a) (Target' a) (CommentAnn' a)
+    | SUB8 a (Source' a) (Target' a) (CommentAnn' a)
+    | TEST8 a (Source' a) (Target' a) (CommentAnn' a)
+    | XOR8 a (Source' a) (Target' a) (CommentAnn' a)
+    | XCHG8 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAL8 a (Source' a) (Target' a) (CommentAnn' a)
+    | SAR8 a (Source' a) (Target' a) (CommentAnn' a)
     | NEG64 a (Target' a) (CommentAnn' a)
     | IDIV64 a (Target' a) (CommentAnn' a)
     | NEG32 a (Target' a) (CommentAnn' a)
     | IDIV32 a (Target' a) (CommentAnn' a)
     | NEG16 a (Target' a) (CommentAnn' a)
     | IDIV16 a (Target' a) (CommentAnn' a)
+    | NEG8 a (Target' a) (CommentAnn' a)
+    | IDIV8 a (Target' a) (CommentAnn' a)
     | CALL a Label (CommentAnn' a)
     | CALLINDIRECT a Integer (Reg' a) (CommentAnn' a)
     | POP a (Reg' a) (CommentAnn' a)
@@ -331,12 +345,26 @@ instance HasPosition AsmInstr where
     XCHG16 p _ _ _ -> p
     SAL16 p _ _ _ -> p
     SAR16 p _ _ _ -> p
+    ADD8 p _ _ _ -> p
+    AND8 p _ _ _ -> p
+    CMP8 p _ _ _ -> p
+    IMUL8 p _ _ _ -> p
+    LEA8 p _ _ _ -> p
+    MOV8 p _ _ _ -> p
+    SUB8 p _ _ _ -> p
+    TEST8 p _ _ _ -> p
+    XOR8 p _ _ _ -> p
+    XCHG8 p _ _ _ -> p
+    SAL8 p _ _ _ -> p
+    SAR8 p _ _ _ -> p
     NEG64 p _ _ -> p
     IDIV64 p _ _ -> p
     NEG32 p _ _ -> p
     IDIV32 p _ _ -> p
     NEG16 p _ _ -> p
     IDIV16 p _ _ -> p
+    NEG8 p _ _ -> p
+    IDIV8 p _ _ -> p
     CALL p _ _ -> p
     CALLINDIRECT p _ _ _ -> p
     POP p _ _ -> p

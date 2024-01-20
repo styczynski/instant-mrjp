@@ -46,8 +46,12 @@ generate meta methods = do
     let externs = runtimeSymbols
     result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs
     case result of
-        (Left _) -> return ""
-        (Right (_, Left err)) -> return ""
+        (Left err) -> do
+            printLogInfoStr $ "generate failure. ASM generator reported an error: " ++ (show err)
+            return ""
+        (Right (_, Left err)) -> do
+            printLogInfoStr $ "generate failure. ASM generator reported an error: " ++ (show err)
+            return ""
         (Right (compiledCodeStr, Right _)) -> do
             return compiledCodeStr
 
@@ -99,8 +103,12 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
         initState = GeneratorEnv [] [] cs initStack Map.empty emptyLiveness 0
     result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod pos g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
     case result of 
-        (Left _) -> return cs
-        (Right ((Left _), _)) -> return cs
+        (Left err) -> do
+            gen $ lift $ lift $ printLogInfoStr $ "emitMethod failure. ASM generator reported an error: " ++ (show err)
+            return cs
+        (Right ((Left err), _)) -> do
+            gen $ lift $ lift $ printLogInfoStr $ "emitMethod failure. ASM generator reported an error: " ++ (show err)
+            return cs
         (Right ((Right env), cnt)) -> do
             gen $ X64.continueASMGeneratorT cnt
             return $ env ^. consts

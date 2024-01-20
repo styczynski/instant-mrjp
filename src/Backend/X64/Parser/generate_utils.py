@@ -277,19 +277,17 @@ def create_instr_wrappers():
     ]
     for instr in INSTR_ARITM_2OP:
         for size in REGISTERS:
-            if size != '8':
-                ret = ret+[
-                    f"""_convertInstr ({instr.upper()} pos Size{size} loc1 loc2 ann) = return $ Syntax.{instr.upper()}{size} pos (_locToSource pos Size{size} loc1) (_locToTarget pos Size{size} loc2) (_convert_annotation ann)""",
-                ]
+            ret = ret+[
+                f"""_convertInstr ({instr.upper()} pos Size{size} loc1 loc2 ann) = return $ Syntax.{instr.upper()}{size} pos (_locToSource pos Size{size} loc1) (_locToTarget pos Size{size} loc2) (_convert_annotation ann)""",
+            ]
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos size _ _ _) = generatorFail $ EDataUnexpectedSize pos size"""
         ]
     for instr in INSTR_ARITM_1OP:
         for size in REGISTERS:
-            if size != '8':
-                ret = ret+[
-                    f"""_convertInstr ({instr.upper()} pos Size{size} loc ann) = return $ Syntax.{instr.upper()}{size} pos (_locToTarget pos Size{size} loc) (_convert_annotation ann)""",
-                ]
+            ret = ret+[
+                f"""_convertInstr ({instr.upper()} pos Size{size} loc ann) = return $ Syntax.{instr.upper()}{size} pos (_locToTarget pos Size{size} loc) (_convert_annotation ann)""",
+            ]
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos size _ _) = generatorFail $ EDataUnexpectedSize pos size"""
         ]

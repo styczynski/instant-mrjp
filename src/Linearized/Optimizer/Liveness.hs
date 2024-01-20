@@ -41,7 +41,7 @@ findSucc :: [(L.Stmt L.IRPosition, Integer)] -> (L.Stmt L.IRPosition, Integer) -
 findSucc ind (s,i) = 
     case s of
         (L.Jump p l) -> (s,i,[findIndex ind (L.SetLabel p l)])
-        (L.JumpCmp p _ l _ _) -> (s,i,[i+1,findIndex ind (L.SetLabel p l)])
+        (L.JumpCmp p _ l _ _ _) -> (s,i,[i+1,findIndex ind (L.SetLabel p l)])
         (L.ReturnVal _ _ _) -> (s,i,[])
         (L.Return _) -> (s,i,[])
         _ -> (s,i,[i+1])
