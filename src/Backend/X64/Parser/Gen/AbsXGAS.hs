@@ -113,12 +113,20 @@ data AsmInstr' a
     | SAR8 a (Source' a) (Target' a) (CommentAnn' a)
     | NEG64 a (Target' a) (CommentAnn' a)
     | IDIV64 a (Target' a) (CommentAnn' a)
+    | INC64 a (Target' a) (CommentAnn' a)
+    | DEC64 a (Target' a) (CommentAnn' a)
     | NEG32 a (Target' a) (CommentAnn' a)
     | IDIV32 a (Target' a) (CommentAnn' a)
+    | INC32 a (Target' a) (CommentAnn' a)
+    | DEC32 a (Target' a) (CommentAnn' a)
     | NEG16 a (Target' a) (CommentAnn' a)
     | IDIV16 a (Target' a) (CommentAnn' a)
+    | INC16 a (Target' a) (CommentAnn' a)
+    | DEC16 a (Target' a) (CommentAnn' a)
     | NEG8 a (Target' a) (CommentAnn' a)
     | IDIV8 a (Target' a) (CommentAnn' a)
+    | INC8 a (Target' a) (CommentAnn' a)
+    | DEC8 a (Target' a) (CommentAnn' a)
     | CALL a Label (CommentAnn' a)
     | CALLINDIRECT a Integer (Reg' a) (CommentAnn' a)
     | POP a (Reg' a) (CommentAnn' a)
@@ -132,8 +140,17 @@ data AsmInstr' a
     | SETL a (Reg' a) (CommentAnn' a)
     | SETLE a (Reg' a) (CommentAnn' a)
     | SETNE a (Reg' a) (CommentAnn' a)
+    | SETZ a (Reg' a) (CommentAnn' a)
+    | SETNZ a (Reg' a) (CommentAnn' a)
     | JMP a Label (CommentAnn' a)
+    | JE a Label (CommentAnn' a)
+    | JG a Label (CommentAnn' a)
+    | JGE a Label (CommentAnn' a)
+    | JL a Label (CommentAnn' a)
+    | JLE a Label (CommentAnn' a)
+    | JNE a Label (CommentAnn' a)
     | JZ a Label (CommentAnn' a)
+    | JNZ a Label (CommentAnn' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Source = Source' BNFC'Position
@@ -359,12 +376,20 @@ instance HasPosition AsmInstr where
     SAR8 p _ _ _ -> p
     NEG64 p _ _ -> p
     IDIV64 p _ _ -> p
+    INC64 p _ _ -> p
+    DEC64 p _ _ -> p
     NEG32 p _ _ -> p
     IDIV32 p _ _ -> p
+    INC32 p _ _ -> p
+    DEC32 p _ _ -> p
     NEG16 p _ _ -> p
     IDIV16 p _ _ -> p
+    INC16 p _ _ -> p
+    DEC16 p _ _ -> p
     NEG8 p _ _ -> p
     IDIV8 p _ _ -> p
+    INC8 p _ _ -> p
+    DEC8 p _ _ -> p
     CALL p _ _ -> p
     CALLINDIRECT p _ _ _ -> p
     POP p _ _ -> p
@@ -378,8 +403,17 @@ instance HasPosition AsmInstr where
     SETL p _ _ -> p
     SETLE p _ _ -> p
     SETNE p _ _ -> p
+    SETZ p _ _ -> p
+    SETNZ p _ _ -> p
     JMP p _ _ -> p
+    JE p _ _ -> p
+    JG p _ _ -> p
+    JGE p _ _ -> p
+    JL p _ _ -> p
+    JLE p _ _ -> p
+    JNE p _ _ -> p
     JZ p _ _ -> p
+    JNZ p _ _ -> p
 
 instance HasPosition Source where
   hasPosition = \case

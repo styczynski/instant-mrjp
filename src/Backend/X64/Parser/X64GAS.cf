@@ -90,15 +90,23 @@ SAR8. AsmInstr ::= "sarb" Source8 "," Target8 CommentAnn "<ENDL>" ;
 -- 1-operand arithmetics
 NEG64. AsmInstr ::= "negq" Target64 CommentAnn "<ENDL>" ;
 IDIV64. AsmInstr ::= "idivq" Target64 CommentAnn "<ENDL>" ;
+INC64. AsmInstr ::= "incq" Target64 CommentAnn "<ENDL>" ;
+DEC64. AsmInstr ::= "decq" Target64 CommentAnn "<ENDL>" ;
 
 NEG32. AsmInstr ::= "negl" Target32 CommentAnn "<ENDL>" ;
 IDIV32. AsmInstr ::= "idivl" Target32 CommentAnn "<ENDL>" ;
+INC32. AsmInstr ::= "incl" Target32 CommentAnn "<ENDL>" ;
+DEC32. AsmInstr ::= "decl" Target32 CommentAnn "<ENDL>" ;
 
 NEG16. AsmInstr ::= "negw" Target16 CommentAnn "<ENDL>" ;
 IDIV16. AsmInstr ::= "idivw" Target16 CommentAnn "<ENDL>" ;
+INC16. AsmInstr ::= "incw" Target16 CommentAnn "<ENDL>" ;
+DEC16. AsmInstr ::= "decw" Target16 CommentAnn "<ENDL>" ;
 
 NEG8. AsmInstr ::= "negb" Target16 CommentAnn "<ENDL>" ;
 IDIV8. AsmInstr ::= "idivb" Target16 CommentAnn "<ENDL>" ;
+INC8. AsmInstr ::= "incb" Target16 CommentAnn "<ENDL>" ;
+DEC8. AsmInstr ::= "decb" Target16 CommentAnn "<ENDL>" ;
 
 
 -- Calls
@@ -117,18 +125,30 @@ RET. AsmInstr ::= "ret" CommentAnn "<ENDL>" ;
 CDQ. AsmInstr ::= "cdq" CommentAnn "<ENDL>" ;
 
 
--- Set instructions
+-- Set instructions (value order)
 SETE. AsmInstr ::= "sete" Reg8 CommentAnn "<ENDL>" ;
 SETG. AsmInstr ::= "setg" Reg8 CommentAnn "<ENDL>" ;
 SETGE. AsmInstr ::= "setge" Reg8 CommentAnn "<ENDL>" ;
 SETL. AsmInstr ::= "setl" Reg8 CommentAnn "<ENDL>" ;
 SETLE. AsmInstr ::= "setle" Reg8 CommentAnn "<ENDL>" ;
 SETNE. AsmInstr ::= "setne" Reg8 CommentAnn "<ENDL>" ;
+SETZ. AsmInstr ::= "setz" Reg8 CommentAnn "<ENDL>" ;
+SETNZ. AsmInstr ::= "setnz" Reg8 CommentAnn "<ENDL>" ;
 
 
 -- Jumps
 JMP. AsmInstr ::= "jmp" Label CommentAnn "<ENDL>" ;
+
+
+-- Jumps (value order)
+JE. AsmInstr ::= "je" Label CommentAnn "<ENDL>" ;
+JG. AsmInstr ::= "jg" Label CommentAnn "<ENDL>" ;
+JGE. AsmInstr ::= "jge" Label CommentAnn "<ENDL>" ;
+JL. AsmInstr ::= "jl" Label CommentAnn "<ENDL>" ;
+JLE. AsmInstr ::= "jle" Label CommentAnn "<ENDL>" ;
+JNE. AsmInstr ::= "jne" Label CommentAnn "<ENDL>" ;
 JZ. AsmInstr ::= "jz" Label CommentAnn "<ENDL>" ;
+JNZ. AsmInstr ::= "jnz" Label CommentAnn "<ENDL>" ;
 
 
 -- Registers

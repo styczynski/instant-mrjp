@@ -41,10 +41,12 @@ import Data.Foldable
 
 import IR.Flow.CFG
 
+import qualified Backend.X64.Optimizer as Optimizer
+
 generate :: (Show a) => Metadata a -> [(CFG a Liveness, Method a, RegisterAllocation)] -> LattePipeline String
 generate meta methods = do
     let externs = runtimeSymbols
-    result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs
+    result <- X64.runASMGeneratorT (runExceptT $ runReaderT (execStateT (genProgram meta methods) emptyGeneratorEnv) emptyGeneratorContext) externs Optimizer.optimizeASM 
     case result of
         (Left err) -> do
             printLogInfoStr $ "generate failure. ASM generator reported an error: " ++ (show err)

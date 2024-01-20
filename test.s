@@ -90,78 +90,46 @@ push %RBX                       #-- ./test.lat:1:1 --#
 subq $8, %RSP                   #-- ./test.lat:1:1 --#
 push %RBP                       #-- ./test.lat:1:1 --#
 movq %RSP, %RBP                 #-- ./test.lat:1:1 --#
-subq $0, %RSP                   #-- ./test.lat:1:1 --#
 __cl_TopLevel.main.L_entry :    #-- ./test.lat:1:1 --#
 movl $1, %EDI                   #-- passing arg at ./test.lat:5:5 --#
-subq $0, %RSP                   #-- ./test.lat:5:5 --#
 call printInt                   #-- ./test.lat:5:5 --#
-addq $0, %RSP                   #-- ./test.lat:5:5 --#
 movl $78, %EDI                  #-- passing arg at ./test.lat:7:3 --#
-subq $0, %RSP                   #-- ./test.lat:7:3 --#
 call printInt                   #-- ./test.lat:7:3 --#
-addq $0, %RSP                   #-- ./test.lat:7:3 --#
 movl $78, %EBX                  #-- setting %v_t_1~2 at ./test.lat:8:3 --#
-addq $0, %RSP                   #-- ./test.lat:8:3 --#
 jmp __cl_TopLevel.main_WCOND8   #-- ./test.lat:8:3 --#
 __cl_TopLevel.main_IELSE21 :    #-- ./test.lat:17:3 --#
 leaq __const_1 (%RIP), %RAX     #-- ./test.lat:21:17 --#
 movq %RAX, %RDI                 #-- passing arg at ./test.lat:21:17 --#
-subq $0, %RSP                   #-- ./test.lat:21:17 --#
 call __createString             #-- ./test.lat:21:17 --#
-addq $0, %RSP                   #-- ./test.lat:21:17 --#
-movq %RAX, %RAX                 #-- ./test.lat:21:17 --#
 movq %RAX, %RDI                 #-- passing arg at ./test.lat:21:5 --#
-subq $0, %RSP                   #-- ./test.lat:21:5 --#
 call printString                #-- ./test.lat:21:5 --#
-addq $0, %RSP                   #-- ./test.lat:21:5 --#
-addq $0, %RSP                   #-- ./test.lat:17:3 --#
 jmp __cl_TopLevel.main_IEND22   #-- ./test.lat:17:3 --#
 __cl_TopLevel.main_IIF20 :      #-- ./test.lat:17:3 --#
 movl $4, %EDI                   #-- passing arg at ./test.lat:19:5 --#
-subq $0, %RSP                   #-- ./test.lat:19:5 --#
 call printInt                   #-- ./test.lat:19:5 --#
-addq $0, %RSP                   #-- ./test.lat:19:5 --#
-addq $0, %RSP                   #-- ./test.lat:17:3 --#
 jmp __cl_TopLevel.main_IEND22   #-- ./test.lat:17:3 --#
 __cl_TopLevel.main_WBEG9 :      #-- ./test.lat:8:3 --#
-subl $1, %EBX                   #-- ./test.lat:9:5 --#
+decl %EBX                       #-- ./test.lat:9:5 --#
 movl %EBX, %EDI                 #-- passing arg at ./test.lat:10:5 --#
-subq $0, %RSP                   #-- ./test.lat:10:5 --#
 call printInt                   #-- ./test.lat:10:5 --#
-addq $0, %RSP                   #-- ./test.lat:10:5 --#
 leal 7 (%RBX), %EAX             #--  addition %v_t_15 at ./test.lat:13:14 --#
 movl %EAX, %EDI                 #-- passing arg at ./test.lat:14:4 --#
-subq $0, %RSP                   #-- ./test.lat:14:4 --#
 call printInt                   #-- ./test.lat:14:4 --#
-addq $0, %RSP                   #-- ./test.lat:14:4 --#
-xchgl %EBX, %EBX                #-- ./test.lat:8:3 --#
-addq $0, %RSP                   #-- ./test.lat:8:3 --#
 jmp __cl_TopLevel.main_WCOND8   #-- ./test.lat:8:3 --#
 __cl_TopLevel.main_WCOND8 :     #-- ./test.lat:8:3 --#
 cmpl $76, %EBX                  #-- ./test.lat:8:10 --#
-setg %AL                        #-- ./test.lat:8:12 --#
-addq $0, %RSP                   #-- ./test.lat:8:10 --#
-testb %AL, %AL                  #-- ./test.lat:8:10 --#
-jz __cl_TopLevel.main_WEND10    #-- ./test.lat:8:10 --#
+jle __cl_TopLevel.main_WEND10   #-- ./test.lat:8:10 --#
 jmp __cl_TopLevel.main_WBEG9    #-- ./test.lat:8:10 --#
 __cl_TopLevel.main_WEND10 :     #-- ./test.lat:8:3 --#
 movl %EBX, %EDI                 #-- passing arg at ./test.lat:16:3 --#
-subq $0, %RSP                   #-- ./test.lat:16:3 --#
 call printInt                   #-- ./test.lat:16:3 --#
-addq $0, %RSP                   #-- ./test.lat:16:3 --#
 cmpl $4, %EBX                   #-- ./test.lat:17:7 --#
-setle %AL                       #-- ./test.lat:17:9 --#
-addq $0, %RSP                   #-- ./test.lat:17:7 --#
-testb %AL, %AL                  #-- ./test.lat:17:7 --#
-jz __cl_TopLevel.main_IIF20     #-- ./test.lat:17:7 --#
+jg __cl_TopLevel.main_IIF20     #-- ./test.lat:17:7 --#
 jmp __cl_TopLevel.main_IELSE21  #-- ./test.lat:17:7 --#
 __cl_TopLevel.main_IEND22 :     #-- ./test.lat:17:3 --#
 movl %EBX, %EDI                 #-- passing arg at ./test.lat:23:3 --#
-subq $0, %RSP                   #-- ./test.lat:23:3 --#
 call printInt                   #-- ./test.lat:23:3 --#
-addq $0, %RSP                   #-- ./test.lat:23:3 --#
-movl $0, %EAX                   #-- move return value at ./test.lat:1:1 --#
-addq $0, %RSP                   #-- ./test.lat:1:1 --#
+xorl %EAX, %EAX                 #-- move return value at ./test.lat:1:1 --#
 leave                           #-- ./test.lat:1:1 --#
 addq $8, %RSP                   #-- ./test.lat:1:1 --#
 pop %RBX                        #-- ./test.lat:1:1 --#

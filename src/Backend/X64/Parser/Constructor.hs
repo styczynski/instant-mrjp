@@ -15,6 +15,12 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , Data(..)
 , Loc(..)
 , Size(..)
+, mapInstrData
+, getInstrUsedLabels
+, mapAnnotationData
+, ValOrd(..)
+, negValOrd
+, combineAnn
 , CommentProvider(..)
 , Reg(..)
 , Loc(..)
@@ -42,19 +48,30 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , sar
 , neg
 , idiv
+, inc
+, dec
 , sete
 , setg
 , setge
 , setl
 , setle
 , setne
+, setz
+, setnz
 , pop
 , push
 , leave
 , ret
 , cdq
 , jmp
+, je
+, jg
+, jge
+, jl
+, jle
+, jne
 , jz
+, jnz
 , call
 , callIndirect
 , toBytes) where
@@ -142,13 +159,13 @@ execASMGeneratorT generator = do
 	genResult <- runExceptT (runWriterT $ generator)
 	return genResult
 
-runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
-runASMGeneratorT generator externs = do
+runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> ([Instr a anno] -> m [Instr a anno]) -> m (Either (GeneratorError a) (String, v))
+runASMGeneratorT generator externs transformFn = do
 	genResult <- runExceptT (runWriterT $ generator)
 	case genResult of
 		Left err -> return $ Left err
 		Right (result, _) -> do
-			outResult <- runExceptT (runWriterT $ generateOut externs genResult)
+			outResult <- runExceptT (runWriterT $ generateOut externs genResult transformFn)
 			case outResult  of
 				Left err -> return $ Left err
 				Right ((_, fullProg), _) -> do
@@ -157,15 +174,16 @@ runASMGeneratorT generator externs = do
 					let formattedCode = alignASMCommentsText codeLines
 					return $ Right (formattedCode, result)
 	where
-		generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
-		generateOut externs r =
+		generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> ([Instr a anno] -> m [Instr a anno]) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+		generateOut externs r transformFn  =
 			case r of
 				Left err -> generatorFail err
 				Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
 				Right (result, GeneratorOut (Just pos) instrs defs) -> do
-					instrs' <- mapM _convertInstr instrs
+					instrs' <- lift $ lift $  transformFn instrs
+					instrs'' <- mapM _convertInstr instrs'
 					let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
-					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
+					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs'')
 					return (result, fullProg)
 		alignASMCommentsText :: [T.Text] -> String
 		alignASMCommentsText fileContents =
@@ -289,6 +307,29 @@ showReg Size8 R14 = "R14B"
 showReg Size8 R15 = "R15B"
 
 
+data ValOrd = OrdE | OrdG | OrdGE | OrdL | OrdLE | OrdNE | OrdZ | OrdNZ
+	deriving (Eq, Ord, Read, Generic, Typeable)
+
+instance Show ValOrd where
+	show OrdE = "=="
+	show OrdG = ">"
+	show OrdGE = ">="
+	show OrdL = "<"
+	show OrdLE = "<="
+	show OrdNE = "/="
+	show OrdZ = "=="
+	show OrdNZ = "/="
+
+negValOrd :: ValOrd -> ValOrd
+negValOrd OrdE = OrdNE
+negValOrd OrdG = OrdLE
+negValOrd OrdGE = OrdL
+negValOrd OrdL = OrdGE
+negValOrd OrdLE = OrdG
+negValOrd OrdNE = OrdE
+negValOrd OrdZ = OrdNZ
+negValOrd OrdNZ = OrdZ
+
 data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
@@ -304,6 +345,14 @@ asReg loc = case loc of
 
 data Annotation a anno = NoAnnotation a | Annotation a anno
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
+mapAnnotationData :: (a -> b) -> (anno1 -> anno2) -> Annotation a anno1 -> Annotation b anno2
+mapAnnotationData f g (NoAnnotation p) = NoAnnotation (f p)
+mapAnnotationData f g (Annotation p ann) = Annotation (f p) (g ann)
+
+combineAnn :: Annotation a anno -> Annotation a anno -> Annotation a anno
+combineAnn ann1@(Annotation a anno) _ = ann1
+combineAnn (NoAnnotation _) ann2 = ann2
 
 class CommentProvider a anno | a -> anno where
 	toComment :: a -> anno -> String
@@ -640,7 +689,7 @@ toBytes Size8 = 1
 
 -- Instruction wrappers
 
-data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | IDIV a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | JZ a (String) (Annotation a anno) | SETE a (Loc) (Annotation a anno) | SETG a (Loc) (Annotation a anno) | SETGE a (Loc) (Annotation a anno) | SETL a (Loc) (Annotation a anno) | SETLE a (Loc) (Annotation a anno) | SETNE a (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | PUSH a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
+data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | IDIV a Size (Loc) (Annotation a anno) | INC a Size (Loc) (Annotation a anno) | DEC a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | J a (ValOrd) (String) (Annotation a anno) | SET a (ValOrd) (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | PUSH a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
 
@@ -720,34 +769,54 @@ idiv pos size loc ann =
 	_emitInstr pos $ IDIV pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
+inc :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+inc pos size loc ann =
+	_emitInstr pos $ INC pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+dec :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+dec pos size loc ann =
+	_emitInstr pos $ DEC pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
 sete :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 sete pos loc ann =
-	_emitInstr pos $ SETE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdE loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 setg :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 setg pos loc ann =
-	_emitInstr pos $ SETG pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdG loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 setge :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 setge pos loc ann =
-	_emitInstr pos $ SETGE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdGE loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 setl :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 setl pos loc ann =
-	_emitInstr pos $ SETL pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdL loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 setle :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 setle pos loc ann =
-	_emitInstr pos $ SETLE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdLE loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 setne :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 setne pos loc ann =
-	_emitInstr pos $ SETNE pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ SET pos OrdNE loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+setz :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setz pos loc ann =
+	_emitInstr pos $ SET pos OrdZ loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+setnz :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+setnz pos loc ann =
+	_emitInstr pos $ SET pos OrdNZ loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 pop :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
@@ -780,9 +849,44 @@ jmp pos label ann =
 	_emitInstr pos $ JMP pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
+je :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+je pos label ann =
+	_emitInstr pos $ J pos OrdE label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jg :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jg pos label ann =
+	_emitInstr pos $ J pos OrdG label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jge :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jge pos label ann =
+	_emitInstr pos $ J pos OrdGE label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jl :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jl pos label ann =
+	_emitInstr pos $ J pos OrdL label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jle :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jle pos label ann =
+	_emitInstr pos $ J pos OrdLE label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jne :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jne pos label ann =
+	_emitInstr pos $ J pos OrdNE label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
 jz :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
 jz pos label ann =
-	_emitInstr pos $ JZ pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
+	_emitInstr pos $ J pos OrdZ label $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
+jnz :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+jnz pos label ann =
+	_emitInstr pos $ J pos OrdNZ label $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 call :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
@@ -792,6 +896,40 @@ callIndirect :: (Monad m) => a -> Reg -> Integer -> (Maybe anno) -> ASMGenerator
 callIndirect pos reg offset ann =
 	_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
 
+mapInstrData :: (a -> b) -> (anno1 -> anno2) -> Instr a anno1 -> Instr b anno2
+mapInstrData f g (CALL_INDIRECT pos reg offset ann) = CALL_INDIRECT (f pos) reg offset (mapAnnotationData f g ann)
+mapInstrData f g (CALL pos label ann) = CALL (f pos) label (mapAnnotationData f g ann)
+mapInstrData f g (Label pos label ann) = Label (f pos) label (mapAnnotationData f g ann)
+mapInstrData f g (ADD pos size from to ann) = ADD (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (AND pos size from to ann) = AND (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (CMP pos size from to ann) = CMP (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (IMUL pos size from to ann) = IMUL (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (LEA pos size from to ann) = LEA (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (MOV pos size from to ann) = MOV (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (SUB pos size from to ann) = SUB (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (TEST pos size from to ann) = TEST (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (XOR pos size from to ann) = XOR (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (XCHG pos size from to ann) = XCHG (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (SAL pos size from to ann) = SAL (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (SAR pos size from to ann) = SAR (f pos) size from to (mapAnnotationData f g ann)
+mapInstrData f g (NEG pos size to ann) = NEG (f pos) size to (mapAnnotationData f g ann)
+mapInstrData f g (IDIV pos size to ann) = IDIV (f pos) size to (mapAnnotationData f g ann)
+mapInstrData f g (INC pos size to ann) = INC (f pos) size to (mapAnnotationData f g ann)
+mapInstrData f g (DEC pos size to ann) = DEC (f pos) size to (mapAnnotationData f g ann)
+mapInstrData f g (SET pos ordVal loc ann) = SET (f pos) ordVal loc (mapAnnotationData f g ann)
+mapInstrData f g (POP pos loc ann) = POP (f pos) loc (mapAnnotationData f g ann)
+mapInstrData f g (PUSH pos loc ann) = PUSH (f pos) loc (mapAnnotationData f g ann)
+mapInstrData f g (JMP pos label ann) = JMP (f pos) label (mapAnnotationData f g ann)
+mapInstrData f g (J pos ordVal label ann) = J (f pos) ordVal label (mapAnnotationData f g ann)
+mapInstrData f g (LEAVE pos ann) = LEAVE (f pos) (mapAnnotationData f g ann)
+mapInstrData f g (RET pos ann) = RET (f pos) (mapAnnotationData f g ann)
+mapInstrData f g (CDQ pos ann) = CDQ (f pos) (mapAnnotationData f g ann)
+getInstrUsedLabels :: (Instr a anno) -> [String]
+getInstrUsedLabels (CALL _ label _) = [label]
+getInstrUsedLabels (Label _ label _) = [label]
+getInstrUsedLabels (J _ _ label _) = [label]
+getInstrUsedLabels (JMP _ label _) = [label]
+getInstrUsedLabels _ = []
 _convertInstr :: (Monad m, CommentProvider a anno) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)
 _convertInstr (Label pos l ann) = return $ Syntax.LabelDef pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)
 _convertInstr (ADD pos Size64 loc1 loc2 ann) = return $ Syntax.ADD64 pos (_locToSource pos Size64 loc1) (_locToTarget pos Size64 loc2) (_convert_annotation ann)
@@ -864,24 +1002,45 @@ _convertInstr (IDIV pos Size32 loc ann) = return $ Syntax.IDIV32 pos (_locToTarg
 _convertInstr (IDIV pos Size16 loc ann) = return $ Syntax.IDIV16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
 _convertInstr (IDIV pos Size8 loc ann) = return $ Syntax.IDIV8 pos (_locToTarget pos Size8 loc) (_convert_annotation ann)
 _convertInstr (IDIV pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
-_convertInstr (SETE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r (_convert_annotation ann)
-_convertInstr (SETE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETG pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r (_convert_annotation ann)
-_convertInstr (SETG pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETGE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETGE pos r (_convert_annotation ann)
-_convertInstr (SETGE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETL pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETL pos r (_convert_annotation ann)
-_convertInstr (SETL pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETLE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETLE pos r (_convert_annotation ann)
-_convertInstr (SETLE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (SETNE pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNE pos r (_convert_annotation ann)
-_convertInstr (SETNE pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (INC pos Size64 loc ann) = return $ Syntax.INC64 pos (_locToTarget pos Size64 loc) (_convert_annotation ann)
+_convertInstr (INC pos Size32 loc ann) = return $ Syntax.INC32 pos (_locToTarget pos Size32 loc) (_convert_annotation ann)
+_convertInstr (INC pos Size16 loc ann) = return $ Syntax.INC16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
+_convertInstr (INC pos Size8 loc ann) = return $ Syntax.INC8 pos (_locToTarget pos Size8 loc) (_convert_annotation ann)
+_convertInstr (INC pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
+_convertInstr (DEC pos Size64 loc ann) = return $ Syntax.DEC64 pos (_locToTarget pos Size64 loc) (_convert_annotation ann)
+_convertInstr (DEC pos Size32 loc ann) = return $ Syntax.DEC32 pos (_locToTarget pos Size32 loc) (_convert_annotation ann)
+_convertInstr (DEC pos Size16 loc ann) = return $ Syntax.DEC16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
+_convertInstr (DEC pos Size8 loc ann) = return $ Syntax.DEC8 pos (_locToTarget pos Size8 loc) (_convert_annotation ann)
+_convertInstr (DEC pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
+_convertInstr (SET pos OrdE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdG loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdG loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdGE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETGE pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdGE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdL loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETL pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdL loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdLE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETLE pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdLE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdNE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNE pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdNE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdZ loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETZ pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdZ loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdNZ loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNZ pos r (_convert_annotation ann)
+_convertInstr (SET pos OrdNZ loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
 _convertInstr (POP pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.POP pos r (_convert_annotation ann)
 _convertInstr (POP pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
 _convertInstr (PUSH pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.PUSH pos r (_convert_annotation ann)
 _convertInstr (PUSH pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
 _convertInstr (JMP pos label ann) = return $ Syntax.JMP pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
-_convertInstr (JZ pos label ann) = return $ Syntax.JZ pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdE label ann) = return $ Syntax.JE pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdG label ann) = return $ Syntax.JG pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdGE label ann) = return $ Syntax.JGE pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdL label ann) = return $ Syntax.JL pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdLE label ann) = return $ Syntax.JLE pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdNE label ann) = return $ Syntax.JNE pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdZ label ann) = return $ Syntax.JZ pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
+_convertInstr (J pos OrdNZ label ann) = return $ Syntax.JNZ pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
 _convertInstr (LEAVE pos ann) = return $ Syntax.LEAVE pos (_convert_annotation ann)
 _convertInstr (RET pos ann) = return $ Syntax.RET pos (_convert_annotation ann)
 _convertInstr (CDQ pos ann) = return $ Syntax.CDQ pos (_convert_annotation ann)

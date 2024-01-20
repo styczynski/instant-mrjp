@@ -170,81 +170,95 @@ eitherResIdent tv s = treeFind resWords
 -- | The keywords and symbols of the language organized as binary search tree.
 resWords :: BTree
 resWords =
-  b ".section" 75
-    (b "%R14B" 38
-       (b "%ESI" 19
-          (b "%DIL" 10
-             (b "%BPL" 5
-                (b "%BL" 3 (b "%AX" 2 (b "%AL" 1 N N) N) (b "%BP" 4 N N))
-                (b "%CX" 8 (b "%CL" 7 (b "%BX" 6 N N) N) (b "%DI" 9 N N)))
-             (b "%EBX" 15
-                (b "%EAX" 13 (b "%DX" 12 (b "%DL" 11 N N) N) (b "%EBP" 14 N N))
-                (b "%EDI" 17 (b "%ECX" 16 N N) (b "%EDX" 18 N N))))
-          (b "%R12" 29
-             (b "%R10W" 24
-                (b "%R10B" 22 (b "%R10" 21 (b "%ESP" 20 N N) N) (b "%R10D" 23 N N))
-                (b "%R11D" 27
-                   (b "%R11B" 26 (b "%R11" 25 N N) N) (b "%R11W" 28 N N)))
-             (b "%R13B" 34
-                (b "%R12W" 32
-                   (b "%R12D" 31 (b "%R12B" 30 N N) N) (b "%R13" 33 N N))
-                (b "%R13W" 36 (b "%R13D" 35 N N) (b "%R14" 37 N N)))))
-       (b "%RDI" 57
-          (b "%R8W" 48
-             (b "%R15D" 43
-                (b "%R15" 41
-                   (b "%R14W" 40 (b "%R14D" 39 N N) N) (b "%R15B" 42 N N))
-                (b "%R8B" 46 (b "%R8" 45 (b "%R15W" 44 N N) N) (b "%R8D" 47 N N)))
-             (b "%RAX" 53
-                (b "%R9D" 51 (b "%R9B" 50 (b "%R9" 49 N N) N) (b "%R9W" 52 N N))
-                (b "%RBX" 55 (b "%RBP" 54 N N) (b "%RCX" 56 N N))))
-          (b "(%RIP)" 66
-             (b "%SIL" 62
-                (b "%RSP" 60 (b "%RSI" 59 (b "%RDX" 58 N N) N) (b "%SI" 61 N N))
-                (b "%SPL" 64 (b "%SP" 63 N N) (b "(" 65 N N)))
-             (b ".global" 71
-                (b "," 69 (b "*" 68 (b ")" 67 N N) N) (b ".extern" 70 N N))
-                (b ".quad" 73 (b ".long" 72 N N) (b ".rodata" 74 N N))))))
-    (b "negb" 113
-       (b "idivb" 94
-          (b "andl" 85
-             (b "addb" 80
-                (b ":" 78
-                   (b ".text" 77 (b ".string" 76 N N) N) (b "<ENDL>" 79 N N))
-                (b "addw" 83 (b "addq" 82 (b "addl" 81 N N) N) (b "andb" 84 N N)))
+  b "andb" 84
+    (b "%R15B" 42
+       (b "%R10" 21
+          (b "%DL" 11
+             (b "%BX" 6
+                (b "%BL" 3
+                   (b "%AX" 2 (b "%AL" 1 N N) N) (b "%BPL" 5 (b "%BP" 4 N N) N))
+                (b "%DI" 9 (b "%CX" 8 (b "%CL" 7 N N) N) (b "%DIL" 10 N N)))
+             (b "%ECX" 16
+                (b "%EBP" 14 (b "%EAX" 13 (b "%DX" 12 N N) N) (b "%EBX" 15 N N))
+                (b "%ESI" 19 (b "%EDX" 18 (b "%EDI" 17 N N) N) (b "%ESP" 20 N N))))
+          (b "%R12W" 32
+             (b "%R11D" 27
+                (b "%R10W" 24
+                   (b "%R10D" 23 (b "%R10B" 22 N N) N)
+                   (b "%R11B" 26 (b "%R11" 25 N N) N))
+                (b "%R12B" 30
+                   (b "%R12" 29 (b "%R11W" 28 N N) N) (b "%R12D" 31 N N)))
+             (b "%R14" 37
+                (b "%R13D" 35
+                   (b "%R13B" 34 (b "%R13" 33 N N) N) (b "%R13W" 36 N N))
+                (b "%R14W" 40
+                   (b "%R14D" 39 (b "%R14B" 38 N N) N) (b "%R15" 41 N N)))))
+       (b "%SP" 63
+          (b "%RAX" 53
+             (b "%R8W" 48
+                (b "%R8" 45
+                   (b "%R15W" 44 (b "%R15D" 43 N N) N)
+                   (b "%R8D" 47 (b "%R8B" 46 N N) N))
+                (b "%R9D" 51 (b "%R9B" 50 (b "%R9" 49 N N) N) (b "%R9W" 52 N N)))
+             (b "%RDX" 58
+                (b "%RCX" 56 (b "%RBX" 55 (b "%RBP" 54 N N) N) (b "%RDI" 57 N N))
+                (b "%SI" 61 (b "%RSP" 60 (b "%RSI" 59 N N) N) (b "%SIL" 62 N N))))
+          (b ".rodata" 74
+             (b "," 69
+                (b "(%RIP)" 66
+                   (b "(" 65 (b "%SPL" 64 N N) N) (b "*" 68 (b ")" 67 N N) N))
+                (b ".long" 72
+                   (b ".global" 71 (b ".extern" 70 N N) N) (b ".quad" 73 N N)))
+             (b "<ENDL>" 79
+                (b ".text" 77
+                   (b ".string" 76 (b ".section" 75 N N) N) (b ":" 78 N N))
+                (b "addq" 82
+                   (b "addl" 81 (b "addb" 80 N N) N) (b "addw" 83 N N))))))
+    (b "movq" 126
+       (b "imulw" 105
+          (b "decl" 95
              (b "cmpb" 90
-                (b "call" 88 (b "andw" 87 (b "andq" 86 N N) N) (b "cdq" 89 N N))
-                (b "cmpq" 92 (b "cmpl" 91 N N) (b "cmpw" 93 N N))))
-          (b "leab" 104
-             (b "imull" 99
-                (b "idivw" 97
-                   (b "idivq" 96 (b "idivl" 95 N N) N) (b "imulb" 98 N N))
-                (b "jmp" 102
-                   (b "imulw" 101 (b "imulq" 100 N N) N) (b "jz" 103 N N)))
-             (b "movb" 109
-                (b "leave" 107
-                   (b "leaq" 106 (b "leal" 105 N N) N) (b "leaw" 108 N N))
-                (b "movq" 111 (b "movl" 110 N N) (b "movw" 112 N N)))))
-       (b "setle" 132
-          (b "salw" 123
-             (b "push" 118
-                (b "negw" 116
-                   (b "negq" 115 (b "negl" 114 N N) N) (b "pop" 117 N N))
-                (b "sall" 121
-                   (b "salb" 120 (b "ret" 119 N N) N) (b "salq" 122 N N)))
-             (b "sete" 128
-                (b "sarq" 126
-                   (b "sarl" 125 (b "sarb" 124 N N) N) (b "sarw" 127 N N))
-                (b "setge" 130 (b "setg" 129 N N) (b "setl" 131 N N))))
-          (b "testw" 141
-             (b "subw" 137
-                (b "subl" 135
-                   (b "subb" 134 (b "setne" 133 N N) N) (b "subq" 136 N N))
-                (b "testl" 139 (b "testb" 138 N N) (b "testq" 140 N N)))
-             (b "xorb" 146
-                (b "xchgq" 144
-                   (b "xchgl" 143 (b "xchgb" 142 N N) N) (b "xchgw" 145 N N))
-                (b "xorq" 148 (b "xorl" 147 N N) (b "xorw" 149 N N))))))
+                (b "andw" 87
+                   (b "andq" 86 (b "andl" 85 N N) N) (b "cdq" 89 (b "call" 88 N N) N))
+                (b "cmpw" 93 (b "cmpq" 92 (b "cmpl" 91 N N) N) (b "decb" 94 N N)))
+             (b "idivq" 100
+                (b "idivb" 98 (b "decw" 97 (b "decq" 96 N N) N) (b "idivl" 99 N N))
+                (b "imull" 103
+                   (b "imulb" 102 (b "idivw" 101 N N) N) (b "imulq" 104 N N))))
+          (b "jne" 116
+             (b "jg" 111
+                (b "incq" 108
+                   (b "incl" 107 (b "incb" 106 N N) N)
+                   (b "je" 110 (b "incw" 109 N N) N))
+                (b "jle" 114 (b "jl" 113 (b "jge" 112 N N) N) (b "jmp" 115 N N)))
+             (b "leaq" 121
+                (b "leab" 119 (b "jz" 118 (b "jnz" 117 N N) N) (b "leal" 120 N N))
+                (b "movb" 124
+                   (b "leaw" 123 (b "leave" 122 N N) N) (b "movl" 125 N N)))))
+       (b "setle" 147
+          (b "salq" 137
+             (b "pop" 132
+                (b "negl" 129
+                   (b "negb" 128 (b "movw" 127 N N) N)
+                   (b "negw" 131 (b "negq" 130 N N) N))
+                (b "salb" 135
+                   (b "ret" 134 (b "push" 133 N N) N) (b "sall" 136 N N)))
+             (b "sarw" 142
+                (b "sarl" 140
+                   (b "sarb" 139 (b "salw" 138 N N) N) (b "sarq" 141 N N))
+                (b "setge" 145
+                   (b "setg" 144 (b "sete" 143 N N) N) (b "setl" 146 N N))))
+          (b "testq" 157
+             (b "subl" 152
+                (b "setz" 150
+                   (b "setnz" 149 (b "setne" 148 N N) N) (b "subb" 151 N N))
+                (b "testb" 155
+                   (b "subw" 154 (b "subq" 153 N N) N) (b "testl" 156 N N)))
+             (b "xchgw" 162
+                (b "xchgl" 160
+                   (b "xchgb" 159 (b "testw" 158 N N) N) (b "xchgq" 161 N N))
+                (b "xorq" 165
+                   (b "xorl" 164 (b "xorb" 163 N N) N) (b "xorw" 166 N N))))))
   where
   b s n = B bs (TS bs n)
     where

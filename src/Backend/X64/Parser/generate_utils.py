@@ -7,6 +7,7 @@ INDENT="<INDENT>"
 INDENTNL = "\n<INDENT>"
 
 def create_data_types():
+    newline = "\n"
     ret = []
     syms = []
     # for size in REGISTERS:
@@ -18,7 +19,7 @@ def create_data_types():
     #             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
     #         """
     #     ]
-    syms = syms + ["CommentProvider(..)", "Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
+    syms = syms + ["mapInstrData", "getInstrUsedLabels", "mapAnnotationData", "ValOrd(..)", "negValOrd", "combineAnn", "CommentProvider(..)", "Reg(..)", "Loc(..)", "RegType(..)", "isReg", "asReg", "argLoc", "allRegs", "regType", "asLoc", "showReg"]
     allocable_registers = [reg.upper() for reg in REGISTERS['64'] if REGISTERS_ALLOCABLE[reg.upper()]]
     ret = ret + [
         f"""
@@ -63,6 +64,15 @@ def create_data_types():
     ret = ret + [
         f"""
 
+            data ValOrd = {' | '.join(['Ord'+ord_suffix.upper() for ord_suffix in ORDS])}
+            {INDENT}deriving (Eq, Ord, Read, Generic, Typeable)
+
+            instance Show ValOrd where
+            {newline.join([INDENT+'show Ord'+ord_suffix.upper()+' = "'+ORDS_REPR[ord_suffix]+'"' for ord_suffix in ORDS])}
+
+            negValOrd :: ValOrd -> ValOrd
+            {newline.join(['negValOrd Ord'+ord_suffix.upper()+' = Ord'+(ORDS[ord_suffix].upper()) for ord_suffix in ORDS])}
+
             data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
@@ -78,6 +88,14 @@ def create_data_types():
 
             data Annotation a anno = NoAnnotation a | Annotation a anno
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
+
+            mapAnnotationData :: (a -> b) -> (anno1 -> anno2) -> Annotation a anno1 -> Annotation b anno2 
+            mapAnnotationData f g (NoAnnotation p) = NoAnnotation (f p)
+            mapAnnotationData f g (Annotation p ann) = Annotation (f p) (g ann)
+
+            combineAnn :: Annotation a anno -> Annotation a anno -> Annotation a anno
+            combineAnn ann1@(Annotation a anno) _ = ann1
+            combineAnn (NoAnnotation _) ann2 = ann2
 
             class CommentProvider a anno | a -> anno where
             {INDENT}toComment :: a -> anno -> String
@@ -154,9 +172,13 @@ def create_instr_wrappers():
         instr_variants = instr_variants + [
             f"""{instr.upper()} a (String) (Annotation a anno)""",
         ]
+    for instr in INSTR_JMP_ORD:
+        instr_variants = instr_variants + [
+            f"""{instr.upper()} a (ValOrd) (String) (Annotation a anno)""",
+        ]
     for instr in INSTR_SET:
         instr_variants = instr_variants + [
-            f"""{instr.upper()} a (Loc) (Annotation a anno)""",
+            f"""{instr.upper()} a (ValOrd) (Loc) (Annotation a anno)""",
         ]
     for instr in INSTR_STACK:
         instr_variants = instr_variants + [
@@ -224,14 +246,15 @@ def create_instr_wrappers():
             """
         ]
     for instr in INSTR_SET:
-        syms = syms + [f"{instr}"]
-        ret = ret+[
-            f"""
-                {instr} :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
-                {instr} pos loc ann =
-                    {INDENT}_emitInstr pos $ {instr.upper()} pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
-            """
-        ]
+        for ord_suffix in ORDS:
+            syms = syms + [f"{instr}{ord_suffix}"]
+            ret = ret+[
+                f"""
+                    {instr}{ord_suffix} :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                    {instr}{ord_suffix} pos loc ann =
+                        {INDENT}_emitInstr pos $ {instr.upper()} pos Ord{ord_suffix.upper()} loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+                """
+            ]
     for instr in INSTR_STACK:
         syms = syms + [f"{instr}"]
         ret = ret+[
@@ -259,6 +282,16 @@ def create_instr_wrappers():
                     {INDENT}_emitInstr pos $ {instr.upper()} pos label $ maybe (NoAnnotation pos) (Annotation pos) ann
             """
         ]
+    for instr in INSTR_JMP_ORD:
+        for ord_suffix in ORDS:
+            syms = syms + [f"{instr}{ord_suffix}"]
+            ret = ret+[
+                f"""
+                    {instr}{ord_suffix} :: (Monad m) => a -> String -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                    {instr}{ord_suffix} pos label ann =
+                        {INDENT}_emitInstr pos $ {instr.upper()} pos Ord{ord_suffix.upper()} label $ maybe (NoAnnotation pos) (Annotation pos) ann
+                """
+            ]
     # Calls
     syms = syms + [f"call", "callIndirect"]
     ret = ret+[
@@ -271,6 +304,59 @@ def create_instr_wrappers():
                 {INDENT}_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
         """
     ]
+    # Set instr data
+    ret = ret + [
+        f"""mapInstrData :: (a -> b) -> (anno1 -> anno2) -> Instr a anno1 -> Instr b anno2""",
+        f"""mapInstrData f g (CALL_INDIRECT pos reg offset ann) = CALL_INDIRECT (f pos) reg offset (mapAnnotationData f g ann)""",
+        f"""mapInstrData f g (CALL pos label ann) = CALL (f pos) label (mapAnnotationData f g ann)""",
+        f"""mapInstrData f g (Label pos label ann) = Label (f pos) label (mapAnnotationData f g ann)""",
+    ]
+    for instr in INSTR_ARITM_2OP:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos size from to ann) = {instr.upper()} (f pos) size from to (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_ARITM_1OP:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos size to ann) = {instr.upper()} (f pos) size to (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_SET:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos ordVal loc ann) = {instr.upper()} (f pos) ordVal loc (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_STACK:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos loc ann) = {instr.upper()} (f pos) loc (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_JMP:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos label ann) = {instr.upper()} (f pos) label (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_JMP_ORD:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos ordVal label ann) = {instr.upper()} (f pos) ordVal label (mapAnnotationData f g ann)"""
+        ]
+    for instr in INSTR_NOARG:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos ann) = {instr.upper()} (f pos) (mapAnnotationData f g ann)"""
+        ]
+    ## Get instr labels
+    ret = ret + [
+        f"""getInstrUsedLabels :: (Instr a anno) -> [String]""",
+        f"""getInstrUsedLabels (CALL _ label _) = [label]""",
+        f"""getInstrUsedLabels (Label _ label _) = [label]""",
+    ]
+    for instr in INSTR_JMP_ORD:
+        ret = ret+[
+            f"""getInstrUsedLabels ({instr.upper()} _ _ label _) = [label]"""
+        ]
+    for instr in INSTR_JMP:
+        ret = ret+[
+            f"""getInstrUsedLabels ({instr.upper()} _ label _) = [label]"""
+        ]
+    ret = ret + [
+        f"""getInstrUsedLabels _ = []""",
+    ]
+    ##
     ret = ret + [
         f"""_convertInstr :: (Monad m, CommentProvider a anno) => Instr a anno -> ASMGeneratorT a anno m (Syntax.AsmInstr' a)""",
         f"""_convertInstr (Label pos l ann) = return $ Syntax.LabelDef pos (Syntax.Label $ sanitizeLabel l) (_convert_annotation ann)"""
@@ -292,10 +378,11 @@ def create_instr_wrappers():
             f"""_convertInstr ({instr.upper()} pos size _ _) = generatorFail $ EDataUnexpectedSize pos size"""
         ]
     for instr in INSTR_SET:
-        ret = ret+[
-            f"""_convertInstr ({instr.upper()} pos loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.{instr.upper()} pos r (_convert_annotation ann)""",
-            f"""_convertInstr ({instr.upper()} pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
-        ]
+        for ord_suffix in ORDS:
+            ret = ret+[
+                f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.{instr.upper()}{ord_suffix.upper()} pos r (_convert_annotation ann)""",
+                f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
+            ]
     for instr in INSTR_STACK:
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.{instr.upper()} pos r (_convert_annotation ann)""",
@@ -305,6 +392,11 @@ def create_instr_wrappers():
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos label ann) = return $ Syntax.{instr.upper()} pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)""",
         ]
+    for instr in INSTR_JMP_ORD:
+        for ord_suffix in ORDS:
+            ret = ret+[
+                f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} label ann) = return $ Syntax.{instr.upper()}{ord_suffix.upper()} pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)""",
+            ]
     for instr in INSTR_NOARG:
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos ann) = return $ Syntax.{instr.upper()} pos (_convert_annotation ann)""",
@@ -627,13 +719,13 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
     {INDENT}return genResult
 
-    runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> m (Either (GeneratorError a) (String, v))
-    runASMGeneratorT generator externs = do
+    runASMGeneratorT :: (Monad m, CommentProvider a anno) => (ASMGeneratorT a anno m v) -> [String] -> ([Instr a anno] -> m [Instr a anno]) -> m (Either (GeneratorError a) (String, v))
+    runASMGeneratorT generator externs transformFn = do
     {INDENT}genResult <- runExceptT (runWriterT $ generator)
     {INDENT}case genResult of 
     {INDENT}{INDENT}Left err -> return $ Left err
     {INDENT}{INDENT}Right (result, _) -> do
-    {INDENT}{INDENT}{INDENT}outResult <- runExceptT (runWriterT $ generateOut externs genResult)
+    {INDENT}{INDENT}{INDENT}outResult <- runExceptT (runWriterT $ generateOut externs genResult transformFn)
     {INDENT}{INDENT}{INDENT}case outResult  of
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> return $ Left err
     {INDENT}{INDENT}{INDENT}{INDENT}Right ((_, fullProg), _) -> do
@@ -642,15 +734,16 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let formattedCode = alignASMCommentsText codeLines
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return $ Right (formattedCode, result)
     {INDENT}where
-    {INDENT}{INDENT}generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
-    {INDENT}{INDENT}generateOut externs r =
+    {INDENT}{INDENT}generateOut :: (Monad m, CommentProvider a anno) => [String] -> Either (GeneratorError a) (v, GeneratorOut a anno) -> ([Instr a anno] -> m [Instr a anno]) -> (ASMGeneratorT a anno m (v, Syntax.AsmProgram' a))
+    {INDENT}{INDENT}generateOut externs r transformFn  =
     {INDENT}{INDENT}{INDENT}case r of
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> generatorFail err
     {INDENT}{INDENT}{INDENT}{INDENT}Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
     {INDENT}{INDENT}{INDENT}{INDENT}Right (result, GeneratorOut (Just pos) instrs defs) -> do
-    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs' <- mapM _convertInstr instrs
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs' <- lift $ lift $  transformFn instrs
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs'' <- mapM _convertInstr instrs'
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
-    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs')
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs'')
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return (result, fullProg)
     {INDENT}{INDENT}alignASMCommentsText :: [T.Text] -> String
     {INDENT}{INDENT}alignASMCommentsText fileContents =

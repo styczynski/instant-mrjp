@@ -117,12 +117,20 @@ transAsmInstr x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.SAR8 _ source target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG64 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV64 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.INC64 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.DEC64 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG32 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV32 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.INC32 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.DEC32 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG16 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV16 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.INC16 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.DEC16 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.NEG8 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.IDIV8 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.INC8 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.DEC8 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALL _ label commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT _ integer reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.POP _ reg commentann -> failure x
@@ -136,8 +144,17 @@ transAsmInstr x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.SETL _ reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.SETLE _ reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.SETNE _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETZ _ reg commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.SETNZ _ reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.JMP _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JE _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JG _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JGE _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JL _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JLE _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JNE _ label commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.JZ _ label commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.JNZ _ label commentann -> failure x
 
 transSource :: Show a => Backend.X64.Parser.Gen.AbsXGAS.Source' a -> Result
 transSource x = case x of

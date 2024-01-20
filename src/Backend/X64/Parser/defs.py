@@ -62,14 +62,19 @@ INSTR_ARITM_2OP = [
     "sar",
 ]
 
+INSTR_JMP_ORD = [
+    "j",
+]
+
 INSTR_JMP = [
     "jmp",
-    "jz",
 ]
 
 INSTR_ARITM_1OP = [
     "neg",
     "idiv",
+    "inc",
+    "dec",
 ]
 
 INSTR_STACK = [
@@ -84,12 +89,29 @@ INSTR_NOARG = [
 ]
 
 INSTR_SET = [
-    "sete",
-    "setg",
-    "setge",
-    "setl",
-    "setle",
-    "setne",
+    "set",
 ]
+
+ORDS = {
+    "e": "ne",
+    "g": "le",
+    "ge": "l",
+    "l": "ge",
+    "le": "g",
+    "ne": "e",
+    "z": "nz",
+    "nz": "z",
+}
+
+ORDS_REPR = {
+    "e": "==",
+    "g": ">",
+    "ge": ">=",
+    "l": "<",
+    "le": "<=",
+    "ne": "/=",
+    "z": "==",
+    "nz": "/=",
+}
 
 INSTR_ALL = INSTR_ARITM_2OP + INSTR_JMP + INSTR_ARITM_1OP + INSTR_STACK + INSTR_NOARG + INSTR_SET

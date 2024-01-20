@@ -40,21 +40,25 @@ The reserved words used in X64GAS are the following:
   | ``addb`` | ``addl`` | ``addq`` | ``addw``
   | ``andb`` | ``andl`` | ``andq`` | ``andw``
   | ``call`` | ``cdq`` | ``cmpb`` | ``cmpl``
-  | ``cmpq`` | ``cmpw`` | ``idivb`` | ``idivl``
+  | ``cmpq`` | ``cmpw`` | ``decb`` | ``decl``
+  | ``decq`` | ``decw`` | ``idivb`` | ``idivl``
   | ``idivq`` | ``idivw`` | ``imulb`` | ``imull``
-  | ``imulq`` | ``imulw`` | ``jmp`` | ``jz``
-  | ``leab`` | ``leal`` | ``leaq`` | ``leave``
-  | ``leaw`` | ``movb`` | ``movl`` | ``movq``
-  | ``movw`` | ``negb`` | ``negl`` | ``negq``
-  | ``negw`` | ``pop`` | ``push`` | ``ret``
-  | ``salb`` | ``sall`` | ``salq`` | ``salw``
-  | ``sarb`` | ``sarl`` | ``sarq`` | ``sarw``
-  | ``sete`` | ``setg`` | ``setge`` | ``setl``
-  | ``setle`` | ``setne`` | ``subb`` | ``subl``
-  | ``subq`` | ``subw`` | ``testb`` | ``testl``
-  | ``testq`` | ``testw`` | ``xchgb`` | ``xchgl``
-  | ``xchgq`` | ``xchgw`` | ``xorb`` | ``xorl``
-  | ``xorq`` | ``xorw`` |  |
+  | ``imulq`` | ``imulw`` | ``incb`` | ``incl``
+  | ``incq`` | ``incw`` | ``je`` | ``jg``
+  | ``jge`` | ``jl`` | ``jle`` | ``jmp``
+  | ``jne`` | ``jnz`` | ``jz`` | ``leab``
+  | ``leal`` | ``leaq`` | ``leave`` | ``leaw``
+  | ``movb`` | ``movl`` | ``movq`` | ``movw``
+  | ``negb`` | ``negl`` | ``negq`` | ``negw``
+  | ``pop`` | ``push`` | ``ret`` | ``salb``
+  | ``sall`` | ``salq`` | ``salw`` | ``sarb``
+  | ``sarl`` | ``sarq`` | ``sarw`` | ``sete``
+  | ``setg`` | ``setge`` | ``setl`` | ``setle``
+  | ``setne`` | ``setnz`` | ``setz`` | ``subb``
+  | ``subl`` | ``subq`` | ``subw`` | ``testb``
+  | ``testl`` | ``testq`` | ``testw`` | ``xchgb``
+  | ``xchgl`` | ``xchgq`` | ``xchgw`` | ``xorb``
+  | ``xorl`` | ``xorq`` | ``xorw`` |
 
 The symbols used in X64GAS are the following:
   | <ENDL> | .section | .rodata | .text
@@ -161,12 +165,20 @@ All other symbols are terminals.
   |  |  **|**  | ``sarb`` //Source8// ``,`` //Target8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negq`` //Target64// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivq`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``incq`` //Target64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``decq`` //Target64// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negl`` //Target32// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivl`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``incl`` //Target32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``decl`` //Target32// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negw`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivw`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``incw`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``decw`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``negb`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``idivb`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``incb`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``decb`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``call`` //Label// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``call`` ``*`` //Integer// ``(`` //Reg64// ``)`` //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``pop`` //Reg64// //CommentAnn// ``<ENDL>``
@@ -180,8 +192,17 @@ All other symbols are terminals.
   |  |  **|**  | ``setl`` //Reg8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``setle`` //Reg8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``setne`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setz`` //Reg8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``setnz`` //Reg8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``jmp`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``je`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jg`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jge`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jl`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jle`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jne`` //Label// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``jz`` //Label// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``jnz`` //Label// //CommentAnn// ``<ENDL>``
   | //Source64// | -> | //ConstIntRef//
   |  |  **|**  | //Reg64//
   |  |  **|**  | //Integer// ``(`` //Reg64// ``)``

@@ -41,3 +41,4 @@ src/Runtime/dependencies/_built_/done.txt:
 	touch src/Runtime/dependencies/_built_/done.txt
 
 # stack exec --profile -- ./latc_x86 ./simple.lat +RTS -p -xc -M380M -i0.001 -K1000
+# stack exec --profile -- ./latc_x86 ./test.lat +RTS -p -xc

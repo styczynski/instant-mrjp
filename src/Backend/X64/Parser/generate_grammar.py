@@ -93,11 +93,14 @@ def generate_grammar(output_grammar_path):
         -- Zero arg instructions
         {embed([rule(instr.upper(), "AsmInstr", lit(instr), "CommentAnn", newline) for instr in INSTR_NOARG])}
 
-        -- Set instructions
-        {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Reg8", "CommentAnn", newline) for instr in INSTR_SET])}
+        -- Set instructions (value order)
+        {embed([rule(instr.upper()+ord_suffix.upper(), "AsmInstr", lit(instr+ord_suffix), "Reg8", "CommentAnn", newline) for instr in INSTR_SET for ord_suffix in ORDS])}
 
         -- Jumps
         {embed([rule(instr.upper(), "AsmInstr", lit(instr), "Label", "CommentAnn", newline) for instr in INSTR_JMP])}
+
+        -- Jumps (value order)
+        {embed([rule(instr.upper()+ord_suffix.upper(), "AsmInstr", lit(instr+ord_suffix), "Label", "CommentAnn", newline) for instr in INSTR_JMP_ORD for ord_suffix in ORDS])}
 
         -- Registers
         {embed(generate_reg_defs())}
