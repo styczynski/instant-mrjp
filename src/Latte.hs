@@ -80,7 +80,7 @@ runPipeline backend = do
                       latteError "IR conversion failed"
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
-                      res <- return $ Compl.compl_ (fmap (const ()) ir)
+                      res <- Compl.compl_ (fmap (const ()) ir)
                       printLogInfo $ "Compilation done" <> (T.pack file) <> "\n\n" <> (T.pack $ res)
 
                       -- let outputPath = replaceExtension file (inputExtension usedBackend)
