@@ -81,42 +81,42 @@ _class_String_methods :
 .global main
 
 .section .text
-main :
-__cl_TopLevel.main :
-push %RBP
-movq %RSP, %RBP
-subq $0, %RSP
-__cl_TopLevel.main.L_entry :
-movl $4, %EDI                 #-- passing arg --#
-subq $0, %RSP
-call __cl_TopLevel.foo
-addq $0, %RSP
-movl %EAX, %EAX
-movl %EAX, %EDI               #-- passing arg --#
-subq $0, %RSP
-call printInt
-addq $0, %RSP
-addq $0, %RSP
-jmp __cl_TopLevel.main.L_exit
-__cl_TopLevel.main.L_exit :
-movl $0, %EAX                 #-- move return value --#
-addq $0, %RSP
-leave
-ret
-__cl_TopLevel.foo :
-push %RBP
-movq %RSP, %RBP
-subq $0, %RSP
-__cl_TopLevel.foo.L_entry :
-movl %EDI, %EAX               #-- load %v_t_0 --#
-addl $2, %EAX
-addq $0, %RSP
-jmp __cl_TopLevel.foo.L_exit
-__cl_TopLevel.foo.L_exit :
-movl %EAX, %EAX               #-- move return value --#
-addq $0, %RSP
-leave
-ret
-__errorNull :                 #-- runtime error on null dereference --#
-andq $-16, %RSP               #-- 16 bytes allign --#
-call __errorNull
+main :                         #-- simple.lat:5:1 --#
+__cl_TopLevel.main :           #-- simple.lat:5:1 --#
+push %RBP                      #-- simple.lat:5:1 --#
+movq %RSP, %RBP                #-- simple.lat:5:1 --#
+subq $0, %RSP                  #-- simple.lat:5:1 --#
+__cl_TopLevel.main.L_entry :   #-- simple.lat:5:1 --#
+movl $4, %EDI                  #-- passing arg at simple.lat:6:18 --#
+subq $0, %RSP                  #-- simple.lat:6:18 --#
+call __cl_TopLevel.foo         #-- simple.lat:6:18 --#
+addq $0, %RSP                  #-- simple.lat:6:18 --#
+movl %EAX, %EAX                #-- simple.lat:6:18 --#
+movl %EAX, %EDI                #-- passing arg at simple.lat:6:9 --#
+subq $0, %RSP                  #-- simple.lat:6:9 --#
+call printInt                  #-- simple.lat:6:9 --#
+addq $0, %RSP                  #-- simple.lat:6:9 --#
+addq $0, %RSP                  #-- simple.lat:7:9 --#
+jmp __cl_TopLevel.main.L_exit  #-- simple.lat:7:9 --#
+__cl_TopLevel.main.L_exit :    #-- simple.lat:5:1 --#
+movl $0, %EAX                  #-- move return value at simple.lat:5:1 --#
+addq $0, %RSP                  #-- simple.lat:5:1 --#
+leave                          #-- simple.lat:5:1 --#
+ret                            #-- simple.lat:5:1 --#
+__cl_TopLevel.foo :            #-- simple.lat:1:1 --#
+push %RBP                      #-- simple.lat:1:1 --#
+movq %RSP, %RBP                #-- simple.lat:1:1 --#
+subq $0, %RSP                  #-- simple.lat:1:1 --#
+__cl_TopLevel.foo.L_entry :    #-- simple.lat:1:1 --#
+movl %EDI, %EAX                #-- load %v_t_0 at simple.lat:1:1 --#
+addl $2, %EAX                  #-- simple.lat:2:17 --#
+addq $0, %RSP                  #-- simple.lat:2:9 --#
+jmp __cl_TopLevel.foo.L_exit   #-- simple.lat:2:9 --#
+__cl_TopLevel.foo.L_exit :     #-- simple.lat:1:1 --#
+movl %EAX, %EAX                #-- move return value at simple.lat:1:1 --#
+addq $0, %RSP                  #-- simple.lat:1:1 --#
+leave                          #-- simple.lat:1:1 --#
+ret                            #-- simple.lat:1:1 --#
+__errorNull :                  #-- runtime error on null dereference at simple.lat:1:1 --#
+andq $-16, %RSP                #-- 16 bytes allign at simple.lat:1:1 --#
+call __errorNull               #-- simple.lat:1:1 --#

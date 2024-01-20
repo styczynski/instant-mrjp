@@ -33,7 +33,10 @@ noPosIR :: IRPosition
 noPosIR = IRPosition (-1) (Undefined, Undefined)
 
 instance Show (IRPosition) where
-    show p = ""
+    show (IRPosition v _) | v == -1 = ""
+    show (IRPosition _ (Undefined, _)) = ""
+    show (IRPosition _ (_, Undefined)) = ""
+    show (IRPosition _ (p, _)) = show p
 
 data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (DataDef a))
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, Generic1, NFData)

@@ -20,6 +20,7 @@ import Linearized.Linearizer as Linearizer
 import Backend.Base as Backend
 import Backend.X64.X64 as BackendX64
 import Reporting.Errors.Errors
+import qualified Linearized.Syntax as LSyntax
 
 import System.Environment
 import System.Exit
@@ -79,7 +80,7 @@ runPipeline backend = do
                       latteError "IR conversion failed"
                     Right (_, ir) -> do
                       printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
-                      compiledProg <- Compl.compl_ (fmap (const ()) ir)
+                      compiledProg <- ((Compl.compl_ ir) :: (LattePipeline (Compl.CompiledProg LSyntax.IRPosition))) --(fmap (const ()) ir)
                       printLogInfo $ "COMPL_ DONE" <> (T.pack file) <> "\n\n" <> (T.pack $ show compiledProg)
                       let outputPath = replaceExtension file (inputExtension usedBackend)
                       backendResult <- Backend.runBackend outputPath (takeFileName outputPath) compiledProg usedBackend

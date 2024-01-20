@@ -22,7 +22,7 @@ instance Show TokenUID where
   show (TokenUID id) = "#" ++ (show id)
 
 instance Show Position where
-    show (Position id file line col) = show id --"{" ++ show line ++ "," ++ show col ++ "}"--"\""++file++"\", line: "++ show line++", column: "++show col
+    show (Position id file line col) = file ++ ":" ++ show line++":"++show col++""
     show BuiltIn = "inside standard library"
     show Undefined = "(undefined)"
 

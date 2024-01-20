@@ -305,11 +305,15 @@ asReg loc = case loc of
 data Annotation a anno = NoAnnotation a | Annotation a anno
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
-class CommentProvider a anno where
+class CommentProvider a anno | a -> anno where
 	toComment :: a -> anno -> String
+	defaultComment :: a -> Maybe String
+	defaultComment _ = Nothing
 
 _convert_annotation :: (CommentProvider a anno) => Annotation a anno -> Syntax.CommentAnn' a
-_convert_annotation (NoAnnotation pos) = Syntax.NoComment pos
+_convert_annotation (NoAnnotation pos) = case (defaultComment pos) of
+	Nothing -> Syntax.NoComment pos
+	(Just comment) -> Syntax.Comment pos $ Syntax.CommentLike $ "#-- " ++ comment ++ " --#"
 _convert_annotation (Annotation pos ann) = Syntax.Comment pos $ Syntax.CommentLike $ "#-- " ++ (toComment pos ann) ++ " --#"
 
 
