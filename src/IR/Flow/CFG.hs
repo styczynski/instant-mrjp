@@ -39,8 +39,9 @@ mapCFGPos f (CFG m) = CFG $ Map.map (mapNodePos f) m
 mapNodePos :: (a -> b) -> Node a d -> Node b d
 mapNodePos f node = node { _nNodeBody = map (fmap (\(p, d) -> (f p, d))) (node^.nodeBody)}
 
+
 instance Eq (CFG a d) where
-    (==) cfg1 cfg2 = (mapCFGPos (const ()) cfg1) == (mapCFGPos (const ()) cfg2)
+    (==) cfg1 cfg2 = let (CFG m1) = (mapCFGPos (const ()) cfg1) in let (CFG m2) = (mapCFGPos (const ()) cfg2) in m1 == m2
 
 instance Eq (Node a d) where
     (==) (Node l1 b1 o1 i1) (Node l2 b2 o2 i2) = (l1 == l2) && ((fmap (const ()) b1) == (fmap (const ()) b2)) && (o1 == o2) && (i1 == i2)

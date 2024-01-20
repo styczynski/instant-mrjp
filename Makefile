@@ -5,7 +5,7 @@ CFLAGS:=-fPIE
 all: compiler
 
 compiler: lib/runtime.ext src/Parser/Gen src/IR/Parser/Gen
-	./bin/invoke_haskell_stack.sh install --profile --local-bin-path=$(shell pwd)
+	./bin/invoke_haskell_stack.sh install --local-bin-path=$(shell pwd)
 
 clean:
 	./bin/invoke_haskell_stack.sh clean
@@ -40,4 +40,4 @@ src/Runtime/dependencies/_built_/done.txt:
 	cd src/Runtime/dependencies/libunistring-1.1 && CFLAGS=$(CFLAGS) make install
 	touch src/Runtime/dependencies/_built_/done.txt
 
-# stack exec --profile -- ./latc_x86 ./simple.lat +RTS -p
+# stack exec --profile -- ./latc_x86 ./simple.lat +RTS -p -xc -M380M -i0.001 -K1000

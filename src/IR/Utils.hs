@@ -74,27 +74,33 @@ single xs = fromMaybe (error "single: empty structure") (ffirst xs)
 
 -- Iterate function until reaching a fixpoint
 -- as determined by the type's equality relation.
-fixpoint :: (Eq a) => (a -> a) -> a -> a
+fixpoint :: (Eq a, Show a) => (a -> a) -> a -> a
 fixpoint = fixpointBy id
 
 -- Iterate function until reaching a fixpoint
 -- as determined by the equality on the ordering map.
-fixpointBy :: (Eq b) => (a -> b) -> (a -> a) -> a -> a
-fixpointBy ord f x = let x' = f x in if ord x == ord x' then x' else fixpointBy ord f x'
+fixpointBy :: (Eq b, Show b) => (a -> b) -> (a -> a) -> a -> a
+fixpointBy ord f x = fixpointBy' 0 ord f x
+  where
+    fixpointBy' iterNo ord f x = if iterNo > 100 then (error $ "Infinite fixpointBy iteration on: " ++ show (ord $ x) ++ " and " ++ show (ord $ f x)) else let x' = f x in if ord x == ord x' then x' else fixpointBy' (iterNo+1) ord f x'
 
 -- Iterate a monadic action until reaching a fixpoint
 -- as determined by the equality on the ordering map.
-fixpointM :: (Monad m, Eq a) => (a -> m a) -> a -> m a
+fixpointM :: (Monad m, Eq a, Show a) => (a -> m a) -> a -> m a
 fixpointM = fixpointByM id
 
 -- Iterate a monadic action until reaching a fixpoint
 -- as determined by the type's equality relation.
-fixpointByM :: (Monad m, Eq b) => (a -> b) -> (a -> m a) -> a -> m a
-fixpointByM ord f x = do
-    x' <- f x
-    if ord x == ord x'
-      then return x'
-      else fixpointByM ord f x'
+fixpointByM :: (Monad m, Eq b, Show b) => (a -> b) -> (a -> m a) -> a -> m a
+fixpointByM ord f x = fixpointByM' 0 ord f x
+  where
+    fixpointByM' iterNo ord f x =  do
+      x' <- f x
+      if iterNo > 100
+        then return (error $ "Infinite fixpointBy iteration on: " ++ show (ord x) ++ " and " ++ show (ord $ x'))
+        else if ord x == ord x'
+          then return x'
+          else fixpointByM' (iterNo+1) ord f x'
 
 -- Remove the last element in a list and return
 -- it and the modified list.

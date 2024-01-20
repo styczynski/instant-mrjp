@@ -23,7 +23,7 @@ newtype RenameDictionary = Dict {
     dict :: Map.Map ValIdent ValIdent
 } deriving Eq
 
-newtype SSA a d = SSA (CFG a d) deriving (Eq, Functor)
+newtype SSA a d = SSA (CFG a d) deriving (Eq, Functor, Show)
 
 data RenamedValIdent = NewValIdent {_ident :: ValIdent, version :: Integer}
 
