@@ -106,12 +106,13 @@ data Type a = VoidT a
   deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor)
 instance (Show a) => IsSyntax Type a
 
+data SyntaxType = Implicit | Explicit deriving (Eq, Ord, Show, Read, Generic)
 
 data Expr a = Lit a (Lit a)
             | Var a (Ident a)
             | App a (Expr a) [Expr a]         -- e1(e2)
             | UnaryOp a (UnOp a) (Expr a)
-            | BinaryOp a (BinOp a) (Expr a) (Expr a)
+            | BinaryOp a SyntaxType (BinOp a) (Expr a) (Expr a)
             | Member a (Expr a) (Ident a) (Maybe TypeName)      -- (e1).e2
             | NewObj a (Type a) (Maybe (Expr a))               -- new T
             | ArrAccess a (Expr a) (Expr a) (Maybe (Type a))   -- e1[e2]
@@ -332,13 +333,17 @@ instance PrettyPrint (Type a) where
     printi _ (ArrayT _ t) = printi 0 t ++ "[]"
     printi _ (FunT _ t ts) = "("++printi 0 t++" ("++intercalate ", " (map (printi 0) ts) ++"))"
 
+instance PrettyPrint (SyntaxType) where
+    printi _ (Implicit) = "<implicit>"
+    printi _ (Explicit) = ""
+
 instance PrettyPrint (Expr a) where
     printi _ (Var _ id) = printi 0 id
     printi _ (Lit _ l) = printi 0 l
     printi _ (App _ e es) = printi 0 e ++ "("++intercalate ", " (map (printi 0) es)++")"
     printi _ (UnaryOp _ (Neg _) e) = "-"++printi 0 e
     printi _ (UnaryOp _ (Not _) e) = "!"++printi 0 e
-    printi _ (BinaryOp _ op el er) = "("++printi 0 el ++" "++printi 0 op++" "++printi 0 er ++")"
+    printi _ (BinaryOp _ skind op el er) = printi 0 skind++"("++printi 0 el ++" "++printi 0 op++" "++printi 0 er ++")"
     printi _ (Member _ e id Nothing) = printi 0 e ++"."++printi 0 id++"<???>"
     printi _ (Member _ e id (Just t)) = printi 0 e ++"."++printi 0 id++"<"++show t++">"
     printi _ (NewObj _ t m) =
@@ -386,7 +391,7 @@ isAA (Ge _) = True
 isAA (Gt _) = True
 isAA _ = False
 
-isCond (BinaryOp _ op _ _) = isBB op || isAA op
+isCond (BinaryOp _ _ op _ _) = isBB op || isAA op
 isCond _ = False
 
 -- getPosE (Var a id) = a

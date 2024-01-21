@@ -275,9 +275,49 @@ spec = do
             return 0;
           }
       |]
+    it "String negation" $ \h -> tryParsing (\case { (Errors.IncompatibleTypesUnaryOp _ (Syntax.Neg _) (_, Syntax.StringT _)) -> True; _ -> False }) [r|
+          int main() {
+            string x = "check";
+            -x;
+            return 0;
+          }
+      |]
+    it "Add integer to string" $ \h -> tryParsing (\case { (Errors.IncompatibleTypesBinaryOp _ (Syntax.Add _) (_, Syntax.ByteT _) (_, Syntax.StringT _)) -> True; _ -> False }) [r|
+          int main() {
+            string x = "check";
+            1 + x;
+            return 0;
+          }
+      |]
     it "Unknown variable as instruction" $ \h -> tryParsing (\case { (Errors.UnknownVariable _ (Syntax.Ident _ "i")) -> True; _ -> False }) [r|
         int main() {
             i;
             return 0 ;
+        }
+      |]
+    it "Incompatible method oveload" $ \h -> tryParsing (\case { (Errors.DuplicateMembersInChain (Type.Class (Syntax.Ident _ "AnimalOwner") _ _ _) (Type.Method (Syntax.Ident _ "getAnimal") (Syntax.ClassT _ (Syntax.Ident _ "Animal")) _ _) [(Type.Class (Syntax.Ident _ "DogOwner") _ _ _, Type.Method (Syntax.Ident _ "getAnimal") (Syntax.ClassT _ (Syntax.Ident _ "Dog")) _ _)]) -> True; _ -> False }) [r|
+        class Animal {}
+        class Dog extends Animal {}
+
+        class AnimalOwner {
+            Animal getAnimal() { return (Animal)null; }
+        }
+
+        class DogOwner extends AnimalOwner {
+            Dog getAnimal() { return (Dog)null; }
+        }
+
+        int main() { return 0; }
+      |]
+    it "Infinite loop incompatible return type" $ \h -> tryParsing (\case { (Errors.IncompatibleTypesReturn _ _ (Type.Fun (Syntax.Ident _ "main") _ _ _) (Syntax.StringT _) (Syntax.IntT _)) -> True; _ -> False }) [r|
+        int main() {
+            while (true) {
+                string x;
+                x = readString();
+                if (x == "exit")
+                    return "asd";
+                else
+                    printString("jeszcze raz");
+            }
         }
       |]

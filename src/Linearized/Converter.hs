@@ -318,9 +318,9 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 n <- newName ent
                 ten <- typeOf en
                 return (n, enc ++ [B.VarDecl p ent n (B.Not p (B.Var p en ten))])
-    doTransform _ (A.BinaryOp p (A.Add p2) (A.UnaryOp _ (A.Neg _) el) er) = transform unknownType (A.BinaryOp p (A.Sub p2) er el)
-    doTransform _ (A.BinaryOp p (A.Add p2) el (A.UnaryOp _ (A.Neg _) er)) = transform unknownType (A.BinaryOp p (A.Sub p2) el er)
-    doTransform _ e@(A.BinaryOp _ op el er) = 
+    doTransform _ (A.BinaryOp p _ (A.Add p2) (A.UnaryOp _ (A.Neg _) el) er) = transform unknownType (A.BinaryOp p A.Implicit (A.Sub p2) er el)
+    doTransform _ (A.BinaryOp p _ (A.Add p2) el (A.UnaryOp _ (A.Neg _) er)) = transform unknownType (A.BinaryOp p A.Implicit (A.Sub p2) el er)
+    doTransform _ e@(A.BinaryOp _ _ op el er) = 
         case op of
             A.Lt _ -> compare e
             A.Le _ -> compare e
@@ -399,7 +399,7 @@ transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Positi
 transformCondition ast@(A.UnaryOp p (A.Not _) e) ltrue lfalse = do
     liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
     transformCondition e lfalse ltrue
-transformCondition ast@(A.BinaryOp p op el er) ltrue lfalse =
+transformCondition ast@(A.BinaryOp p _ op el er) ltrue lfalse =
     if A.isAA op then do
         liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
         (nl, nlc) <- transform unknownType el

@@ -43,8 +43,8 @@ instance RawAST A.Stmt' B.Stmt where
     transform (A.BStmt a b) = B.BlockStmt a (transform b)
     transform (A.Decl a t is) = B.VarDecl a (map (\i -> (transform t, transform i)) is)
     transform (A.Ass a e1 e2) = B.Assignment a (transform e1) (transform e2)
-    transform (A.Incr a e) = B.Assignment a (transform e) (B.BinaryOp a (B.Add a) (transform e) (B.Lit a (B.Int a 1)))
-    transform (A.Decr a e) = B.Assignment a (transform e) (B.BinaryOp a (B.Sub a) (transform e) (B.Lit a (B.Int a 1)))
+    transform (A.Incr a e) = B.Assignment a (transform e) (B.BinaryOp a B.Implicit (B.Add a) (transform e) (B.Lit a (B.Int a 1)))
+    transform (A.Decr a e) = B.Assignment a (transform e) (B.BinaryOp a B.Implicit (B.Sub a) (transform e) (B.Lit a (B.Int a 1)))
     transform (A.Ret a e) = B.ReturnValue a (transform e)
     transform (A.VRet a) = B.ReturnVoid a
     transform (A.Cond a e s1 ) = B.IfElse a (transform e) (transform s1) (B.Empty a)
@@ -55,13 +55,13 @@ instance RawAST A.Stmt' B.Stmt where
         B.VarDecl a [
             (B.IntT a, B.Init a (withPrefix "n__" mid) (B.Lit a (B.Int a 0))), (B.InfferedT a, B.Init a (withPrefix "a__" mid) (transform e))
             ],
-        B.While a (B.BinaryOp a (B.Lt a)
+        B.While a (B.BinaryOp a B.Implicit (B.Lt a)
                     (B.Var a (withPrefix "n__" mid))
                     (B.Member a (B.Var a (withPrefix "a__" mid)) (B.Ident a "length") Nothing))
                 (B.BlockStmt a (B.Block a [
                     B.VarDecl a [(transform t, B.Init a (transform mid) (B.ArrAccess a (B.Var a (withPrefix "a__" mid)) (B.Var a (withPrefix "n__" mid)) Nothing))],
                     transform s,
-                    B.Assignment a (B.Var a (withPrefix "n__" mid)) (B.BinaryOp a (B.Add a) (B.Var a (withPrefix "n__" mid)) (B.Lit a (B.Int a 1)))]
+                    B.Assignment a (B.Var a (withPrefix "n__" mid)) (B.BinaryOp a B.Implicit (B.Add a) (B.Var a (withPrefix "n__" mid)) (B.Lit a (B.Int a 1)))]
                     ))])
 
 instance RawAST A.Expr' B.Expr where
@@ -104,14 +104,14 @@ instance RawAST A.Expr' B.Expr where
             delim [] = []
     transform (A.Neg a e) = B.UnaryOp a (B.Neg a) (transform e)
     transform (A.Not a e) = B.UnaryOp a (B.Not a) (transform e)
-    transform (A.EAdd a e1 (A.Plus a2) e2) = B.BinaryOp a (B.Add a2) (transform e1) (transform e2)
-    transform (A.EAdd a e1 (A.Minus a2) e2) = B.BinaryOp a (B.Add a2) (transform e1) (B.UnaryOp a (B.Neg a) (transform e2))
-    transform (A.EMul a e1 (A.Times a2) e2) = B.BinaryOp a (B.Mul a2) (transform e1) (transform e2)
-    transform (A.EMul a e1 (A.Div a2) e2) = B.BinaryOp a (B.Div a2) (transform e1) (transform e2)
-    transform (A.EMul a e1 (A.Mod a2) e2) = B.BinaryOp a (B.Mod a2) (transform e1) (transform e2)
-    transform (A.EAnd a e1 e2) = B.BinaryOp a (B.And a) (transform e1) (transform e2)
-    transform (A.EOr a e1 e2) = B.BinaryOp a (B.Or a) (transform e1) (transform e2)
-    transform (A.ERel a e1 cmp e2) = B.BinaryOp a (transform cmp) (transform e1) (transform e2)
+    transform (A.EAdd a e1 (A.Plus a2) e2) = B.BinaryOp a B.Explicit (B.Add a2) (transform e1) (transform e2)
+    transform (A.EAdd a e1 (A.Minus a2) e2) = B.BinaryOp a B.Explicit (B.Add a2) (transform e1) (B.UnaryOp a (B.Neg a) (transform e2))
+    transform (A.EMul a e1 (A.Times a2) e2) = B.BinaryOp a B.Explicit (B.Mul a2) (transform e1) (transform e2)
+    transform (A.EMul a e1 (A.Div a2) e2) = B.BinaryOp a B.Explicit (B.Div a2) (transform e1) (transform e2)
+    transform (A.EMul a e1 (A.Mod a2) e2) = B.BinaryOp a B.Explicit (B.Mod a2) (transform e1) (transform e2)
+    transform (A.EAnd a e1 e2) = B.BinaryOp a B.Explicit (B.And a) (transform e1) (transform e2)
+    transform (A.EOr a e1 e2) = B.BinaryOp a B.Explicit (B.Or a) (transform e1) (transform e2)
+    transform (A.ERel a e1 cmp e2) = B.BinaryOp a B.Explicit (transform cmp) (transform e1) (transform e2)
 
 
 -- transformAST :: A.Program' a -> B.Program a

@@ -501,56 +501,59 @@ instance TypeCheckable Syntax.Expr where
             (Syntax.Neg _, Syntax.IntT _) -> return (Syntax.UnaryOp pos op ne, et)
             (Syntax.Neg _, Syntax.ByteT _) -> return (Syntax.UnaryOp pos op ne, et)
             (_, _) -> failure $ Errors.IncompatibleTypesUnaryOp env op (ne, et)
-    doInferType (Syntax.BinaryOp pos op el er) = do
+    doInferType (Syntax.BinaryOp pos skind op el er) = do
         (nel, elt) <- inferType el
         (ner, ert) <- inferType er
         env <- tcEnv
         let err = failure $ Errors.IncompatibleTypesBinaryOp env op (nel, elt) (ner, ert)
-        case (op, fmap (\_->()) elt, fmap (\_->()) ert) of
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
-            (Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
-            (Syntax.Add _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
-            (Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
-            (Syntax.Add _, Syntax.StringT _, Syntax.ArrayT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
-            (Syntax.Add _, Syntax.StringT _, Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
-            (Syntax.Add _, Syntax.StringT _, Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
-            (Syntax.Add _, Syntax.StringT _, Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "byteToString")) [ner]])
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
-            (Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
-            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
-            (Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
-            (Syntax.Equ _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
-            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
-            (Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
-            (Syntax.Neq _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
-            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
-            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
-            (Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
-            (Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
-            (Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
-            (Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
-            (Syntax.Equ _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos op nel ner, bool)
-            (Syntax.Equ _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
-            (Syntax.Neq _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos op nel ner, bool)
-            (Syntax.Neq _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos op nel ner, bool)
-            (op, a, b) ->
+        case (skind, op, fmap (\_->()) elt, fmap (\_->()) ert) of
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
+            (Syntax.Implicit, Syntax.Add _, Syntax.StringT _, _) -> err
+            (Syntax.Implicit, Syntax.Sub _, Syntax.StringT _, _) -> err
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], elt)
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [ner], ert)
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.ArrayT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (_, Syntax.Add _, Syntax.StringT _, Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "byteToString")) [ner]])
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ClassT _ _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Member BuiltIn ner (name "toString") Nothing) []])
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.BoolT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "boolToString")) [ner]])
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.IntT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (_, Syntax.Add _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.ByteT _) -> inferType (Syntax.App pos (Syntax.Member pos nel (name "concat") (Just "String")) [Syntax.App pos (Syntax.Var BuiltIn (name "intToString")) [ner]])
+            (_, Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (_, Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (_, Syntax.Equ _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (_, Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ "String"), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (_, Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ (Syntax.Ident _ "String")) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (_, Syntax.Neq _, Syntax.StringT _, Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (_, Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
+            (_, Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
+            (_, Syntax.Equ _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner], bool)
+            (_, Syntax.Neq _, Syntax.ClassT _ (Syntax.Ident _ c), Syntax.StringT _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just c)) [ner]), bool)
+            (_, Syntax.Equ _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner], bool)
+            (_, Syntax.Neq _, Syntax.StringT _, Syntax.ClassT _ _) -> return (Syntax.UnaryOp pos (Syntax.Not pos) (Syntax.App pos (Syntax.Member pos nel (name "equals") (Just "String")) [ner]), bool)
+            (_, Syntax.Equ _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos skind op nel ner, bool)
+            (_, Syntax.Equ _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos skind op nel ner, bool)
+            (_, Syntax.Neq _, Syntax.InfferedT _, Syntax.ClassT _ _) -> return (Syntax.BinaryOp pos skind op nel ner, bool)
+            (_, Syntax.Neq _, Syntax.ClassT _ _, Syntax.InfferedT _) -> return (Syntax.BinaryOp pos skind op nel ner, bool)
+            (skind, op, a, b) ->
                 if a == b then
                     case a of
                         Syntax.ClassT _ (Syntax.Ident _ c) -> err
                         Syntax.VoidT _ -> err
                         Syntax.ByteT _ ->
                             case op of
-                                Syntax.Div _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
-                                Syntax.Mod _ -> inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
-                                _ -> return (Syntax.BinaryOp pos op nel ner, opType elt op)
-                        _ -> return (Syntax.BinaryOp pos op nel ner, opType elt op)
+                                Syntax.Div _ -> inferType (Syntax.BinaryOp pos skind op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
+                                Syntax.Mod _ -> inferType (Syntax.BinaryOp pos skind op (Syntax.Cast pos (Syntax.IntT pos) nel) (Syntax.Cast pos (Syntax.IntT pos) ner))
+                                _ -> return (Syntax.BinaryOp pos skind op nel ner, opType elt op)
+                        _ -> return (Syntax.BinaryOp pos skind op nel ner, opType elt op)
                 else if a == Syntax.IntT () && b == Syntax.ByteT () then
-                    inferType (Syntax.BinaryOp pos op nel (Syntax.Cast pos (Syntax.IntT pos) ner))
+                    inferType (Syntax.BinaryOp pos skind op nel (Syntax.Cast pos (Syntax.IntT pos) ner))
                 else if a == Syntax.ByteT () && b == Syntax.IntT () then
-                    inferType (Syntax.BinaryOp pos op (Syntax.Cast pos (Syntax.IntT pos) nel) ner)
+                    inferType (Syntax.BinaryOp pos skind op (Syntax.Cast pos (Syntax.IntT pos) nel) ner)
                 else err
         where
             opType t (Syntax.Equ _) = bool

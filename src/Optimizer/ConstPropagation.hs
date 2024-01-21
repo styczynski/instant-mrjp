@@ -534,15 +534,15 @@ nill :: p -> ()
 nill _ = ()
 
 type LinearizedExprTree = [Syntax.Expr Position]
-linearize (Syntax.BinaryOp p op el er) =
+linearize (Syntax.BinaryOp p _ op el er) =
     let left = case el of
-                Syntax.BinaryOp _ op2 _ _ ->
+                Syntax.BinaryOp _ _ op2 _ _ ->
                     if fmap nill op == fmap nill op2 then
                         linearize el
                     else [el]
                 _ -> [el]
         right = case er of
-                 Syntax.BinaryOp _ op2 _ _ ->
+                 Syntax.BinaryOp _ _ op2 _ _ ->
                     if fmap nill op == fmap nill op2 then
                         linearize er
                     else [er]
@@ -551,7 +551,7 @@ linearize (Syntax.BinaryOp p op el er) =
 
 checkForNullComparison :: Syntax.Expr Position -> Optimizer ConstPropagationEnv (Syntax.Expr Position)
 checkForNullComparison (Syntax.App p (Syntax.Member pp el (Syntax.Ident _ eq) mt) [l@(Syntax.Lit ppp (Syntax.Null pppp))]) | eq == "equals" =
-    return (Syntax.BinaryOp p (Syntax.Equ pp) el l)
+    return (Syntax.BinaryOp p Syntax.Implicit (Syntax.Equ pp) el l)
 checkForNullComparison e = checkStringConcat e
 
 checkStringConcat ::Syntax.Expr Position -> Optimizer ConstPropagationEnv (Syntax.Expr Position)
@@ -612,30 +612,30 @@ instance ConstFoldable Syntax.Expr where
             Syntax.Not _ -> case ne of
                         Syntax.Lit _ (Syntax.Bool _ b) -> return (Syntax.Lit p (Syntax.Bool p (not b)))
                         _ -> return (Syntax.UnaryOp p op ne)
-    doFoldConst parent@(Syntax.BinaryOp p op el er) = do 
+    doFoldConst parent@(Syntax.BinaryOp p skind op el er) = do 
         nel <- foldConst el
         ner <- foldConst er
-        let ne = (Syntax.BinaryOp p op nel ner)
+        let ne = (Syntax.BinaryOp p skind op nel ner)
             sp = specialExp ne
         if fmap nill sp /= fmap nill ne then foldConst sp
         else case op of
             Syntax.Equ _ -> if sameExp nel ner then return (Syntax.Lit p (Syntax.Bool p True))
-                    else return (Syntax.BinaryOp p op nel ner)
-            Syntax.Neq _ -> checkConst (/= EQ) nel ner (Syntax.BinaryOp p op nel ner)
-            Syntax.Gt _ -> checkConst (== GT) nel ner (Syntax.BinaryOp p op nel ner)
-            Syntax.Ge _ -> checkConst (\c -> c == GT || c == EQ) nel ner (Syntax.BinaryOp p op nel ner)
-            Syntax.Lt _ -> checkConst (== LT) nel ner (Syntax.BinaryOp p op nel ner)
-            Syntax.Le _ -> checkConst (\c -> c == LT || c == EQ) nel ner (Syntax.BinaryOp p op nel ner)
+                    else return (Syntax.BinaryOp p skind op nel ner)
+            Syntax.Neq _ -> checkConst (/= EQ) nel ner (Syntax.BinaryOp p skind op nel ner)
+            Syntax.Gt _ -> checkConst (== GT) nel ner (Syntax.BinaryOp p skind op nel ner)
+            Syntax.Ge _ -> checkConst (\c -> c == GT || c == EQ) nel ner (Syntax.BinaryOp p skind op nel ner)
+            Syntax.Lt _ -> checkConst (== LT) nel ner (Syntax.BinaryOp p skind op nel ner)
+            Syntax.Le _ -> checkConst (\c -> c == LT || c == EQ) nel ner (Syntax.BinaryOp p skind op nel ner)
 
             _ -> do
-                let lin = linearize (Syntax.BinaryOp p op nel ner)
+                let lin = linearize (Syntax.BinaryOp p skind op nel ner)
                     nop = fmap nill op
                 if nop == Syntax.Div () || nop == Syntax.Mod () || nop == Syntax.Sub () || nop == Syntax.And () || nop == Syntax.Or () then do
                     fslin <- foldconsts parent op lin
-                    return $ foldl1 (Syntax.BinaryOp p op) fslin
+                    return $ foldl1 (Syntax.BinaryOp p skind op) fslin
                 else do
                     fslin <- foldconsts parent op $ sort lin
-                    return $ foldl1 (Syntax.BinaryOp p op) fslin
+                    return $ foldl1 (Syntax.BinaryOp p skind op) fslin
         where
             true p = (Syntax.Lit p (Syntax.Bool p True))
             false p = (Syntax.Lit p (Syntax.Bool p False))
@@ -651,7 +651,7 @@ instance ConstFoldable Syntax.Expr where
                     (Syntax.String p i, Syntax.String _ j) -> if f $ compare i j then return (true p)
                                         else return (false p)
                     (l1, l2) -> failure (\(tcEnv, oEnv) -> Errors.InternalOptimizerFailure tcEnv oEnv "checkConst" $ Errors.IOPTECheckConstUnexpectedLiterals l1 l2)
-            checkConst _ _ _ (Syntax.BinaryOp p op l@(Syntax.Lit _ _) e) = return (Syntax.BinaryOp p (reverseSide op) e l)
+            checkConst _ _ _ (Syntax.BinaryOp p skind op l@(Syntax.Lit _ _) e) = return (Syntax.BinaryOp p skind (reverseSide op) e l)
                     where
                         reverseSide (Syntax.Lt p) = (Syntax.Gt p)
                         reverseSide (Syntax.Le p) = (Syntax.Ge p)
@@ -684,7 +684,7 @@ instance ConstFoldable Syntax.Expr where
                 return $ x:xxs
             foldconsts _ _ [] = return []
             specialExp :: Syntax.Expr Position -> Syntax.Expr Position
-            specialExp (Syntax.BinaryOp p (Syntax.Div pop) (Syntax.BinaryOp _ (Syntax.Div _) el er) e) = (Syntax.BinaryOp p (Syntax.Div pop) el (Syntax.BinaryOp p (Syntax.Mul p) er e))
+            specialExp (Syntax.BinaryOp p skind (Syntax.Div pop) (Syntax.BinaryOp _ skind' (Syntax.Div _) el er) e) = (Syntax.BinaryOp p skind (Syntax.Div pop) el (Syntax.BinaryOp p skind' (Syntax.Mul p) er e))
             specialExp e = e
 
     doNormalizeScope e@(Syntax.Var p (Syntax.Ident pp n)) = do
@@ -699,10 +699,10 @@ instance ConstFoldable Syntax.Expr where
     doNormalizeScope (Syntax.UnaryOp p op e) = do
         ne <- normalizeScope e
         return (Syntax.UnaryOp p op ne)
-    doNormalizeScope (Syntax.BinaryOp p op e1 e2) = do
+    doNormalizeScope (Syntax.BinaryOp p skind op e1 e2) = do
         ne1 <- normalizeScope e1
         ne2 <- normalizeScope e2
-        return (Syntax.BinaryOp p op ne1 ne2)
+        return (Syntax.BinaryOp p skind op ne1 ne2)
     doNormalizeScope (Syntax.Member p e id mt) = do
         ne <- normalizeScope e
         return (Syntax.Member p ne id mt)
