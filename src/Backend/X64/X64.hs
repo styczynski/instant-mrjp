@@ -45,7 +45,7 @@ backend =
         --execCmd "nasm" [filePath, "-o", objName, "-f elf64"]
         liftPipelineToBackend $ printLogInfo $ T.pack $ "Run GCC for X64 backend to generate '" ++ execName ++ "' executable from object file '" ++ objName ++ "'"
         execCmd "gcc" ["-fPIE", "-Lsrc/Runtime/dependencies/_built_/lib", "lib/runtime", "-l:libunistring.a", filePath, "-o", execName, "-z", "noexecstack"]
-        liftPipelineToBackend $ printLogInfo $ T.pack $ "Cleanup leftover object file: '" ++ objName ++ "'"
-        liftIO $ removeFile objName
+        --liftPipelineToBackend $ printLogInfo $ T.pack $ "Cleanup leftover object file: '" ++ objName ++ "'"
+        --liftIO $ removeFile objName
         liftPipelineToBackend $ printLogInfo $ T.pack $ "X64 compilation of '" ++ filePath ++ "' seems to be successfull"
     }

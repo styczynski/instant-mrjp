@@ -7,9 +7,14 @@ import qualified Reporting.Errors.Position as P
 data RawProgram = 
     ProgramParseError ParseError
     | RawProgram AST.Program [Syntax.Token]
+  deriving (Eq)
 
 data ParseError
   = ParseError String String (Maybe (Int, Int))
+  deriving (Eq, Show)
+
+instance Show RawProgram where
+  show _ = "RawProgram"
 
 findTokenEnd :: RawProgram -> P.Position -> P.Position
 findTokenEnd (ProgramParseError _) p = p

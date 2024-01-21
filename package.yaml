@@ -15,6 +15,16 @@ description: For details on usage please see README on GitHub at <https://github
 dependencies:
 - filepath
 - base >= 4.8 && < 5
+- hspec
+- hspec-contrib 
+
+tests:
+  spec:
+    defaults: hspec/hspec@main
+    dependencies:
+      - lattec
+      - lens
+      - raw-strings-qq
 
 library:
   source-dirs: src

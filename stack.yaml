@@ -21,3 +21,4 @@ extra-deps:
   - time-1.12.2
   - ordered-containers-0.2.3
   - deepseq-1.4.8.0
+  - raw-strings-qq-1.1
