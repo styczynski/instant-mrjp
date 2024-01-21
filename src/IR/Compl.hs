@@ -42,8 +42,8 @@ nodeTail node = let lastInstr = last $ nodeCode node
 showCfgs :: [(CFG a d, Method a)] -> String
 showCfgs cfgs = unlines $ map showCfg cfgs
   where
-    showCfg (g, Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ _) =
-      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show g
+    showCfg (g, m@(Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ body)) =
+      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show g ++ "Code: " ++ printTree m
 
 cfgsToMthds :: b -> [(CFG a d, Method a)] -> [Method b]
 cfgsToMthds default_ = map (\(g, Mthd _ r i ps _) ->
@@ -52,8 +52,8 @@ cfgsToMthds default_ = map (\(g, Mthd _ r i ps _) ->
 showCfgsWithLiveness :: [(CFG a Liveness, Method a)] -> String
 showCfgsWithLiveness cfgs = unlines $ map showCfg cfgs
   where
-    showCfg (CFG g, Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ _) =
-      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show (CFG g) ++ concatMap showLiveness (Map.elems g)
+    showCfg (CFG g, m@(Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ _)) =
+      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show (CFG g) ++ concatMap showLiveness (Map.elems g) ++ "Code: " ++ printTree m
     showLiveness node =
         "Liveness at start of " ++ toStr (node ^. nodeLabel) ++ ": " ++ show (nodeHead node) ++ "\n" ++
            "Liveness at end of " ++ toStr (node ^. nodeLabel) ++ ": " ++ show (nodeTail node) ++ "\n"

@@ -353,7 +353,7 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
                 nb <- newName $ B.ByteT p
                 ltrue <- newLabel "_C"
                 lfalse <- newLabel "_C"
-                condc <- transformCondition e ltrue lfalse ltrue False
+                condc <- transformCondition e ltrue lfalse
                 return (nb, [B.VarDecl p (B.ByteT p) nb (B.Val p (B.Const p (B.ByteC p 0)))] ++ condc ++ [B.SetLabel p ltrue, B.Assign p (B.ByteT p) (B.Variable p nb) (B.Val p (B.Const p (B.ByteC p 1))), B.SetLabel p lfalse])
             isLit :: (A.Expr Position) -> Bool
             isLit (A.Lit _ _) = True
@@ -395,49 +395,43 @@ opNeg (B.Ge p) = B.Lt p
 opNeg (B.Gt p) = B.Le p
 
 
-transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Position) -> (B.Label Position) -> Bool -> LinearConverter () [B.Stmt Position]
-transformCondition ast@(A.UnaryOp p (A.Not _) e) ltrue lfalse lpass neg = do
+transformCondition :: (A.Expr Position) -> (B.Label Position) -> (B.Label Position) -> LinearConverter () [B.Stmt Position]
+transformCondition ast@(A.UnaryOp p (A.Not _) e) ltrue lfalse = do
     liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
-    transformCondition e lfalse ltrue lpass (not neg)
-transformCondition ast@(A.BinaryOp p op el er) ltrue lfalse lpass neg =
+    transformCondition e lfalse ltrue
+transformCondition ast@(A.BinaryOp p op el er) ltrue lfalse =
     if A.isAA op then do
         liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
         (nl, nlc) <- transform unknownType el
         (nr, nrc) <- transform unknownType er
         nlt <- typeOf nl
         nrt <- typeOf nr
-        case neg of
-            False -> return $ nlc ++ nrc ++ [B.JumpCmp p (opNeg (opC op)) lfalse lpass (B.Var p nl nlt) (B.Var p nr nrt)]
-            True -> return $ nlc ++ nrc ++ [B.JumpCmp p (opC op) ltrue lpass (B.Var p nl nlt) (B.Var p nr nrt)]
+        return $ nlc ++ nrc ++ [B.JumpCmp p (opC op) ltrue lfalse (B.Var p nl nlt) (B.Var p nr nrt)]
+        -- case neg of
+        --     False -> return $ nlc ++ nrc ++ [B.JumpCmp p (opNeg (opC op)) lfalse lpass (B.Var p nl nlt) (B.Var p nr nrt)]
+        --     True -> return $ nlc ++ nrc ++ [B.JumpCmp p (opC op) ltrue lpass (B.Var p nl nlt) (B.Var p nr nrt)]
     else case op of
         (A.And _) -> do
+            lnext <- newLabel "_CAND"
             liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
-            elc <- transformCondition el ltrue lfalse lpass False
-            erc <- transformCondition er ltrue lfalse lpass neg
-            return $ elc ++ erc
+            elc <- transformCondition el lnext lfalse
+            erc <- transformCondition er ltrue lfalse
+            return $ elc ++ [B.SetLabel p lnext] ++ erc
         (A.Or p) -> do
             liftPipelineOpt $ printLogInfo $ T.pack $ "transform condition: " ++ (show ast)
             lnext <- newLabel "_COR"
-            elc <- transformCondition el ltrue lnext lpass True
-            erc <- transformCondition er ltrue lfalse lpass neg
+            elc <- transformCondition el ltrue lnext
+            erc <- transformCondition er ltrue lfalse
             return $ elc ++ [B.SetLabel p lnext] ++ erc
-transformCondition e ltrue lfalse lpass neg = do
-    case e of
-        A.Lit p (A.Bool _ True) ->
-            case neg of
-                False -> return []
-                True -> return [B.Jump p ltrue]
-        A.Lit p (A.Bool _ False) ->
-            case neg of
-                False -> return [B.Jump p lfalse]
-                True -> return []
-        _ -> do
-            let p = A.getPos e
-            (n, ec) <- transform unknownType e
-            nt <- typeOf n
-            case neg of
-                False -> return $ ec ++ [B.JumpCmp p (B.Eq p) lfalse lpass (B.Var p n nt) (B.Const p $ B.ByteC p 0)]
-                True -> return $ ec ++ [B.JumpCmp p (B.Ne p) ltrue lpass (B.Var p n nt) (B.Const p $ B.ByteC p 0)]
+transformCondition (A.Lit p (A.Bool _ True)) ltrue lfalse = do
+    return [B.Jump p ltrue]
+transformCondition (A.Lit p (A.Bool _ False)) ltrue lfalse = do
+    return [B.Jump p lfalse]
+transformCondition e ltrue lfalse = do
+    let p = A.getPos e
+    (n, ec) <- transform unknownType e
+    nt <- typeOf n
+    return [B.JumpCmp p (B.Eq p) lfalse ltrue (B.Var p n nt) (B.Const p $ B.ByteC p 0)]
 
 instance IRConvertable A.Stmt B.Stmt () where
     --doTransform ast = return [B.Return $ A.getPos ast]
@@ -492,7 +486,7 @@ instance IRConvertable A.Stmt B.Stmt () where
         lif <- newLabel "_IIF"
         lelse <- newLabel "_IELSE"
         lend <- newLabel "_IEND"
-        condc <- transformCondition ec lif lelse lif False
+        condc <- transformCondition ec lif lelse
         stc <- transformOnly unknownType st
         sfc <- transformOnly unknownType sf
         justEmit $ condc ++ [B.SetLabel p lif] ++ stc ++ [B.Jump p lend, B.SetLabel p lelse] ++ sfc ++ [B.Jump p lend, B.SetLabel p lend]
@@ -501,5 +495,5 @@ instance IRConvertable A.Stmt B.Stmt () where
         lbegin <- newLabel "_WBEG"
         lend <- newLabel "_WEND"
         sc <- transformOnly unknownType s
-        ecc <- transformCondition ec lbegin lend lend True
+        ecc <- transformCondition ec lbegin lend
         justEmit $ [B.Jump p lcond] ++ [B.SetLabel p lcond] ++ ecc ++ [B.SetLabel p lbegin] ++ sc ++ [B.Jump p lcond] ++ [B.SetLabel p lend]

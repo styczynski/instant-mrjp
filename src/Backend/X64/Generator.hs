@@ -235,8 +235,10 @@ genInstr baseInstr =
                             X64.LocConst {} -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
                                 gen $ X64.cdq pos Nothing
+                                gen $ X64.push pos src1 Nothing
                                 gen $ X64.mov pos X64.Size32 src2 src1 Nothing
                                 gen $ X64.idiv pos X64.Size32 src1 Nothing
+                                gen $ X64.pop pos src1 Nothing
                                 gen $ X64.mov pos X64.Size32 (X64.LocReg X64.RAX) dest Nothing
                             _ -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
@@ -254,8 +256,10 @@ genInstr baseInstr =
                             X64.LocConst {} -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
                                 gen $ X64.cdq pos Nothing
+                                gen $ X64.push pos src1 Nothing
                                 gen $ X64.mov pos X64.Size32 src2 src1 Nothing
                                 gen $ X64.idiv pos X64.Size32 src1 Nothing
+                                gen $ X64.pop pos src1 Nothing
                                 gen $ X64.mov pos X64.Size32 (X64.LocReg X64.RDX) dest Nothing
                             _ -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
@@ -466,7 +470,7 @@ revCmpEmitter op = case op of
     OpLE pos  -> \l a -> gen $ X64.setg pos l a
     OpGTH pos -> \l a -> gen $ X64.setle pos l a
     OpGE pos  -> \l a -> gen $ X64.setl pos l a
-    OpEQU pos -> \l a -> gen $ X64.sete pos l a
+    OpEQU pos -> \l a -> gen $ X64.sete pos l a -- FIXME: ????
     OpNE pos  -> \l a -> gen $ X64.setne pos l a
     _       -> error "internal error. invalid op to cmpEmitter."
 
