@@ -1,3 +1,4 @@
+tests/preproc.py
 _test_temp_/*
 _test_temp_
 <input>*
