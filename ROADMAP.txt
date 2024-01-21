@@ -1,10 +1,21 @@
 Do naprawienia:
+.- Krzywe wypiwywanie błędów - ./tests/bad/bad019.lat
+.- brak instrukcji pomocniczej przy dostepie ref -> data -> *
+.- problem z allokacja rejestrow i DIV ?
+.- Implementacja checka na lvalue w typecheckerze
+.- problem z return f() gdzie f zwraca void
+.- Liczenie refenencji trzeba zrobic
+.- Redukcja mocy???
+
+
+
+
 X- Problem z brakującym typem przy Assign
-.- Zły kontekst zmiennych przy zmianie do IR (good/core019.lat) ./tests/good/core019.lat -> ./latc_x86 ./tests/good/core019.lat
+X- Zły kontekst zmiennych przy zmianie do IR (good/core019.lat) ./tests/good/core019.lat -> ./latc_x86 ./tests/good/core019.lat
 .- To jednak jest probem z alokacja rejestrow // Złe offsety przy klasach (Segmentation fault)
 X- Alokacja duzej ilosci parametrów funkcji tests/good/core023.lat
 X- Wywala się ./tests/bad/bad005.lat
-.- Nieobslugiwany blad cannot convert types byte to string --  ./latc_x86 ./tests/bad/bad016.lat
+x- Nieobslugiwany blad cannot convert types byte to string --  ./latc_x86 ./tests/bad/bad016.lat
 .- Krzywe wypiwywanie błędów - ./tests/bad/bad019.lat
 X- Empty list wywala sie - ./latc_x86 ./tests/bad/bad021.lat
 X- Wywala sie empty list - ./latc_x86 ./tests/bad/bad017.lat
