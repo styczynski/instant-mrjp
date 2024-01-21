@@ -63,7 +63,21 @@ convertFunctionToFIR (A.Fun p cls l rt args stmts) = do
     -- forM_ (zip argDecls [0..]) (\((_, val), i) -> emit $ ILoad () (valName val) (PParam () (Ref () $ valType_ val) i (valName val)))
     --B.ISet p (nameToValIdent n) (B.VVal p (convertType t) $ (argNameToValIdent n))
     paramsMoves <- return $ map (\((t, n), i) -> B.ILoad p (nameToValIdent n) (B.PParam p ((B.Ref p) $ convertType t) i (argNameToValIdent n))) $ zip args [0..]
-    return $ B.Mthd p (convertType rt) (functionName cls l) params $ [B.ILabel p (B.LabIdent ".L_entry")] ++ paramsMoves ++ instrs ++ [B.ILabel p $ B.LabIdent ".L_exit", B.IRet p $ B.VVal p (convertType rt) $ B.ValIdent $ "%v_return"]
+    let (instrs', trimmedLabel) = trimLabel instrs
+    let instrs'' = maybe (instrs') (\l -> replaceLabels l ".L_exit" instrs') trimmedLabel
+    return $ B.Mthd p (convertType rt) (functionName cls l) params $ [B.ILabel p (B.LabIdent ".L_entry")] ++ paramsMoves ++ instrs'' ++ [B.ILabel p $ B.LabIdent ".L_exit", B.IRet p $ B.VVal p (convertType rt) $ B.ValIdent $ "%v_return"]
+
+replaceLabels :: String -> String -> [B.Instr a] -> [B.Instr a]
+replaceLabels lFind lReplace ((B.ILabel p (B.LabIdent l)) : rest) | l == lFind = (B.ILabel p (B.LabIdent lReplace)) : replaceLabels lFind lReplace rest
+replaceLabels lFind lReplace (instr : rest) = instr : replaceLabels lFind lReplace rest
+replaceLabels _ _ [] = []
+
+trimLabel :: [B.Instr a] -> ([B.Instr a], Maybe String)
+trimLabel instrs = let (instrs', rem) = trimLabels' $ reverse instrs in (reverse instrs', rem)
+    where
+        trimLabels' (B.ILabel _ (B.LabIdent l) : rest) = (rest, Just l)
+        trimLabels' rest = (rest, Nothing)
+
 --Mthd a (SType a) (QIdent a) [Param a] [Instr a]
 --Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
 

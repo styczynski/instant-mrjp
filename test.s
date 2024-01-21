@@ -28,9 +28,6 @@
 .extern __cast
 
 .section .rodata
-__const_1 :
-.string "foo"
-
 .global _class_Array
 _class_Array :
 .quad _class_Object
@@ -84,56 +81,71 @@ _class_String_methods :
 .global main
 
 .section .text
-main :                          #-- ./test.lat:1:1 --#
-__cl_TopLevel.main :            #-- ./test.lat:1:1 --#
-push %RBX                       #-- ./test.lat:1:1 --#
-subq $8, %RSP                   #-- ./test.lat:1:1 --#
-push %RBP                       #-- ./test.lat:1:1 --#
-movq %RSP, %RBP                 #-- ./test.lat:1:1 --#
-__cl_TopLevel.main.L_entry :    #-- ./test.lat:1:1 --#
-movl $1, %EDI                   #-- passing arg at ./test.lat:5:5 --#
-call printInt                   #-- ./test.lat:5:5 --#
-movl $78, %EDI                  #-- passing arg at ./test.lat:7:3 --#
-call printInt                   #-- ./test.lat:7:3 --#
-movl $78, %EBX                  #-- setting %v_t_1~2 at ./test.lat:8:3 --#
-jmp __cl_TopLevel.main_WCOND8   #-- ./test.lat:8:3 --#
-__cl_TopLevel.main_IELSE21 :    #-- ./test.lat:17:3 --#
-leaq __const_1 (%RIP), %RAX     #-- ./test.lat:21:17 --#
-movq %RAX, %RDI                 #-- passing arg at ./test.lat:21:17 --#
-call __createString             #-- ./test.lat:21:17 --#
-movq %RAX, %RDI                 #-- passing arg at ./test.lat:21:5 --#
-call printString                #-- ./test.lat:21:5 --#
-jmp __cl_TopLevel.main_IEND22   #-- ./test.lat:17:3 --#
-__cl_TopLevel.main_IIF20 :      #-- ./test.lat:17:3 --#
-movl $4, %EDI                   #-- passing arg at ./test.lat:19:5 --#
-call printInt                   #-- ./test.lat:19:5 --#
-jmp __cl_TopLevel.main_IEND22   #-- ./test.lat:17:3 --#
-__cl_TopLevel.main_WBEG9 :      #-- ./test.lat:8:3 --#
-decl %EBX                       #-- ./test.lat:9:5 --#
-movl %EBX, %EDI                 #-- passing arg at ./test.lat:10:5 --#
-call printInt                   #-- ./test.lat:10:5 --#
-leal 7 (%RBX), %EAX             #--  addition %v_t_15 at ./test.lat:13:14 --#
-movl %EAX, %EDI                 #-- passing arg at ./test.lat:14:4 --#
-call printInt                   #-- ./test.lat:14:4 --#
-jmp __cl_TopLevel.main_WCOND8   #-- ./test.lat:8:3 --#
-__cl_TopLevel.main_WCOND8 :     #-- ./test.lat:8:3 --#
-cmpl $76, %EBX                  #-- ./test.lat:8:10 --#
-jle __cl_TopLevel.main_WEND10   #-- ./test.lat:8:10 --#
-jmp __cl_TopLevel.main_WBEG9    #-- ./test.lat:8:10 --#
-__cl_TopLevel.main_WEND10 :     #-- ./test.lat:8:3 --#
-movl %EBX, %EDI                 #-- passing arg at ./test.lat:16:3 --#
-call printInt                   #-- ./test.lat:16:3 --#
-cmpl $4, %EBX                   #-- ./test.lat:17:7 --#
-jg __cl_TopLevel.main_IIF20     #-- ./test.lat:17:7 --#
-jmp __cl_TopLevel.main_IELSE21  #-- ./test.lat:17:7 --#
-__cl_TopLevel.main_IEND22 :     #-- ./test.lat:17:3 --#
-movl %EBX, %EDI                 #-- passing arg at ./test.lat:23:3 --#
-call printInt                   #-- ./test.lat:23:3 --#
-xorl %EAX, %EAX                 #-- move return value at ./test.lat:1:1 --#
-leave                           #-- ./test.lat:1:1 --#
-addq $8, %RSP                   #-- ./test.lat:1:1 --#
-pop %RBX                        #-- ./test.lat:1:1 --#
-ret                             #-- ./test.lat:1:1 --#
-__errorNull :                   #-- runtime error on null dereference at ./test.lat:1:1 --#
-andq $-16, %RSP                 #-- 16 bytes allign at ./test.lat:1:1 --#
-call __errorNull                #-- ./test.lat:1:1 --#
+__cl_TopLevel.f :             #-- ./test.lat:7:1 --#
+push %RBP                     #-- ./test.lat:7:1 --#
+movq %RSP, %RBP               #-- ./test.lat:7:1 --#
+subq $0, %RSP                 #-- ./test.lat:7:1 --#
+__cl_TopLevel.f.L_entry :     #-- ./test.lat:7:1 --#
+movl %EDI, %EAX               #-- load %v_t_3 at ./test.lat:7:1 --#
+movl %ESI, %ECX               #-- load %v_t_4 at ./test.lat:7:1 --#
+cmpl $0, %EAX                 #-- ./test.lat:8:7 --#
+setg %DL                      #-- ./test.lat:8:8 --#
+addq $0, %RSP                 #-- ./test.lat:8:7 --#
+testb %DL, %DL                #-- ./test.lat:8:7 --#
+jz __cl_TopLevel.f_COR8       #-- ./test.lat:8:7 --#
+jmp __cl_TopLevel.f_CAND9     #-- ./test.lat:8:7 --#
+__cl_TopLevel.f_CAND12 :      #-- ./test.lat:8:23 --#
+cmpl $0, %ECX                 #-- ./test.lat:8:30 --#
+setl %AL                      #-- ./test.lat:8:32 --#
+addq $0, %RSP                 #-- ./test.lat:8:30 --#
+testb %AL, %AL                #-- ./test.lat:8:30 --#
+jz __cl_TopLevel.f_IELSE6     #-- ./test.lat:8:30 --#
+jmp __cl_TopLevel.f_IIF5      #-- ./test.lat:8:30 --#
+__cl_TopLevel.f_CAND9 :       #-- ./test.lat:8:7 --#
+cmpl $0, %ECX                 #-- ./test.lat:8:13 --#
+setg %DL                      #-- ./test.lat:8:15 --#
+addq $0, %RSP                 #-- ./test.lat:8:13 --#
+testb %DL, %DL                #-- ./test.lat:8:13 --#
+jz __cl_TopLevel.f_COR8       #-- ./test.lat:8:13 --#
+jmp __cl_TopLevel.f_IIF5      #-- ./test.lat:8:13 --#
+__cl_TopLevel.f_COR8 :        #-- ./test.lat:8:6 --#
+cmpl $0, %EAX                 #-- ./test.lat:8:23 --#
+setl %AL                      #-- ./test.lat:8:24 --#
+addq $0, %RSP                 #-- ./test.lat:8:23 --#
+testb %AL, %AL                #-- ./test.lat:8:23 --#
+jz __cl_TopLevel.f_IELSE6     #-- ./test.lat:8:23 --#
+jmp __cl_TopLevel.f_CAND12    #-- ./test.lat:8:23 --#
+__cl_TopLevel.f_IELSE6 :      #-- ./test.lat:8:3 --#
+movl $42, %EAX                #-- setting %v_return~2 at ./test.lat:7:1 --#
+addq $0, %RSP                 #-- ./test.lat:7:1 --#
+jmp __cl_TopLevel.f.L_exit    #-- ./test.lat:7:1 --#
+__cl_TopLevel.f_IIF5 :        #-- ./test.lat:8:3 --#
+movl $7, %EAX                 #-- setting %v_return~2 at ./test.lat:7:1 --#
+addq $0, %RSP                 #-- ./test.lat:7:1 --#
+jmp __cl_TopLevel.f.L_exit    #-- ./test.lat:7:1 --#
+__cl_TopLevel.f.L_exit :      #-- ./test.lat:7:1 --#
+movl %EAX, %EAX               #-- move return value at ./test.lat:7:1 --#
+addq $0, %RSP                 #-- ./test.lat:7:1 --#
+leave                         #-- ./test.lat:7:1 --#
+ret                           #-- ./test.lat:7:1 --#
+main :                        #-- ./test.lat:1:1 --#
+__cl_TopLevel.main :          #-- ./test.lat:1:1 --#
+push %RBP                     #-- ./test.lat:1:1 --#
+movq %RSP, %RBP               #-- ./test.lat:1:1 --#
+subq $0, %RSP                 #-- ./test.lat:1:1 --#
+__cl_TopLevel.main.L_entry :  #-- ./test.lat:1:1 --#
+subq $0, %RSP                 #-- ./test.lat:3:13 --#
+call __cl_TopLevel.f          #-- ./test.lat:3:13 --#
+addq $0, %RSP                 #-- ./test.lat:3:13 --#
+movl %EAX, %EAX               #-- ./test.lat:3:13 --#
+movl %EAX, %EDI               #-- passing arg at ./test.lat:3:4 --#
+subq $0, %RSP                 #-- ./test.lat:3:4 --#
+call printInt                 #-- ./test.lat:3:4 --#
+addq $0, %RSP                 #-- ./test.lat:3:4 --#
+movl $0, %EAX                 #-- move return value at ./test.lat:1:1 --#
+addq $0, %RSP                 #-- ./test.lat:1:1 --#
+leave                         #-- ./test.lat:1:1 --#
+ret                           #-- ./test.lat:1:1 --#
+__errorNull :                 #-- runtime error on null dereference at ./test.lat:1:1 --#
+andq $-16, %RSP               #-- 16 bytes allign at ./test.lat:1:1 --#
+call __errorNull              #-- ./test.lat:1:1 --#

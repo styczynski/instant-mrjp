@@ -8,7 +8,18 @@ Do naprawienia:
 .- Redukcja mocy???
 .- inlining funkcji
 
-
+naprawa testów
+core031
+core013
+core001
+core010
+core017
+core018
+core016
+core012
+core005
+core015
+core0023
 
 X- Problem z brakującym typem przy Assign
 X- Zły kontekst zmiennych przy zmianie do IR (good/core019.lat) ./tests/good/core019.lat -> ./latc_x86 ./tests/good/core019.lat

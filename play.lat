@@ -1,0 +1,39 @@
+
+int main() {
+  int a=1;
+  return foo(a);
+}
+
+int foo(int a) {
+  return 0;
+}
+
+
+/*int foo(int a,int b,int c,int d,int e,int f,int g,
+        int h,int i,int j,int k,int l,int m, int n) {
+	
+  printInt(a);
+  printInt(b);
+  printInt(c);
+  printInt(d);
+  printInt(e);
+  printInt(f);
+  printInt(g);
+  printInt(h);
+  printInt(i);
+  printInt(j);
+  printInt(k);
+  printInt(l);
+  printInt(m);
+  printInt(n);
+  printInt(c);
+  printInt(2*a+b/2+c+d+e+f+g+h+i+j/2+k+l+m+n);
+  int r = (2*a+b/2+c+d+e+f+g+h+i+j/2+k+l+m+n)%10;
+  printInt(r);
+  return r;
+}*/
+
+/*int main() {
+  int a=1,b=2,c=1,d=2,e=1,f=2,g=1,h=2,i=1,j=2,k=1,l=2,m=1,n=2;
+  return (foo(a,b,c,d,e,f,g,h,i,j,k,l,m,n));
+}*/
