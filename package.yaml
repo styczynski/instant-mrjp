@@ -25,6 +25,10 @@ tests:
       - lattec
       - lens
       - raw-strings-qq
+      - process
+      - text
+      - directory
+      - random
 
 library:
   source-dirs: src

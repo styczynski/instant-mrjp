@@ -2,42 +2,32 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Test.ParsingFailuresSpec (spec) where
 
+import Test.Utils.Utils
 import Text.RawString.QQ
-import           Test.Hspec
-import           System.IO
-
-import qualified Latte.Compiler as Compiler
-import qualified Backend.X64.X64 as BackendX64
-
-import Control.Lens
-
-checkParseError (Compiler.CompilationFailed (Compiler.ParseError _) _ _ _) = True
-checkParseError _ = False
-
-tryParsing code = (`shouldSatisfy` checkParseError) =<< (Compiler.compileLatte (Compiler.defaultConfigFor BackendX64.backend) (Compiler.inputDirect code))
+import Test.Hspec
 
 spec :: Spec
 spec = do
   describe "Compiler rejects input that contains invalid Latte syntax" $ do
-    it "Main without bracket" $ \h -> tryParsing [r|
+    it "Main without bracket" $ \h -> expectParsingError [r|
         int main() { return 0;
       |]
-    it "Single comment" $ \h -> tryParsing [r|
+    it "Single comment" $ \h -> expectParsingError [r|
         /*
       |]
-    it "Single literal" $ \h -> tryParsing [r|
+    it "Single literal" $ \h -> expectParsingError [r|
         a
       |]
-    it "Mismatched main brackets" $ \h -> tryParsing [r|
+    it "Mismatched main brackets" $ \h -> expectParsingError [r|
         int main)( {
                 return 0;
                 return 1;
         }
       |]
-    it "No function type" $ \h -> tryParsing [r|
+    it "No function type" $ \h -> expectParsingError [r|
         foo() {}
       |]
-    it "Variable declaration in if condition" $ \h -> tryParsing [r|
+    it "Variable declaration in if condition" $ \h -> expectParsingError [r|
         int main() {
             if(int i = 0) {
             }

@@ -65,6 +65,9 @@ type LattePipeline = StateT (LoggerState) (LoggerT Message IO)
 
 --type LattePipelineT = LoggerT Message IO
 
+liftIOToPipeline :: IO a -> LattePipeline a
+liftIOToPipeline = lift . liftIO
+
 liftPipeline :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) msg
 liftPipeline = liftLogAction
 

@@ -5,6 +5,9 @@
 
 #include "runtime.h"
 
+#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
+
 extern void bzero(void *s, size_t n);
 extern void *memcpy(void *dest, const void *src, size_t n);
 
@@ -19,28 +22,27 @@ char *errMsg;
 uint8_t emptyString[] = "";
 
 obj __new(struct Type *t) {
-    printf("Perform reference malloc type=%d <type parent=%d> [%d]\n", t, t->parent, t->dataSize);fflush(stdout);
+    DEBUG("Perform reference malloc type=%d <type parent=%d> [%d]", t, t->parent, t->dataSize);
     obj r = malloc(sizeof(struct Reference)+10);
-    printf("Set __new type/counter\n");fflush(stdout);
+    DEBUG("Set __new type/counter");
     r->type = t;
     r->counter = 0;
-    printf("Do init for non array non string?\n");fflush(stdout);
+    DEBUG("Do init for non array non string?");
     if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
-        printf("perform init\n");fflush(stdout);
+        DEBUG("Perform init");
         r->data = malloc(t->dataSize);
         bzero(r->data, t->dataSize);
     } else {
-        printf("Just set data to NULL\n");fflush(stdout);
+        DEBUG("Just set data to NULL");
         r->data = NULL;
     }
     r->methods = r->type->methods;
-    printf("Completed __new %d <type %d, par %d> inner data=%d\n", r, r->type, r->type->parent, r->data);fflush(stdout);
-    //fprintf(stderr, "__new %d\n", r);
+    DEBUG("Completed __new %d <type %d, par %d> inner data=%d", r, r->type, r->type->parent, r->data);
     return r;
 }
 
 void __free(obj r) {
-    fprintf(stderr, "__free %d\n", r);
+    DEBUG("__free %d", r);
     if (r->type == &_class_Array) {
         struct Array *arr = r->data;
         void **els = arr->elements;
@@ -61,13 +63,13 @@ void __free(obj r) {
 }
 
 void __incRef(obj r) {
-    fprintf(stderr, "__incRef %d\n", r);
+    DEBUG("__incRef %d", r);
     if (r != NULL) {
         r->counter++;
     }
 }
 void __decRef(obj r) {
-    fprintf(stderr, "__decRef %d\n", r);
+    DEBUG("__decRef %d", r);
     if (r != NULL) {
         r->counter--;
         if (r->counter <= 0) {
@@ -78,7 +80,7 @@ void __decRef(obj r) {
             __free(r);
         }
     }
-    fprintf(stderr, "__decRef end %d\n", r);
+    DEBUG("__decRef end %d", r);
 }
 
 obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
@@ -118,28 +120,28 @@ void *__getelementptr(obj array, int32_t index) {
 }
 
 obj __cast(obj o, struct Type *t) {
-    fprintf(stderr, "__cast\n");fflush(stdout);
-    fprintf(stderr, "__cast %d %d [%d]\n", o, t, t->dataSize);fflush(stdout);
+    DEBUG("__cast");
+    DEBUG("__cast %d %d [%d]", o, t, t->dataSize);
     if (o == NULL) {
-        fprintf(stderr, "__cast object is null\n");fflush(stdout);
+        DEBUG("__cast object is null");
         return NULL;
     }
-    fprintf(stderr, "__cast get underlying type\n");fflush(stdout);
+    DEBUG("__cast get underlying type");
     struct Type *to = o->type;
     while (to != NULL) {
-        fprintf(stderr, "__cast iterate parent upward %d [%d]\n", to, to->dataSize);fflush(stdout);
+        DEBUG("__cast iterate parent upward %d [%d]", to, to->dataSize);
         if (t == to) {
-            fprintf(stderr, "__cast found correct parent: %d\n", to);fflush(stdout);
+            DEBUG("__cast found correct parent: %d", to);
             return o;
         }
         struct Type *prev = to;
         to = to->parent;
         if (prev == to) {
-            fprintf(stderr, "__cast loop, break %d\n", to);fflush(stdout);
+            DEBUG("__cast loop, break %d", to);
             break;
         }
     }
-    fprintf(stderr, "finished the cast (FAILED)\n");
+    DEBUG("finished the cast (FAILED)");
     return NULL;
 }
 
@@ -149,21 +151,21 @@ void __errorNull() {
 }
 
 obj __createString(char *c) {
-    printf("Try to create string from %d\n", c);fflush(stdout);
+    DEBUG("Try to create string from %d", c);
     if (c == NULL) {
-        printf("C is NULL exit\n");
+        DEBUG("C is NULL exit");
         return __createString(emptyString);
     }
-    printf("Perform new on _class_String\n");fflush(stdout);
+    DEBUG("Perform new on _class_String");
     obj r = __new(&_class_String);
-    printf("String allocated\n");fflush(stdout);
+    DEBUG("String allocated");
     struct String *str = malloc(sizeof(struct String));
     r->data = str;
-    printf("Measure strlen\n");fflush(stdout);
+    DEBUG("Measure strlen");
     str->length = u8_strlen(c);
-    printf("Check unicode\n");fflush(stdout);
+    DEBUG("Check unicode");
     if (u8_check(c, str->length) != NULL) {
-        printf("Non-unicode string encoding\n", c);
+        DEBUG("Non-unicode string encoding", c);
         errMsg = "ERROR: Non-unicode string encoding.";
         error();
     }
@@ -176,7 +178,7 @@ obj __createString(char *c) {
         str->data = emptyString;
         return r;
     }
-    printf("Str init completed\n");
+    DEBUG("Str init completed");
     str->length = -1;
     return r;
 }
@@ -368,26 +370,26 @@ int8_t _String_startsWith(obj str, obj substr) {
     return u8_startswith(rs, rsub);
 }
 obj _String_concat(obj str, obj secondstr) {
-    printf("String concat on %d and %d\n", str, secondstr);
+    DEBUG("String concat on %d and %d", str, secondstr);
     if (secondstr == NULL) {
         __incRef(str);
         return str;
     }
     uint8_t *rs1 = ((struct String *)str->data)->data;
     uint8_t *rs2 = ((struct String *)secondstr->data)->data;
-    printf("Take strlen\n");
+    DEBUG("Take strlen");
     int32_t len1 = u8_strlen(rs1);
     int32_t len2 = u8_strlen(rs2);
     uint8_t *buffer = malloc(len1 + len2 + 1);
-    printf("perform strcpy\n");
+    DEBUG("perform strcpy");
     u8_strcpy(buffer, rs1);
     u8_strcpy(buffer + len1, rs2);
     buffer[len1 + len2] = 0;
-    printf("Create final string\n");
+    DEBUG("Create final string");
     obj ret = __createString(buffer);
     __incRef(ret);
     free(buffer);
-    printf("String concat completed\n");
+    DEBUG("String concat completed");
     return ret;
 }
 

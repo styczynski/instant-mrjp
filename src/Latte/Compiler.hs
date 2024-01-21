@@ -33,6 +33,8 @@ import System.Exit
 import System.FilePath
 import System.IO
 import System.Process
+import System.Directory
+import Control.Monad
 
 import Utils.Similarity
 
@@ -78,12 +80,17 @@ compileLattePipeline config input = do
                                     printLogInfo $ "IR conversion done" <> (T.pack file) <> "\n\n" <> (T.pack $ printTree ir)
                                     compiledProg <- ((Compl.compl_ ir) :: (LattePipeline (Compl.CompiledProg LSyntax.IRPosition))) --(fmap (const ()) ir)
                                     printLogInfo $ "COMPL_ DONE" <> (T.pack file) <> "\n\n" <> (T.pack $ show compiledProg)
-                                    let outputPath = replaceExtension file (Backend.inputExtension usedBackend)
+                                    outputPath <- case (config ^. outputDirectory) of
+                                        (Just outputPath) -> do
+                                            let (_, inputFileName) = splitFileName file
+                                            liftIOToPipeline $ createDirectoryIfMissing True outputPath
+                                            return $ replaceExtension (outputPath </> inputFileName) (Backend.inputExtension usedBackend)
+                                        Nothing -> return $ replaceExtension file (Backend.inputExtension usedBackend)
                                     backendResult <- Backend.runBackend outputPath (takeFileName outputPath) compiledProg usedBackend
                                     case backendResult of 
                                         (Left err) -> do
                                             printLogInfo $ T.pack $ "Backend code generation has failed"
                                             return $ CompilationFailed (CompilationError err) file contents parsedAST
-                                        (Right (outputFilePath, _)) -> do
+                                        (Right (_, _, outputFilePath)) -> do
                                             printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
                                             return $ CompilationOK $ CompilationOutput { _compoOutputExecutablePath = outputFilePath }

@@ -22,6 +22,7 @@ data CompilerInput = CompilerInput {
 data CompilerConfig a = CompilerConfig {
     _compcCompilerBackend :: Backend.LatteBackend a
     , _compcLoggingLevel :: Logs.LogLevel
+    , _compcOutputDirectory :: Maybe String
 }
 
 data CompilationOutput = CompilationOutput {
@@ -44,9 +45,9 @@ makeLensesWith abbreviatedFields ''CompilationOutput
 makeLensesWith abbreviatedFields ''CompilerConfig
 makeLensesWith abbreviatedFields ''CompilerInput
 
-inputDirect :: String -> CompilerInput
-inputDirect codeString = CompilerInput {
-    _compiInputFilePath = "<input>"
+inputDirect :: String -> String -> CompilerInput
+inputDirect uid codeString = CompilerInput {
+    _compiInputFilePath = "<input:" ++ uid ++ ">"
     , _compiInputFileContent = return codeString
 }
 
@@ -54,4 +55,5 @@ defaultConfigFor :: Backend.LatteBackend a -> CompilerConfig a
 defaultConfigFor backend = CompilerConfig {
     _compcCompilerBackend = backend
     , _compcLoggingLevel = Logs.LogNothing
+    , _compcOutputDirectory = Nothing
 }

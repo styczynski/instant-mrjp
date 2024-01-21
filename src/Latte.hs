@@ -89,7 +89,7 @@ runPipeline backend = do
                           printLogInfo $ T.pack $ "Backend code generation has failed"
                           printErrors err file contents parsedAST
                           latteError "Backend code generation has failed"
-                        (Right (outputFilePath, _)) -> do
+                        (Right (_, _, outputFilePath)) -> do
                           printLogInfo $ "Backend code generation completed successfully " <> (T.pack file) <> " -> " <> (T.pack outputFilePath)
                           printLogInfo $ "DONE"
                           latteSuccess

@@ -40,7 +40,7 @@ backend =
         return code
       , compileExecutable = \filePath -> do
         let objName = replaceExtension filePath "o"
-        let execName = takeBaseName filePath
+        let execName = (takeDirectory filePath) </> (takeBaseName filePath)
         --liftPipelineToBackend $ printLogInfo $ T.pack $ "Run NASM for X86 backend to generate '" ++ objName ++ "' from '" ++ filePath ++ "'"
         --execCmd "nasm" [filePath, "-o", objName, "-f elf64"]
         liftPipelineToBackend $ printLogInfo $ T.pack $ "Run GCC for X64 backend to generate '" ++ execName ++ "' executable from object file '" ++ objName ++ "'"
@@ -48,4 +48,5 @@ backend =
         --liftPipelineToBackend $ printLogInfo $ T.pack $ "Cleanup leftover object file: '" ++ objName ++ "'"
         --liftIO $ removeFile objName
         liftPipelineToBackend $ printLogInfo $ T.pack $ "X64 compilation of '" ++ filePath ++ "' seems to be successfull"
+        return execName
     }
