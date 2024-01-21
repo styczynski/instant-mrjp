@@ -102,6 +102,13 @@ packages:
       size: 385
   original:
     hackage: deepseq-1.4.8.0
+- completed:
+    hackage: raw-strings-qq-1.1@sha256:3ea0f14f036649e3576749aef0db4dd0b1102c5331f2e0e2551250e2030ce669,1467
+    pantry-tree:
+      sha256: 473e62ea5320c8734f66049e48b308dd0ab197c6d3071c8ca1a828b05b7536ae
+      size: 379
+  original:
+    hackage: raw-strings-qq-1.1
 snapshots:
 - completed:
     sha256: 85d2382958c178491d3fe50d770a624621f5ab456beef7d31ac7521f780c9bc7
