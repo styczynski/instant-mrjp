@@ -46,6 +46,8 @@ decodeTypeContext (TypeInClassField (Syntax.FieldDecl pos t id)) =
     Just $ (
         "Class field '" ++ printi 0 id ++ "'", pos, []
     )
+decodeTypeContext (TypeInReturn (Syntax.ReturnValue pos expr)) =
+    Just $ ("Return statement with value", pos, [])
 decodeTypeContext (TypeInMethodReturn (Syntax.MethodDecl pos tret id@(Syntax.Ident _ methodName) args b)) =
     Just $ ("Class method '" ++ methodName ++ "' return type", pos, [
         ("Method '" ++ methodName ++ "' was defined here", Just $ pos)

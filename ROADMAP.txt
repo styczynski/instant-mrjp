@@ -6,7 +6,7 @@ Do naprawienia:
 .- problem z return f() gdzie f zwraca void
 .- Liczenie refenencji trzeba zrobic
 .- Redukcja mocy???
-
+.- inlining funkcji
 
 
 

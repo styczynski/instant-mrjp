@@ -21,6 +21,7 @@ data TypeContext =
   | TypeInClassParent (Syntax.Definition Position)
   | TypeInClassField (Syntax.ClassDecl Position)
   | TypeInMethodReturn (Syntax.ClassDecl Position)
+  | TypeInReturn (Syntax.Stmt Position)
   | TypeInVarDecl (Syntax.DeclItem Position)
   | TypeInFunctionArgDecl (Syntax.Definition Position) (Syntax.Arg Position)
   | TypeInMethodArgDecl (Syntax.ClassDecl Position) (Syntax.Arg Position)

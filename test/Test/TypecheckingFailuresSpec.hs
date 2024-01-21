@@ -242,7 +242,7 @@ spec = do
           }
           void printInt(int x) {}
       |]
-    it "Return void value in void-returning function" $ \h -> tryParsing (\case { (Errors.DuplicateFun (Type.Fun (Syntax.Ident _ "printInt") _ _ _) [(Type.Fun (Syntax.Ident _ "printInt") _ _ _)]) -> True; _ -> False }) [r|
+    it "Return void value in void-returning function" $ \h -> tryParsing (\case { (Errors.IllegalTypeUsed _ (Errors.TypeInReturn (Syntax.ReturnValue _ _)) (Syntax.VoidT _)) -> True; _ -> False }) [r|
           int main() {
               return 0;
           }

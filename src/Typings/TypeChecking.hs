@@ -325,12 +325,13 @@ instance TypeCheckable Syntax.Stmt where
                 Syntax.IntT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 Syntax.ByteT _ -> return $ Syntax.Assignment pos nase (Syntax.Cast pos aset ne)
                 _ -> return $ Syntax.Assignment pos nase ne
-    doCheckTypes stmt@(Syntax.ReturnValue pos e) = do
+    doCheckTypes stmt@(Syntax.ReturnValue pos e) = do 
         rt <- getContextFunctionReturnType
         fn <- getContextFunction
         (ne, et) <- inferType e
         checkCastUpErr (\env -> Errors.IncompatibleTypesReturn env stmt fn) pos et rt
         b <- equivalentType et rt
+        checkTypeExists Type.NoVoid (Errors.TypeInReturn stmt) rt 
         if b then return $ Syntax.ReturnValue pos ne
         else return $ Syntax.ReturnValue pos (Syntax.Cast pos rt ne)
     doCheckTypes (Syntax.ReturnVoid pos) = do
