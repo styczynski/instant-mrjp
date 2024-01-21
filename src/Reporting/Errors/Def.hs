@@ -82,6 +82,7 @@ data Error
    | InternalLinearizerFailure TypeCheckerEnv (LinearTranslatorEnv ()) String InternalLNError
    | UnknownVariable TypeCheckerEnv Type.Name
    | UnknownType TypeCheckerEnv Type.Name 
+   | CallInvalidParameterType TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) Integer Type.Type Type.Type
    | CallIncompatibleNumberOfParameters TypeCheckerEnv (Syntax.Expr Position) (Syntax.Type Position) [(Syntax.Expr Position, Type.Type)]
    | CallNotCallableType TypeCheckerEnv (Syntax.Expr Position) Type.Type [(Syntax.Expr Position, Type.Type)]
    | NewUsageOnString TypeCheckerEnv (Syntax.Expr Position)

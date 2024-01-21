@@ -7,8 +7,10 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ConstraintKinds #-}
-
+{-# LANGUAGE TemplateHaskell #-}
 module Reporting.Logs where
+
+import Control.Lens
 
 import Colog
   ( LogAction,
@@ -38,8 +40,27 @@ import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
 import System.Exit
 
+import Control.Monad.State hiding (void)
+
+data LogLevel = LogNothing | LogEverything | LogDebug | LogInfo | LogWarn | LogError deriving (Show, Eq)
+
+instance Ord LogLevel where
+    compare a b = compare (relativeRank a) (relativeRank b) where
+         relativeRank LogNothing = 5
+         relativeRank LogError = 4
+         relativeRank LogWarn = 3
+         relativeRank LogInfo = 2
+         relativeRank LogDebug = 1
+         relativeRank LogEverything = 0
+
+data LoggerState = LoggerState {
+  _logstLogLevel :: LogLevel
+} deriving (Show, Eq)
+
+makeLensesWith abbreviatedFields ''LoggerState
+
 --type LattePipeline t = forall env m. (WithLog env Message m, MonadIO m) => m t
-type LattePipeline = LoggerT Message IO
+type LattePipeline = StateT (LoggerState) (LoggerT Message IO)
 --type WithLattePipeline env m = (WithLog env Message m, MonadIO m)
 
 --type LattePipelineT = LoggerT Message IO
@@ -48,27 +69,33 @@ liftPipeline :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) ms
 liftPipeline = liftLogAction
 
 printLogInfo :: Text.Text -> LattePipeline ()
-printLogInfo = logInfo
+printLogInfo = doForLogLevel LogInfo $ lift . logInfo
+
+doForLogLevel :: LogLevel -> (t -> LattePipeline ()) -> (t -> LattePipeline ())
+doForLogLevel requiredLL action arg = do
+  currentLL <- gets (^.logLevel)
+  when (currentLL <= requiredLL) (action arg)
 
 printLogWarn :: Text.Text -> LattePipeline ()
-printLogWarn = logWarning
+printLogWarn = doForLogLevel LogWarn $ lift . logWarning
 
 latteError :: Text.Text -> LattePipeline ()
 latteError err = do
-  liftIO $ hPutStrLn stderr "ERROR\n"
-  logError err
-  liftIO $ exitFailure
+  lift $ liftIO $ hPutStrLn stderr "ERROR\n"
+  lift $ logError err
+  lift $ liftIO $ exitFailure
 
 logStdoutAction :: LogAction IO Message
 logStdoutAction = cmap fmtMessage logTextStdout
 
 latteSuccess :: LattePipeline ()
 latteSuccess = do
-  liftIO $ hPutStrLn stderr "OK\n"
+  lift $ liftIO $ hPutStrLn stderr "OK\n"
 
-evaluateLattePipeline :: LattePipeline t -> IO t
-evaluateLattePipeline pipeline = do
-  k <- usingLoggerT logStdoutAction pipeline
+evaluateLattePipeline :: LogLevel -> LattePipeline t -> IO t
+evaluateLattePipeline logLevel pipeline = do
+  let initialState = (LoggerState { _logstLogLevel = logLevel })
+  k <- usingLoggerT logStdoutAction (evalStateT pipeline initialState)
   return $ k
 
 printLogInfoStr :: String -> LattePipeline ()

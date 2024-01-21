@@ -180,11 +180,11 @@ checkCastUpErr errorHandler pos tFrom tTo = do
     if c then return ()
     else (\env -> failure $ errorHandler env tFrom tTo) =<< tcEnv
     
-checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
-checkCastUp pos tFrom tTo = do
-    c <- canBeCastUp tFrom tTo
-    if c then return ()
-    else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
+-- checkCastUp :: Position -> Syntax.Type Position -> Syntax.Type Position -> TypeChecker ()
+-- checkCastUp pos tFrom tTo = do
+--     c <- canBeCastUp tFrom tTo
+--     if c then return ()
+--     else todoImplementError $ "Cannot convert types " ++ (printi 0 tFrom) ++ " to " ++ (printi 0 tTo) --throw ("Cannot convert " ++ printi 0 tFrom ++ " to "++printi 0 tTo, pos)
 
 typeFromArg :: Errors.TypeContext ->  Syntax.Arg Position -> TypeChecker (Type.Type, Syntax.Arg Position)
 typeFromArg typeContext arg@(Syntax.Arg pos t id) = assureProperType typeContext t >> return (t, arg)
@@ -420,7 +420,7 @@ instance TypeCheckable Syntax.Expr where
                 if name == n then Just f
                 else elemF i xs
             elemF _ [] = Nothing
-    doInferType (Syntax.App pos efun es) = do
+    doInferType appCall@(Syntax.App pos efun es) = do
         (nef, eft) <- inferType efun
         case eft of
             fn@(Syntax.FunT _ ret args) -> do
@@ -430,7 +430,7 @@ instance TypeCheckable Syntax.Expr where
                 if length efts /= length args then
                     failure $ Errors.CallIncompatibleNumberOfParameters env nef fn nes
                 else return ()
-                mapM_ (\(l,(e,r)) -> checkCastUp (e ^. position @1) r l) $ zip args nes
+                mapM_ (\(index,(l,(e,r))) -> checkCastUpErr (\env -> Errors.CallInvalidParameterType env appCall fn index) (e ^. position @1) r l) $ zip [1..] $ zip args nes
                 return (Syntax.App pos nef (map fst nes), ret)
             _ -> do
                 env <- tcEnv

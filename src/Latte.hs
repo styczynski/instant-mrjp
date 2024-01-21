@@ -36,7 +36,7 @@ import qualified IR.Compl as Compl
 usedBackend = BackendX64.backend
 
 runCLI :: () -> IO ()
-runCLI backend = evaluateLattePipeline $ runPipeline backend
+runCLI backend = evaluateLattePipeline LogEverything $ runPipeline backend
 
 runPipeline :: () -> LattePipeline ()
 runPipeline backend = do

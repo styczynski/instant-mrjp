@@ -42,7 +42,7 @@ import qualified IR.Compl as Compl
 import Latte.Config
 
 compileLatte :: CompilerConfig LSyntax.IRPosition -> CompilerInput -> IO CompilationResult
-compileLatte config input = evaluateLattePipeline $ compileLattePipeline config input
+compileLatte config input = evaluateLattePipeline (config ^. loggingLevel) $ compileLattePipeline config input
 
 compileLattePipeline :: CompilerConfig LSyntax.IRPosition -> CompilerInput -> LattePipeline CompilationResult
 compileLattePipeline config input = do

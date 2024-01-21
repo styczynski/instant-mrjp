@@ -11,6 +11,7 @@ import qualified Parser.Types as ParserTypes
 import qualified Reporting.Errors.Def as Error
 import Reporting.Errors.Errors
 
+import qualified Reporting.Logs as Logs
 import Parser.Types (ParseError)
 
 data CompilerInput = CompilerInput {
@@ -20,6 +21,7 @@ data CompilerInput = CompilerInput {
 
 data CompilerConfig a = CompilerConfig {
     _compcCompilerBackend :: Backend.LatteBackend a
+    , _compcLoggingLevel :: Logs.LogLevel
 }
 
 data CompilationOutput = CompilationOutput {
@@ -51,4 +53,5 @@ inputDirect codeString = CompilerInput {
 defaultConfigFor :: Backend.LatteBackend a -> CompilerConfig a
 defaultConfigFor backend = CompilerConfig {
     _compcCompilerBackend = backend
+    , _compcLoggingLevel = Logs.LogNothing
 }

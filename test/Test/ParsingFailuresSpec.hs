@@ -37,3 +37,10 @@ spec = do
     it "No function type" $ \h -> tryParsing [r|
         foo() {}
       |]
+    it "Variable declaration in if condition" $ \h -> tryParsing [r|
+        int main() {
+            if(int i = 0) {
+            }
+            return 0;
+        }
+      |]

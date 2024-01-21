@@ -435,6 +435,18 @@ decodeError (CallNotCallableType env calledExpr calledType args) = SimpleError {
     , _errorHelp = Nothing
     , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
 }
+--CallInvalidParameterType TypeCheckerEnv (Syntax.Type Position) Integer Type.Type Type.Type
+decodeError (CallInvalidParameterType env expr fn argIndex expectedType actualType) = SimpleError {
+    _errorName = "Invalid call"
+    , _errorDescription = "Calling value that expects parameter of type " ++ (printi 0 expectedType) ++ " at position " ++ show argIndex ++ ", but got " ++ (printi 0 actualType) ++ ""
+    , _errorSugestions = []
+    , _errorLocation = Just $ Syntax.getPos expr
+    , _errorContexts = [
+        ("Correct the type of " ++ show argIndex ++ "-th parameter", Just $ Syntax.getPos expr)
+    ]
+    , _errorHelp = Nothing
+    , _errorMarkers = combineMarkers [formatInferenceTrace env, formatFunctionContext env]
+}
 decodeError (CallIncompatibleNumberOfParameters env expr (Syntax.FunT _ ret args) actualArgs) = SimpleError {
     _errorName = "Invalid call"
     , _errorDescription = "Calling value that expects " ++ (show $ length args) ++ " parameters, but " ++ (show $ length actualArgs) ++ " were given"
