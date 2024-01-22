@@ -1,78 +1,41 @@
-
-string repStr(string s, int n) {
-  string r = "";
-  int i = 0;
-  while(i<n) {
-    r = r + s;
-    i++;
-  }
- return r;
-}
-
 int main() {
-	printInt(fac(10));
-	printInt(rfac(10));
-	printInt(mfac(10));
-        printInt(ifac(10));
-        string r ; // just to test blocks 
-	{
-	  int n = 10;
-	  int r = 1;
-	  while (n>0) {
-	    r = r * n;
-	    n--;
-	  }
-	  printInt(r);
-	}
-  string xx = repStr("=",60);
-	printString (xx);
-	printString ("hello */");
-        printString ("/* world") ;
-        return 0 ;
+	printInt(ifac2f(1,10));
+  return 0;
 }
 
-int fac(int a) {
-	int r;
-	int n;
+//int ifac(int n) { return ifac2f(1,n); }
 
-	r = 1;
-	n = a;
-	while (n > 0) {
-	  r = r * n;
-	  n = n - 1;
-	}
-	return r;
-}
 
-int rfac(int n) {
-	if (n == 0)
-	  return 1;
-	else
-	  return n * rfac(n-1);
-}
+/*
+(1, 10)
+(1, 5) | (6, 10)
+(1, 3) | (4, 5) > (4, 4) | (5, 5)
+(1, 2) | (3, 3)
+(1, 1)
 
-int mfac(int n) {
-	if (n == 0)
-	  return 1;
-	else
-	  return n * nfac(n-1);
-}
 
-int nfac(int n) {
-	if (n != 0)
-	  return mfac(n-1) * n;
-	else
-	  return 1;
-}
-
-int ifac(int n) { return ifac2f(1,n); }
+(1, 10)
+(1, 5)
+(1, 3)
+(1, 2)
+(1, 1)
+(3, 3)
+(4, 5)
+(4, 4)
+(5, 5)
+...
+*/
 
 int ifac2f(int l, int h) {
+  printString("CALL");
+  printInt(l);
+  printInt(h);
         if (l == h)
           return l;
         if (l > h)
           return 1;
         int m;
         m = (l + h) / 2;
+        printInt(m);
         return ifac2f(l,m) * ifac2f(m+1,h);
 }

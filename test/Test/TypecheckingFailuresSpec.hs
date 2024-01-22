@@ -79,12 +79,6 @@ spec = do
 
           int foo(boolean b) { b = true; }
       |]
-    -- This should be bad?
-    --     int main() {
-    --       string x ;
-    --       x = "pi" + 1 ;
-    --       return 0 ;
-    -- }
     it "Invalid parameter type in printInt(string)" $ \h -> expectCheckerError (\case { (Errors.CallInvalidParameterType _ (Syntax.App _ _ _) _ 1 (Syntax.StringT _) (Syntax.IntT _))  -> True; _ -> False }) [r|
           int main() {
             printInt("foo");

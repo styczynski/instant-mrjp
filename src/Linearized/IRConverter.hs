@@ -9,6 +9,7 @@ import Control.DeepSeq
 import Control.Monad
 import GHC.Generics (Generic)
 
+import IR.Utils
 import qualified Utils.Containers.IDMap as IM
 
 import Linearized.BuiltIns(builtIns)
@@ -63,9 +64,10 @@ convertFunctionToFIR (A.Fun p cls l rt args stmts) = do
     -- forM_ (zip argDecls [0..]) (\((_, val), i) -> emit $ ILoad () (valName val) (PParam () (Ref () $ valType_ val) i (valName val)))
     --B.ISet p (nameToValIdent n) (B.VVal p (convertType t) $ (argNameToValIdent n))
     paramsMoves <- return $ map (\((t, n), i) -> B.ILoad p (nameToValIdent n) (B.PParam p ((B.Ref p) $ convertType t) i (argNameToValIdent n))) $ zip args [0..]
-    let (instrs', trimmedLabel) = trimLabel instrs
-    let instrs'' = maybe (instrs') (\l -> removeDoubleJumps $ replaceLabels l ".L_exit" instrs') trimmedLabel
-    return $ B.Mthd p (convertType rt) (functionName cls l) params $ [B.ILabel p (B.LabIdent ".L_entry")] ++ paramsMoves ++ instrs'' ++ [B.ILabel p $ B.LabIdent ".L_exit", B.IRet p $ B.VVal p (convertType rt) $ B.ValIdent $ "%v_return"]
+    let instrs' = fixpointBy (fmap $ const ()) (\ins -> let (ins', trimmedLabel) = trimLabel ins in removeDoubleJumps $ maybe (ins') (\l -> replaceLabels l ".L_exit" ins') trimmedLabel) instrs
+    --let (instrs', trimmedLabel) = trimLabel instrs
+    --let instrs'' = maybe (instrs') (\l -> removeDoubleJumps $ replaceLabels l ".L_exit" instrs') trimmedLabel
+    return $ B.Mthd p (convertType rt) (functionName cls l) params $ [B.ILabel p (B.LabIdent ".L_entry")] ++ paramsMoves ++ instrs' ++ [B.ILabel p $ B.LabIdent ".L_exit", B.IRet p $ B.VVal p (convertType rt) $ B.ValIdent $ "%v_return"]
 
 removeDoubleJumps :: [B.Instr a] -> [B.Instr a]
 removeDoubleJumps (j1@(B.IJmp  p (B.LabIdent l)) : (B.IJmp _ (B.LabIdent _)) : rest) = j1 : removeDoubleJumps rest

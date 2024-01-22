@@ -130,7 +130,7 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
                 exitNode = single $ filter (any isRet . (^.nodeBody)) nodes
                 otherNodes = filter ((\l -> l /= (entryNode^.nodeLabel) && l /= (exitNode^.nodeLabel)) . (^.nodeLabel)) nodes
             -- Prologue
-            let savedRegs = sortOn Down $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
+            let savedRegs = sort $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
             let needsAlignment = odd $ length savedRegs
             let locs = fromIntegral $ numLocals rs * 8
             let (LabIdent mainEntryStr) = labelFor (QIdent () (SymIdent "~cl_TopLevel") (SymIdent "main")) entryLabel
@@ -152,7 +152,7 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
             -- Epilogue
             gen $ X64.leave pos Nothing
             when (needsAlignment) (decrStack pos 8)
-            mapM_ (\r -> gen $ X64.pop pos (X64.LocReg r) Nothing) savedRegs
+            mapM_ (\r -> gen $ X64.pop pos (X64.LocReg r) Nothing) (reverse savedRegs)
             gen $ X64.ret pos Nothing
             return paramOffset
         genNode :: (Show a) => Node a Liveness -> Generator a ()
