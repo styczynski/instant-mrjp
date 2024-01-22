@@ -7,6 +7,7 @@
 
 #define __LATTE_RUNTIME_DEBUG_ENABLED false
 #define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
+#define __LATTE_RUNTIME_GC_ENABLED false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
 #define FORMAT_PTR(PTR) ((__LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES)?(PTR):((void*)(0)))
 
@@ -39,7 +40,7 @@ obj __new(struct Type *t) {
         r->data = NULL;
     }
     r->methods = r->type->methods;
-    DEBUG("Completed __new %p <type %p, par %p> inner data=%p", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), r->data);
+    DEBUG("Completed __new %p <type %p, par %p> inner data=%p size=%d", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), FORMAT_PTR(r->data), t->dataSize);
     return r;
 }
 
@@ -65,13 +66,16 @@ void __free(obj r) {
 }
 
 void __incRef(obj r) {
+    if (!__LATTE_RUNTIME_GC_ENABLED) return;
     DEBUG("__incRef %p", FORMAT_PTR(r));
     if (r != NULL) {
         r->counter++;
     }
+    DEBUG("__incRef end %p", FORMAT_PTR(r));
 }
 void __decRef(obj r) {
     DEBUG("__decRef %p", FORMAT_PTR(r));
+    if (!__LATTE_RUNTIME_GC_ENABLED) return;
     if (r != NULL) {
         r->counter--;
         if (r->counter <= 0) {
@@ -181,7 +185,7 @@ obj __createString(char *c) {
         str->data = emptyString;
         return r;
     }
-    DEBUG("Str init completed");
+    DEBUG("Str init completed (with data=%p, data_of_str=%p, size=%d)", FORMAT_PTR(str->data), FORMAT_PTR(r->data), str->length);
     str->length = -1;
     return r;
 }
@@ -420,14 +424,16 @@ void ddd(obj str) {
 
 // functions
 int8_t printString(obj str) {
-    DEBUG("Calling printString()")
+    DEBUG("Calling printString(%p)", FORMAT_PTR(str));
+    DEBUG("Str data is %p", FORMAT_PTR(str->data));
     if (str == NULL)
         str = __createString("null");
     __incRef(str);
     uint8_t *rs = ((struct String *)str->data)->data;
+    DEBUG("Str inner data %p", FORMAT_PTR(rs));
     printf("%s\n", rs);
     __decRef(str);
-    DEBUG("printString() completed")
+    DEBUG("printString(%p) completed", FORMAT_PTR(str))
     return 0;
 }
 int8_t printInt(int32_t i) {
