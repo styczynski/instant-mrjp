@@ -2,7 +2,7 @@
 module Typings.Types where
 
 import Reporting.Errors.Position
-import qualified Data.Map as M
+import qualified Utils.Containers.IDMap as IM
 import qualified Program.Syntax as Syntax
 import Utils.Similarity
 import Data.Maybe
@@ -17,14 +17,18 @@ data Class = Class
                 (Syntax.Definition Position)
     deriving (Eq, Ord, Show)
 data Member = Field (Name) (Type) (Syntax.ClassDecl Position)
-            | Method (Name) (Type) (M.Map String (Name, Type)) (Syntax.ClassDecl Position)
+            | Method (Name) (Type) (IM.Map (Name, Type)) (Syntax.ClassDecl Position)
     deriving (Eq, Ord, Show)
-data Function  = Fun (Name) Type (M.Map String (Name, Type)) (Syntax.Definition Position)
+data Function  = Fun (Name) Type (IM.Map (Name, Type)) (Syntax.Definition Position)
     deriving (Eq, Show)
 
 type Type = Syntax.Type Position
 
 type Name = Syntax.Ident Position
+
+instance IM.Idable (Syntax.Ident Position, Type) where
+    getID ((Syntax.Ident _ name), _) = name
+
 
 -- instance NearEq (Syntax.Type t) where
 --     similar a b = (Undefined <$ a) == (Undefined <$ b)
@@ -91,14 +95,14 @@ classMembers :: Class -> [Member]
 classMembers (Class _ _ members _) = members
 
 funcArgsTypes :: Function -> [Type]
-funcArgsTypes (Fun _ _ args _) = map snd $ M.elems args
+funcArgsTypes (Fun _ _ args _) = map snd $ IM.elems args
 
 methodArgsTypes :: Member -> [Type]
-methodArgsTypes (Method _ _ args _) = map snd $ M.elems args
+methodArgsTypes (Method _ _ args _) = map snd $ IM.elems args
 methodArgsTypes _ = []
 
 memberType :: Member -> Type
-memberType (Method (Syntax.Ident p _) t ts _) = Syntax.FunT p t $ map (snd . snd) $ M.toList ts
+memberType (Method (Syntax.Ident p _) t ts _) = Syntax.FunT p t $ map (snd . snd) $ IM.mapList (\key arg -> (key, arg)) ts
 memberType (Field _ t _) = t
 
 -- named n (Method (Ident _ nn) _ _) = n == nn

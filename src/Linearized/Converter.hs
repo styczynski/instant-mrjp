@@ -167,7 +167,7 @@ collectStructures classes = do
             completeStruct' <- classParentMerge clname clname completeStruct selfFields selfMethods
             return [completeStruct']
         translateToMethod :: String -> Types.Member -> Maybe (B.Method Position)
-        translateToMethod clname (Types.Method (A.Ident p n) retType args _) = Just $ B.Method p (B.Label p clname) (B.Label p n) (ct retType) (map (\(A.Ident p' argName, argType) -> (ct argType, B.Name p' argName)) $ M.elems args)--(B.Label p $ "_" ++ clname ++ "_" ++ n)
+        translateToMethod clname (Types.Method (A.Ident p n) retType args _) = Just $ B.Method p (B.Label p clname) (B.Label p n) (ct retType) (map (\(A.Ident p' argName, argType) -> (ct argType, B.Name p' argName)) $ IM.elems args)--(B.Label p $ "_" ++ clname ++ "_" ++ n)
         translateToMethod _ _ = Nothing
         translateToField :: String -> Types.Member -> Maybe (B.Field Position)
         translateToField _ (Types.Field (A.Ident p n) t _) = Just $ B.Field p (ct t) (B.Label p n)

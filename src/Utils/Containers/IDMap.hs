@@ -39,6 +39,9 @@ empty = Map OM.empty
 lookup :: String -> Map v -> Maybe v
 lookup k (Map m) = OM.lookup k m
 
+_unsafeFrom :: (Idable v, Foldable t) => t v -> (Map v)
+_unsafeFrom = Map . OM.fromList . map (\v -> (getID v, v)) . toList
+
 fromM :: (Idable v, Monad m, Foldable t) => (String -> m ()) -> t v -> m (Map v)
 fromM errHandler = flip (insertSequenceM errHandler (\m v -> v)) empty
 

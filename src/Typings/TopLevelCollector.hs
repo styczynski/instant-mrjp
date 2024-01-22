@@ -2,6 +2,7 @@
 module Typings.TopLevelCollector where
 
 import qualified Data.Map as M
+import qualified Utils.Containers.IDMap as IM
 import Reporting.Logs
 import Program.Syntax
 import qualified Data.Text as T
@@ -21,8 +22,8 @@ groupByKey :: (Ord k) => (v -> k) -> [v] -> M.Map k [v]
 groupByKey getkey
   = M.fromListWith (++) . fmap (\val -> (getkey val, [val]))
 
-argsToMapping :: [Arg Position] -> TypeChecker (M.Map String (Type.Name, Type.Type))
-argsToMapping = fmap M.fromList . mapM (\(Arg pos t id@(Ident _ name)) -> assureProperType t >> return (name, (id, t))) --assureProperType t >> return t
+argsToMapping :: [Arg Position] -> TypeChecker (IM.Map (Type.Name, Type.Type))
+argsToMapping = fmap IM._unsafeFrom . mapM (\(Arg pos t id@(Ident _ name)) -> assureProperType t >> return (id, t)) --assureProperType t >> return t
 
 assureProperType :: Type Position -> TypeChecker ()
 assureProperType t =
@@ -108,8 +109,8 @@ checkRedeclarationInClasses cls = do
 addBuiltinFunctions :: [Type.Function] -> TypeChecker [Type.Function]
 addBuiltinFunctions fns = return $ builtIn ++ fns
     where
-        args types = M.fromList $ map (\t -> ("", (Ident Undefined "", t))) types
-        noargs = M.empty
+        args types = IM._unsafeFrom $ map (\(i, t) -> (Ident Undefined $ "_arg_" ++ show i, t)) $ zip [1..] types
+        noargs = IM.empty
         void = VoidT BuiltIn
         bool = BoolT BuiltIn
         int = IntT BuiltIn
@@ -138,8 +139,8 @@ addBuiltinFunctions fns = return $ builtIn ++ fns
 addBuiltinClasses :: [Type.Class] -> TypeChecker [Type.Class]
 addBuiltinClasses cls = return $ builtIn ++ cls
     where
-        args types = M.fromList $ map (\t -> ("", (Ident Undefined "", t))) types
-        noargs = M.empty
+        args types = IM._unsafeFrom $ map (\(i, t) -> (Ident Undefined $ "_arg_" ++ show i, t)) $ zip [1..] types
+        noargs = IM.empty
         void = VoidT BuiltIn
         bool = BoolT BuiltIn
         int = IntT BuiltIn

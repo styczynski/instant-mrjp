@@ -17,6 +17,7 @@ import Data.Generics.Product
 import GHC.Generics
 import Data.Maybe
 import qualified Data.Map as M
+import qualified Utils.Containers.IDMap as IM
 import qualified Data.Text as T
 import qualified Reporting.Errors.Def as Errors
 import Reporting.Logs
@@ -95,7 +96,7 @@ withMethodContext methodName m = do
                     withSeparateScope pos (methodContext clsName methodName methodType args (Syntax.FunctionDef a t id as b) m)
                 _ -> internalTCFailure "withMethodContext" $ Errors.ITCEMissingClassMember currentClassName methodName
     where
-        methodContext :: Syntax.Ident Position -> Type.Name -> Type.Type -> (M.Map String (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
+        methodContext :: Syntax.Ident Position -> Type.Name -> Type.Type -> (IM.Map (Type.Name, Type.Type)) -> (Syntax.Definition Position) -> TypeChecker x -> TypeChecker x
         methodContext clsName methodName methodType args currentClassDecl m = do
             env <- tcEnv
             let declPos = Syntax.getPos currentClassDecl
