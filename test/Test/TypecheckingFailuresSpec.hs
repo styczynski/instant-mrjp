@@ -306,3 +306,10 @@ spec = do
             }
         }
       |]
+    it "Inline string addition fails because of null" $ \h -> expectCheckerError (\case { (Errors.ExpressionAlwaysNull _ _ _) -> True; _ -> False }) [r|
+        int main() {
+            string i;
+            i + i;
+            return 0;
+        }
+    |]

@@ -4,451 +4,492 @@
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Construct inheritance graph
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return 0;
-}
-
-int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return 1;
-	else
-		;
-	int m;
-	m = ((l + h) / 2);
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + 1), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return 0;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(ifac2f(1, 10));
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [IntT inside standard library]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT ./play.lat:29:5 (IntT ./play.lat:29:1) [IntT ./play.lat:29:12,IntT ./play.lat:29:19]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(ifac2f(1, 10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 <= 1))
+	printString("4");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("4");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("4");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 <= 1))
+	printString("4");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 >= 1))
+	printString("4");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("4");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("4");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 >= 1))
+	printString("4");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 > 1))
+	printString("5");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("5");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("5");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 > 1))
+	printString("5");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 < 1))
+	printString("5");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("5");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("5");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 < 1))
+	printString("5");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 < 2))
+	printString("6");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("6");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("6");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 < 2))
+	printString("6");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((2 > 1))
+	printString("6");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("6");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("6");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((2 > 1))
+	printString("6");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((1 > 2))
+	printString("7");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("7");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("7");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((1 > 2))
+	printString("7");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((2 < 1))
+	printString("7");
+else
+	;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("7");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("7");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((2 < 1))
+	printString("7");
+else
+	;
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return 0;
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (int)(0);
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return 1;
-	else
-		;
-	int m;
-	m = ((l + h) / 2);
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + 1), h));
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("CALL");
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [StringT inside standard library]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("CALL");
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(l);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [IntT inside standard library]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(l);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(h);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [IntT inside standard library]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(h);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((l == h))
-	return l;
-else
-	;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return l;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return l;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((l == h))
-	return l;
-else
-	;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if ((l > h))
-	return 1;
-else
-	;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return 1;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (int)(1);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> ;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- ;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if ((l > h))
-	return (int)(1);
-else
-	;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int m;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int m;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> m = ((l + h) / 2);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> m
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- m = ((l + h) / (int)(2));
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(m);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [IntT inside standard library]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(m);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return (ifac2f(l, m) * ifac2f((m + 1), h));
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT ./play.lat:29:5 (IntT ./play.lat:29:1) [IntT ./play.lat:29:12,IntT ./play.lat:29:19]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT ./play.lat:29:5 (IntT ./play.lat:29:1) [IntT ./play.lat:29:12,IntT ./play.lat:29:19]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return (int)(1);
-	else
-		;
-	int m;
-	m = ((l + h) / (int)(2));
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
-}
-
-int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return (int)(1);
-	else
-		;
-	int m;
-	m = ((l + h) / (int)(2));
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Typecheck done./play.lat
 
 int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
-}
-
-int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return (int)(1);
-	else
-		;
-	int m;
-	m = ((l + h) / (int)(2));
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
-}
-
-int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return (int)(1);
-	else
-		;
-	int m;
-	m = ((l + h) / (int)(2));
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP Before doNormalizeScope(Syntax.Program) int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
-}
-
-int ifac2f(int l, int h)
-{
-	printString("CALL");
-	printInt(l);
-	printInt(h);
-	if ((l == h))
-		return l;
-	else
-		;
-	if ((l > h))
-		return (int)(1);
-	else
-		;
-	int m;
-	m = ((l + h) / (int)(2));
-	printInt(m);
-	return (ifac2f(l, m) * ifac2f((m + (int)(1)), h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP After doNormalizeScope(Syntax.Program) int main()
 {
-	printInt(ifac2f(1, 10));
+	if ((1 <= 1))
+		printString("4");
+	else
+		;
+	if ((1 >= 1))
+		printString("4");
+	else
+		;
+	if ((1 > 1))
+		printString("5");
+	else
+		;
+	if ((1 < 1))
+		printString("5");
+	else
+		;
+	if ((1 < 2))
+		printString("6");
+	else
+		;
+	if ((2 > 1))
+		printString("6");
+	else
+		;
+	if ((1 > 2))
+		printString("7");
+	else
+		;
+	if ((2 < 1))
+		printString("7");
+	else
+		;
 	return (int)(0);
 }
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return (int)(1);
-	else
-		;
-	int _var_1000008#m;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / (int)(2));
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((_var_1000008#m + (int)(1)), _var_1000006#h));
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000008#m] ~> True
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000008#m] ~> True
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
-}
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 1 (took 0 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
-}
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP Before doNormalizeScope(Syntax.Program) int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
-}
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP After doNormalizeScope(Syntax.Program) int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
 }
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000008#m] ~> True
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000008#m] ~> True
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
 }
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 1 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 0 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimization done./play.lat
 
 int main()
 {
-	printInt(ifac2f(1, 10));
+	printString("4");
+	printString("4");
+	;
+	;
+	printString("6");
+	printString("6");
+	;
+	;
 	return 0;
 }
-
-int ifac2f(int _var_1000005#l, int _var_1000006#h)
-{
-	printString("CALL");
-	printInt(_var_1000005#l);
-	printInt(_var_1000006#h);
-	if ((_var_1000005#l == _var_1000006#h))
-		return _var_1000005#l;
-	else
-		;
-	if ((_var_1000005#l > _var_1000006#h))
-		return 1;
-	else
-		;
-	int _var_1000008#m = 0;
-	_var_1000008#m = ((_var_1000005#l + _var_1000006#h) / 2);
-	printInt(_var_1000008#m);
-	return (ifac2f(_var_1000005#l, _var_1000008#m) * ifac2f((1 + _var_1000008#m), _var_1000006#h));
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int,int]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:33:13 Explicit (Equ ./play.lat:33:15) (Var ./play.lat:33:13 (Ident ./play.lat:33:13 "_var_1000005#l")) (Var ./play.lat:33:18 (Ident ./play.lat:33:18 "_var_1000006#h"))
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:35:13 Explicit (Gt ./play.lat:35:15) (Var ./play.lat:35:13 (Ident ./play.lat:35:13 "_var_1000005#l")) (Var ./play.lat:35:17 (Ident ./play.lat:35:17 "_var_1000006#h"))
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assign Var ./play.lat:38:9 (Ident ./play.lat:38:9 "_var_1000008#m")
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int,int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int,int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DEBUG COLLECT_FUNCTIONS PROTOTYPES
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [int main()
-    byte t_2 = <byte>1
-    byte t_3 = <byte>10
-    int t_4 =     call<function> ifac2f(<int>t_2, <int>t_3)
-    byte t_5 =     call<function> printInt(<int>t_4)
-    int t_6 = <int>0
-    return <int>t_6
-,int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    byte t_11 =     call<function> printString(<obj<String>>t_10)
-    byte t_12 =     call<function> printInt(<int>t_7)
-    byte t_13 =     call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    int t_20 = <int>1
-    return <int>t_20
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_21 = <int>0
-    int t_22 = <int>t_21
-    int t_23 = <int>t_7 + <int>t_8
-    int t_24 = <int>2
-    int t_25 = <int>t_23 / <int>t_24
-    t_22 = <int>t_25
-    byte t_26 =     call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_28 = <int>1
-    int t_29 = <int>t_22 + <int>t_28
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
+    obj<String> t_1 =     new string _S0
+    byte t_2 =     call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    byte t_7 =     call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    byte t_9 =     call<function> printString(<obj<String>>t_8)
+    int t_10 = <int>0
+    return <int>t_10
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] END DEBUG
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Initial IR: 
@@ -479,48 +520,19 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    byte t_2 = <byte>1
-    byte t_3 = <byte>10
-    int t_4 =     call<function> ifac2f(<int>t_2, <int>t_3)
-    byte t_5 =     call<function> printInt(<int>t_4)
-    int t_6 = <int>0
-    return <int>t_6
+    obj<String> t_1 =     new string _S0
+    byte t_2 =     call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    byte t_7 =     call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    byte t_9 =     call<function> printString(<obj<String>>t_8)
+    int t_10 = <int>0
+    return <int>t_10
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    byte t_11 =     call<function> printString(<obj<String>>t_10)
-    byte t_12 =     call<function> printInt(<int>t_7)
-    byte t_13 =     call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    int t_20 = <int>1
-    return <int>t_20
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_21 = <int>0
-    int t_22 = <int>t_21
-    int t_23 = <int>t_7 + <int>t_8
-    int t_24 = <int>2
-    int t_25 = <int>t_23 / <int>t_24
-    t_22 = <int>t_25
-    byte t_26 =     call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_28 = <int>1
-    int t_29 = <int>t_22 + <int>t_28
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
@@ -554,48 +566,19 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    byte t_2 = <byte>1
-    byte t_3 = <byte>10
-    int t_4 =     call<function> ifac2f(<int>t_2, <int>t_3)
-    byte t_5 =     call<function> printInt(<int>t_4)
-    int t_6 = <int>0
-    return <int>t_6
+    obj<String> t_1 =     new string _S0
+    byte t_2 =     call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    byte t_7 =     call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    byte t_9 =     call<function> printString(<obj<String>>t_8)
+    int t_10 = <int>0
+    return <int>t_10
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    byte t_11 =     call<function> printString(<obj<String>>t_10)
-    byte t_12 =     call<function> printInt(<int>t_7)
-    byte t_13 =     call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    int t_20 = <int>1
-    return <int>t_20
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_21 = <int>0
-    int t_22 = <int>t_21
-    int t_23 = <int>t_7 + <int>t_8
-    int t_24 = <int>2
-    int t_25 = <int>t_23 / <int>t_24
-    t_22 = <int>t_25
-    byte t_26 =     call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_28 = <int>1
-    int t_29 = <int>t_22 + <int>t_28
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -624,46 +607,23 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_4 =     call<function> ifac2f(<byte>1, <byte>10)
-    discard<byte> call<function> printInt(<int>t_4)
+    obj<String> t_1 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_8)
     return <int>0
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    discard<byte> call<function> printString(<obj<String>>t_10)
-    discard<byte> call<function> printInt(<int>t_7)
-    discard<byte> call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    return <int>1
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_22 = <int>0
-    int t_23 = <int>t_7 + <int>t_8
-    int t_25 = <int>t_23 / <int>2
-    t_22 = <int>t_25
-    discard<byte> call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_29 = <int>t_22 + <int>1
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 1 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 5 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -692,41 +652,18 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_4 =     call<function> ifac2f(<byte>1, <byte>10)
-    discard<byte> call<function> printInt(<int>t_4)
+    obj<String> t_1 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_8)
     return <int>0
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    discard<byte> call<function> printString(<obj<String>>t_10)
-    discard<byte> call<function> printInt(<int>t_7)
-    discard<byte> call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    return <int>1
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_22 = <int>0
-    int t_23 = <int>t_7 + <int>t_8
-    int t_25 = <int>t_23 / <int>2
-    t_22 = <int>t_25
-    discard<byte> call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_29 = <int>t_22 + <int>1
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -755,41 +692,18 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_4 =     call<function> ifac2f(<byte>1, <byte>10)
-    discard<byte> call<function> printInt(<int>t_4)
+    obj<String> t_1 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_8)
     return <int>0
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    discard<byte> call<function> printString(<obj<String>>t_10)
-    discard<byte> call<function> printInt(<int>t_7)
-    discard<byte> call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    return <int>1
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_22 = <int>0
-    int t_23 = <int>t_7 + <int>t_8
-    int t_25 = <int>t_23 / <int>2
-    t_22 = <int>t_25
-    discard<byte> call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_29 = <int>t_22 + <int>1
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Convert to FIR
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] AST to convert:
 struct Array extends [Array, Object]
@@ -819,41 +733,18 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_4 =     call<function> ifac2f(<byte>1, <byte>10)
-    discard<byte> call<function> printInt(<int>t_4)
+    obj<String> t_1 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_1)
+    obj<String> t_3 =     new string _S0
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    obj<String> t_6 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_6)
+    obj<String> t_8 =     new string _S5
+    discard<byte> call<function> printString(<obj<String>>t_8)
     return <int>0
 
-int ifac2f(int t_7, int t_8)
-    obj<String> t_10 =     new string _S9
-    discard<byte> call<function> printString(<obj<String>>t_10)
-    discard<byte> call<function> printInt(<int>t_7)
-    discard<byte> call<function> printInt(<int>t_8)
-    jump _IIF14 if <int>t_7 == <int>t_8 or pass-through to _IELSE15
-  _IIF14:
-    return <int>t_7
-    jump _IEND16
-  _IELSE15:
-    jump _IEND16
-  _IEND16:
-    jump _IIF17 if <int>t_7 > <int>t_8 or pass-through to _IELSE18
-  _IIF17:
-    return <int>1
-    jump _IEND19
-  _IELSE18:
-    jump _IEND19
-  _IEND19:
-    int t_22 = <int>0
-    int t_23 = <int>t_7 + <int>t_8
-    int t_25 = <int>t_23 / <int>2
-    t_22 = <int>t_25
-    discard<byte> call<function> printInt(<int>t_22)
-    int t_27 =     call<function> ifac2f(<int>t_7, <int>t_22)
-    int t_29 = <int>t_22 + <int>1
-    int t_30 =     call<function> ifac2f(<int>t_29, <int>t_8)
-    int t_31 = <int>t_27 * <int>t_30
-    return <int>t_31
-
-data string _S9 = "CALL"
+data string _S0 = "4"
+data string _S5 = "6"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Convert to FIR
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Linearizer terminated
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] IR conversion done./play.lat
@@ -931,58 +822,22 @@ data string _S9 = "CALL"
         String & () ~cl_TopLevel.readString;
         Object & (Object &, Object &)~cl_TopLevel.__cast;
         int () ~cl_TopLevel.main;
-        int (int, int)~cl_TopLevel.ifac2f;
       ]
     ]
   ]
 ]
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -1000,86 +855,6 @@ data string _S9 = "CALL"
 ".L_entry" -> fromList [] <- fromList []
 
 ]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit",".L_exit__from__IEND19",".L_exit__from__IIF14",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IEND19",LabIdent ".L_exit__from__IIF14",LabIdent ".L_exit__from__IIF17"]
-".L_exit__from__IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND19"]
-".L_exit__from__IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit__from__IEND19"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit__from__IIF14"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IEND16"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IELSE15 == to => _IEND16
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit",".L_exit__from__IEND19",".L_exit__from__IIF14",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IEND19",LabIdent ".L_exit__from__IIF14",LabIdent ".L_exit__from__IIF17"]
-".L_exit__from__IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND19"]
-".L_exit__from__IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit__from__IEND19"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit__from__IIF14"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IELSE15"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IELSE18 == to => _IEND19
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit",".L_exit__from__IEND19",".L_exit__from__IIF14",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IEND19",LabIdent ".L_exit__from__IIF14",LabIdent ".L_exit__from__IIF17"]
-".L_exit__from__IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-".L_exit__from__IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit__from__IEND19"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit__from__IIF14"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IELSE15"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IELSE18 == to => .L_exit__from__IEND19
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit",".L_exit__from__IIF14",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IIF14",LabIdent ".L_exit__from__IIF17",LabIdent "_IELSE18"]
-".L_exit__from__IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit__from__IIF14"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IELSE15"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IIF14 == to => .L_exit__from__IIF14
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IIF17",LabIdent "_IELSE18",LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IELSE15"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IIF17 == to => .L_exit__from__IIF17
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE18",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-
-]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED CFGS
 
 CFG for ~cl_TopLevel.main:
@@ -1089,63 +864,16 @@ CFG for ~cl_TopLevel.main:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -1162,66 +890,19 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1242,82 +923,19 @@ Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Liveness at start of .L_entry: in = [("%a_t_8",(2,Ref () (Int ()))),("%a_t_7",(1,Ref () (Int ())))], out = [("%a_t_8",(1,Ref () (Int ()))),("%a_t_7",(0,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_8",(6,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_7",(3,Int ()))], out = [("%v_t_8",(5,Int ())),("%v_t_7",(2,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
-Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
-Liveness at start of _IELSE15: in = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at end of _IELSE15: in = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at start of _IELSE18: in = [("%v_t_8",(5,Int ())),("%v_t_7",(5,Int ()))], out = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], use = [], kill = []
-Liveness at end of _IELSE18: in = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at start of _IEND16: in = [("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], out = [("%v_t_8",(0,Int ())),("%v_t_7",(0,Int ()))], use = [], kill = []
-Liveness at end of _IEND16: in = [("%v_t_8",(7,Int ())),("%v___temp_3",(0,Bool ())),("%v_t_7",(7,Int ()))], out = [("%v_t_8",(6,Int ())),("%v_t_7",(6,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
-Liveness at start of _IEND19: in = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], out = [("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IEND19: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF14: in = [("%v_t_7",(1,Int ()))], out = [("%v_t_7",(0,Int ()))], use = [], kill = []
-Liveness at end of _IIF14: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF17: in = [], out = [], use = [], kill = []
-Liveness at end of _IIF17: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1334,66 +952,19 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1406,16 +977,7 @@ Code:
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),ICall ./play.lat:2:18 (ValIdent "%v_t_4") (Call ./play.lat:2:18 (Int ./play.lat:29:1) (QIdent ./play.lat:2:18 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VInt ./play.lat:2:18 1,VInt ./play.lat:2:18 10] []),IVCall ./play.lat:2:9 (Call ./play.lat:2:9 (Int inside standard library) (QIdent ./play.lat:2:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:2:9 (Int inside standard library) (ValIdent "%v_t_4")] []),ISet ./play.lat:3:3 (ValIdent "%v___temp_0") (VInt ./play.lat:3:3 0),ISet ./play.lat:3:3 (ValIdent "%v_return") (VVal ./play.lat:3:3 (Int ./play.lat:3:10) (ValIdent "%v___temp_0")),IJmp ./play.lat:3:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-,Mthd ./play.lat:29:1 (Int ./play.lat:29:1) (QIdent ./play.lat:29:5 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [Param ./play.lat:29:1 (Int ./play.lat:29:12) (ValIdent "%a_t_7"),Param ./play.lat:29:1 (Int ./play.lat:29:19) (ValIdent "%a_t_8")] [ILabel ./play.lat:29:1 (LabIdent ".L_entry"),ILoad ./play.lat:29:1 (ValIdent "%v_t_7") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:12)) 0 (ValIdent "%a_t_7")),ILoad ./play.lat:29:1 (ValIdent "%v_t_8") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:19)) 1 (ValIdent "%a_t_8")),INewStr ./play.lat:30:15 (ValIdent "%v_t_10") "CALL",IVCall ./play.lat:30:3 (Call ./play.lat:30:3 (Int inside standard library) (QIdent ./play.lat:30:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:30:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_10")] []),IVCall ./play.lat:31:3 (Call ./play.lat:31:3 (Int inside standard library) (QIdent ./play.lat:31:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:31:3 (Int inside standard library) (ValIdent "%v_t_7")] []),IVCall ./play.lat:32:3 (Call ./play.lat:32:3 (Int inside standard library) (QIdent ./play.lat:32:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:32:3 (Int inside standard library) (ValIdent "%v_t_8")] []),IOp ./play.lat:33:13 (ValIdent "%v___temp_1") (VVal ./play.lat:33:13 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpEQU ./play.lat:33:15) (VVal ./play.lat:33:13 (Int ./play.lat:29:19) (ValIdent "%v_t_8")),ICondJmp ./play.lat:33:13 (VVal ./play.lat:33:13 (Bool ./play.lat:33:13) (ValIdent "%v___temp_1")) (LabIdent "_IIF14") (LabIdent "_IELSE15"),ILabel ./play.lat:33:9 (LabIdent "_IELSE15"),IJmp ./play.lat:33:9 (LabIdent "_IEND16"),ILabel ./play.lat:33:9 (LabIdent "_IEND16"),IOp ./play.lat:35:13 (ValIdent "%v___temp_3") (VVal ./play.lat:35:13 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpGTH ./play.lat:35:15) (VVal ./play.lat:35:13 (Int ./play.lat:29:19) (ValIdent "%v_t_8")),ICondJmp ./play.lat:35:13 (VVal ./play.lat:35:13 (Bool ./play.lat:35:13) (ValIdent "%v___temp_3")) (LabIdent "_IIF17") (LabIdent "_IELSE18"),ILabel ./play.lat:35:9 (LabIdent "_IELSE18"),IJmp ./play.lat:35:9 (LabIdent "_IEND19"),ILabel ./play.lat:35:9 (LabIdent "_IEND19"),ISet ./play.lat:37:13 (ValIdent "%v_t_22") (VInt ./play.lat:37:13 0),IOp ./play.lat:38:16 (ValIdent "%v_t_23") (VVal ./play.lat:38:16 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpAdd ./play.lat:38:16) (VVal ./play.lat:38:16 (Int ./play.lat:29:12) (ValIdent "%v_t_8")),IOp ./play.lat:38:21 (ValIdent "%v_t_25") (VVal ./play.lat:38:21 (Int ./play.lat:29:12) (ValIdent "%v_t_23")) (OpDiv ./play.lat:38:21) (VInt ./play.lat:38:21 2),ISet ./play.lat:38:9 (ValIdent "%v_t_22") (VVal ./play.lat:38:9 (Int ./play.lat:29:12) (ValIdent "%v_t_25")),IVCall ./play.lat:39:9 (Call ./play.lat:39:9 (Int inside standard library) (QIdent ./play.lat:39:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:39:9 (Int inside standard library) (ValIdent "%v_t_22")] []),ICall ./play.lat:40:16 (ValIdent "%v_t_27") (Call ./play.lat:40:16 (Int ./play.lat:29:1) (QIdent ./play.lat:40:16 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:16 (Int ./play.lat:29:12) (ValIdent "%v_t_7"),VVal ./play.lat:40:16 (Int ./play.lat:29:19) (ValIdent "%v_t_22")] []),IOp ./play.lat:40:38 (ValIdent "%v_t_29") (VVal ./play.lat:40:38 (Int ./play.lat:40:39) (ValIdent "%v_t_22")) (OpAdd ./play.lat:40:38) (VInt ./play.lat:40:38 1),ICall ./play.lat:40:30 (ValIdent "%v_t_30") (Call ./play.lat:40:30 (Int ./play.lat:29:1) (QIdent ./play.lat:40:30 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:30 (Int ./play.lat:29:12) (ValIdent "%v_t_29"),VVal ./play.lat:40:30 (Int ./play.lat:29:19) (ValIdent "%v_t_8")] []),IOp ./play.lat:40:28 (ValIdent "%v_t_31") (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_27")) (OpMul ./play.lat:40:28) (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_30")),ISet ./play.lat:40:9 (ValIdent "%v___temp_5") (VVal ./play.lat:40:9 (Int ./play.lat:29:1) (ValIdent "%v_t_31")),ISet ./play.lat:40:9 (ValIdent "%v_return") (VVal ./play.lat:40:9 (Int ./play.lat:29:1) (ValIdent "%v___temp_5")),IJmp ./play.lat:40:9 (LabIdent ".L_exit"),ILabel ./play.lat:29:1 (LabIdent ".L_exit"),IRet ./play.lat:29:1 (VVal ./play.lat:29:1 (Int ./play.lat:29:1) (ValIdent "%v_return")),ILabel ./play.lat:35:9 (LabIdent "_IIF17"),ISet ./play.lat:36:11 (ValIdent "%v___temp_4") (VInt ./play.lat:36:11 1),ISet ./play.lat:36:11 (ValIdent "%v_return") (VVal ./play.lat:36:11 (Int ./play.lat:36:18) (ValIdent "%v___temp_4")),IJmp ./play.lat:36:11 (LabIdent ".L_exit"),ILabel ./play.lat:33:9 (LabIdent "_IIF14"),ISet ./play.lat:34:11 (ValIdent "%v___temp_2") (VVal ./play.lat:34:11 (Int ./play.lat:29:12) (ValIdent "%v_t_7")),ISet ./play.lat:34:11 (ValIdent "%v_return") (VVal ./play.lat:34:11 (Int ./play.lat:29:12) (ValIdent "%v___temp_2")),IJmp ./play.lat:34:11 (LabIdent ".L_exit")])]
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),INewStr ./play.lat:3:29 (ValIdent "%v_t_1") "4",IVCall ./play.lat:3:17 (Call ./play.lat:3:17 (Int inside standard library) (QIdent ./play.lat:3:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:3:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_1")] []),INewStr ./play.lat:5:29 (ValIdent "%v_t_3") "4",IVCall ./play.lat:5:17 (Call ./play.lat:5:17 (Int inside standard library) (QIdent ./play.lat:5:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:5:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_3")] []),INewStr ./play.lat:11:29 (ValIdent "%v_t_6") "6",IVCall ./play.lat:11:17 (Call ./play.lat:11:17 (Int inside standard library) (QIdent ./play.lat:11:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:11:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_6")] []),INewStr ./play.lat:13:29 (ValIdent "%v_t_8") "6",IVCall ./play.lat:13:17 (Call ./play.lat:13:17 (Int inside standard library) (QIdent ./play.lat:13:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_8")] []),ISet ./play.lat:18:13 (ValIdent "%v___temp_0") (VInt ./play.lat:18:13 0),ISet ./play.lat:18:13 (ValIdent "%v_return") (VVal ./play.lat:18:13 (Int ./play.lat:18:20) (ValIdent "%v___temp_0")),IJmp ./play.lat:18:13 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END SSA CODE DUMP 
 
 
@@ -1429,66 +991,19 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1501,16 +1016,7 @@ Code:
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),ICall ./play.lat:2:18 (ValIdent "%v_t_4") (Call ./play.lat:2:18 (Int ./play.lat:29:1) (QIdent ./play.lat:2:18 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VInt ./play.lat:2:18 1,VInt ./play.lat:2:18 10] []),IVCall ./play.lat:2:9 (Call ./play.lat:2:9 (Int inside standard library) (QIdent ./play.lat:2:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:2:9 (Int inside standard library) (ValIdent "%v_t_4")] []),ISet ./play.lat:3:3 (ValIdent "%v___temp_0") (VInt ./play.lat:3:3 0),ISet ./play.lat:3:3 (ValIdent "%v_return") (VVal ./play.lat:3:3 (Int ./play.lat:3:10) (ValIdent "%v___temp_0")),IJmp ./play.lat:3:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-,Mthd ./play.lat:29:1 (Int ./play.lat:29:1) (QIdent ./play.lat:29:5 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [Param ./play.lat:29:1 (Int ./play.lat:29:12) (ValIdent "%a_t_7"),Param ./play.lat:29:1 (Int ./play.lat:29:19) (ValIdent "%a_t_8")] [ILabel ./play.lat:29:1 (LabIdent ".L_entry"),ILoad ./play.lat:29:1 (ValIdent "%v_t_7") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:12)) 0 (ValIdent "%a_t_7")),ILoad ./play.lat:29:1 (ValIdent "%v_t_8") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:19)) 1 (ValIdent "%a_t_8")),INewStr ./play.lat:30:15 (ValIdent "%v_t_10") "CALL",IVCall ./play.lat:30:3 (Call ./play.lat:30:3 (Int inside standard library) (QIdent ./play.lat:30:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:30:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_10")] []),IVCall ./play.lat:31:3 (Call ./play.lat:31:3 (Int inside standard library) (QIdent ./play.lat:31:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:31:3 (Int inside standard library) (ValIdent "%v_t_7")] []),IVCall ./play.lat:32:3 (Call ./play.lat:32:3 (Int inside standard library) (QIdent ./play.lat:32:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:32:3 (Int inside standard library) (ValIdent "%v_t_8")] []),IOp ./play.lat:33:13 (ValIdent "%v___temp_1") (VVal ./play.lat:33:13 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpEQU ./play.lat:33:15) (VVal ./play.lat:33:13 (Int ./play.lat:29:19) (ValIdent "%v_t_8")),ICondJmp ./play.lat:33:13 (VVal ./play.lat:33:13 (Bool ./play.lat:33:13) (ValIdent "%v___temp_1")) (LabIdent "_IIF14") (LabIdent "_IELSE15"),ILabel ./play.lat:33:9 (LabIdent "_IELSE15"),IJmp ./play.lat:33:9 (LabIdent "_IEND16"),ILabel ./play.lat:33:9 (LabIdent "_IEND16"),IOp ./play.lat:35:13 (ValIdent "%v___temp_3") (VVal ./play.lat:35:13 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpGTH ./play.lat:35:15) (VVal ./play.lat:35:13 (Int ./play.lat:29:19) (ValIdent "%v_t_8")),ICondJmp ./play.lat:35:13 (VVal ./play.lat:35:13 (Bool ./play.lat:35:13) (ValIdent "%v___temp_3")) (LabIdent "_IIF17") (LabIdent "_IELSE18"),ILabel ./play.lat:35:9 (LabIdent "_IELSE18"),IJmp ./play.lat:35:9 (LabIdent "_IEND19"),ILabel ./play.lat:35:9 (LabIdent "_IEND19"),ISet ./play.lat:37:13 (ValIdent "%v_t_22") (VInt ./play.lat:37:13 0),IOp ./play.lat:38:16 (ValIdent "%v_t_23") (VVal ./play.lat:38:16 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpAdd ./play.lat:38:16) (VVal ./play.lat:38:16 (Int ./play.lat:29:12) (ValIdent "%v_t_8")),IOp ./play.lat:38:21 (ValIdent "%v_t_25") (VVal ./play.lat:38:21 (Int ./play.lat:29:12) (ValIdent "%v_t_23")) (OpDiv ./play.lat:38:21) (VInt ./play.lat:38:21 2),ISet ./play.lat:38:9 (ValIdent "%v_t_22") (VVal ./play.lat:38:9 (Int ./play.lat:29:12) (ValIdent "%v_t_25")),IVCall ./play.lat:39:9 (Call ./play.lat:39:9 (Int inside standard library) (QIdent ./play.lat:39:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:39:9 (Int inside standard library) (ValIdent "%v_t_22")] []),ICall ./play.lat:40:16 (ValIdent "%v_t_27") (Call ./play.lat:40:16 (Int ./play.lat:29:1) (QIdent ./play.lat:40:16 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:16 (Int ./play.lat:29:12) (ValIdent "%v_t_7"),VVal ./play.lat:40:16 (Int ./play.lat:29:19) (ValIdent "%v_t_22")] []),IOp ./play.lat:40:38 (ValIdent "%v_t_29") (VVal ./play.lat:40:38 (Int ./play.lat:40:39) (ValIdent "%v_t_22")) (OpAdd ./play.lat:40:38) (VInt ./play.lat:40:38 1),ICall ./play.lat:40:30 (ValIdent "%v_t_30") (Call ./play.lat:40:30 (Int ./play.lat:29:1) (QIdent ./play.lat:40:30 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:30 (Int ./play.lat:29:12) (ValIdent "%v_t_29"),VVal ./play.lat:40:30 (Int ./play.lat:29:19) (ValIdent "%v_t_8")] []),IOp ./play.lat:40:28 (ValIdent "%v_t_31") (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_27")) (OpMul ./play.lat:40:28) (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_30")),ISet ./play.lat:40:9 (ValIdent "%v___temp_5") (VVal ./play.lat:40:9 (Int ./play.lat:29:1) (ValIdent "%v_t_31")),ISet ./play.lat:40:9 (ValIdent "%v_return") (VVal ./play.lat:40:9 (Int ./play.lat:29:1) (ValIdent "%v___temp_5")),IJmp ./play.lat:40:9 (LabIdent ".L_exit"),ILabel ./play.lat:29:1 (LabIdent ".L_exit"),IRet ./play.lat:29:1 (VVal ./play.lat:29:1 (Int ./play.lat:29:1) (ValIdent "%v_return")),ILabel ./play.lat:35:9 (LabIdent "_IIF17"),ISet ./play.lat:36:11 (ValIdent "%v___temp_4") (VInt ./play.lat:36:11 1),ISet ./play.lat:36:11 (ValIdent "%v_return") (VVal ./play.lat:36:11 (Int ./play.lat:36:18) (ValIdent "%v___temp_4")),IJmp ./play.lat:36:11 (LabIdent ".L_exit"),ILabel ./play.lat:33:9 (LabIdent "_IIF14"),ISet ./play.lat:34:11 (ValIdent "%v___temp_2") (VVal ./play.lat:34:11 (Int ./play.lat:29:12) (ValIdent "%v_t_7")),ISet ./play.lat:34:11 (ValIdent "%v_return") (VVal ./play.lat:34:11 (Int ./play.lat:29:12) (ValIdent "%v___temp_2")),IJmp ./play.lat:34:11 (LabIdent ".L_exit")])]
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),INewStr ./play.lat:3:29 (ValIdent "%v_t_1") "4",IVCall ./play.lat:3:17 (Call ./play.lat:3:17 (Int inside standard library) (QIdent ./play.lat:3:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:3:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_1")] []),INewStr ./play.lat:5:29 (ValIdent "%v_t_3") "4",IVCall ./play.lat:5:17 (Call ./play.lat:5:17 (Int inside standard library) (QIdent ./play.lat:5:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:5:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_3")] []),INewStr ./play.lat:11:29 (ValIdent "%v_t_6") "6",IVCall ./play.lat:11:17 (Call ./play.lat:11:17 (Int inside standard library) (QIdent ./play.lat:11:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:11:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_6")] []),INewStr ./play.lat:13:29 (ValIdent "%v_t_8") "6",IVCall ./play.lat:13:17 (Call ./play.lat:13:17 (Int inside standard library) (QIdent ./play.lat:13:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_8")] []),ISet ./play.lat:18:13 (ValIdent "%v___temp_0") (VInt ./play.lat:18:13 0),ISet ./play.lat:18:13 (ValIdent "%v_return") (VVal ./play.lat:18:13 (Int ./play.lat:18:20) (ValIdent "%v___temp_0")),IJmp ./play.lat:18:13 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END OPTIMIZED CODE DUMP 
 
 
@@ -1528,82 +1034,19 @@ Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Liveness at start of .L_entry: in = [("%v_t_31",(16,Int ())),("%a_t_8",(3,Ref () (Int ()))),("%a_t_7",(2,Ref () (Int ())))], out = [("%v_t_31",(15,Int ())),("%a_t_8",(2,Ref () (Int ()))),("%a_t_7",(1,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_31",(7,Int ())),("%v_t_8",(8,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_7",(7,Int ()))], out = [("%v_t_31",(6,Int ())),("%v_t_8",(7,Int ())),("%v_t_7",(6,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
-Liveness at start of .L_exit: in = [("%v_t_31",(1,Int ())),("%v_t_7",(1,Int ()))], out = [("%v_t_31",(0,Int ())),("%v_t_7",(0,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
-Liveness at start of _IELSE15: in = [("%v_t_31",(14,Int ())),("%v_t_8",(6,Int ())),("%v_t_7",(6,Int ()))], out = [("%v_t_31",(13,Int ())),("%v_t_8",(5,Int ())),("%v_t_7",(5,Int ()))], use = [], kill = []
-Liveness at end of _IELSE15: in = [("%v_t_31",(12,Int ())),("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_31",(11,Int ())),("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at start of _IELSE18: in = [("%v_t_8",(6,Int ())),("%v_t_7",(6,Int ()))], out = [("%v_t_8",(5,Int ())),("%v_t_7",(5,Int ()))], use = [], kill = []
-Liveness at end of _IELSE18: in = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at start of _IEND16: in = [("%v_t_31",(10,Int ())),("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], out = [("%v_t_31",(9,Int ())),("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IEND16: in = [("%v_t_31",(7,Int ())),("%v_t_8",(8,Int ())),("%v___temp_3",(0,Bool ())),("%v_t_7",(7,Int ()))], out = [("%v_t_31",(6,Int ())),("%v_t_8",(7,Int ())),("%v_t_7",(6,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
-Liveness at start of _IEND19: in = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], out = [("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IEND19: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF14: in = [("%v_t_31",(5,Int ())),("%v_t_7",(5,Int ()))], out = [("%v_t_31",(4,Int ())),("%v_t_7",(4,Int ()))], use = [], kill = []
-Liveness at end of _IIF14: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF17: in = [("%v_t_31",(5,Int ())),("%v_t_7",(5,Int ()))], out = [("%v_t_31",(4,Int ())),("%v_t_7",(4,Int ()))], use = [], kill = []
-Liveness at end of _IIF17: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1624,8 +1067,14 @@ Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
@@ -1633,102 +1082,13 @@ Code:
   return int %v_return;
 ]
 
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IEND19",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND16"]
-Liveness at start of .L_entry: in = [("%v_t_31",(16,Int ())),("%a_t_8",(3,Ref () (Int ()))),("%a_t_7",(2,Ref () (Int ())))], out = [("%v_t_31",(15,Int ())),("%a_t_8",(2,Ref () (Int ()))),("%a_t_7",(1,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_31",(7,Int ())),("%v_t_8",(8,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_7",(7,Int ()))], out = [("%v_t_31",(6,Int ())),("%v_t_8",(7,Int ())),("%v_t_7",(6,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
-Liveness at start of .L_exit: in = [("%v_t_31",(1,Int ())),("%v_t_7",(1,Int ()))], out = [("%v_t_31",(0,Int ())),("%v_t_7",(0,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
-Liveness at start of _IELSE15: in = [("%v_t_31",(14,Int ())),("%v_t_8",(6,Int ())),("%v_t_7",(6,Int ()))], out = [("%v_t_31",(13,Int ())),("%v_t_8",(5,Int ())),("%v_t_7",(5,Int ()))], use = [], kill = []
-Liveness at end of _IELSE15: in = [("%v_t_31",(12,Int ())),("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_31",(11,Int ())),("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at start of _IELSE18: in = [("%v_t_8",(6,Int ())),("%v_t_7",(6,Int ()))], out = [("%v_t_8",(5,Int ())),("%v_t_7",(5,Int ()))], use = [], kill = []
-Liveness at end of _IELSE18: in = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], out = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], use = [], kill = []
-Liveness at start of _IEND16: in = [("%v_t_31",(10,Int ())),("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], out = [("%v_t_31",(9,Int ())),("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IEND16: in = [("%v_t_31",(7,Int ())),("%v_t_8",(8,Int ())),("%v___temp_3",(0,Bool ())),("%v_t_7",(7,Int ()))], out = [("%v_t_31",(6,Int ())),("%v_t_8",(7,Int ())),("%v_t_7",(6,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
-Liveness at start of _IEND19: in = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], out = [("%v_t_8",(1,Int ())),("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IEND19: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF14: in = [("%v_t_31",(5,Int ())),("%v_t_7",(5,Int ()))], out = [("%v_t_31",(4,Int ())),("%v_t_7",(4,Int ()))], use = [], kill = []
-Liveness at end of _IIF14: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at start of _IIF17: in = [("%v_t_31",(5,Int ())),("%v_t_7",(5,Int ()))], out = [("%v_t_31",(4,Int ())),("%v_t_7",(4,Int ()))], use = [], kill = []
-Liveness at end of _IIF17: in = [("%v_t_31",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_31",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
-]
 
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v_t_4 (reg preference: CallerSaved) (RAX): []
-~arg_0_RDI (reg preference: CallerSaved) (RDI): []
-~arg_1_RSI (reg preference: CallerSaved) (RSI): []
-~arg_2_RDI (reg preference: CallerSaved) (RDI): []
-,%a_t_7 (reg preference: CallerSaved) (RDI): ["%a_t_8","%v_t_31"]
-%a_t_8 (reg preference: CallerSaved) (RSI): ["%a_t_7","%v_t_31","%v_t_7"]
-%v___temp_1 (reg preference: CallerSaved) (RAX): ["%v_t_31","%v_t_7","%v_t_8"]
-%v___temp_3 (reg preference: CallerSaved) (RAX): ["%v_t_31","%v_t_7","%v_t_8"]
-%v_return~2 (reg preference: CallerSaved) (RAX): []
-%v_t_10 (reg preference: CallerSaved) (RAX): ["%v_t_31","%v_t_7","%v_t_8"]
-%v_t_23 (reg preference: CallerSaved) (RAX): ["%v_t_7","%v_t_8"]
-%v_t_25 (reg preference: CalleeSaved) (R14): ["%v_t_27","%v_t_7","%v_t_8","~arg_4_RDI"]
-%v_t_27 (reg preference: CalleeSaved) (RBX): ["%v_t_25","%v_t_29","%v_t_30","%v_t_7","%v_t_8"]
-%v_t_29 (reg preference: CallerSaved) (RAX): ["%v_t_27","%v_t_7","%v_t_8","~arg_7_RSI"]
-%v_t_30 (reg preference: CallerSaved) (RAX): ["%v_t_27","%v_t_7"]
-%v_t_31 (reg preference: CalleeSaved) (RBX): ["%a_t_7","%a_t_8","%v___temp_1","%v___temp_3","%v_t_10","%v_t_7","%v_t_8"]
-%v_t_7 (reg preference: CalleeSaved) (R13): ["%a_t_8","%v___temp_1","%v___temp_3","%v_t_10","%v_t_23","%v_t_25","%v_t_27","%v_t_29","%v_t_30","%v_t_31","%v_t_8","~arg_5_RSI"]
-%v_t_8 (reg preference: CalleeSaved) (R12): ["%v___temp_1","%v___temp_3","%v_t_10","%v_t_23","%v_t_25","%v_t_27","%v_t_29","%v_t_31","%v_t_7","~arg_6_RDI"]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v_t_1 (reg preference: CalleeSaved) (RBX): []
+%v_t_6 (reg preference: CalleeSaved) (RBX): []
 ~arg_0_RDI (reg preference: CallerSaved) (RDI): []
 ~arg_1_RDI (reg preference: CallerSaved) (RDI): []
 ~arg_2_RDI (reg preference: CallerSaved) (RDI): []
 ~arg_3_RDI (reg preference: CallerSaved) (RDI): []
-~arg_4_RDI (reg preference: CallerSaved) (RDI): ["%v_t_25"]
-~arg_5_RSI (reg preference: CallerSaved) (RSI): ["%v_t_7"]
-~arg_6_RDI (reg preference: CallerSaved) (RDI): ["%v_t_8"]
-~arg_7_RSI (reg preference: CallerSaved) (RSI): ["%v_t_29"]
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Allocating registers...
 
@@ -1743,69 +1103,19 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_3 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  %v_t_8 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_8);
   %v___temp_0 := 0;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit",".L_exit__from__IEND19",".L_exit__from__IIF14",".L_exit__from__IIF17","_IELSE15","_IELSE18","_IEND16","_IEND19","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IEND19",LabIdent ".L_exit__from__IIF14",LabIdent ".L_exit__from__IIF17"]
-".L_exit__from__IEND19" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IEND19"]
-".L_exit__from__IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF14"]
-".L_exit__from__IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IEND16"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent "_IEND19"] <- fromList [LabIdent "_IEND16"]
-"_IEND16" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent "_IELSE15"]
-"_IEND19" -> fromList [LabIdent ".L_exit__from__IEND19"] <- fromList [LabIdent "_IELSE18"]
-"_IIF14" -> fromList [LabIdent ".L_exit__from__IIF14"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit__from__IIF17"] <- fromList [LabIdent "_IEND16"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  jump _IEND16;
-  _IEND16:
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  jump _IEND19;
-  _IEND19:
-  %v_t_22 := 0;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  %v_t_22 := int %v_t_25;
-  call int ~cl_TopLevel.printInt (int %v_t_22);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_22);
-  %v_t_29 := int %v_t_22 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  %v___temp_5 := int %v_t_31;
-  %v_return := int %v___temp_5;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-  _IIF17:
-  %v___temp_4 := 1;
-  %v_return := int %v___temp_4;
-  jump .L_exit;
-  _IIF14:
-  %v___temp_2 := int %v_t_7;
-  %v_return := int %v___temp_2;
-  jump .L_exit;
 ]
 
 
@@ -1822,60 +1132,14 @@ Code:
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  call int ~cl_TopLevel.printString (String & %v_t_6);
   endphi;
   return 0;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE18",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  endphi;
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  endphi;
-  endphi;
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  endphi;
-  endphi;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  call int ~cl_TopLevel.printInt (int %v_t_25);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_25);
-  %v_t_29 := int %v_t_25 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  swap int %v_return~2 %v_t_31;
-  jump .L_exit;
-.L_exit:
-  endphi;
-  return int %v_return~2;
-  _IIF17:
-  endphi;
-  %v_return~2 := 1;
-  jump .L_exit;
-  _IIF14:
-  endphi;
-  swap int %v_return~2 %v_t_7;
-  jump .L_exit;
 ]
 
 
@@ -1894,72 +1158,14 @@ Code:
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_4 := call int ~cl_TopLevel.ifac2f (1, 10);
-  call int ~cl_TopLevel.printInt (int %v_t_4);
+  %v_t_1 := newstr "4";
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  call int ~cl_TopLevel.printString (String & %v_t_1);
+  %v_t_6 := newstr "6";
+  call int ~cl_TopLevel.printString (String & %v_t_6);
+  call int ~cl_TopLevel.printString (String & %v_t_6);
   endphi;
   return 0;
-]
-
-CFG for ~cl_TopLevel.ifac2f:
-[".L_entry",".L_exit","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE18",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-Liveness at start of .L_entry: in = [("%a_t_8",(3,Ref () (Int ()))),("%a_t_7",(2,Ref () (Int ())))], out = [("%a_t_8",(2,Ref () (Int ()))),("%a_t_7",(1,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_8",(5,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_7",(4,Int ()))], out = [("%v_t_8",(4,Int ())),("%v_t_7",(3,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
-Liveness at start of .L_exit: in = [("%v_return~2",(2,Int ()))], out = [("%v_return~2",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
-Liveness at start of _IELSE15: in = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at end of _IELSE15: in = [("%v_t_8",(5,Int ())),("%v___temp_3",(0,Bool ())),("%v_t_7",(5,Int ()))], out = [("%v_t_8",(4,Int ())),("%v_t_7",(4,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
-Liveness at start of _IELSE18: in = [("%v_t_8",(3,Int ())),("%v_t_7",(3,Int ()))], out = [("%v_t_8",(2,Int ())),("%v_t_7",(2,Int ()))], use = [], kill = []
-Liveness at end of _IELSE18: in = [("%v_return~2",(4,Int ()))], out = [("%v_return~2",(3,Int ()))], use = [], kill = []
-Liveness at start of _IIF14: in = [("%v_t_7",(2,Int ()))], out = [("%v_t_7",(1,Int ()))], use = [], kill = []
-Liveness at end of _IIF14: in = [("%v_return~2",(4,Int ()))], out = [("%v_return~2",(3,Int ()))], use = [], kill = []
-Liveness at start of _IIF17: in = [], out = [], use = [], kill = []
-Liveness at end of _IIF17: in = [("%v_return~2",(4,Int ()))], out = [("%v_return~2",(3,Int ()))], use = [], kill = []
-Code: 
-.method int ~cl_TopLevel.ifac2f (int %a_t_7, int %a_t_8): [
-.L_entry:
-  endphi;
-  %v_t_7 := load int & param 0 %a_t_7;
-  %v_t_8 := load int & param 1 %a_t_8;
-  %v_t_10 := newstr "CALL";
-  call int ~cl_TopLevel.printString (String & %v_t_10);
-  call int ~cl_TopLevel.printInt (int %v_t_7);
-  call int ~cl_TopLevel.printInt (int %v_t_8);
-  %v___temp_1 := int %v_t_7 == int %v_t_8;
-  jump if boolean %v___temp_1 then _IIF14 else _IELSE15;
-  _IELSE15:
-  endphi;
-  endphi;
-  %v___temp_3 := int %v_t_7 > int %v_t_8;
-  jump if boolean %v___temp_3 then _IIF17 else _IELSE18;
-  _IELSE18:
-  endphi;
-  endphi;
-  %v_t_23 := int %v_t_7 + int %v_t_8;
-  %v_t_25 := int %v_t_23 / 2;
-  call int ~cl_TopLevel.printInt (int %v_t_25);
-  %v_t_27 := call int ~cl_TopLevel.ifac2f (int %v_t_7, int %v_t_25);
-  %v_t_29 := int %v_t_25 + 1;
-  %v_t_30 := call int ~cl_TopLevel.ifac2f (int %v_t_29, int %v_t_8);
-  %v_t_31 := int %v_t_27 * int %v_t_30;
-  swap int %v_return~2 %v_t_31;
-  jump .L_exit;
-.L_exit:
-  endphi;
-  return int %v_return~2;
-  _IIF17:
-  endphi;
-  %v_return~2 := 1;
-  jump .L_exit;
-  _IIF14:
-  endphi;
-  swap int %v_return~2 %v_t_7;
-  jump .L_exit;
 ]
 
 
@@ -1968,21 +1174,13 @@ Code:
 
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] COMPL_ DONE./play.lat
 
-CompiledProg ./play.lat:1:1 (Meta ./play.lat:1:1 [ClDef inside standard library (SymIdent "Array") [SymIdent "Array",SymIdent "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "Object"))) (SymIdent "elements"),FldDef inside standard library (Int inside standard library) (SymIdent "length"),FldDef inside standard library (Int inside standard library) (SymIdent "elementSize")] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Array") (SymIdent "toString"))],ClDef inside standard library (SymIdent "Object") [SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "toString"))],ClDef inside standard library (SymIdent "String") [SymIdent "String",SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "charAt")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "concat")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "startsWith")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "endsWith")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getBytes")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String")),Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "indexOf")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "length")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Int inside standard library,Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "substring")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "toString")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getHashCode"))],ClDef ./play.lat:1:1 (SymIdent "~cl_TopLevel") [] [] [MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))) []) (QIdent ./play.lat:1:1 (SymIdent "Array") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "substring")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "length")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "indexOf")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getBytes")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "endsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "startsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "concat")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "charAt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printByte")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBoolean")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBinArray")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "byteToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "boolToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "intToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "print")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "error")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "__cast")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")),MthdDef ./play.lat:29:1 (FType ./play.lat:29:1 (Int ./play.lat:29:1) [Int ./play.lat:29:12,Int ./play.lat:29:19]) (QIdent ./play.lat:29:5 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f"))]]) [([".L_entry"]
+CompiledProg ./play.lat:1:1 (Meta ./play.lat:1:1 [ClDef inside standard library (SymIdent "Array") [SymIdent "Array",SymIdent "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "Object"))) (SymIdent "elements"),FldDef inside standard library (Int inside standard library) (SymIdent "length"),FldDef inside standard library (Int inside standard library) (SymIdent "elementSize")] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Array") (SymIdent "toString"))],ClDef inside standard library (SymIdent "Object") [SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "toString"))],ClDef inside standard library (SymIdent "String") [SymIdent "String",SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "charAt")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "concat")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "startsWith")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "endsWith")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getBytes")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String")),Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "indexOf")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "length")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Int inside standard library,Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "substring")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "toString")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getHashCode"))],ClDef ./play.lat:1:1 (SymIdent "~cl_TopLevel") [] [] [MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))) []) (QIdent ./play.lat:1:1 (SymIdent "Array") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "substring")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "length")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "indexOf")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getBytes")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "endsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "startsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "concat")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "charAt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printByte")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBoolean")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBinArray")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "byteToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "boolToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "intToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "print")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "error")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "__cast")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main"))]]) [([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:1:1,ICall ./play.lat:2:18 (ValIdent "%v_t_4") (Call ./play.lat:2:18 (Int ./play.lat:29:1) (QIdent ./play.lat:2:18 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VInt ./play.lat:2:18 1,VInt ./play.lat:2:18 10] []),IVCall ./play.lat:2:9 (Call ./play.lat:2:9 (Int inside standard library) (QIdent ./play.lat:2:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:2:9 (Int inside standard library) (ValIdent "%v_t_4")] []),IEndPhi ./play.lat:1:1,IRet ./play.lat:1:1 (VInt ./play.lat:1:1 0)],RegAlloc {regAlloc = fromList [(ValIdent "%v_t_4",RAX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RSI",RSI),(ValIdent "~arg_2_RDI",RDI)], numLocals = 0}),([".L_entry",".L_exit","_IELSE15","_IELSE18","_IIF14","_IIF17"]
-".L_entry" -> fromList [LabIdent "_IELSE15",LabIdent "_IIF14"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE18",LabIdent "_IIF14",LabIdent "_IIF17"]
-"_IELSE15" -> fromList [LabIdent "_IELSE18",LabIdent "_IIF17"] <- fromList [LabIdent ".L_entry"]
-"_IELSE18" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-"_IIF14" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
-"_IIF17" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE15"]
-,Mthd ./play.lat:29:1 (Int ./play.lat:29:1) (QIdent ./play.lat:29:5 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [Param ./play.lat:29:1 (Int ./play.lat:29:12) (ValIdent "%a_t_7"),Param ./play.lat:29:1 (Int ./play.lat:29:19) (ValIdent "%a_t_8")] [ILabel ./play.lat:29:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:29:1,ILoad ./play.lat:29:1 (ValIdent "%v_t_7") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:12)) 0 (ValIdent "%a_t_7")),ILoad ./play.lat:29:1 (ValIdent "%v_t_8") (PParam ./play.lat:29:1 (Ref ./play.lat:29:1 (Int ./play.lat:29:19)) 1 (ValIdent "%a_t_8")),INewStr ./play.lat:30:15 (ValIdent "%v_t_10") "CALL",IVCall ./play.lat:30:3 (Call ./play.lat:30:3 (Int inside standard library) (QIdent ./play.lat:30:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:30:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_10")] []),IVCall ./play.lat:31:3 (Call ./play.lat:31:3 (Int inside standard library) (QIdent ./play.lat:31:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:31:3 (Int inside standard library) (ValIdent "%v_t_7")] []),IVCall ./play.lat:32:3 (Call ./play.lat:32:3 (Int inside standard library) (QIdent ./play.lat:32:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:32:3 (Int inside standard library) (ValIdent "%v_t_8")] []),IOp ./play.lat:33:13 (ValIdent "%v___temp_1") (VVal ./play.lat:33:13 (Int ./play.lat:29:12) (ValIdent "%v_t_7")) (OpEQU ./play.lat:33:15) (VVal ./play.lat:33:13 (Int ./play.lat:29:19) (ValIdent "%v_t_8")),ICondJmp ./play.lat:33:13 (VVal ./play.lat:33:13 (Bool ./play.lat:33:13) (ValIdent "%v___temp_1")) (LabIdent "_IIF14") (LabIdent "_IELSE15"),ILabel ./play.lat:33:9 (LabIdent "_IELSE15"),IEndPhi ./play.lat:33:9,IEndPhi ./play.lat:33:9,IOp ./play.lat:35:13 (ValIdent "%v___temp_3") (VVal ./play.lat:35:13 (Int ./play.lat:35:13) (ValIdent "%v_t_7")) (OpGTH ./play.lat:35:15) (VVal ./play.lat:35:13 (Int ./play.lat:35:13) (ValIdent "%v_t_8")),ICondJmp ./play.lat:35:13 (VVal ./play.lat:35:13 (Bool ./play.lat:35:13) (ValIdent "%v___temp_3")) (LabIdent "_IIF17") (LabIdent "_IELSE18"),ILabel ./play.lat:35:9 (LabIdent "_IELSE18"),IEndPhi ./play.lat:35:9,IEndPhi ./play.lat:35:9,IOp ./play.lat:38:16 (ValIdent "%v_t_23") (VVal ./play.lat:38:16 (Int ./play.lat:38:16) (ValIdent "%v_t_7")) (OpAdd ./play.lat:38:16) (VVal ./play.lat:38:16 (Int ./play.lat:38:16) (ValIdent "%v_t_8")),IOp ./play.lat:38:21 (ValIdent "%v_t_25") (VVal ./play.lat:38:21 (Int ./play.lat:29:12) (ValIdent "%v_t_23")) (OpDiv ./play.lat:38:21) (VInt ./play.lat:38:21 2),IVCall ./play.lat:39:9 (Call ./play.lat:39:9 (Int inside standard library) (QIdent ./play.lat:39:9 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:39:9 (Int ./play.lat:39:9) (ValIdent "%v_t_25")] []),ICall ./play.lat:40:16 (ValIdent "%v_t_27") (Call ./play.lat:40:16 (Int ./play.lat:29:1) (QIdent ./play.lat:40:16 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:16 (Int ./play.lat:40:16) (ValIdent "%v_t_7"),VVal ./play.lat:40:16 (Int ./play.lat:40:16) (ValIdent "%v_t_25")] []),IOp ./play.lat:40:38 (ValIdent "%v_t_29") (VVal ./play.lat:40:38 (Int ./play.lat:40:38) (ValIdent "%v_t_25")) (OpAdd ./play.lat:40:38) (VInt ./play.lat:40:38 1),ICall ./play.lat:40:30 (ValIdent "%v_t_30") (Call ./play.lat:40:30 (Int ./play.lat:29:1) (QIdent ./play.lat:40:30 (SymIdent "~cl_TopLevel") (SymIdent "ifac2f")) [VVal ./play.lat:40:30 (Int ./play.lat:29:12) (ValIdent "%v_t_29"),VVal ./play.lat:40:30 (Int ./play.lat:40:30) (ValIdent "%v_t_8")] []),IOp ./play.lat:40:28 (ValIdent "%v_t_31") (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_27")) (OpMul ./play.lat:40:28) (VVal ./play.lat:40:28 (Int ./play.lat:29:1) (ValIdent "%v_t_30")),ISwap ./play.lat:29:1 (Int ./play.lat:29:1) (ValIdent "%v_return~2") (ValIdent "%v_t_31"),IJmp ./play.lat:29:1 (LabIdent ".L_exit"),ILabel ./play.lat:29:1 (LabIdent ".L_exit"),IEndPhi ./play.lat:29:1,IRet ./play.lat:29:1 (VVal ./play.lat:29:1 (Int ./play.lat:29:1) (ValIdent "%v_return~2")),ILabel ./play.lat:35:9 (LabIdent "_IIF17"),IEndPhi ./play.lat:35:9,ISet ./play.lat:29:1 (ValIdent "%v_return~2") (VInt ./play.lat:29:1 1),IJmp ./play.lat:29:1 (LabIdent ".L_exit"),ILabel ./play.lat:33:9 (LabIdent "_IIF14"),IEndPhi ./play.lat:33:9,ISwap ./play.lat:29:1 (Int ./play.lat:29:1) (ValIdent "%v_return~2") (ValIdent "%v_t_7"),IJmp ./play.lat:29:1 (LabIdent ".L_exit")],RegAlloc {regAlloc = fromList [(ValIdent "%a_t_7",RDI),(ValIdent "%a_t_8",RSI),(ValIdent "%v___temp_1",RAX),(ValIdent "%v___temp_3",RAX),(ValIdent "%v_return~2",RAX),(ValIdent "%v_t_10",RAX),(ValIdent "%v_t_23",RAX),(ValIdent "%v_t_25",R14),(ValIdent "%v_t_27",RBX),(ValIdent "%v_t_29",RAX),(ValIdent "%v_t_30",RAX),(ValIdent "%v_t_31",RBX),(ValIdent "%v_t_7",/usr/bin/ld: /tmp/ccjYdOtB.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:1:1,INewStr ./play.lat:3:29 (ValIdent "%v_t_1") "4",IVCall ./play.lat:3:17 (Call/usr/bin/ld: /tmp/ccoPtTJe.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
 /usr/bin/ld: warning: creating DT_TEXTREL in a PIE
-R13),(ValIdent "%v_t_8",R12),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RDI",RDI),(ValIdent "~arg_2_RDI",RDI),(ValIdent "~arg_3_RDI",RDI),(ValIdent "~arg_4_RDI",RDI),(ValIdent "~arg_5_RSI",RSI),(ValIdent "~arg_6_RDI",RDI),(ValIdent "~arg_7_RSI",RSI)], numLocals = 0})]
+ ./play.lat:3:17 (Int inside standard library) (QIdent ./play.lat:3:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:3:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_1")] []),IVCall ./play.lat:5:17 (Call ./play.lat:5:17 (Int inside standard library) (QIdent ./play.lat:5:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:5:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_1")] []),INewStr ./play.lat:11:29 (ValIdent "%v_t_6") "6",IVCall ./play.lat:11:17 (Call ./play.lat:11:17 (Int inside standard library) (QIdent ./play.lat:11:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:11:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_6")] []),IVCall ./play.lat:13:17 (Call ./play.lat:13:17 (Int inside standard library) (QIdent ./play.lat:13:17 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:17 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_6")] []),IEndPhi ./play.lat:1:1,IRet ./play.lat:1:1 (VInt ./play.lat:1:1 0)],RegAlloc {regAlloc = fromList [(ValIdent "%v_t_1",RBX),(ValIdent "%v_t_6",RBX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RDI",RDI),(ValIdent "~arg_2_RDI",RDI),(ValIdent "~arg_3_RDI",RDI)], numLocals = 0})]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running correct compiler backend: X64
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 40
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 8
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 24
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Created file: ./play.s
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Calling backend compile step: X64
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Run GCC for X64 backend to generate './play' executable from object file './play.o'

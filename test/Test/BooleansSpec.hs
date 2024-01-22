@@ -150,10 +150,10 @@ spec = do
 
     it "Simple boolean lazy evaluation with side-effects" $ \h -> expectProgramSuccess [r|
         int main() {
-            print() && false;
+            printit() && false;
             return 0;
         }
-        boolean print() {
+        boolean printit() {
             printString("ahoj");
             return true;
         }

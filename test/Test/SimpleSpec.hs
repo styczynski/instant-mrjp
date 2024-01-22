@@ -201,12 +201,12 @@ spec = do
         pi1
     |]
 
-    it "Airthmetic negation" $ \h -> expectProgramSuccess [r|
+    it "Arithmetic negation of various expressions" $ \h -> expectProgramSuccess [r|
         int main() {
-            printInt(- -1);
+            printInt(-(-1));
             int i = 1;
             printInt(-i);
-            printInt(2 - -i);
+            printInt(2 - (-i));
             return 0;
         }
     |] [r|
@@ -322,7 +322,7 @@ spec = do
 
     it "Inline string addition" $ \h -> expectProgramSuccess [r|
         int main() {
-            string i;
+            string i = "";
             i + i;
             return 0;
         }

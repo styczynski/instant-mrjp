@@ -29,7 +29,10 @@
 
 .section .rodata
 __const_1 :
-.string "CALL"
+.string "4"
+
+__const_2 :
+.string "6"
 
 .global _class_Array
 _class_Array :
@@ -84,110 +87,48 @@ _class_String_methods :
 .global main
 
 .section .text
-__cl_TopLevel.ifac2f :           #-- ./play.lat:29:1 --#
-pushq %RBX                       #-- ./play.lat:29:1 --#
-pushq %R12                       #-- ./play.lat:29:1 --#
-pushq %R13                       #-- ./play.lat:29:1 --#
-pushq %R14                       #-- ./play.lat:29:1 --#
-pushq %RBP                       #-- ./play.lat:29:1 --#
-movq %RSP, %RBP                  #-- ./play.lat:29:1 --#
-subq $0, %RSP                    #-- ./play.lat:29:1 --#
-__cl_TopLevel.ifac2f.L_entry :   #-- ./play.lat:29:1 --#
-movl %EDI, %R13D                 #-- load %v_t_7 at ./play.lat:29:1 --#
-movl %ESI, %R12D                 #-- load %v_t_8 at ./play.lat:29:1 --#
-leaq __const_1 (%RIP), %RAX      #-- ./play.lat:30:15 --#
-movq %RAX, %RDI                  #-- passing arg at ./play.lat:30:15 --#
-subq $0, %RSP                    #-- ./play.lat:30:15 --#
-call __createString              #-- ./play.lat:30:15 --#
-addq $0, %RSP                    #-- ./play.lat:30:15 --#
-movq %RAX, %RAX                  #-- ./play.lat:30:15 --#
-movq %RAX, %RDI                  #-- passing arg at ./play.lat:30:3 --#
-subq $0, %RSP                    #-- ./play.lat:30:3 --#
-call printString                 #-- ./play.lat:30:3 --#
-addq $0, %RSP                    #-- ./play.lat:30:3 --#
-movl %R13D, %EDI                 #-- passing arg at ./play.lat:31:3 --#
-subq $0, %RSP                    #-- ./play.lat:31:3 --#
-call printInt                    #-- ./play.lat:31:3 --#
-addq $0, %RSP                    #-- ./play.lat:31:3 --#
-movl %R12D, %EDI                 #-- passing arg at ./play.lat:32:3 --#
-subq $0, %RSP                    #-- ./play.lat:32:3 --#
-call printInt                    #-- ./play.lat:32:3 --#
-addq $0, %RSP                    #-- ./play.lat:32:3 --#
-cmpl %R12D, %R13D                #-- ./play.lat:33:13 --#
-sete %AL                         #-- ./play.lat:33:15 --#
-addq $0, %RSP                    #-- ./play.lat:33:13 --#
-testb %AL, %AL                   #-- ./play.lat:33:13 --#
-jz __cl_TopLevel.ifac2f_IELSE15  #-- ./play.lat:33:13 --#
-jmp __cl_TopLevel.ifac2f_IIF14   #-- ./play.lat:33:13 --#
-__cl_TopLevel.ifac2f_IELSE15 :   #-- ./play.lat:33:9 --#
-cmpl %R12D, %R13D                #-- ./play.lat:35:13 --#
-setg %AL                         #-- ./play.lat:35:15 --#
-addq $0, %RSP                    #-- ./play.lat:35:13 --#
-testb %AL, %AL                   #-- ./play.lat:35:13 --#
-jz __cl_TopLevel.ifac2f_IELSE18  #-- ./play.lat:35:13 --#
-jmp __cl_TopLevel.ifac2f_IIF17   #-- ./play.lat:35:13 --#
-__cl_TopLevel.ifac2f_IELSE18 :   #-- ./play.lat:35:9 --#
-leal 0 (%R13, %R12, 1), %EAX     #-- addition %v_t_23 at ./play.lat:38:16 --#
-movl %EAX, %R14D                 #-- ./play.lat:38:21 --#
-sarl $1, %R14D                   #-- divide by 2 at ./play.lat:38:21 --#
-movl %R14D, %EDI                 #-- passing arg at ./play.lat:39:9 --#
-subq $0, %RSP                    #-- ./play.lat:39:9 --#
-call printInt                    #-- ./play.lat:39:9 --#
-addq $0, %RSP                    #-- ./play.lat:39:9 --#
-movl %R13D, %EDI                 #-- passing arg at ./play.lat:40:16 --#
-movl %R14D, %ESI                 #-- passing arg at ./play.lat:40:16 --#
-subq $0, %RSP                    #-- ./play.lat:40:16 --#
-call __cl_TopLevel.ifac2f        #-- ./play.lat:40:16 --#
-addq $0, %RSP                    #-- ./play.lat:40:16 --#
-movl %EAX, %EBX                  #-- ./play.lat:40:16 --#
-leal 1 (%R14), %EAX              #--  addition %v_t_29 at ./play.lat:40:38 --#
-movl %EAX, %EDI                  #-- passing arg at ./play.lat:40:30 --#
-movl %R12D, %ESI                 #-- passing arg at ./play.lat:40:30 --#
-subq $0, %RSP                    #-- ./play.lat:40:30 --#
-call __cl_TopLevel.ifac2f        #-- ./play.lat:40:30 --#
-addq $0, %RSP                    #-- ./play.lat:40:30 --#
-movl %EAX, %EAX                  #-- ./play.lat:40:30 --#
-imull %EAX, %EBX                 #-- ./play.lat:40:28 --#
-xchgl %EAX, %EBX                 #-- ./play.lat:29:1 --#
-addq $0, %RSP                    #-- ./play.lat:29:1 --#
-jmp __cl_TopLevel.ifac2f.L_exit  #-- ./play.lat:29:1 --#
-__cl_TopLevel.ifac2f_IIF14 :     #-- ./play.lat:33:9 --#
-xchgl %EAX, %R13D                #-- ./play.lat:29:1 --#
-addq $0, %RSP                    #-- ./play.lat:29:1 --#
-jmp __cl_TopLevel.ifac2f.L_exit  #-- ./play.lat:29:1 --#
-__cl_TopLevel.ifac2f_IIF17 :     #-- ./play.lat:35:9 --#
-movl $1, %EAX                    #-- setting %v_return~2 at ./play.lat:29:1 --#
-addq $0, %RSP                    #-- ./play.lat:29:1 --#
-jmp __cl_TopLevel.ifac2f.L_exit  #-- ./play.lat:29:1 --#
-__cl_TopLevel.ifac2f.L_exit :    #-- ./play.lat:29:1 --#
-movl %EAX, %EAX                  #-- move return value at ./play.lat:29:1 --#
-addq $0, %RSP                    #-- ./play.lat:29:1 --#
-leave                            #-- ./play.lat:29:1 --#
-pop %R14                         #-- ./play.lat:29:1 --#
-pop %R13                         #-- ./play.lat:29:1 --#
-pop %R12                         #-- ./play.lat:29:1 --#
-pop %RBX                         #-- ./play.lat:29:1 --#
-ret                              #-- ./play.lat:29:1 --#
-main :                           #-- ./play.lat:1:1 --#
-__cl_TopLevel.main :             #-- ./play.lat:1:1 --#
-pushq %RBP                       #-- ./play.lat:1:1 --#
-movq %RSP, %RBP                  #-- ./play.lat:1:1 --#
-subq $0, %RSP                    #-- ./play.lat:1:1 --#
-__cl_TopLevel.main.L_entry :     #-- ./play.lat:1:1 --#
-movl $1, %EDI                    #-- passing arg at ./play.lat:2:18 --#
-movl $10, %ESI                   #-- passing arg at ./play.lat:2:18 --#
-subq $0, %RSP                    #-- ./play.lat:2:18 --#
-call __cl_TopLevel.ifac2f        #-- ./play.lat:2:18 --#
-addq $0, %RSP                    #-- ./play.lat:2:18 --#
-movl %EAX, %EAX                  #-- ./play.lat:2:18 --#
-movl %EAX, %EDI                  #-- passing arg at ./play.lat:2:9 --#
-subq $0, %RSP                    #-- ./play.lat:2:9 --#
-call printInt                    #-- ./play.lat:2:9 --#
-addq $0, %RSP                    #-- ./play.lat:2:9 --#
-movl $0, %EAX                    #-- move return value at ./play.lat:1:1 --#
-addq $0, %RSP                    #-- ./play.lat:1:1 --#
-leave                            #-- ./play.lat:1:1 --#
-ret                              #-- ./play.lat:1:1 --#
-__errorNull :                    #-- runtime error on null dereference at ./play.lat:1:1 --#
-andq $-16, %RSP                  #-- 16 bytes allign at ./play.lat:1:1 --#
-call __errorNull                 #-- ./play.lat:1:1 --#
+main :                        #-- ./play.lat:1:1 --#
+__cl_TopLevel.main :          #-- ./play.lat:1:1 --#
+pushq %RBX                    #-- ./play.lat:1:1 --#
+subq $8, %RSP                 #-- ./play.lat:1:1 --#
+pushq %RBP                    #-- ./play.lat:1:1 --#
+movq %RSP, %RBP               #-- ./play.lat:1:1 --#
+subq $0, %RSP                 #-- ./play.lat:1:1 --#
+__cl_TopLevel.main.L_entry :  #-- ./play.lat:1:1 --#
+leaq __const_1 (%RIP), %RBX   #-- ./play.lat:3:29 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:3:29 --#
+subq $0, %RSP                 #-- ./play.lat:3:29 --#
+call __createString           #-- ./play.lat:3:29 --#
+addq $0, %RSP                 #-- ./play.lat:3:29 --#
+movq %RAX, %RBX               #-- ./play.lat:3:29 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:3:17 --#
+subq $0, %RSP                 #-- ./play.lat:3:17 --#
+call printString              #-- ./play.lat:3:17 --#
+addq $0, %RSP                 #-- ./play.lat:3:17 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:5:17 --#
+subq $0, %RSP                 #-- ./play.lat:5:17 --#
+call printString              #-- ./play.lat:5:17 --#
+addq $0, %RSP                 #-- ./play.lat:5:17 --#
+leaq __const_2 (%RIP), %RBX   #-- ./play.lat:11:29 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:11:29 --#
+subq $0, %RSP                 #-- ./play.lat:11:29 --#
+call __createString           #-- ./play.lat:11:29 --#
+addq $0, %RSP                 #-- ./play.lat:11:29 --#
+movq %RAX, %RBX               #-- ./play.lat:11:29 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:11:17 --#
+subq $0, %RSP                 #-- ./play.lat:11:17 --#
+call printString              #-- ./play.lat:11:17 --#
+addq $0, %RSP                 #-- ./play.lat:11:17 --#
+movq %RBX, %RDI               #-- passing arg at ./play.lat:13:17 --#
+subq $0, %RSP                 #-- ./play.lat:13:17 --#
+call printString              #-- ./play.lat:13:17 --#
+addq $0, %RSP                 #-- ./play.lat:13:17 --#
+movl $0, %EAX                 #-- move return value at ./play.lat:1:1 --#
+addq $0, %RSP                 #-- ./play.lat:1:1 --#
+leave                         #-- ./play.lat:1:1 --#
+addq $8, %RSP                 #-- ./play.lat:1:1 --#
+pop %RBX                      #-- ./play.lat:1:1 --#
+ret                           #-- ./play.lat:1:1 --#
+__errorNull :                 #-- runtime error on null dereference at ./play.lat:1:1 --#
+andq $-16, %RSP               #-- 16 bytes allign at ./play.lat:1:1 --#
+call __errorNull              #-- ./play.lat:1:1 --#
