@@ -32,7 +32,11 @@ checkOK _ = False
 expectParsingError code = (`shouldSatisfy` checkParseError) =<< (\uid -> Compiler.compileLatte (Compiler.defaultConfigFor BackendX64.backend) (Compiler.inputDirect uid code)) =<< _inputUID
 expectCheckerError fn code = (`shouldSatisfy` (checkOutputError fn)) =<< (\uid -> Compiler.compileLatte (Compiler.defaultConfigFor BackendX64.backend) (Compiler.inputDirect uid code)) =<< _inputUID
 
-expectProgramSuccess code expectedOut = do
+expectProgramSuccess :: String -> String -> Expectation
+expectProgramSuccess code expectedOut = expectProgramSuccessIn [] code expectedOut
+
+expectProgramSuccessIn :: [String] -> String -> String -> Expectation
+expectProgramSuccessIn givenInput code expectedOut = do
   uid <- _inputUID
   let config = (Compiler.defaultConfigFor BackendX64.backend) & Compiler.outputDirectory .~ (Just "./_test_temp_")
   result <- Compiler.compileLatte config (Compiler.inputDirect uid code)
@@ -46,7 +50,9 @@ expectProgramSuccess code expectedOut = do
     False -> do
       _testDebug $ "executeCompiledProgram: Compiled program does not exist " ++ (show executablePath)
       exists `shouldBe` True
-  (_, Just out, Just outErr, phandle) <- createProcess_ "executeCompiledProgram" (proc executablePath []){ std_err = CreatePipe, std_out = CreatePipe }
+  (Just inp, Just out, Just outErr, phandle) <- createProcess_ "executeCompiledProgram" (proc executablePath []){ std_err = CreatePipe, std_out = CreatePipe, std_in = CreatePipe }
+  mapM_ (hPutStrLn inp) givenInput
+  hClose inp
   ph <- waitForProcess phandle
   let normalizeOut = filter (not . T.isPrefixOf (T.pack "~#LATCINSTR#~")) . filter (not . T.null) . map T.stripStart . T.lines . T.pack
   outErrStr <- hGetContents outErr

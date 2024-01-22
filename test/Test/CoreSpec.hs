@@ -362,7 +362,7 @@ spec = do
             r = r * n;
             n = n - 1;
           }
-          return 3;
+          return r;
         }
     |] [r|
         120
@@ -426,7 +426,7 @@ spec = do
         foo
     |]
 
-    it "core018" $ \h -> expectProgramSuccess [r|
+    it "core018" $ \h -> expectProgramSuccessIn ["-37", "foo", "bar"] [r|
         /* test input */
         int main() {
           int x = readInt();

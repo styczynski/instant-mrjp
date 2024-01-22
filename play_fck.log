@@ -1,0 +1,2884 @@
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Parsing: ./play.lat
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Parsed: ./play.lat
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Transformed: ./play.lat
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Construct inheritance graph
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int i)
+{
+	printInt(i);
+	return (i > 0);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("&&");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("&&");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printBool((test(-1) && test(0)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printBool((test(-1) && test(0)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printBool((test(-2) && test(1)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printBool((test(-2) && test(1)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printBool((test(3) && test(-5)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printBool((test(3) && test(-5)));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return 0;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (int)(0);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return (int)(0);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> if (!b)
+	{
+		printString("false");
+	}
+else
+	{
+		printString("true");
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	printString("false");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+printString("false");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("false");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("false");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+printString("false");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	printString("false");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	printString("true");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+printString("true");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printString("true");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printString("true");
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+printString("true");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	printString("true");
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- if (!b)
+	{
+		printString("false");
+	}
+else
+	{
+		printString("true");
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> bool test(int i)
+{
+	printInt(i);
+	return (i > 0);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(i);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(i);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return (i > 0);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (i > (int)(0));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- bool test(int i)
+{
+	printInt(i);
+	return (i > (int)(0));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return (int)(0);
+}
+
+void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int i)
+{
+	printInt(i);
+	return (i > (int)(0));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Typecheck done./play.lat
+
+int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return (int)(0);
+}
+
+void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int i)
+{
+	printInt(i);
+	return (i > (int)(0));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return (int)(0);
+}
+
+void printBool(bool b)
+{
+	if (!b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int i)
+{
+	printInt(i);
+	return (i > (int)(0));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000049#b)
+{
+	if (!_var_3000049#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000062#i)
+{
+	printInt(_var_3000062#i);
+	if ((_var_3000062#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 1 (took 0 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000049#b)
+{
+	if (!_var_3000049#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000062#i)
+{
+	printInt(_var_3000062#i);
+	if ((_var_3000062#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000053#b)
+{
+	if (!_var_3000053#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000066#i)
+{
+	printInt(_var_3000066#i);
+	if ((_var_3000066#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 0 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000053#b)
+{
+	if (!_var_3000053#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000066#i)
+{
+	printInt(_var_3000066#i);
+	if ((_var_3000066#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000053#b)
+{
+	if (!_var_3000053#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000066#i)
+{
+	printInt(_var_3000066#i);
+	if ((_var_3000066#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 3 (took 1 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimization done./play.lat
+
+int main()
+{
+	printString("&&");
+	printBool((test(-1) && test(0)));
+	printBool((test(-2) && test(1)));
+	printBool((test(3) && test(-5)));
+	return 0;
+}
+
+void printBool(bool _var_3000053#b)
+{
+	if (!_var_3000053#b)
+		{
+			printString("false");
+		}
+	else
+		{
+			printString("true");
+		}
+	return;
+}
+
+bool test(int _var_3000066#i)
+{
+	printInt(_var_3000066#i);
+	if ((_var_3000066#i > 0))
+		return true;
+	else
+		return false;
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [byte]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:3:13 Explicit (And ./play.lat:3:13) (App ./play.lat:3:13 (Var ./play.lat:3:13 (Ident ./play.lat:3:13 "test")) [Lit ./play.lat:3:18 (Byte ./play.lat:3:18 (-1))]) (App ./play.lat:3:25 (Var ./play.lat:3:25 (Ident ./play.lat:3:25 "test")) [Lit ./play.lat:3:30 (Byte ./play.lat:3:30 0)])
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [byte]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:4:13 Explicit (And ./play.lat:4:13) (App ./play.lat:4:13 (Var ./play.lat:4:13 (Ident ./play.lat:4:13 "test")) [Lit ./play.lat:4:18 (Byte ./play.lat:4:18 (-2))]) (App ./play.lat:4:25 (Var ./play.lat:4:25 (Ident ./play.lat:4:25 "test")) [Lit ./play.lat:4:30 (Byte ./play.lat:4:30 1)])
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [byte]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:5:13 Explicit (And ./play.lat:5:13) (App ./play.lat:5:13 (Var ./play.lat:5:13 (Ident ./play.lat:5:13 "test")) [Lit ./play.lat:5:18 (Byte ./play.lat:5:18 3)]) (App ./play.lat:5:24 (Var ./play.lat:5:24 (Ident ./play.lat:5:24 "test")) [Lit ./play.lat:5:29 (Byte ./play.lat:5:29 (-5))])
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: UnaryOp ./play.lat:12:7 (Not ./play.lat:12:7) (Var ./play.lat:12:8 (Ident ./play.lat:12:8 "_var_3000053#b"))
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: BinaryOp ./play.lat:22:10 Explicit (Gt ./play.lat:22:12) (Var ./play.lat:22:10 (Ident ./play.lat:22:10 "_var_3000066#i")) (Lit ./play.lat:22:14 (Int ./play.lat:22:14 0))
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DEBUG COLLECT_FUNCTIONS PROTOTYPES
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [int main()
+    obj<String> t_3 =     new string _S2
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    byte t_13 =     call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    byte t_22 =     call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    byte t_31 =     call<function> printBool(<byte>t_23)
+    int t_32 = <int>0
+    return <int>t_32
+,byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    byte t_39 =     call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    byte t_42 =     call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+,byte test(int t_43)
+    byte t_44 =     call<function> printInt(<int>t_43)
+    int t_48 = <int>0
+    jump _IIF45 if <int>t_43 > <int>t_48 or pass-through to _IELSE46
+  _IIF45:
+    byte t_49 = <byte>1
+    return <byte>t_49
+    jump _IEND47
+  _IELSE46:
+    byte t_50 = <byte>0
+    return <byte>t_50
+    jump _IEND47
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] END DEBUG
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Initial IR: 
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    byte t_13 =     call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    byte t_22 =     call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    byte t_31 =     call<function> printBool(<byte>t_23)
+    int t_32 = <int>0
+    return <int>t_32
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    byte t_39 =     call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    byte t_42 =     call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    byte t_44 =     call<function> printInt(<int>t_43)
+    int t_48 = <int>0
+    jump _IIF45 if <int>t_43 > <int>t_48 or pass-through to _IELSE46
+  _IIF45:
+    byte t_49 = <byte>1
+    return <byte>t_49
+    jump _IEND47
+  _IELSE46:
+    byte t_50 = <byte>0
+    return <byte>t_50
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 1 (took 0 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    byte t_4 =     call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    byte t_13 =     call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    byte t_22 =     call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    byte t_31 =     call<function> printBool(<byte>t_23)
+    int t_32 = <int>0
+    return <int>t_32
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    byte t_39 =     call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    byte t_42 =     call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    byte t_44 =     call<function> printInt(<int>t_43)
+    int t_48 = <int>0
+    jump _IIF45 if <int>t_43 > <int>t_48 or pass-through to _IELSE46
+  _IIF45:
+    byte t_49 = <byte>1
+    return <byte>t_49
+    jump _IEND47
+  _IELSE46:
+    byte t_50 = <byte>0
+    return <byte>t_50
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    discard<byte> call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    discard<byte> call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    discard<byte> call<function> printBool(<byte>t_23)
+    return <int>0
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    discard<byte> call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    discard<byte> call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    discard<byte> call<function> printInt(<int>t_43)
+    jump _IIF45 if <int>t_43 > <int>0 or pass-through to _IELSE46
+  _IIF45:
+    return <byte>1
+    jump _IEND47
+  _IELSE46:
+    return <byte>0
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 0 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    discard<byte> call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    discard<byte> call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    discard<byte> call<function> printBool(<byte>t_23)
+    return <int>0
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    discard<byte> call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    discard<byte> call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    discard<byte> call<function> printInt(<int>t_43)
+    jump _IIF45 if <int>t_43 > <int>0 or pass-through to _IELSE46
+  _IIF45:
+    return <byte>1
+    jump _IEND47
+  _IELSE46:
+    return <byte>0
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    discard<byte> call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    discard<byte> call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    discard<byte> call<function> printBool(<byte>t_23)
+    return <int>0
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    discard<byte> call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    discard<byte> call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    discard<byte> call<function> printInt(<int>t_43)
+    jump _IIF45 if <int>t_43 > <int>0 or pass-through to _IELSE46
+  _IIF45:
+    return <byte>1
+    jump _IEND47
+  _IELSE46:
+    return <byte>0
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Convert to FIR
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] AST to convert:
+struct Array extends [Array, Object]
+    field obj<Object> elements;
+    field int length;
+    field int elementSize;
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Array.toString ()
+
+struct Object extends [Object]
+    method byte Object.equals ( obj<Object>)
+    method int Object.getHashCode ()
+    method obj<String> Object.toString ()
+
+struct String extends [String, Object]
+    method int String.charAt ( int)
+    method byte String.equals ( obj<Object>)
+    method obj<String> String.concat ( obj<String>)
+    method byte String.startsWith ( obj<String>)
+    method byte String.endsWith ( obj<String>)
+    method array<byte> String.getBytes ()
+    method int String.indexOf ( int)
+    method int String.length ()
+    method obj<String> String.substring ( int)
+    method obj<String> String.toString ()
+    method int String.getHashCode ()
+
+int main()
+    obj<String> t_3 =     new string _S2
+    discard<byte> call<function> printString(<obj<String>>t_3)
+    byte t_5 = <byte>0
+    jump _CFALSE7 if <byte>t_10 == <byte>0 or pass-through to _CAND8
+  _CAND8:
+    jump _CFALSE7 if <byte>t_12 == <byte>0 or pass-through to _CTRUE6
+  _CTRUE6:
+    t_5 = <byte>1
+    jump _CFALSE7
+  _CFALSE7:
+    discard<byte> call<function> printBool(<byte>t_5)
+    byte t_14 = <byte>0
+    jump _CFALSE16 if <byte>t_19 == <byte>0 or pass-through to _CAND17
+  _CAND17:
+    jump _CFALSE16 if <byte>t_21 == <byte>0 or pass-through to _CTRUE15
+  _CTRUE15:
+    t_14 = <byte>1
+    jump _CFALSE16
+  _CFALSE16:
+    discard<byte> call<function> printBool(<byte>t_14)
+    byte t_23 = <byte>0
+    jump _CFALSE25 if <byte>t_28 == <byte>0 or pass-through to _CAND26
+  _CAND26:
+    jump _CFALSE25 if <byte>t_30 == <byte>0 or pass-through to _CTRUE24
+  _CTRUE24:
+    t_23 = <byte>1
+    jump _CFALSE25
+  _CFALSE25:
+    discard<byte> call<function> printBool(<byte>t_23)
+    return <int>0
+
+byte printBool(byte t_33)
+    jump _IIF34 if <byte>t_33 == <byte>0 or pass-through to _IELSE35
+  _IIF34:
+    obj<String> t_38 =     new string _S37
+    discard<byte> call<function> printString(<obj<String>>t_38)
+    jump _IEND36
+  _IELSE35:
+    obj<String> t_41 =     new string _S40
+    discard<byte> call<function> printString(<obj<String>>t_41)
+    jump _IEND36
+  _IEND36:
+    return
+
+byte test(int t_43)
+    discard<byte> call<function> printInt(<int>t_43)
+    jump _IIF45 if <int>t_43 > <int>0 or pass-through to _IELSE46
+  _IIF45:
+    return <byte>1
+    jump _IEND47
+  _IELSE46:
+    return <byte>0
+    jump _IEND47
+
+data string _S2 = "&&"
+data string _S37 = "false"
+data string _S40 = "true"
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Convert to FIR
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Linearizer terminated
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] IR conversion done./play.lat
+
+.metadata: [
+  .classes: [
+    Array  extends [SymIdent "Array", SymIdent "Object"] : [
+      .fields: [
+        Object & elements;
+        int length;
+        int elementSize;
+      ]
+      .methods: [
+        int (Object &)Object.equals;
+        int () Object.getHashCode;
+        String & () Array.toString;
+      ]
+    ]
+    Object  extends [SymIdent "Object"] : [
+      .fields: [
+        ]
+      .methods: [
+        int (Object &)Object.equals;
+        int () Object.getHashCode;
+        String & () Object.toString;
+      ]
+    ]
+    String  extends [SymIdent "String", SymIdent "Object"] : [
+      .fields: [
+        ]
+      .methods: [
+        int (int)String.charAt;
+        int (Object &)String.equals;
+        String & (String &)String.concat;
+        int (String &)String.startsWith;
+        int (String &)String.endsWith;
+        int [] & () String.getBytes;
+        int (int)String.indexOf;
+        int () String.length;
+        String & (int)String.substring;
+        String & () String.toString;
+        int () String.getHashCode;
+      ]
+    ]
+    ~cl_TopLevel  extends [] : [
+      .fields: [
+        ]
+      .methods: [
+        Array & () Array.toString;
+        Object & () Object.toString;
+        int () Object.getHashCode;
+        int (Object &)Object.equals;
+        int (Object &)String.equals;
+        int () String.getHashCode;
+        String & () String.toString;
+        String & () String.substring;
+        int () String.length;
+        int (String &, int)String.indexOf;
+        String & () String.getBytes;
+        int (String &)String.endsWith;
+        int (String &)String.startsWith;
+        String & (String &, String &)String.concat;
+        int (int)String.charAt;
+        int (String &)~cl_TopLevel.printString;
+        int (int)~cl_TopLevel.printInt;
+        int (int)~cl_TopLevel.printByte;
+        int (int)~cl_TopLevel.printBoolean;
+        int (Array &)~cl_TopLevel.printBinArray;
+        String & (int)~cl_TopLevel.byteToString;
+        String & (int)~cl_TopLevel.boolToString;
+        String & (int)~cl_TopLevel.intToString;
+        int (Object &)~cl_TopLevel.print;
+        int () ~cl_TopLevel.error;
+        int () ~cl_TopLevel.readInt;
+        String & () ~cl_TopLevel.readString;
+        Object & (Object &, Object &)~cl_TopLevel.__cast;
+        int () ~cl_TopLevel.main;
+        int (int)~cl_TopLevel.printBool;
+        int (int)~cl_TopLevel.test;
+      ]
+    ]
+  ]
+]
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+]
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+]
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+  jump _IEND47;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+  jump _IEND47;
+.L_exit:
+  return int %v_return;
+]
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE16__from__CTRUE15","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE25__from__CTRUE24","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from__CTRUE6","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CFALSE16__from__CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE16__from__CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CFALSE25__from__CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE25__from__CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from__CTRUE6",LabIdent "_CFALSE7__from_entry"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from__CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CTRUE6"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16__from__CTRUE15"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25__from__CTRUE24"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7__from__CTRUE6"] <- fromList [LabIdent "_CAND8"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _CFALSE25 == to => .L_exit
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE16__from__CTRUE15","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE25__from__CTRUE24","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from__CTRUE6","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CFALSE16__from__CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE16__from__CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CFALSE25__from__CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE25__from__CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from__CTRUE6",LabIdent "_CFALSE7__from_entry"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from__CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CTRUE6"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16__from__CTRUE15"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25__from__CTRUE24"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7__from__CTRUE6"] <- fromList [LabIdent "_CAND8"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _CTRUE15 == to => _CFALSE16__from__CTRUE15
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE25__from__CTRUE24","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from__CTRUE6","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CFALSE25__from__CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE25__from__CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from__CTRUE6",LabIdent "_CFALSE7__from_entry"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from__CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CTRUE6"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25__from__CTRUE24"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7__from__CTRUE6"] <- fromList [LabIdent "_CAND8"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _CTRUE24 == to => _CFALSE25__from__CTRUE24
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from__CTRUE6","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from__CTRUE6",LabIdent "_CFALSE7__from_entry"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from__CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CTRUE6"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7__from__CTRUE6"] <- fromList [LabIdent "_CAND8"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _CTRUE6 == to => _CFALSE7__from__CTRUE6
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from_entry",LabIdent "_CTRUE6"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IEND36 == to => .L_exit
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry",".L_exit",".L_exit__from__IELSE46",".L_exit__from__IIF45","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IELSE46",LabIdent ".L_exit__from__IIF45"]
+".L_exit__from__IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE46"]
+".L_exit__from__IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit__from__IELSE46"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit__from__IIF45"] <- fromList [LabIdent ".L_entry"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IELSE46 == to => .L_exit__from__IELSE46
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry",".L_exit",".L_exit__from__IIF45","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IIF45",LabIdent "_IELSE46"]
+".L_exit__from__IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit__from__IIF45"] <- fromList [LabIdent ".L_entry"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _IIF45 == to => .L_exit__from__IIF45
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED CFGS
+
+CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+  jump _IEND47;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+  jump _IEND47;
+.L_exit:
+  return int %v_return;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Removing unreachable blocks...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Removing unreachable blocks...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Analysing liveness...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Liveness at start of .L_entry: in = [("%v_t_21",(14,Int ())),("%v_t_19",(10,Int ())),("%v_t_10",(4,Int ())),("%v_t_12",(8,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(16,Int ()))], out = [("%v_t_21",(13,Int ())),("%v_t_19",(9,Int ())),("%v_t_10",(3,Int ())),("%v_t_12",(7,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(15,Int ()))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_0",(0,Bool ())),("%v_t_21",(9,Int ())),("%v_t_19",(5,Int ())),("%v_t_5",(3,Int ())),("%v_t_12",(3,Int ())),("%v_t_30",(15,Int ())),("%v_t_28",(11,Int ()))], out = [("%v_t_21",(8,Int ())),("%v_t_19",(4,Int ())),("%v_t_5",(2,Int ())),("%v_t_12",(2,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(10,Int ()))], use = [("%v___temp_0",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _CAND17: in = [("%v_t_21",(1,Int ())),("%v_t_14",(5,Int ())),("%v_t_30",(11,Int ())),("%v_t_28",(7,Int ()))], out = [("%v_t_21",(0,Int ())),("%v_t_14",(4,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(6,Int ()))], use = [], kill = []
+Liveness at end of _CAND17: in = [("%v_t_14",(3,Int ())),("%v___temp_3",(0,Bool ())),("%v_t_30",(9,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_14",(2,Int ())),("%v_t_30",(8,Int ())),("%v_t_28",(4,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
+Liveness at start of _CAND26: in = [("%v_t_23",(5,Int ())),("%v_t_30",(1,Int ()))], out = [("%v_t_23",(4,Int ())),("%v_t_30",(0,Int ()))], use = [], kill = []
+Liveness at end of _CAND26: in = [("%v_t_23",(3,Int ())),("%v___temp_5",(0,Bool ()))], out = [("%v_t_23",(2,Int ()))], use = [("%v___temp_5",Bool ())], kill = []
+Liveness at start of _CAND8: in = [("%v_t_21",(11,Int ())),("%v_t_19",(7,Int ())),("%v_t_5",(5,Int ())),("%v_t_12",(1,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(6,Int ())),("%v_t_5",(4,Int ())),("%v_t_12",(0,Int ())),("%v_t_30",(16,Int ())),("%v_t_28",(12,Int ()))], use = [], kill = []
+Liveness at end of _CAND8: in = [("%v_t_21",(9,Int ())),("%v_t_19",(5,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_5",(3,Int ())),("%v_t_30",(15,Int ())),("%v_t_28",(11,Int ()))], out = [("%v_t_21",(8,Int ())),("%v_t_19",(4,Int ())),("%v_t_5",(2,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(10,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
+Liveness at start of _CFALSE16: in = [("%v_t_14",(1,Int ())),("%v_t_30",(7,Int ())),("%v_t_28",(3,Int ()))], out = [("%v_t_14",(0,Int ())),("%v_t_30",(6,Int ())),("%v_t_28",(2,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16: in = [("%v_t_23",(3,Int ())),("%v___temp_4",(0,Bool ())),("%v_t_30",(3,Int ()))], out = [("%v_t_23",(2,Int ())),("%v_t_30",(2,Int ()))], use = [("%v___temp_4",Bool ())], kill = []
+Liveness at start of _CFALSE25: in = [("%v_t_23",(1,Int ()))], out = [("%v_t_23",(0,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE25: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE7: in = [("%v_t_21",(7,Int ())),("%v_t_19",(3,Int ())),("%v_t_5",(1,Int ())),("%v_t_30",(13,Int ())),("%v_t_28",(9,Int ()))], out = [("%v_t_21",(6,Int ())),("%v_t_19",(2,Int ())),("%v_t_5",(0,Int ())),("%v_t_30",(12,Int ())),("%v_t_28",(8,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7: in = [("%v___temp_2",(0,Bool ())),("%v_t_21",(3,Int ())),("%v_t_14",(3,Int ())),("%v_t_30",(9,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_21",(2,Int ())),("%v_t_14",(2,Int ())),("%v_t_30",(8,Int ())),("%v_t_28",(4,Int ()))], use = [("%v___temp_2",Bool ())], kill = []
+Liveness at start of _CTRUE15: in = [("%v_t_30",(11,Int ())),("%v_t_28",(7,Int ()))], out = [("%v_t_30",(10,Int ())),("%v_t_28",(6,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE15: in = [("%v_t_14",(3,Int ())),("%v_t_30",(9,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_14",(2,Int ())),("%v_t_30",(8,Int ())),("%v_t_28",(4,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at end of _CTRUE24: in = [("%v_t_23",(3,Int ()))], out = [("%v_t_23",(2,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE6: in = [("%v_t_21",(11,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(6,Int ())),("%v_t_30",(16,Int ())),("%v_t_28",(12,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE6: in = [("%v_t_21",(9,Int ())),("%v_t_19",(5,Int ())),("%v_t_5",(3,Int ())),("%v_t_30",(15,Int ())),("%v_t_28",(11,Int ()))], out = [("%v_t_21",(8,Int ())),("%v_t_19",(4,Int ())),("%v_t_5",(2,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(10,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%v_return",(14,Int ())),("%a_t_33",(1,Ref () (Int ())))], out = [("%v_return",(13,Int ())),("%a_t_33",(0,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_return",(11,Int ())),("%v___temp_7",(0,Bool ()))], out = [("%v_return",(10,Int ()))], use = [("%v___temp_7",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _IELSE35: in = [("%v_return",(9,Int ()))], out = [("%v_return",(8,Int ()))], use = [], kill = []
+Liveness at end of _IELSE35: in = [("%v_return",(6,Int ()))], out = [("%v_return",(5,Int ()))], use = [], kill = []
+Liveness at start of _IEND36: in = [("%v_return",(4,Int ()))], out = [("%v_return",(3,Int ()))], use = [], kill = []
+Liveness at end of _IEND36: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Liveness at start of _IIF34: in = [("%v_return",(9,Int ()))], out = [("%v_return",(8,Int ()))], use = [], kill = []
+Liveness at end of _IIF34: in = [("%v_return",(6,Int ()))], out = [("%v_return",(5,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%a_t_43",(1,Ref () (Int ())))], out = [("%a_t_43",(0,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_8",(0,Bool ()))], out = [], use = [("%v___temp_8",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at end of _IELSE46: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Liveness at start of _IIF45: in = [], out = [], use = [], kill = []
+Liveness at end of _IIF45: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Analysing liveness...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Transforming to SSA...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Transforming to SSA...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> ENTIRE SSA CODE DUMP 
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),INewStr ./play.lat:2:15 (ValIdent "%v_t_3") "&&",IVCall ./play.lat:2:3 (Call ./play.lat:2:3 (Int inside standard library) (QIdent ./play.lat:2:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:2:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_3")] []),ISet ./play.lat:3:13 (ValIdent "%v_t_5") (VInt ./play.lat:3:13 0),IOp ./play.lat:3:13 (ValIdent "%v___temp_0") (VVal ./play.lat:3:13 (Int ./play.lat:20:1) (ValIdent "%v_t_10")) (OpEQU ./play.lat:3:13) (VInt ./play.lat:3:13 0),ICondJmp ./play.lat:3:13 (VVal ./play.lat:3:13 (Bool ./play.lat:3:13) (ValIdent "%v___temp_0")) (LabIdent "_CFALSE7") (LabIdent "_CAND8"),ILabel ./play.lat:3:13 (LabIdent "_CAND8"),IOp ./play.lat:3:25 (ValIdent "%v___temp_1") (VVal ./play.lat:3:25 (Int ./play.lat:20:1) (ValIdent "%v_t_12")) (OpEQU ./play.lat:3:25) (VInt ./play.lat:3:25 0),ICondJmp ./play.lat:3:25 (VVal ./play.lat:3:25 (Bool ./play.lat:3:25) (ValIdent "%v___temp_1")) (LabIdent "_CFALSE7") (LabIdent "_CTRUE6"),ILabel ./play.lat:3:13 (LabIdent "_CFALSE7"),IVCall ./play.lat:3:3 (Call ./play.lat:3:3 (Int ./play.lat:11:1) (QIdent ./play.lat:3:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:3:3 (Int ./play.lat:11:16) (ValIdent "%v_t_5")] []),ISet ./play.lat:4:13 (ValIdent "%v_t_14") (VInt ./play.lat:4:13 0),IOp ./play.lat:4:13 (ValIdent "%v___temp_2") (VVal ./play.lat:4:13 (Int ./play.lat:20:1) (ValIdent "%v_t_19")) (OpEQU ./play.lat:4:13) (VInt ./play.lat:4:13 0),ICondJmp ./play.lat:4:13 (VVal ./play.lat:4:13 (Bool ./play.lat:4:13) (ValIdent "%v___temp_2")) (LabIdent "_CFALSE16") (LabIdent "_CAND17"),ILabel ./play.lat:4:13 (LabIdent "_CAND17"),IOp ./play.lat:4:25 (ValIdent "%v___temp_3") (VVal ./play.lat:4:25 (Int ./play.lat:20:1) (ValIdent "%v_t_21")) (OpEQU ./play.lat:4:25) (VInt ./play.lat:4:25 0),ICondJmp ./play.lat:4:25 (VVal ./play.lat:4:25 (Bool ./play.lat:4:25) (ValIdent "%v___temp_3")) (LabIdent "_CFALSE16") (LabIdent "_CTRUE15"),ILabel ./play.lat:4:13 (LabIdent "_CFALSE16"),IVCall ./play.lat:4:3 (Call ./play.lat:4:3 (Int ./play.lat:11:1) (QIdent ./play.lat:4:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:4:3 (Int ./play.lat:11:16) (ValIdent "%v_t_14")] []),ISet ./play.lat:5:13 (ValIdent "%v_t_23") (VInt ./play.lat:5:13 0),IOp ./play.lat:5:13 (ValIdent "%v___temp_4") (VVal ./play.lat:5:13 (Int ./play.lat:20:1) (ValIdent "%v_t_28")) (OpEQU ./play.lat:5:13) (VInt ./play.lat:5:13 0),ICondJmp ./play.lat:5:13 (VVal ./play.lat:5:13 (Bool ./play.lat:5:13) (ValIdent "%v___temp_4")) (LabIdent "_CFALSE25") (LabIdent "_CAND26"),ILabel ./play.lat:5:13 (LabIdent "_CAND26"),IOp ./play.lat:5:24 (ValIdent "%v___temp_5") (VVal ./play.lat:5:24 (Int ./play.lat:20:1) (ValIdent "%v_t_30")) (OpEQU ./play.lat:5:24) (VInt ./play.lat:5:24 0),ICondJmp ./play.lat:5:24 (VVal ./play.lat:5:24 (Bool ./play.lat:5:24) (ValIdent "%v___temp_5")) (LabIdent "_CFALSE25") (LabIdent "_CTRUE24"),ILabel ./play.lat:5:13 (LabIdent "_CFALSE25"),IVCall ./play.lat:5:3 (Call ./play.lat:5:3 (Int ./play.lat:11:1) (QIdent ./play.lat:5:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:5:3 (Int ./play.lat:11:16) (ValIdent "%v_t_23")] []),ISet ./play.lat:7:3 (ValIdent "%v___temp_6") (VInt ./play.lat:7:3 0),ISet ./play.lat:7:3 (ValIdent "%v_return") (VVal ./play.lat:7:3 (Int ./play.lat:7:10) (ValIdent "%v___temp_6")),IJmp ./play.lat:7:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return")),ILabel ./play.lat:5:13 (LabIdent "_CTRUE24"),ISet ./play.lat:5:13 (ValIdent "%v_t_23") (VInt ./play.lat:5:13 1),IJmp ./play.lat:5:13 (LabIdent "_CFALSE25"),ILabel ./play.lat:4:13 (LabIdent "_CTRUE15"),ISet ./play.lat:4:13 (ValIdent "%v_t_14") (VInt ./play.lat:4:13 1),IJmp ./play.lat:4:13 (LabIdent "_CFALSE16"),ILabel ./play.lat:3:13 (LabIdent "_CTRUE6"),ISet ./play.lat:3:13 (ValIdent "%v_t_5") (VInt ./play.lat:3:13 1),IJmp ./play.lat:3:13 (LabIdent "_CFALSE7")]),(SSA [".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:11:1 (Int ./play.lat:11:1) (QIdent ./play.lat:11:6 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [Param ./play.lat:11:1 (Int ./play.lat:11:16) (ValIdent "%a_t_33")] [ILabel ./play.lat:11:1 (LabIdent ".L_entry"),ILoad ./play.lat:11:1 (ValIdent "%v_t_33") (PParam ./play.lat:11:1 (Ref ./play.lat:11:1 (Int ./play.lat:11:16)) 0 (ValIdent "%a_t_33")),IOp ./play.lat:12:8 (ValIdent "%v___temp_7") (VVal ./play.lat:12:8 (Int ./play.lat:11:16) (ValIdent "%v_t_33")) (OpEQU ./play.lat:12:8) (VInt ./play.lat:12:8 0),ICondJmp ./play.lat:12:8 (VVal ./play.lat:12:8 (Bool ./play.lat:12:8) (ValIdent "%v___temp_7")) (LabIdent "_IIF34") (LabIdent "_IELSE35"),ILabel ./play.lat:12:3 (LabIdent "_IELSE35"),INewStr ./play.lat:15:17 (ValIdent "%v_t_41") "true",IVCall ./play.lat:15:5 (Call ./play.lat:15:5 (Int inside standard library) (QIdent ./play.lat:15:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:15:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_41")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36"),ILabel ./play.lat:12:3 (LabIdent "_IEND36"),IJmp ./play.lat:17:2 (LabIdent ".L_exit"),ILabel ./play.lat:11:1 (LabIdent ".L_exit"),IRet ./play.lat:11:1 (VVal ./play.lat:11:1 (Int ./play.lat:11:1) (ValIdent "%v_return")),ILabel ./play.lat:12:3 (LabIdent "_IIF34"),INewStr ./play.lat:13:17 (ValIdent "%v_t_38") "false",IVCall ./play.lat:13:5 (Call ./play.lat:13:5 (Int inside standard library) (QIdent ./play.lat:13:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_38")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36")]),(SSA [".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:20:1 (Int ./play.lat:20:1) (QIdent ./play.lat:20:9 (SymIdent "~cl_TopLevel") (SymIdent "test")) [Param ./play.lat:20:1 (Int ./play.lat:20:14) (ValIdent "%a_t_43")] [ILabel ./play.lat:20:1 (LabIdent ".L_entry"),ILoad ./play.lat:20:1 (ValIdent "%v_t_43") (PParam ./play.lat:20:1 (Ref ./play.lat:20:1 (Int ./play.lat:20:14)) 0 (ValIdent "%a_t_43")),IVCall ./play.lat:21:3 (Call ./play.lat:21:3 (Int inside standard library) (QIdent ./play.lat:21:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:21:3 (Int inside standard library) (ValIdent "%v_t_43")] []),IOp ./play.lat:22:10 (ValIdent "%v___temp_8") (VVal ./play.lat:22:10 (Int ./play.lat:20:14) (ValIdent "%v_t_43")) (OpGTH ./play.lat:22:12) (VInt ./play.lat:22:10 0),ICondJmp ./play.lat:22:10 (VVal ./play.lat:22:10 (Bool ./play.lat:22:10) (ValIdent "%v___temp_8")) (LabIdent "_IIF45") (LabIdent "_IELSE46"),ILabel ./play.lat:22:3 (LabIdent "_IELSE46"),ISet ./play.lat:22:3 (ValIdent "%v___temp_10") (VInt ./play.lat:22:3 0),ISet ./play.lat:22:3 (ValIdent "%v_return") (VVal ./play.lat:22:3 (Int ./play.lat:22:3) (ValIdent "%v___temp_10")),IJmp ./play.lat:22:3 (LabIdent ".L_exit"),ILabel ./play.lat:20:1 (LabIdent ".L_exit"),IRet ./play.lat:20:1 (VVal ./play.lat:20:1 (Int ./play.lat:20:1) (ValIdent "%v_return")),ILabel ./play.lat:22:3 (LabIdent "_IIF45"),ISet ./play.lat:22:3 (ValIdent "%v___temp_9") (VInt ./play.lat:22:3 1),ISet ./play.lat:22:3 (ValIdent "%v_return") (VVal ./play.lat:22:3 (Int ./play.lat:22:3) (ValIdent "%v___temp_9")),IJmp ./play.lat:22:3 (LabIdent ".L_exit")])]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END SSA CODE DUMP 
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Optimising Espresso...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Optimising Espresso...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> ENTIRE OPTIMIZED CODE DUMP 
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),INewStr ./play.lat:2:15 (ValIdent "%v_t_3") "&&",IVCall ./play.lat:2:3 (Call ./play.lat:2:3 (Int inside standard library) (QIdent ./play.lat:2:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:2:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_3")] []),ISet ./play.lat:3:13 (ValIdent "%v_t_5") (VInt ./play.lat:3:13 0),IOp ./play.lat:3:13 (ValIdent "%v___temp_0") (VVal ./play.lat:3:13 (Int ./play.lat:20:1) (ValIdent "%v_t_10")) (OpEQU ./play.lat:3:13) (VInt ./play.lat:3:13 0),ICondJmp ./play.lat:3:13 (VVal ./play.lat:3:13 (Bool ./play.lat:3:13) (ValIdent "%v___temp_0")) (LabIdent "_CFALSE7") (LabIdent "_CAND8"),ILabel ./play.lat:3:13 (LabIdent "_CAND8"),IOp ./play.lat:3:25 (ValIdent "%v___temp_1") (VVal ./play.lat:3:25 (Int ./play.lat:20:1) (ValIdent "%v_t_12")) (OpEQU ./play.lat:3:25) (VInt ./play.lat:3:25 0),ICondJmp ./play.lat:3:25 (VVal ./play.lat:3:25 (Bool ./play.lat:3:25) (ValIdent "%v___temp_1")) (LabIdent "_CFALSE7") (LabIdent "_CTRUE6"),ILabel ./play.lat:3:13 (LabIdent "_CFALSE7"),IVCall ./play.lat:3:3 (Call ./play.lat:3:3 (Int ./play.lat:11:1) (QIdent ./play.lat:3:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:3:3 (Int ./play.lat:11:16) (ValIdent "%v_t_5")] []),ISet ./play.lat:4:13 (ValIdent "%v_t_14") (VInt ./play.lat:4:13 0),IOp ./play.lat:4:13 (ValIdent "%v___temp_2") (VVal ./play.lat:4:13 (Int ./play.lat:20:1) (ValIdent "%v_t_19")) (OpEQU ./play.lat:4:13) (VInt ./play.lat:4:13 0),ICondJmp ./play.lat:4:13 (VVal ./play.lat:4:13 (Bool ./play.lat:4:13) (ValIdent "%v___temp_2")) (LabIdent "_CFALSE16") (LabIdent "_CAND17"),ILabel ./play.lat:4:13 (LabIdent "_CAND17"),IOp ./play.lat:4:25 (ValIdent "%v___temp_3") (VVal ./play.lat:4:25 (Int ./play.lat:20:1) (ValIdent "%v_t_21")) (OpEQU ./play.lat:4:25) (VInt ./play.lat:4:25 0),ICondJmp ./play.lat:4:25 (VVal ./play.lat:4:25 (Bool ./play.lat:4:25) (ValIdent "%v___temp_3")) (LabIdent "_CFALSE16") (LabIdent "_CTRUE15"),ILabel ./play.lat:4:13 (LabIdent "_CFALSE16"),IVCall ./play.lat:4:3 (Call ./play.lat:4:3 (Int ./play.lat:11:1) (QIdent ./play.lat:4:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:4:3 (Int ./play.lat:11:16) (ValIdent "%v_t_14")] []),ISet ./play.lat:5:13 (ValIdent "%v_t_23") (VInt ./play.lat:5:13 0),IOp ./play.lat:5:13 (ValIdent "%v___temp_4") (VVal ./play.lat:5:13 (Int ./play.lat:20:1) (ValIdent "%v_t_28")) (OpEQU ./play.lat:5:13) (VInt ./play.lat:5:13 0),ICondJmp ./play.lat:5:13 (VVal ./play.lat:5:13 (Bool ./play.lat:5:13) (ValIdent "%v___temp_4")) (LabIdent "_CFALSE25") (LabIdent "_CAND26"),ILabel ./play.lat:5:13 (LabIdent "_CAND26"),IOp ./play.lat:5:24 (ValIdent "%v___temp_5") (VVal ./play.lat:5:24 (Int ./play.lat:20:1) (ValIdent "%v_t_30")) (OpEQU ./play.lat:5:24) (VInt ./play.lat:5:24 0),ICondJmp ./play.lat:5:24 (VVal ./play.lat:5:24 (Bool ./play.lat:5:24) (ValIdent "%v___temp_5")) (LabIdent "_CFALSE25") (LabIdent "_CTRUE24"),ILabel ./play.lat:5:13 (LabIdent "_CFALSE25"),IVCall ./play.lat:5:3 (Call ./play.lat:5:3 (Int ./play.lat:11:1) (QIdent ./play.lat:5:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:5:3 (Int ./play.lat:11:16) (ValIdent "%v_t_23")] []),ISet ./play.lat:7:3 (ValIdent "%v___temp_6") (VInt ./play.lat:7:3 0),ISet ./play.lat:7:3 (ValIdent "%v_return") (VVal ./play.lat:7:3 (Int ./play.lat:7:10) (ValIdent "%v___temp_6")),IJmp ./play.lat:7:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return")),ILabel ./play.lat:5:13 (LabIdent "_CTRUE24"),ISet ./play.lat:5:13 (ValIdent "%v_t_23") (VInt ./play.lat:5:13 1),IJmp ./play.lat:5:13 (LabIdent "_CFALSE25"),ILabel ./play.lat:4:13 (LabIdent "_CTRUE15"),ISet ./play.lat:4:13 (ValIdent "%v_t_14") (VInt ./play.lat:4:13 1),IJmp ./play.lat:4:13 (LabIdent "_CFALSE16"),ILabel ./play.lat:3:13 (LabIdent "_CTRUE6"),ISet ./play.lat:3:13 (ValIdent "%v_t_5") (VInt ./play.lat:3:13 1),IJmp ./play.lat:3:13 (LabIdent "_CFALSE7")]),(SSA [".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:11:1 (Int ./play.lat:11:1) (QIdent ./play.lat:11:6 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [Param ./play.lat:11:1 (Int ./play.lat:11:16) (ValIdent "%a_t_33")] [ILabel ./play.lat:11:1 (LabIdent ".L_entry"),ILoad ./play.lat:11:1 (ValIdent "%v_t_33") (PParam ./play.lat:11:1 (Ref ./play.lat:11:1 (Int ./play.lat:11:16)) 0 (ValIdent "%a_t_33")),IOp ./play.lat:12:8 (ValIdent "%v___temp_7") (VVal ./play.lat:12:8 (Int ./play.lat:11:16) (ValIdent "%v_t_33")) (OpEQU ./play.lat:12:8) (VInt ./play.lat:12:8 0),ICondJmp ./play.lat:12:8 (VVal ./play.lat:12:8 (Bool ./play.lat:12:8) (ValIdent "%v___temp_7")) (LabIdent "_IIF34") (LabIdent "_IELSE35"),ILabel ./play.lat:12:3 (LabIdent "_IELSE35"),INewStr ./play.lat:15:17 (ValIdent "%v_t_41") "true",IVCall ./play.lat:15:5 (Call ./play.lat:15:5 (Int inside standard library) (QIdent ./play.lat:15:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:15:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_41")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36"),ILabel ./play.lat:12:3 (LabIdent "_IEND36"),IJmp ./play.lat:17:2 (LabIdent ".L_exit"),ILabel ./play.lat:11:1 (LabIdent ".L_exit"),IRet ./play.lat:11:1 (VVal ./play.lat:11:1 (Int ./play.lat:11:1) (ValIdent "%v_return")),ILabel ./play.lat:12:3 (LabIdent "_IIF34"),INewStr ./play.lat:13:17 (ValIdent "%v_t_38") "false",IVCall ./play.lat:13:5 (Call ./play.lat:13:5 (Int inside standard library) (QIdent ./play.lat:13:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_38")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36")]),(SSA [".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:20:1 (Int ./play.lat:20:1) (QIdent ./play.lat:20:9 (SymIdent "~cl_TopLevel") (SymIdent "test")) [Param ./play.lat:20:1 (Int ./play.lat:20:14) (ValIdent "%a_t_43")] [ILabel ./play.lat:20:1 (LabIdent ".L_entry"),ILoad ./play.lat:20:1 (ValIdent "%v_t_43") (PParam ./play.lat:20:1 (Ref ./play.lat:20:1 (Int ./play.lat:20:14)) 0 (ValIdent "%a_t_43")),IVCall ./play.lat:21:3 (Call ./play.lat:21:3 (Int inside standard library) (QIdent ./play.lat:21:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:21:3 (Int inside standard library) (ValIdent "%v_t_43")] []),IOp ./play.lat:22:10 (ValIdent "%v___temp_8") (VVal ./play.lat:22:10 (Int ./play.lat:20:14) (ValIdent "%v_t_43")) (OpGTH ./play.lat:22:12) (VInt ./play.lat:22:10 0),ICondJmp ./play.lat:22:10 (VVal ./play.lat:22:10 (Bool ./play.lat:22:10) (ValIdent "%v___temp_8")) (LabIdent "_IIF45") (LabIdent "_IELSE46"),ILabel ./play.lat:22:3 (LabIdent "_IELSE46"),ISet ./play.lat:22:3 (ValIdent "%v___temp_10") (VInt ./play.lat:22:3 0),ISet ./play.lat:22:3 (ValIdent "%v_return") (VVal ./play.lat:22:3 (Int ./play.lat:22:3) (ValIdent "%v___temp_10")),IJmp ./play.lat:22:3 (LabIdent ".L_exit"),ILabel ./play.lat:20:1 (LabIdent ".L_exit"),IRet ./play.lat:20:1 (VVal ./play.lat:20:1 (Int ./play.lat:20:1) (ValIdent "%v_return")),ILabel ./play.lat:22:3 (LabIdent "_IIF45"),ISet ./play.lat:22:3 (ValIdent "%v___temp_9") (VInt ./play.lat:22:3 1),ISet ./play.lat:22:3 (ValIdent "%v_return") (VVal ./play.lat:22:3 (Int ./play.lat:22:3) (ValIdent "%v___temp_9")),IJmp ./play.lat:22:3 (LabIdent ".L_exit")])]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END OPTIMIZED CODE DUMP 
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Reanalysing liveness...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Liveness at start of .L_entry: in = [("%v_t_21",(16,Int ())),("%v_t_19",(11,Int ())),("%v_t_10",(4,Int ())),("%v_t_12",(9,Int ())),("%v_t_30",(23,Int ())),("%v_t_28",(18,Int ()))], out = [("%v_t_21",(15,Int ())),("%v_t_19",(10,Int ())),("%v_t_10",(3,Int ())),("%v_t_12",(8,Int ())),("%v_t_30",(22,Int ())),("%v_t_28",(17,Int ()))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_0",(0,Bool ())),("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_12",(4,Int ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_12",(3,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [("%v___temp_0",Bool ())], kill = []
+Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at start of _CAND17: in = [("%v_t_21",(2,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(9,Int ()))], out = [("%v_t_21",(1,Int ())),("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], use = [], kill = []
+Liveness at end of _CAND17: in = [("%v___temp_3",(0,Bool ())),("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
+Liveness at start of _CAND26: in = [("%v_t_30",(2,Int ()))], out = [("%v_t_30",(1,Int ()))], use = [], kill = []
+Liveness at end of _CAND26: in = [("%v___temp_5",(0,Bool ()))], out = [], use = [("%v___temp_5",Bool ())], kill = []
+Liveness at start of _CAND8: in = [("%v_t_21",(14,Int ())),("%v_t_19",(9,Int ())),("%v_t_12",(2,Int ())),("%v_t_30",(21,Int ())),("%v_t_28",(16,Int ()))], out = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_12",(1,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], use = [], kill = []
+Liveness at end of _CAND8: in = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
+Liveness at start of _CFALSE16: in = [("%v_t_30",(9,Int ())),("%v_t_28",(4,Int ()))], out = [("%v_t_30",(8,Int ())),("%v_t_28",(3,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16: in = [("%v___temp_4",(0,Bool ())),("%v_t_30",(4,Int ()))], out = [("%v_t_30",(3,Int ()))], use = [("%v___temp_4",Bool ())], kill = []
+Liveness at start of _CFALSE25: in = [], out = [], use = [], kill = []
+Liveness at end of _CFALSE25: in = [], out = [], use = [], kill = []
+Liveness at start of _CFALSE7: in = [("%v_t_21",(9,Int ())),("%v_t_19",(4,Int ())),("%v_t_30",(16,Int ())),("%v_t_28",(11,Int ()))], out = [("%v_t_21",(8,Int ())),("%v_t_19",(3,Int ())),("%v_t_30",(15,Int ())),("%v_t_28",(10,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7: in = [("%v___temp_2",(0,Bool ())),("%v_t_21",(4,Int ())),("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_21",(3,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [("%v___temp_2",Bool ())], kill = []
+Liveness at start of _CTRUE15: in = [("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], out = [("%v_t_30",(12,Int ())),("%v_t_28",(7,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE15: in = [("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at end of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at start of _CTRUE6: in = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], out = [("%v_t_21",(12,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(14,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE6: in = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%v_return",(18,Int ())),("%a_t_33",(2,Ref () (Int ())))], out = [("%v_return",(17,Int ())),("%a_t_33",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_return",(14,Int ())),("%v___temp_7",(0,Bool ()))], out = [("%v_return",(13,Int ()))], use = [("%v___temp_7",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return",(2,Int ()))], out = [("%v_return",(1,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _IELSE35: in = [("%v_return",(12,Int ()))], out = [("%v_return",(11,Int ()))], use = [], kill = []
+Liveness at end of _IELSE35: in = [("%v_return",(8,Int ()))], out = [("%v_return",(7,Int ()))], use = [], kill = []
+Liveness at start of _IEND36: in = [("%v_return",(6,Int ()))], out = [("%v_return",(5,Int ()))], use = [], kill = []
+Liveness at end of _IEND36: in = [("%v_return",(4,Int ()))], out = [("%v_return",(3,Int ()))], use = [], kill = []
+Liveness at start of _IIF34: in = [("%v_return",(12,Int ()))], out = [("%v_return",(11,Int ()))], use = [], kill = []
+Liveness at end of _IIF34: in = [("%v_return",(8,Int ()))], out = [("%v_return",(7,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%a_t_43",(2,Ref () (Int ())))], out = [("%a_t_43",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_8",(0,Bool ()))], out = [], use = [("%v___temp_8",Bool ())], kill = []
+Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
+Liveness at start of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at end of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at start of _IIF45: in = [], out = [], use = [], kill = []
+Liveness at end of _IIF45: in = [], out = [], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Reanalysing liveness...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Allocating registers...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE25","_CFALSE7","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND17",LabIdent "_CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CAND26",LabIdent "_CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16"] <- fromList [LabIdent ".L_entry",LabIdent "_CAND8",LabIdent "_CTRUE6"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Liveness at start of .L_entry: in = [("%v_t_21",(16,Int ())),("%v_t_19",(11,Int ())),("%v_t_10",(4,Int ())),("%v_t_12",(9,Int ())),("%v_t_30",(23,Int ())),("%v_t_28",(18,Int ()))], out = [("%v_t_21",(15,Int ())),("%v_t_19",(10,Int ())),("%v_t_10",(3,Int ())),("%v_t_12",(8,Int ())),("%v_t_30",(22,Int ())),("%v_t_28",(17,Int ()))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_0",(0,Bool ())),("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_12",(4,Int ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_12",(3,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [("%v___temp_0",Bool ())], kill = []
+Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at start of _CAND17: in = [("%v_t_21",(2,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(9,Int ()))], out = [("%v_t_21",(1,Int ())),("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], use = [], kill = []
+Liveness at end of _CAND17: in = [("%v___temp_3",(0,Bool ())),("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
+Liveness at start of _CAND26: in = [("%v_t_30",(2,Int ()))], out = [("%v_t_30",(1,Int ()))], use = [], kill = []
+Liveness at end of _CAND26: in = [("%v___temp_5",(0,Bool ()))], out = [], use = [("%v___temp_5",Bool ())], kill = []
+Liveness at start of _CAND8: in = [("%v_t_21",(14,Int ())),("%v_t_19",(9,Int ())),("%v_t_12",(2,Int ())),("%v_t_30",(21,Int ())),("%v_t_28",(16,Int ()))], out = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_12",(1,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], use = [], kill = []
+Liveness at end of _CAND8: in = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
+Liveness at start of _CFALSE16: in = [("%v_t_30",(9,Int ())),("%v_t_28",(4,Int ()))], out = [("%v_t_30",(8,Int ())),("%v_t_28",(3,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16: in = [("%v___temp_4",(0,Bool ())),("%v_t_30",(4,Int ()))], out = [("%v_t_30",(3,Int ()))], use = [("%v___temp_4",Bool ())], kill = []
+Liveness at start of _CFALSE25: in = [], out = [], use = [], kill = []
+Liveness at end of _CFALSE25: in = [], out = [], use = [], kill = []
+Liveness at start of _CFALSE7: in = [("%v_t_21",(9,Int ())),("%v_t_19",(4,Int ())),("%v_t_30",(16,Int ())),("%v_t_28",(11,Int ()))], out = [("%v_t_21",(8,Int ())),("%v_t_19",(3,Int ())),("%v_t_30",(15,Int ())),("%v_t_28",(10,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7: in = [("%v___temp_2",(0,Bool ())),("%v_t_21",(4,Int ())),("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_21",(3,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [("%v___temp_2",Bool ())], kill = []
+Liveness at start of _CTRUE15: in = [("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], out = [("%v_t_30",(12,Int ())),("%v_t_28",(7,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE15: in = [("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], out = [("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at end of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at start of _CTRUE6: in = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], out = [("%v_t_21",(12,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(14,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE6: in = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%v_return",(18,Int ())),("%a_t_33",(2,Ref () (Int ())))], out = [("%v_return",(17,Int ())),("%a_t_33",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_return",(14,Int ())),("%v___temp_7",(0,Bool ()))], out = [("%v_return",(13,Int ()))], use = [("%v___temp_7",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return",(2,Int ()))], out = [("%v_return",(1,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _IELSE35: in = [("%v_return",(12,Int ()))], out = [("%v_return",(11,Int ()))], use = [], kill = []
+Liveness at end of _IELSE35: in = [("%v_return",(8,Int ()))], out = [("%v_return",(7,Int ()))], use = [], kill = []
+Liveness at start of _IEND36: in = [("%v_return",(6,Int ()))], out = [("%v_return",(5,Int ()))], use = [], kill = []
+Liveness at end of _IEND36: in = [("%v_return",(4,Int ()))], out = [("%v_return",(3,Int ()))], use = [], kill = []
+Liveness at start of _IIF34: in = [("%v_return",(12,Int ()))], out = [("%v_return",(11,Int ()))], use = [], kill = []
+Liveness at end of _IIF34: in = [("%v_return",(8,Int ()))], out = [("%v_return",(7,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%a_t_43",(2,Ref () (Int ())))], out = [("%a_t_43",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_8",(0,Bool ()))], out = [], use = [("%v___temp_8",Bool ())], kill = []
+Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
+Liveness at start of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at end of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at start of _IIF45: in = [], out = [], use = [], kill = []
+Liveness at end of _IIF45: in = [], out = [], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v___temp_0 (reg preference: CallerSaved) (RAX): ["%v_t_12","%v_t_19","%v_t_21","%v_t_28","%v_t_30"]
+%v___temp_1 (reg preference: CallerSaved) (RAX): ["%v_t_19","%v_t_21","%v_t_28","%v_t_30"]
+%v___temp_2 (reg preference: CallerSaved) (RAX): ["%v_t_21","%v_t_28","%v_t_30"]
+%v___temp_3 (reg preference: CallerSaved) (RAX): ["%v_t_28","%v_t_30"]
+%v___temp_4 (reg preference: CallerSaved) (RAX): ["%v_t_30"]
+%v___temp_5 (reg preference: CallerSaved) (RAX): []
+%v_t_10 (reg preference: CalleeSaved) (RCX): ["%v_t_12","%v_t_19","%v_t_21","%v_t_28","%v_t_3","%v_t_30"]
+%v_t_12 (reg preference: CalleeSaved) (RBX): ["%v___temp_0","%v_t_10","%v_t_19","%v_t_21","%v_t_28","%v_t_3","%v_t_30"]
+%v_t_14~3 (reg preference: CallerSaved) (RAX): ["%v_t_28","%v_t_30"]
+%v_t_19 (reg preference: CalleeSaved) (R12): ["%v___temp_0","%v___temp_1","%v_t_10","%v_t_12","%v_t_21","%v_t_28","%v_t_3","%v_t_30","%v_t_5~3"]
+%v_t_21 (reg preference: CalleeSaved) (R13): ["%v___temp_0","%v___temp_1","%v___temp_2","%v_t_10","%v_t_12","%v_t_19","%v_t_28","%v_t_3","%v_t_30","%v_t_5~3"]
+%v_t_23~3 (reg preference: CallerSaved) (RAX): []
+%v_t_28 (reg preference: CalleeSaved) (R14): ["%v___temp_0","%v___temp_1","%v___temp_2","%v___temp_3","%v_t_10","%v_t_12","%v_t_14~3","%v_t_19","%v_t_21","%v_t_3","%v_t_30","%v_t_5~3"]
+%v_t_3 (reg preference: CallerSaved) (RAX): ["%v_t_10","%v_t_12","%v_t_19","%v_t_21","%v_t_28","%v_t_30"]
+%v_t_30 (reg preference: CalleeSaved) (R15): ["%v___temp_0","%v___temp_1","%v___temp_2","%v___temp_3","%v___temp_4","%v_t_10","%v_t_12","%v_t_14~3","%v_t_19","%v_t_21","%v_t_28","%v_t_3","%v_t_5~3"]
+%v_t_5~3 (reg preference: CallerSaved) (RAX): ["%v_t_19","%v_t_21","%v_t_28","%v_t_30"]
+~arg_0_RDI (reg preference: CallerSaved) (RDI): []
+~arg_1_RDI (reg preference: CallerSaved) (RDI): []
+~arg_2_RDI (reg preference: CallerSaved) (RDI): []
+~arg_3_RDI (reg preference: CallerSaved) (RDI): []
+,%a_t_33 (reg preference: CallerSaved) (RDI): ["%v_return"]
+%v___temp_7 (reg preference: CallerSaved) (RAX): ["%v_return"]
+%v_return (reg preference: CalleeSaved) (RBX): ["%a_t_33","%v___temp_7","%v_t_33","%v_t_38","%v_t_41"]
+%v_t_33 (reg preference: CallerSaved) (RAX): ["%v_return"]
+%v_t_38 (reg preference: CallerSaved) (RAX): ["%v_return"]
+%v_t_41 (reg preference: CallerSaved) (RAX): ["%v_return"]
+~arg_0_RDI (reg preference: CallerSaved) (RDI): []
+~arg_1_RDI (reg preference: CallerSaved) (RDI): []
+,%a_t_43 (reg preference: CallerSaved) (RDI): []
+%v___temp_8 (reg preference: CallerSaved) (RAX): []
+%v_return~2 (reg preference: CallerSaved) (RAX): []
+%v_t_43 (reg preference: CalleeSaved) (RBX): []
+~arg_0_RDI (reg preference: CallerSaved) (RDI): []
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Allocating registers...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Unfolding phis...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry",".L_exit","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE16__from__CTRUE15","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE25__from__CTRUE24","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from__CTRUE6","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_CFALSE25"]
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CFALSE16__from__CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE16__from__CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CTRUE15"]
+"_CFALSE25" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CFALSE25__from__CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE25__from__CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CTRUE24"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from__CTRUE6",LabIdent "_CFALSE7__from_entry"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from__CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CTRUE6"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16__from__CTRUE15"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25__from__CTRUE24"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7__from__CTRUE6"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v_t_5 := 0;
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7 else _CAND8;
+  _CAND8:
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7 else _CTRUE6;
+  _CFALSE7:
+  call int ~cl_TopLevel.printBool (int %v_t_5);
+  %v_t_14 := 0;
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16 else _CAND17;
+  _CAND17:
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16 else _CTRUE15;
+  _CFALSE16:
+  call int ~cl_TopLevel.printBool (int %v_t_14);
+  %v_t_23 := 0;
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25 else _CAND26;
+  _CAND26:
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25 else _CTRUE24;
+  _CFALSE25:
+  call int ~cl_TopLevel.printBool (int %v_t_23);
+  %v___temp_6 := 0;
+  %v_return := int %v___temp_6;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _CTRUE24:
+  %v_t_23 := 1;
+  jump _CFALSE25;
+  _CTRUE15:
+  %v_t_14 := 1;
+  jump _CFALSE16;
+  _CTRUE6:
+  %v_t_5 := 1;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry",".L_exit","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IEND36"]
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF34:
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit",".L_exit__from__IELSE46",".L_exit__from__IIF45","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent ".L_exit__from__IELSE46",LabIdent ".L_exit__from__IIF45"]
+".L_exit__from__IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IELSE46"]
+".L_exit__from__IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit__from__IELSE46"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit__from__IIF45"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  %v___temp_10 := 0;
+  %v_return := int %v___temp_10;
+  jump .L_exit;
+.L_exit:
+  return int %v_return;
+  _IIF45:
+  %v___temp_9 := 1;
+  %v_return := int %v___temp_9;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Unfolding phis...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Inlining trivial jumps...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from_entry",LabIdent "_CTRUE6"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  endphi;
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7__from_entry else _CAND8;
+  _CAND8:
+  endphi;
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7__from__CAND8 else _CTRUE6;
+  _CFALSE7__from__CAND8:
+  %v_t_5~3 := 0;
+  jump _CFALSE7;
+  _CFALSE7:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_5~3);
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16__from__CFALSE7 else _CAND17;
+  _CAND17:
+  endphi;
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16__from__CAND17 else _CTRUE15;
+  _CFALSE16__from__CAND17:
+  %v_t_14~3 := 0;
+  jump _CFALSE16;
+  _CFALSE16:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_14~3);
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25__from__CFALSE16 else _CAND26;
+  _CAND26:
+  endphi;
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25__from__CAND26 else _CTRUE24;
+  _CFALSE25__from__CAND26:
+  %v_t_23~3 := 0;
+  jump _CFALSE25;
+  _CFALSE25:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_23~3);
+  endphi;
+  return 0;
+  _CTRUE24:
+  endphi;
+  %v_t_23~3 := 1;
+  jump _CFALSE25;
+  _CFALSE25__from__CFALSE16:
+  %v_t_23~3 := 0;
+  jump _CFALSE25;
+  _CTRUE15:
+  endphi;
+  %v_t_14~3 := 1;
+  jump _CFALSE16;
+  _CFALSE16__from__CFALSE7:
+  %v_t_14~3 := 0;
+  jump _CFALSE16;
+  _CTRUE6:
+  endphi;
+  %v_t_5~3 := 1;
+  jump _CFALSE7;
+  _CFALSE7__from_entry:
+  %v_t_5~3 := 0;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  endphi;
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  endphi;
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  endphi;
+  endphi;
+  return int %v_return;
+  _IIF34:
+  endphi;
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  endphi;
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  endphi;
+  %v_return~2 := 0;
+  jump .L_exit;
+.L_exit:
+  endphi;
+  return int %v_return~2;
+  _IIF45:
+  endphi;
+  %v_return~2 := 1;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Inlining trivial jumps...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Final liveness analysis...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
+[".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from_entry",LabIdent "_CTRUE6"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+Liveness at start of .L_entry: in = [("%v_t_21",(19,Int ())),("%v_t_19",(14,Int ())),("%v_t_10",(4,Int ())),("%v_t_12",(9,Int ())),("%v_t_30",(29,Int ())),("%v_t_28",(24,Int ()))], out = [("%v_t_21",(18,Int ())),("%v_t_19",(13,Int ())),("%v_t_10",(3,Int ())),("%v_t_12",(8,Int ())),("%v_t_30",(28,Int ())),("%v_t_28",(23,Int ()))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_0",(0,Bool ())),("%v_t_21",(14,Int ())),("%v_t_19",(9,Int ())),("%v_t_12",(4,Int ())),("%v_t_30",(24,Int ())),("%v_t_28",(19,Int ()))], out = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_12",(3,Int ())),("%v_t_30",(23,Int ())),("%v_t_28",(18,Int ()))], use = [("%v___temp_0",Bool ())], kill = []
+Liveness at start of _CAND17: in = [("%v_t_21",(2,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], out = [("%v_t_21",(1,Int ())),("%v_t_30",(16,Int ())),("%v_t_28",(11,Int ()))], use = [], kill = []
+Liveness at end of _CAND17: in = [("%v___temp_3",(0,Bool ())),("%v_t_30",(14,Int ())),("%v_t_28",(9,Int ()))], out = [("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], use = [("%v___temp_3",Bool ())], kill = []
+Liveness at start of _CAND26: in = [("%v_t_30",(2,Int ()))], out = [("%v_t_30",(1,Int ()))], use = [], kill = []
+Liveness at end of _CAND26: in = [("%v___temp_5",(0,Bool ()))], out = [], use = [("%v___temp_5",Bool ())], kill = []
+Liveness at start of _CAND8: in = [("%v_t_21",(17,Int ())),("%v_t_19",(12,Int ())),("%v_t_12",(2,Int ())),("%v_t_30",(27,Int ())),("%v_t_28",(22,Int ()))], out = [("%v_t_21",(16,Int ())),("%v_t_19",(11,Int ())),("%v_t_12",(1,Int ())),("%v_t_30",(26,Int ())),("%v_t_28",(21,Int ()))], use = [], kill = []
+Liveness at end of _CAND8: in = [("%v_t_21",(14,Int ())),("%v_t_19",(9,Int ())),("%v___temp_1",(0,Bool ())),("%v_t_30",(24,Int ())),("%v_t_28",(19,Int ()))], out = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_30",(23,Int ())),("%v_t_28",(18,Int ()))], use = [("%v___temp_1",Bool ())], kill = []
+Liveness at start of _CFALSE16: in = [("%v_t_14~3",(2,Int ())),("%v_t_30",(8,Int ())),("%v_t_28",(3,Int ()))], out = [("%v_t_14~3",(1,Int ())),("%v_t_30",(7,Int ())),("%v_t_28",(2,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16: in = [("%v___temp_4",(0,Bool ())),("%v_t_30",(4,Int ()))], out = [("%v_t_30",(3,Int ()))], use = [("%v___temp_4",Bool ())], kill = []
+Liveness at start of _CFALSE16__from__CAND17: in = [("%v_t_30",(12,Int ())),("%v_t_28",(7,Int ()))], out = [("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16__from__CAND17: in = [("%v_t_14~3",(4,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_14~3",(3,Int ())),("%v_t_30",(9,Int ())),("%v_t_28",(4,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE16__from__CFALSE7: in = [("%v_t_30",(12,Int ())),("%v_t_28",(7,Int ()))], out = [("%v_t_30",(11,Int ())),("%v_t_28",(6,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE16__from__CFALSE7: in = [("%v_t_14~3",(4,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_14~3",(3,Int ())),("%v_t_30",(9,Int ())),("%v_t_28",(4,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE25: in = [("%v_t_23~3",(2,Int ()))], out = [("%v_t_23~3",(1,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE25: in = [], out = [], use = [], kill = []
+Liveness at start of _CFALSE25__from__CAND26: in = [], out = [], use = [], kill = []
+Liveness at end of _CFALSE25__from__CAND26: in = [("%v_t_23~3",(4,Int ()))], out = [("%v_t_23~3",(3,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE25__from__CFALSE16: in = [], out = [], use = [], kill = []
+Liveness at end of _CFALSE25__from__CFALSE16: in = [("%v_t_23~3",(4,Int ()))], out = [("%v_t_23~3",(3,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE7: in = [("%v_t_5~3",(2,Int ())),("%v_t_21",(8,Int ())),("%v_t_19",(3,Int ())),("%v_t_30",(18,Int ())),("%v_t_28",(13,Int ()))], out = [("%v_t_5~3",(1,Int ())),("%v_t_21",(7,Int ())),("%v_t_19",(2,Int ())),("%v_t_30",(17,Int ())),("%v_t_28",(12,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7: in = [("%v___temp_2",(0,Bool ())),("%v_t_21",(4,Int ())),("%v_t_30",(14,Int ())),("%v_t_28",(9,Int ()))], out = [("%v_t_21",(3,Int ())),("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], use = [("%v___temp_2",Bool ())], kill = []
+Liveness at start of _CFALSE7__from__CAND8: in = [("%v_t_21",(12,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(22,Int ())),("%v_t_28",(17,Int ()))], out = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_30",(21,Int ())),("%v_t_28",(16,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7__from__CAND8: in = [("%v_t_5~3",(4,Int ())),("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], out = [("%v_t_5~3",(3,Int ())),("%v_t_21",(9,Int ())),("%v_t_19",(4,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(14,Int ()))], use = [], kill = []
+Liveness at start of _CFALSE7__from_entry: in = [("%v_t_21",(12,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(22,Int ())),("%v_t_28",(17,Int ()))], out = [("%v_t_21",(11,Int ())),("%v_t_19",(6,Int ())),("%v_t_30",(21,Int ())),("%v_t_28",(16,Int ()))], use = [], kill = []
+Liveness at end of _CFALSE7__from_entry: in = [("%v_t_5~3",(4,Int ())),("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], out = [("%v_t_5~3",(3,Int ())),("%v_t_21",(9,Int ())),("%v_t_19",(4,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(14,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE15: in = [("%v_t_30",(13,Int ())),("%v_t_28",(8,Int ()))], out = [("%v_t_30",(12,Int ())),("%v_t_28",(7,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE15: in = [("%v_t_14~3",(4,Int ())),("%v_t_30",(10,Int ())),("%v_t_28",(5,Int ()))], out = [("%v_t_14~3",(3,Int ())),("%v_t_30",(9,Int ())),("%v_t_28",(4,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE24: in = [], out = [], use = [], kill = []
+Liveness at end of _CTRUE24: in = [("%v_t_23~3",(4,Int ()))], out = [("%v_t_23~3",(3,Int ()))], use = [], kill = []
+Liveness at start of _CTRUE6: in = [("%v_t_21",(13,Int ())),("%v_t_19",(8,Int ())),("%v_t_30",(23,Int ())),("%v_t_28",(18,Int ()))], out = [("%v_t_21",(12,Int ())),("%v_t_19",(7,Int ())),("%v_t_30",(22,Int ())),("%v_t_28",(17,Int ()))], use = [], kill = []
+Liveness at end of _CTRUE6: in = [("%v_t_5~3",(4,Int ())),("%v_t_21",(10,Int ())),("%v_t_19",(5,Int ())),("%v_t_30",(20,Int ())),("%v_t_28",(15,Int ()))], out = [("%v_t_5~3",(3,Int ())),("%v_t_21",(9,Int ())),("%v_t_19",(4,Int ())),("%v_t_30",(19,Int ())),("%v_t_28",(14,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.main (): [
+.L_entry:
+  endphi;
+  %v_t_3 := newstr "&&";
+  call int ~cl_TopLevel.printString (String & %v_t_3);
+  %v___temp_0 := int %v_t_10 == 0;
+  jump if boolean %v___temp_0 then _CFALSE7__from_entry else _CAND8;
+  _CAND8:
+  endphi;
+  %v___temp_1 := int %v_t_12 == 0;
+  jump if boolean %v___temp_1 then _CFALSE7__from__CAND8 else _CTRUE6;
+  _CFALSE7__from__CAND8:
+  %v_t_5~3 := 0;
+  jump _CFALSE7;
+  _CFALSE7:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_5~3);
+  %v___temp_2 := int %v_t_19 == 0;
+  jump if boolean %v___temp_2 then _CFALSE16__from__CFALSE7 else _CAND17;
+  _CAND17:
+  endphi;
+  %v___temp_3 := int %v_t_21 == 0;
+  jump if boolean %v___temp_3 then _CFALSE16__from__CAND17 else _CTRUE15;
+  _CFALSE16__from__CAND17:
+  %v_t_14~3 := 0;
+  jump _CFALSE16;
+  _CFALSE16:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_14~3);
+  %v___temp_4 := int %v_t_28 == 0;
+  jump if boolean %v___temp_4 then _CFALSE25__from__CFALSE16 else _CAND26;
+  _CAND26:
+  endphi;
+  %v___temp_5 := int %v_t_30 == 0;
+  jump if boolean %v___temp_5 then _CFALSE25__from__CAND26 else _CTRUE24;
+  _CFALSE25__from__CAND26:
+  %v_t_23~3 := 0;
+  jump _CFALSE25;
+  _CFALSE25:
+  endphi;
+  call int ~cl_TopLevel.printBool (int %v_t_23~3);
+  endphi;
+  return 0;
+  _CTRUE24:
+  endphi;
+  %v_t_23~3 := 1;
+  jump _CFALSE25;
+  _CFALSE25__from__CFALSE16:
+  %v_t_23~3 := 0;
+  jump _CFALSE25;
+  _CTRUE15:
+  endphi;
+  %v_t_14~3 := 1;
+  jump _CFALSE16;
+  _CFALSE16__from__CFALSE7:
+  %v_t_14~3 := 0;
+  jump _CFALSE16;
+  _CTRUE6:
+  endphi;
+  %v_t_5~3 := 1;
+  jump _CFALSE7;
+  _CFALSE7__from_entry:
+  %v_t_5~3 := 0;
+  jump _CFALSE7;
+]
+
+CFG for ~cl_TopLevel.printBool:
+[".L_entry","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%v_return",(15,Int ())),("%a_t_33",(2,Ref () (Int ())))], out = [("%v_return",(14,Int ())),("%a_t_33",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_return",(11,Int ())),("%v___temp_7",(0,Bool ()))], out = [("%v_return",(10,Int ()))], use = [("%v___temp_7",Bool ())], kill = []
+Liveness at start of _IELSE35: in = [("%v_return",(9,Int ()))], out = [("%v_return",(8,Int ()))], use = [], kill = []
+Liveness at end of _IELSE35: in = [("%v_return",(5,Int ()))], out = [("%v_return",(4,Int ()))], use = [], kill = []
+Liveness at start of _IEND36: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Liveness at end of _IEND36: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _IIF34: in = [("%v_return",(9,Int ()))], out = [("%v_return",(8,Int ()))], use = [], kill = []
+Liveness at end of _IIF34: in = [("%v_return",(5,Int ()))], out = [("%v_return",(4,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.printBool (int %a_t_33): [
+.L_entry:
+  endphi;
+  %v_t_33 := load int & param 0 %a_t_33;
+  %v___temp_7 := int %v_t_33 == 0;
+  jump if boolean %v___temp_7 then _IIF34 else _IELSE35;
+  _IELSE35:
+  endphi;
+  %v_t_41 := newstr "true";
+  call int ~cl_TopLevel.printString (String & %v_t_41);
+  jump _IEND36;
+  _IEND36:
+  endphi;
+  endphi;
+  return int %v_return;
+  _IIF34:
+  endphi;
+  %v_t_38 := newstr "false";
+  call int ~cl_TopLevel.printString (String & %v_t_38);
+  jump _IEND36;
+]
+
+CFG for ~cl_TopLevel.test:
+[".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+Liveness at start of .L_entry: in = [("%a_t_43",(2,Ref () (Int ())))], out = [("%a_t_43",(1,Ref () (Int ())))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v___temp_8",(0,Bool ()))], out = [], use = [("%v___temp_8",Bool ())], kill = []
+Liveness at start of .L_exit: in = [("%v_return~2",(2,Int ()))], out = [("%v_return~2",(1,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_return~2",(0,Int ()))], out = [], use = [("%v_return~2",Int ())], kill = []
+Liveness at start of _IELSE46: in = [], out = [], use = [], kill = []
+Liveness at end of _IELSE46: in = [("%v_return~2",(4,Int ()))], out = [("%v_return~2",(3,Int ()))], use = [], kill = []
+Liveness at start of _IIF45: in = [], out = [], use = [], kill = []
+Liveness at end of _IIF45: in = [("%v_return~2",(4,Int ()))], out = [("%v_return~2",(3,Int ()))], use = [], kill = []
+Code: 
+.method int ~cl_TopLevel.test (int %a_t_43): [
+.L_entry:
+  endphi;
+  %v_t_43 := load int & param 0 %a_t_43;
+  call int ~cl_TopLevel.printInt (int %v_t_43);
+  %v___temp_8 := int %v_t_43 > 0;
+  jump if boolean %v___temp_8 then _IIF45 else _IELSE46;
+  _IELSE46:
+  endphi;
+  %v_return~2 := 0;
+  jump .L_exit;
+.L_exit:
+  endphi;
+  return int %v_return~2;
+  _IIF45:
+  endphi;
+  %v_return~2 := 1;
+  jump .L_exit;
+]
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Final liveness analysis...
+
+
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] COMPL_ DONE./play.lat
+
+CompiledProg ./play.lat:1:1 (Meta ./play.lat:1:1 [ClDef inside standard library (SymIdent "Array") [SymIdent "Array",SymIdent "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "Object"))) (SymIdent "elements"),FldDef inside standard library (Int inside standard library) (SymIdent "length"),FldDef inside standard library (Int inside standard library) (SymIdent "elementSize")] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Array") (SymIdent "toString"))],ClDef inside standard library (SymIdent "Object") [SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "toString"))],ClDef inside standard library (SymIdent "String") [SymIdent "String",SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "charAt")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "concat")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "startsWith")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "endsWith")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getBytes")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "indexOf")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "length")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "substring")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "toString")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getHashCode"))],ClDef ./play.lat:1:1 (SymIdent "~cl_TopLevel") [] [] [MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))) []) (QIdent ./play.lat:1:1 (SymIdent "Array") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "substring")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "length")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "indexOf")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getBytes")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "endsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "startsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "concat")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "charAt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printByte")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBoolean")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBinArray")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "byteToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "boolToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "intToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "print")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "error")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "__cast")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")),MthdDef ./play.lat:11:1 (FType ./play.lat:11:1 (Int ./play.lat:11:1) [Int ./play.lat:11:16]) (QIdent ./play.lat:11:6 (SymIdent "~cl_TopLevel") (SymIdent "printBool")),MthdDef ./play.lat:20:1 (FType ./play.lat:20:1 (Int ./play.lat:20:1) [Int ./play.lat:20:14]) (QIdent ./play.lat:20:9 (SymIdent "~cl_TopLevel") (SymIdent "test"))]]) [([".L_entry","_CAND17","_CAND26","_CAND8","_CFALSE16","_CFALSE16__from__CAND17","_CFALSE16__from__CFALSE7","_CFALSE25","_CFALSE25__from__CAND26","_CFALSE25__from__CFALSE16","_CFALSE7","_CFALSE7__from__CAND8","_CFALSE7__from_entry","_CTRUE15","_CTRUE24","_CTRUE6"]
+".L_entry" -> fromList [LabIdent "_CAND8",LabIdent "_CFALSE7__from_entry"] <- fromList []
+"_CAND17" -> fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CTRUE15"] <- fromList [LabIdent "_CFALSE7"]
+"_CAND26" -> fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CTRUE24"] <- fromList [LabIdent "_CFALSE16"]
+"_CAND8" -> fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CTRUE6"] <- fromList [LabIdent ".L_entry"]
+"_CFALSE16" -> fromList [LabIdent "_CAND26",LabIdent "_CFALSE25__from__CFALSE16"] <- fromList [LabIdent "_CFALSE16__from__CAND17",LabIdent "_CFALSE16__from__CFALSE7",LabIdent "_CTRUE15"]
+"_CFALSE16__from__CAND17" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CFALSE16__from__CFALSE7" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CFALSE7"]
+"_CFALSE25" -> fromList [] <- fromList [LabIdent "_CFALSE25__from__CAND26",LabIdent "_CFALSE25__from__CFALSE16",LabIdent "_CTRUE24"]
+"_CFALSE25__from__CAND26" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CFALSE25__from__CFALSE16" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CFALSE16"]
+"_CFALSE7" -> fromList [LabIdent "_CAND17",LabIdent "_CFALSE16__from__CFALSE7"] <- fromList [LabIdent "_CFALSE7__from__CAND8",LabIdent "_CFALSE7__from_entry",LabIdent "_CTRUE6"]
+"_CFALSE7__from__CAND8" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+"_CFALSE7__from_entry" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent ".L_entry"]
+"_CTRUE15" -> fromList [LabIdent "_CFALSE16"] <- fromList [LabIdent "_CAND17"]
+"_CTRUE24" -> fromList [LabIdent "_CFALSE25"] <- fromList [LabIdent "_CAND26"]
+"_CTRUE6" -> fromList [LabIdent "_CFALSE7"] <- fromList [LabIdent "_CAND8"]
+,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:1:1,INewStr ./play.lat:2:15 (ValIdent "%v_t_3") "&&",IVCall ./play.lat:2:3 (Call ./play.lat:2:3 (Int inside standard library) (QIdent ./play.lat:2:3 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:2:3 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_3")] []),IOp ./play.lat:3:13 (ValIdent "%v___temp_0") (VVal ./play.lat:3:13 (Int ./play.lat:20:1) (ValIdent "%v_t_10")) (OpEQU ./play.lat:3:13) (VInt ./play.lat:3:13 0),ICondJmp ./play.lat:3:13 (VVal ./play.lat:3:13 (Bool ./play.lat:3:13) (ValIdent "%v___temp_0")) (LabIdent "_CFALSE7__from_entry") (LabIdent "_CAND8"),ILabel ./play.lat:3:13 (LabIdent "_CAND8"),IEndPhi ./play.lat:3:13,IOp ./play.lat:3:25 (ValIdent "%v___temp_1") (VVal ./play.lat:3:25 (Int ./play.lat:3:25) (ValIdent "%v_t_12")) (OpEQU ./play.lat:3:25) (VInt ./play.lat:3:25 0),ICondJmp ./play.lat:3:25 (VVal ./play.lat:3:25 (Bool ./play.lat:3:25) (ValIdent "%v___temp_1")) (LabIdent "_CFALSE7__from__CAND8") (LabIdent "_CTRUE6"),ILabel ./play.lat:3:13 (LabIdent "_CFALSE7__from__CAND8"),ISet ./play.lat:3:13 (ValIdent "%v_t_5~3") (VInt ./play.lat:3:13 0),IJmp ./play.lat:3:13 (LabIdent "_CFALSE7"),ILabel ./play.lat:3:13 (LabIdent "_CFALSE7"),IEndPhi ./play.lat:3:13,IVCall ./play.lat:3:3 (Call ./play.lat:3:3 (Int ./play.lat:11:1) (QIdent ./play.lat:3:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:3:3 (Int ./play.lat:11:16) (ValIdent "%v_t_5~3")] []),IOp ./play.lat:4:13 (ValIdent "%v___temp_2") (VVal ./play.lat:4:13 (Int ./play.lat:4:13) (ValIdent "%v_t_19")) (OpEQU ./play.lat:4:13) (VInt ./play.lat:4:13 0),ICondJmp ./play.lat:4:13 (VVal ./play.lat:4:13 (Bool ./play.lat:4:13) (ValIdent "%v___temp_2")) (LabIdent "_CFALSE16__from__CFALSE7") (LabIdent "_CAND17"),ILabel ./play.lat:4:13 (LabIdent "_CAND17"),IEndPhi ./play.lat:4:13,IOp ./play.lat:4:25 (ValIdent "%v___temp_3") (VVal ./play.lat:4:25 (Int ./play.lat:4:25) (ValIdent "%v_t_21")) (OpEQU ./play.lat:4:25) (VInt ./play.lat:4:25 0),ICondJmp ./play.lat:4:25 (VVal ./play.lat:4:25 (Bool ./play.lat:4:25) (ValIdent "%v___temp_3")) (LabIdent "_CFALSE16__from__CAND17") (LabIdent "_CTRUE15"),ILabel ./play.lat:4:13 (LabIdent "_CFALSE16__from__CAND17"),ISet ./play.lat:4:13 (ValIdent "%v_t_14~3") (VInt ./play.lat:4:13 0),IJmp ./play.lat:4:13 (LabIdent "_CFALSE16"),ILabel ./play.lat:4:13 (LabIdent "_CFALSE16"),IEndPhi ./play.lat:4:13,IVCall ./play.lat:4:3 (Call ./play.lat:4:3 (Int ./play.lat:11:1) (QIdent ./play.lat:4:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:4:3 (Int ./play.lat:11:16) (ValIdent "%v_t_14~3")] []),IOp ./play.lat:5:13 (ValIdent "%v___temp_4") (VVal ./play.lat:5:13 (Int ./play.lat:5:13) (ValIdent "%v_t_28")) (OpEQU ./play.lat:5:13) (VInt ./play.lat:5:13 0),ICondJmp ./play.lat:5:13 (VVal ./play.lat:5:13 (Bool ./play.lat:5:13) (ValIdent "%v___temp_4")) (LabIdent "_CFALSE25__from__CFALSE16") (LabIdent "_CAND26"),ILabel ./play.lat:5:13 (LabIdent "_CAND26"),IEndPhi ./play.lat:5:13,IOp ./play.lat:5:24 (ValIdent "%v___temp_5") (VVal ./play.lat:5:24 (Int ./play.lat:5:24) (ValIdent "%v_t_30")) (OpEQU ./play.lat:5:24) (VInt ./play.lat:5:24 0),ICondJmp ./play.lat:5:24 (VVal ./play.lat:5:24 (Bool ./play.lat:5:24) (ValIdent "%v___temp_5")) (LabIdent "_CFALSE25__from__CAND26") (LabIdent "_CTRUE24"),ILabel ./play.lat:5:13 (LabIdent "_CFALSE25__from__CAND26"),ISet ./play.lat:5:13 (ValIdent "%v_t_23~3") (VInt ./play.lat:5:13 0),IJmp ./play.lat:5:13 (LabIdent "_CFALSE25"),ILabel ./play.lat:5:13 (LabIdent "_CFALSE25"),IEndPhi ./play.lat:5:13,IVCall ./play.lat:5:3 (Call ./play.lat:5:3 (Int ./play.lat:11:1) (QIdent ./play.lat:5:3 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [VVal ./play.lat:5:3 (Int ./play.lat:11:16) (ValIdent "%v_t_23~3")] []),IEndPhi ./play.lat:1:1,IRet ./play.lat:1:1 (VInt ./play.lat:1:1 0),ILabel ./play.lat:5:13 (LabIdent "_CTRUE24"),IEndPhi ./play.lat:5:13,ISet ./play.lat:5:13 (ValIdent "%v_t_23~3") (VInt ./play.lat:5:13 1),IJmp ./play.lat:5:13 (LabIdent "_CFALSE25"),ILabel ./play.lat:5:13 (LabIdent "_CFALSE25__from__CFALSE16"),ISet ./play.lat:5:13 (ValIdent "%v_t_23~3") (VInt ./play.lat:5:13 0),IJmp ./play.lat:5:13 (LabIdent "_CFALSE25"),ILabel ./play.lat:4:13 (LabIdent "_CTRUE15"),IEndPhi ./play.lat:4:13,ISet ./play.lat:4:13 (ValIdent "%v_t_14~3") (VInt ./play.lat:4:13 1),IJmp ./play.lat:4:13 (LabIdent "_CFALSE16"),ILabel ./play.lat:4:13 (LabIdent "_CFALSE16__from__CFALSE7"),ISet ./play.lat:4:13 (ValIdent "%v_t_14~3") (VInt ./play.lat:4:13 0),IJmp ./play.lat:4:13 (LabIdent "_CFALSE16"),ILabel ./play.lat:3:13 (LabIdent "_CTRUE6"),IEndPhi ./play.lat:3:13,ISet ./play.lat:3:13 (ValIdent "%v_t_5~3") (VInt ./play.lat:3:13 1),IJmp ./play.lat:3:13 (LabIdent "_CFALSE7"),ILabel ./play.lat:3:13 (LabIdent "_CFALSE7__from_entry"),ISet ./play.lat:3:13 (ValIdent "%v_t_5~3") (VInt ./play.lat:3:13 0),IJmp ./play.lat:3:13 (LabIdent "_CFALSE7")],RegAlloc {regAlloc = fromList [(ValIdent "%v___temp_0",RAX),(ValIdent "%v___temp_1",RAX),(ValIdent "%v___temp_2",RAX),(ValIdent "%v___temp_3",RAX),(ValIdent "%v___temp_4",RAX),(ValIdent "%v___temp_5",RAX),(ValIdent "%v_t_10",RCX),(ValIdent "%v_t_12",RBX),(ValIdent "%v_t_14~3",RAX),(ValIdent "%v_t_19",R12),(ValIdent "%v_t_21",R13),(ValIdent "%v_t_23~3",RAX),(ValIdent "%v_t_28",R14),(ValIdent "%v_t_3",RAX),(ValIdent "%v_t_30",R15),(ValIdent "%v_t_5~3",RAX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RDI",RDI),(ValIdent "~arg_2_RDI",RDI),(ValIdent "~arg_3_RDI",RDI)], numLocals = 0}),([".L_entry","_IELSE35","_IEND36","_IIF34"]
+".L_entry" -> fromList [LabIdent "_IELSE35",LabIdent "_IIF34"] <- fromList []
+"_IELSE35" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+"_IEND36" -> fromList [] <- fromList [LabIdent "_IELSE35",LabIdent "_IIF34"]
+"_IIF34" -> fromList [LabIdent "_IEND36"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:11:1 (Int ./play.lat:11:1) (QIdent ./play.lat:11:6 (SymIdent "~cl_TopLevel") (SymIdent "printBool")) [Param ./play.lat:11:1 (Int ./play.lat:11:16) (ValIdent "%a_t_33")] [ILabel ./play.lat:11:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:11:1,ILoad ./play.lat:11:1 (ValIdent "%v_t_33") (PParam ./play.lat:11:1 (Ref ./play.lat:11:1 (Int ./play.lat:11:16)) 0 (ValIdent "%a_t_33")),IOp ./play.lat:12:8 (ValIdent "%v___temp_7") (VVal ./play.lat:12:8 (Int ./play.lat:11:16) (ValIdent "%v_t_33")) (OpEQU ./play.lat:12:8) (VInt ./play.lat:12:8 0),ICondJmp ./play.lat:12:8 (VVal ./play.lat:12:8 (Bool ./play.lat:12:8) (ValIdent "%v___temp_7")) (LabIdent "_IIF34") (LabIdent "_IELSE35"),ILabel ./play.lat:12:3 (LabIdent "_IELSE35"),IEndPhi ./play.lat:12:3,INewStr ./play.lat:15:17 (ValIdent "%v_t_41") "true",IVCall ./play.lat:15:5 (Call ./play.lat:15:5 (Int inside standard library) (QIdent ./play.lat:15:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:15:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_41")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36"),ILabel ./play.lat:12:3 (LabIdent "_IEND36"),IEndPhi ./play.lat:12:3,IEndPhi ./play.lat:11:1,IRet ./play.lat:11:1 (VVal ./play.lat:11:1 (Int ./play.lat:11:1) (ValIdent "%v_return")),ILabel ./play.lat:12:3 (LabIdent "_IIF34"),IEndPhi ./play.lat:12:3,INewStr ./play.lat:13:17 (ValIdent "%v_t_38") "false",IVCall ./play.lat:13:5 (Call ./play.lat:13:5 (Int inside standard library) (QIdent ./play.lat:13:5 (SymIdent "~cl_TopLevel") (SymIdent "printString")) [VVal ./play.lat:13:5 (Ref inside standard library (Cl inside standard library (SymIdent "String"))) (ValIdent "%v_t_38")] []),IJmp ./play.lat:12:3 (LabIdent "_IEND36")],RegAlloc {regAlloc = fromList [(ValIdent "%a_t_33",RDI),(ValIdent "%v___temp_7",RAX),(ValIdent "%v_return",RBX),(ValIdent "%v_t_33",RAX),(ValIdent "%v_t_38",RAX),(ValIdent "%v_t_41",RAX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RDI",RDI)], numLocals = 0}),([".L_entry",".L_exit","_IELSE46","_IIF45"]
+".L_entry" -> fromList [LabIdent "_IELSE46",LabIdent "_IIF45"] <- fromList []
+".L_exit" -> fromList [] <- fromList [LabIdent "_IELSE46",LabIdent "_IIF45"]
+"_IELSE46" -> fromList [LabIdent ".L_exit"] <- fromList [LabIdent ".L_entry"]
+"_IIF45" -> fromList [LabIdent "/usr/bin/ld: /tmp/cc45NqmE.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+.L_exit"] <- fromList [LabIdent ".L_entry"]
+,Mthd ./play.lat:20:1 (Int ./play.lat:20:1) (QIdent ./play.lat:20:9 (SymIdent "~cl_TopLevel") (SymIdent "test")) [Param ./play.lat:20:1 (Int ./play.lat:20:14) (ValIdent "%a_t_43")] [ILabel ./play.lat:20:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:20:1,ILoad ./play.lat:20:1 (ValIdent "%v_t_43") (PParam ./play.lat:20:1 (Ref ./play.lat:20:1 (Int ./play.lat:20:14)) 0 (ValIdent "%a_t_43")),IVCall ./play.lat:21:3 (Call ./play.lat:21:3 (Int inside standard library) (QIdent ./play.lat:21:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:21:3 (Int inside standard library) (ValIdent "%v_t_43")] []),IOp ./play.lat:22:10 (ValIdent "%v___temp_8") (VVal ./play.lat:22:10 (Int ./play.lat:20:14) (ValIdent "%v_t_43")) (OpGTH ./play.lat:22:12) (VInt ./play.lat:22:10 0),ICondJmp ./play.lat:22:10 (VVal ./play.lat:22:10 (Bool ./play.lat:22:10) (ValIdent "%v___temp_8")) (LabIdent "_IIF45") (LabIdent "_IELSE46"),ILabel ./play.lat:22:3 (LabIdent "_IELSE46"),IEndPhi ./play.lat:22:3,ISet ./play.lat:20:1 (ValIdent "%v_return~2") (VInt ./play.lat:20:1 0),IJmp ./play.lat:20:1 (LabIdent ".L_exit"),ILabel ./play.lat:20:1 (LabIdent ".L_exit"),IEndPhi ./play.lat:20:1,IRet ./play.lat:20:1 (VVal ./play.lat:20:1 (Int ./play.lat:20:1) (ValIdent "%v_return~2")),ILabel ./play.lat:22:3 (LabIdent "_IIF45"),IEndPhi ./play.lat:22:3,ISet ./play.lat:20:1 (ValIdent "%v_return~2") (VInt ./play.lat:20:1 1),IJmp ./play.lat:20:1 (LabIdent ".L_exit")],RegAlloc {regAlloc = fromList [(ValIdent "%a_t_43",RDI),(ValIdent "%v___temp_8",RAX),(ValIdent "%v_return~2",RAX),(ValIdent "%v_t_43",RBX),(ValIdent "~arg_0_RDI",RDI)], numLocals = 0})]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running correct compiler backend: X64
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Created file: ./play.s
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Calling backend compile step: X64
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Run GCC for X64 backend to generate './play' executable from object file './play.o'
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Executing command 'gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./play.s -o ./play -z noexecstack'
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Command executed successfully.
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] X64 compilation of './play.s' seems to be successfull
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Backend code generation completed successfully ./play.lat -> ./play
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DONE

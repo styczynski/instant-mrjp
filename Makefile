@@ -28,7 +28,8 @@ profile:
 	./bin/invoke_haskell_stack.sh exec --profile -- latc_x86 ./test.lat +RTS -p -M 1844674407
 
 lib/runtime.ext: src/Runtime/dependencies/_built_/done.txt src/Runtime/runtime.h src/Runtime/runtime.c
-	gcc -O2 $(CFLAGS) $(GCC_PATHS_OPT) -c src/Runtime/runtime.c -o src/Runtime/runtime.o
+	gcc -O0 $(CFLAGS) $(GCC_PATHS_OPT) -c src/Runtime/runtime.c -o src/Runtime/runtime.o
+	gcc -O0 -S -fverbose-asm $(CFLAGS) $(GCC_PATHS_OPT) src/Runtime/runtime.c -o src/Runtime/runtime.s
 	mkdir -p lib
 	cp src/Runtime/runtime.o lib/runtime
 	cp src/Runtime/asm_externs lib/runtime.ext

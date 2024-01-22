@@ -64,11 +64,24 @@ convertFunctionToFIR (A.Fun p cls l rt args stmts) = do
     --B.ISet p (nameToValIdent n) (B.VVal p (convertType t) $ (argNameToValIdent n))
     paramsMoves <- return $ map (\((t, n), i) -> B.ILoad p (nameToValIdent n) (B.PParam p ((B.Ref p) $ convertType t) i (argNameToValIdent n))) $ zip args [0..]
     let (instrs', trimmedLabel) = trimLabel instrs
-    let instrs'' = maybe (instrs') (\l -> replaceLabels l ".L_exit" instrs') trimmedLabel
+    let instrs'' = maybe (instrs') (\l -> removeDoubleJumps $ replaceLabels l ".L_exit" instrs') trimmedLabel
     return $ B.Mthd p (convertType rt) (functionName cls l) params $ [B.ILabel p (B.LabIdent ".L_entry")] ++ paramsMoves ++ instrs'' ++ [B.ILabel p $ B.LabIdent ".L_exit", B.IRet p $ B.VVal p (convertType rt) $ B.ValIdent $ "%v_return"]
 
+removeDoubleJumps :: [B.Instr a] -> [B.Instr a]
+removeDoubleJumps (j1@(B.IJmp  p (B.LabIdent l)) : (B.IJmp _ (B.LabIdent _)) : rest) = j1 : removeDoubleJumps rest
+removeDoubleJumps (j1@(B.ICondJmp p v (B.LabIdent l1) (B.LabIdent l2)) : (B.IJmp _ (B.LabIdent _)) : rest) = j1 : removeDoubleJumps rest
+removeDoubleJumps (j1@(B.IJmp  p (B.LabIdent l)) : (B.ICondJmp _ _ _ _) : rest) = j1 : removeDoubleJumps rest
+removeDoubleJumps (j1@(B.ICondJmp p v (B.LabIdent l1) (B.LabIdent l2)) : (B.ICondJmp _ _ _ _) : rest) = j1 : removeDoubleJumps rest
+removeDoubleJumps (instr : rest) = instr : removeDoubleJumps rest
+removeDoubleJumps [] = []
+
 replaceLabels :: String -> String -> [B.Instr a] -> [B.Instr a]
-replaceLabels lFind lReplace ((B.ILabel p (B.LabIdent l)) : rest) | l == lFind = (B.ILabel p (B.LabIdent lReplace)) : replaceLabels lFind lReplace rest
+replaceLabels lFind lReplace ((B.IJmp  p (B.LabIdent l)) : rest) | l == lFind = (B.IJmp p (B.LabIdent lReplace)) : replaceLabels lFind lReplace rest
+replaceLabels lFind lReplace ((B.ICondJmp p v (B.LabIdent l1) (B.LabIdent l2)) : rest) | (l1 == lFind || l2 == lFind) =
+    let l1' = if l1 == lFind then lReplace else l1 in
+    let l2' = if l2 == lFind then lReplace else l2 in
+    (B.ICondJmp p v (B.LabIdent l1') (B.LabIdent l2')) : replaceLabels lFind lReplace rest
+replaceLabels lFind lReplace ((B.ILabel p (B.LabIdent l)) : rest) | l == lFind = replaceLabels lFind lReplace rest
 replaceLabels lFind lReplace (instr : rest) = instr : replaceLabels lFind lReplace rest
 replaceLabels _ _ [] = []
 

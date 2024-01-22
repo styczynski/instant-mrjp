@@ -5,8 +5,10 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define __LATTE_RUNTIME_DEBUG_ENABLED false
+#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
+#define FORMAT_PTR(PTR) ((__LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES)?(PTR):((void*)(0)))
 
 extern void bzero(void *s, size_t n);
 extern void *memcpy(void *dest, const void *src, size_t n);
@@ -22,7 +24,7 @@ char *errMsg;
 uint8_t emptyString[] = "";
 
 obj __new(struct Type *t) {
-    DEBUG("Perform reference malloc type=%d <type parent=%d> [%d]", t, t->parent, t->dataSize);
+    DEBUG("Perform reference malloc type=%p <type parent=%p> [%d]", FORMAT_PTR(t), FORMAT_PTR(t->parent), t->dataSize);
     obj r = malloc(sizeof(struct Reference)+10);
     DEBUG("Set __new type/counter");
     r->type = t;
@@ -37,12 +39,12 @@ obj __new(struct Type *t) {
         r->data = NULL;
     }
     r->methods = r->type->methods;
-    DEBUG("Completed __new %d <type %d, par %d> inner data=%d", r, r->type, r->type->parent, r->data);
+    DEBUG("Completed __new %p <type %p, par %p> inner data=%p", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), r->data);
     return r;
 }
 
 void __free(obj r) {
-    DEBUG("__free %d", r);
+    DEBUG("__free %p", FORMAT_PTR(r));
     if (r->type == &_class_Array) {
         struct Array *arr = r->data;
         void **els = arr->elements;
@@ -63,13 +65,13 @@ void __free(obj r) {
 }
 
 void __incRef(obj r) {
-    DEBUG("__incRef %d", r);
+    DEBUG("__incRef %p", FORMAT_PTR(r));
     if (r != NULL) {
         r->counter++;
     }
 }
 void __decRef(obj r) {
-    DEBUG("__decRef %d", r);
+    DEBUG("__decRef %p", FORMAT_PTR(r));
     if (r != NULL) {
         r->counter--;
         if (r->counter <= 0) {
@@ -80,7 +82,7 @@ void __decRef(obj r) {
             __free(r);
         }
     }
-    DEBUG("__decRef end %d", r);
+    DEBUG("__decRef end %p", FORMAT_PTR(r));
 }
 
 obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
@@ -121,7 +123,7 @@ void *__getelementptr(obj array, int32_t index) {
 
 obj __cast(obj o, struct Type *t) {
     DEBUG("__cast");
-    DEBUG("__cast %d %d [%d]", o, t, t->dataSize);
+    DEBUG("__cast %p %p [%d]", FORMAT_PTR(o), FORMAT_PTR(t), t->dataSize);
     if (o == NULL) {
         DEBUG("__cast object is null");
         return NULL;
@@ -129,15 +131,15 @@ obj __cast(obj o, struct Type *t) {
     DEBUG("__cast get underlying type");
     struct Type *to = o->type;
     while (to != NULL) {
-        DEBUG("__cast iterate parent upward %d [%d]", to, to->dataSize);
+        DEBUG("__cast iterate parent upward %p [%d]", FORMAT_PTR(to), to->dataSize);
         if (t == to) {
-            DEBUG("__cast found correct parent: %d", to);
+            DEBUG("__cast found correct parent: %p", FORMAT_PTR(to));
             return o;
         }
         struct Type *prev = to;
         to = to->parent;
         if (prev == to) {
-            DEBUG("__cast loop, break %d", to);
+            DEBUG("__cast loop, break %p", FORMAT_PTR(to));
             break;
         }
     }
@@ -151,7 +153,8 @@ void __errorNull() {
 }
 
 obj __createString(char *c) {
-    DEBUG("Try to create string from %d", c);
+    DEBUG("Call __createString() v2");
+    DEBUG("Try to create string from %p", FORMAT_PTR(c));
     if (c == NULL) {
         DEBUG("C is NULL exit");
         return __createString(emptyString);
@@ -370,7 +373,7 @@ int8_t _String_startsWith(obj str, obj substr) {
     return u8_startswith(rs, rsub);
 }
 obj _String_concat(obj str, obj secondstr) {
-    DEBUG("String concat on %d and %d", str, secondstr);
+    DEBUG("String concat on %p and %p", str, secondstr);
     if (secondstr == NULL) {
         __incRef(str);
         return str;
@@ -411,66 +414,86 @@ int32_t _String_charAt(obj str, int32_t index) {
     return c;
 }
 
+void ddd(obj str) {
+    DEBUG("%p", str);
+}
+
 // functions
 int8_t printString(obj str) {
+    DEBUG("Calling printString()")
     if (str == NULL)
         str = __createString("null");
     __incRef(str);
     uint8_t *rs = ((struct String *)str->data)->data;
     printf("%s\n", rs);
     __decRef(str);
+    DEBUG("printString() completed")
     return 0;
 }
 int8_t printInt(int32_t i) {
+    DEBUG("Calling printInt()")
     printf("%d\n", i);
+    DEBUG("printInt() completed")
     return 0;
 }
 int8_t printBoolean(int8_t b) {
+    DEBUG("Calling printBoolean()")
     if (b)
         printf("true\n");
     else
         printf("false\n");
+    DEBUG("printBoolean() completed")
     return 0;
 }
 obj intToString(int32_t i) {
+    DEBUG("Calling intToString() conversion")
     char buffer[11];
     sprintf(buffer, "%d", i);
     obj ret = __createString(buffer);
     __incRef(ret);
+    DEBUG("intToString() conversion completed")
     return ret;
 }
 
 obj byteToString(uint8_t i) {
+    DEBUG("Calling byteToString() conversion")
     char buffer[11];
     sprintf(buffer, "%u", i);
     obj ret = __createString(buffer);
     __incRef(ret);
+    DEBUG("byteToString() conversion completed")
     return ret;
 }
 
 obj boolToString(int8_t b) {
+    DEBUG("boolToString() conversion completed")
     obj ret;
     if (b)
         ret = __createString("true");
     else
         ret = __createString("false");
     __incRef(ret);
+    DEBUG("boolToString() conversion completed")
     return ret;
 }
 
 int8_t print(obj o) {
+    DEBUG("Calling generic print(obj)")
     if (o == NULL)
         o = __createString("null");
     __incRef(o);
     obj (*toStr)(obj) = ((void **)o->type->methods)[0];
     obj str = toStr(o);
+    DEBUG("Subcall to internal printString() method")
     printString(str);
     __decRef(str);
     __decRef(o);
+    DEBUG("Generic print(obj) completed")
     return 0;
 }
 
 int8_t printBinArray(obj arr) {
+    DEBUG("Calling printBinArray(arr)")
     if (arr == NULL){
         print(arr);
         return 0;
@@ -479,14 +502,17 @@ int8_t printBinArray(obj arr) {
     struct Array *array = arr->data;
     fwrite(array->elements, sizeof(int8_t), array->length, stdout);
     __decRef(arr);
+    DEBUG("printBinArray(arr) call completed")
     return 0;
 }
 
 int8_t error() {
+    DEBUG("Calling error()")
     if (errMsg != NULL)
         fprintf(stderr, "%s\n", errMsg);
     else
         fprintf(stderr, "%s\n", "ERROR: User error.");
+    DEBUG("Exiting via error() (exit=1)")
     exit(1);
     return 1;
 }

@@ -227,7 +227,13 @@ transformFunction :: FnProto -> LinearConverter () (B.Function Position)
 transformFunction (FnProto pos cls name@(B.Label _ id) retType args stmts) = do
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
     nstmts <- withLCState (\env -> env & returnContextType .~ Nothing) . return =<< (withLCState (\env -> env & returnContextType .~ (Just retType)) (transformOverOnly stmts))
-    return $ B.Fun pos cls name retType nargs nstmts
+    return $ B.Fun pos cls name retType nargs (removeTrailingLabel nstmts)
+    where
+        removeTrailingLabel :: [B.Stmt a] -> [B.Stmt a]
+        removeTrailingLabel = reverse . removeTrailingLabel' . reverse
+        removeTrailingLabel' :: [B.Stmt a] -> [B.Stmt a]
+        removeTrailingLabel' ((B.SetLabel _ (B.Label _ _)) : rest) = rest
+        removeTrailingLabel' rest = rest
 
 transformProgram :: (A.Program Position) -> LinearConverter () (B.Program Position)
 transformProgram prog = do
@@ -360,10 +366,10 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
             compare e = do
                 let p = A.getPos e
                 nb <- newName $ B.ByteT p
-                ltrue <- newLabel "_C"
-                lfalse <- newLabel "_C"
+                ltrue <- newLabel "_CTRUE"
+                lfalse <- newLabel "_CFALSE"
                 condc <- transformCondition e ltrue lfalse
-                return (nb, [B.VarDecl p (B.ByteT p) nb (B.Val p (B.Const p (B.ByteC p 0)))] ++ condc ++ [B.SetLabel p ltrue, B.Assign p (B.ByteT p) (B.Variable p nb) (B.Val p (B.Const p (B.ByteC p 1))), B.SetLabel p lfalse])
+                return (nb, [B.VarDecl p (B.ByteT p) nb (B.Val p (B.Const p (B.ByteC p 0)))] ++ condc ++ [B.SetLabel p ltrue, B.Assign p (B.ByteT p) (B.Variable p nb) (B.Val p (B.Const p (B.ByteC p 1))), B.Jump p lfalse, B.SetLabel p lfalse])
             isLit :: (A.Expr Position) -> Bool
             isLit (A.Lit _ _) = True
             isLit _ = False

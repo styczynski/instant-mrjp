@@ -68,6 +68,7 @@ obj _String_concat(obj str, obj secondstr);
 int32_t _String_charAt(obj str, int32_t index);
 
 // functions
+void ddd(obj str);
 int8_t printString(obj str);
 int8_t printInt(int32_t i);
 int8_t printBoolean(int8_t b);
