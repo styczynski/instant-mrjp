@@ -131,10 +131,13 @@ transAsmInstr x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.IDIV8 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.INC8 _ target commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.DEC8 _ target commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.PUSH64 _ source commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.PUSH32 _ source commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.PUSH16 _ source commentann -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.PUSH8 _ source commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALL _ label commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT _ integer reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.POP _ reg commentann -> failure x
-  Backend.X64.Parser.Gen.AbsXGAS.PUSH _ reg commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.LEAVE _ commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.RET _ commentann -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.CDQ _ commentann -> failure x

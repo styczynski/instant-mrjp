@@ -168,6 +168,10 @@ def create_instr_wrappers():
         instr_variants = instr_variants + [
             f"""{instr.upper()} a Size (Loc) (Annotation a anno)""",
         ]
+    for instr in INSTR_ARITM_1OPSRC:
+        instr_variants = instr_variants + [
+            f"""{instr.upper()} a Size (Loc) (Annotation a anno)""",
+        ]
     for instr in INSTR_JMP:
         instr_variants = instr_variants + [
             f"""{instr.upper()} a (String) (Annotation a anno)""",
@@ -237,6 +241,15 @@ def create_instr_wrappers():
             """
         ]
     for instr in INSTR_ARITM_1OP:
+        syms = syms + [f"{instr}"]
+        ret = ret+[
+            f"""
+                {instr} :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+                {instr} pos size loc ann =
+                    {INDENT}_emitInstr pos $ {instr.upper()} pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+            """
+        ]
+    for instr in INSTR_ARITM_1OPSRC:
         syms = syms + [f"{instr}"]
         ret = ret+[
             f"""
@@ -319,6 +332,10 @@ def create_instr_wrappers():
         ret = ret+[
             f"""mapInstrData f g ({instr.upper()} pos size to ann) = {instr.upper()} (f pos) size to (mapAnnotationData f g ann)"""
         ]
+    for instr in INSTR_ARITM_1OPSRC:
+        ret = ret+[
+            f"""mapInstrData f g ({instr.upper()} pos size from ann) = {instr.upper()} (f pos) size from (mapAnnotationData f g ann)"""
+        ]
     for instr in INSTR_SET:
         ret = ret+[
             f"""mapInstrData f g ({instr.upper()} pos ordVal loc ann) = {instr.upper()} (f pos) ordVal loc (mapAnnotationData f g ann)"""
@@ -377,16 +394,24 @@ def create_instr_wrappers():
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos size _ _) = generatorFail $ EDataUnexpectedSize pos size"""
         ]
+    for instr in INSTR_ARITM_1OPSRC:
+        for size in REGISTERS:
+            ret = ret+[
+                f"""_convertInstr ({instr.upper()} pos Size{size} loc ann) = return $ Syntax.{instr.upper()}{size} pos (_locToSource pos Size{size} loc) (_convert_annotation ann)""",
+            ]
+        ret = ret+[
+            f"""_convertInstr ({instr.upper()} pos size _ _) = generatorFail $ EDataUnexpectedSize pos size"""
+        ]
     for instr in INSTR_SET:
         for ord_suffix in ORDS:
             ret = ret+[
                 f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.{instr.upper()}{ord_suffix.upper()} pos r (_convert_annotation ann)""",
-                f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
+                f"""_convertInstr ({instr.upper()} pos Ord{ord_suffix.upper()} loc _) = generatorFail $ ENonRegisterLocationGiven pos "{instr.upper()}" loc""",
             ]
     for instr in INSTR_STACK:
         ret = ret+[
             f"""_convertInstr ({instr.upper()} pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.{instr.upper()} pos r (_convert_annotation ann)""",
-            f"""_convertInstr ({instr.upper()} pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc""",
+            f"""_convertInstr ({instr.upper()} pos loc _) = generatorFail $ ENonRegisterLocationGiven pos "{instr.upper()}" loc""",
         ]
     for instr in INSTR_JMP:
         ret = ret+[
@@ -685,7 +710,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}| EDataUnexpectedSize a Size
     {INDENT}| EDataUnexpectedLocation a Loc
     {INDENT}| ENoOutputCodeGenerated
-    {INDENT}| ENonRegisterLocationGiven a Loc
+    {INDENT}| ENonRegisterLocationGiven a String Loc
     {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
     generatorFail :: (Monad m) => GeneratorError a -> ASMGeneratorT a anno m v

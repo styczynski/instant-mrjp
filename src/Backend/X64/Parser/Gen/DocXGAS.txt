@@ -50,15 +50,16 @@ The reserved words used in X64GAS are the following:
   | ``leal`` | ``leaq`` | ``leave`` | ``leaw``
   | ``movb`` | ``movl`` | ``movq`` | ``movw``
   | ``negb`` | ``negl`` | ``negq`` | ``negw``
-  | ``pop`` | ``push`` | ``ret`` | ``salb``
-  | ``sall`` | ``salq`` | ``salw`` | ``sarb``
-  | ``sarl`` | ``sarq`` | ``sarw`` | ``sete``
-  | ``setg`` | ``setge`` | ``setl`` | ``setle``
-  | ``setne`` | ``setnz`` | ``setz`` | ``subb``
-  | ``subl`` | ``subq`` | ``subw`` | ``testb``
-  | ``testl`` | ``testq`` | ``testw`` | ``xchgb``
-  | ``xchgl`` | ``xchgq`` | ``xchgw`` | ``xorb``
-  | ``xorl`` | ``xorq`` | ``xorw`` |
+  | ``pop`` | ``pushb`` | ``pushl`` | ``pushq``
+  | ``pushw`` | ``ret`` | ``salb`` | ``sall``
+  | ``salq`` | ``salw`` | ``sarb`` | ``sarl``
+  | ``sarq`` | ``sarw`` | ``sete`` | ``setg``
+  | ``setge`` | ``setl`` | ``setle`` | ``setne``
+  | ``setnz`` | ``setz`` | ``subb`` | ``subl``
+  | ``subq`` | ``subw`` | ``testb`` | ``testl``
+  | ``testq`` | ``testw`` | ``xchgb`` | ``xchgl``
+  | ``xchgq`` | ``xchgw`` | ``xorb`` | ``xorl``
+  | ``xorq`` | ``xorw`` |  |
 
 The symbols used in X64GAS are the following:
   | <ENDL> | .section | .rodata | .text
@@ -175,14 +176,17 @@ All other symbols are terminals.
   |  |  **|**  | ``idivw`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``incw`` //Target16// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``decw`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``negb`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``idivb`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``incb`` //Target16// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``decb`` //Target16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``negb`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``idivb`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``incb`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``decb`` //Target8// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``pushq`` //Source64// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``pushl`` //Source32// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``pushw`` //Source16// //CommentAnn// ``<ENDL>``
+  |  |  **|**  | ``pushb`` //Source8// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``call`` //Label// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``call`` ``*`` //Integer// ``(`` //Reg64// ``)`` //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``pop`` //Reg64// //CommentAnn// ``<ENDL>``
-  |  |  **|**  | ``push`` //Reg64// //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``leave`` //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``ret`` //CommentAnn// ``<ENDL>``
   |  |  **|**  | ``cdq`` //CommentAnn// ``<ENDL>``

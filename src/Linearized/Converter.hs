@@ -227,13 +227,24 @@ transformFunction :: FnProto -> LinearConverter () (B.Function Position)
 transformFunction (FnProto pos cls name@(B.Label _ id) retType args stmts) = do
     nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
     nstmts <- withLCState (\env -> env & returnContextType .~ Nothing) . return =<< (withLCState (\env -> env & returnContextType .~ (Just retType)) (transformOverOnly stmts))
-    return $ B.Fun pos cls name retType nargs (removeTrailingLabel nstmts)
+    let (nstmts', trailingLabel) = removeTrailingLabel nstmts
+    case trailingLabel of 
+        (Just l) -> return $ B.Fun pos cls name retType nargs (removeJmps l nstmts')
+        Nothing -> return $ B.Fun pos cls name retType nargs nstmts'
     where
-        removeTrailingLabel :: [B.Stmt a] -> [B.Stmt a]
-        removeTrailingLabel = reverse . removeTrailingLabel' . reverse
-        removeTrailingLabel' :: [B.Stmt a] -> [B.Stmt a]
-        removeTrailingLabel' ((B.SetLabel _ (B.Label _ _)) : rest) = rest
-        removeTrailingLabel' rest = rest
+        removeJmps :: String -> [B.Stmt a] -> [B.Stmt a]
+        removeJmps _ [] = []
+        removeJmps lFind ((B.Jump _ (B.Label _ l)):rest) | l == lFind = removeJmps lFind rest
+        removeJmps lFind (instr:rest) = instr : removeJmps lFind rest
+        -- removeJmps lFind ((B.JumpCmp pos cmp (B.Label l1p l1) (B.Label l2p l2) v1 v2):rest) = 
+        --     case (l1, l2) of 
+        --         (l1, l2) | l1 == lFind && l2 == lFind = removeJmps lFind rest
+        --         (l1, l2) | l1 == lFind && l2 /= lFind = 
+        removeTrailingLabel :: [B.Stmt a] -> ([B.Stmt a], Maybe String)
+        removeTrailingLabel instr = let (instr', l) = removeTrailingLabel' $ reverse instr in (reverse instr', l)
+        removeTrailingLabel' :: [B.Stmt a] -> ([B.Stmt a], Maybe String)
+        removeTrailingLabel' ((B.SetLabel _ (B.Label _ l)) : rest) = (rest, Just l)
+        removeTrailingLabel' rest = (rest, Nothing)
 
 transformProgram :: (A.Program Position) -> LinearConverter () (B.Program Position)
 transformProgram prog = do
@@ -446,7 +457,7 @@ transformCondition e ltrue lfalse = do
     let p = A.getPos e
     (n, ec) <- transform unknownType e
     nt <- typeOf n
-    return [B.JumpCmp p (B.Eq p) lfalse ltrue (B.Var p n nt) (B.Const p $ B.ByteC p 0)]
+    return $ ec ++ [B.JumpCmp p (B.Eq p) lfalse ltrue (B.Var p n nt) (B.Const p $ B.ByteC p 0)]
 
 instance IRConvertable A.Stmt B.Stmt () where
     --doTransform ast = return [B.Return $ A.getPos ast]

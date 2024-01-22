@@ -132,9 +132,9 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
             let (LabIdent labStr) = labelFor qi (LabIdent "")
             when (entryStr == mainEntryStr) (gen $ X64.label pos "main" Nothing)
             gen $ X64.label pos labStr Nothing
-            mapM_ (\r -> gen $ X64.push pos (X64.LocReg r) Nothing) savedRegs
+            mapM_ (\r -> gen $ X64.push pos X64.Size64 (X64.LocReg r) Nothing) savedRegs
             when (needsAlignment) (incrStack pos 8 "16 bytes alignment")
-            gen $ X64.push pos (X64.LocReg X64.RBP) Nothing
+            gen $ X64.push pos X64.Size64 (X64.LocReg X64.RBP) Nothing
             gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RSP) (X64.LocReg X64.RBP) Nothing
             incrStack pos locs "space for locals"
             -- FIXME: IMPORTANT OFFSET FIX
@@ -235,7 +235,7 @@ genInstr baseInstr =
                             X64.LocConst {} -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
                                 gen $ X64.cdq pos Nothing
-                                gen $ X64.push pos src1 Nothing
+                                gen $ X64.push pos X64.Size64 src1 Nothing
                                 gen $ X64.mov pos X64.Size32 src2 src1 Nothing
                                 gen $ X64.idiv pos X64.Size32 src1 Nothing
                                 gen $ X64.pop pos src1 Nothing
@@ -256,10 +256,10 @@ genInstr baseInstr =
                             X64.LocConst {} -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
                                 gen $ X64.cdq pos Nothing
-                                gen $ X64.push pos src1 Nothing
+                                gen $ X64.push pos X64.Size64 src1 Nothing
                                 gen $ X64.mov pos X64.Size32 src2 src1 Nothing
                                 gen $ X64.idiv pos X64.Size32 src1 Nothing
-                                gen $ X64.pop pos src1 Nothing
+                                gen $ X64.pop pos  src1 Nothing
                                 gen $ X64.mov pos X64.Size32 (X64.LocReg X64.RDX) dest Nothing
                             _ -> do
                                 gen $ X64.mov pos X64.Size32 src1 (X64.LocReg X64.RAX) Nothing
@@ -386,13 +386,13 @@ genCall pos target varArgs labelArgs cont = do
             argsInRegs = map (second X64.asReg) argsWithLocReg
             argsOnStack = map fst argsWithLocStack
             savedRegs = filter ((== X64.CallerSaved) . X64.regType) regs_
-        forM_ savedRegs (\r -> gen $ X64.push pos (X64.LocReg r) $ comment "save caller saved")
+        forM_ savedRegs (\r -> gen $ X64.push pos X64.Size64 (X64.LocReg r) $ comment "save caller saved")
         forM_ argsInRegs (uncurry (passInReg pos))
         stackBefore <- gEnvGet (stackOverheadSize .  (^. stack))
         locs <- mapM prepOnStack (reverse argsOnStack)
         alignStack
         stackAfter <- gEnvGet (stackOverheadSize . (^. stack))
-        forM_ locs (\l -> gen $ X64.push pos l (comment "passing arg"))
+        forM_ locs (\l -> gen $ X64.push pos X64.Size64 l (comment "passing arg"))
         let (LabIdent nullRefLabelStr) = nullrefLabel
         case target of
             CallDirect l              -> gen $ X64.call pos l Nothing

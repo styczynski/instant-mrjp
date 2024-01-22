@@ -8,7 +8,7 @@ import Test.Hspec
 
 spec :: Spec
 spec = do
-  describe "Positive examples" $ do
+  describe "Basic Latte tests" $ do
     it "core031" $ \h -> expectProgramSuccess [r|
         int main()
         {

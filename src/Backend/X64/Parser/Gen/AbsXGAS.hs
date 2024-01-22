@@ -127,10 +127,13 @@ data AsmInstr' a
     | IDIV8 a (Target' a) (CommentAnn' a)
     | INC8 a (Target' a) (CommentAnn' a)
     | DEC8 a (Target' a) (CommentAnn' a)
+    | PUSH64 a (Source' a) (CommentAnn' a)
+    | PUSH32 a (Source' a) (CommentAnn' a)
+    | PUSH16 a (Source' a) (CommentAnn' a)
+    | PUSH8 a (Source' a) (CommentAnn' a)
     | CALL a Label (CommentAnn' a)
     | CALLINDIRECT a Integer (Reg' a) (CommentAnn' a)
     | POP a (Reg' a) (CommentAnn' a)
-    | PUSH a (Reg' a) (CommentAnn' a)
     | LEAVE a (CommentAnn' a)
     | RET a (CommentAnn' a)
     | CDQ a (CommentAnn' a)
@@ -390,10 +393,13 @@ instance HasPosition AsmInstr where
     IDIV8 p _ _ -> p
     INC8 p _ _ -> p
     DEC8 p _ _ -> p
+    PUSH64 p _ _ -> p
+    PUSH32 p _ _ -> p
+    PUSH16 p _ _ -> p
+    PUSH8 p _ _ -> p
     CALL p _ _ -> p
     CALLINDIRECT p _ _ _ -> p
     POP p _ _ -> p
-    PUSH p _ _ -> p
     LEAVE p _ -> p
     RET p _ -> p
     CDQ p _ -> p

@@ -155,40 +155,43 @@ import Backend.X64.Parser.Gen.LexXGAS
   'negq'        { PT _ (TS _ 130)        }
   'negw'        { PT _ (TS _ 131)        }
   'pop'         { PT _ (TS _ 132)        }
-  'push'        { PT _ (TS _ 133)        }
-  'ret'         { PT _ (TS _ 134)        }
-  'salb'        { PT _ (TS _ 135)        }
-  'sall'        { PT _ (TS _ 136)        }
-  'salq'        { PT _ (TS _ 137)        }
-  'salw'        { PT _ (TS _ 138)        }
-  'sarb'        { PT _ (TS _ 139)        }
-  'sarl'        { PT _ (TS _ 140)        }
-  'sarq'        { PT _ (TS _ 141)        }
-  'sarw'        { PT _ (TS _ 142)        }
-  'sete'        { PT _ (TS _ 143)        }
-  'setg'        { PT _ (TS _ 144)        }
-  'setge'       { PT _ (TS _ 145)        }
-  'setl'        { PT _ (TS _ 146)        }
-  'setle'       { PT _ (TS _ 147)        }
-  'setne'       { PT _ (TS _ 148)        }
-  'setnz'       { PT _ (TS _ 149)        }
-  'setz'        { PT _ (TS _ 150)        }
-  'subb'        { PT _ (TS _ 151)        }
-  'subl'        { PT _ (TS _ 152)        }
-  'subq'        { PT _ (TS _ 153)        }
-  'subw'        { PT _ (TS _ 154)        }
-  'testb'       { PT _ (TS _ 155)        }
-  'testl'       { PT _ (TS _ 156)        }
-  'testq'       { PT _ (TS _ 157)        }
-  'testw'       { PT _ (TS _ 158)        }
-  'xchgb'       { PT _ (TS _ 159)        }
-  'xchgl'       { PT _ (TS _ 160)        }
-  'xchgq'       { PT _ (TS _ 161)        }
-  'xchgw'       { PT _ (TS _ 162)        }
-  'xorb'        { PT _ (TS _ 163)        }
-  'xorl'        { PT _ (TS _ 164)        }
-  'xorq'        { PT _ (TS _ 165)        }
-  'xorw'        { PT _ (TS _ 166)        }
+  'pushb'       { PT _ (TS _ 133)        }
+  'pushl'       { PT _ (TS _ 134)        }
+  'pushq'       { PT _ (TS _ 135)        }
+  'pushw'       { PT _ (TS _ 136)        }
+  'ret'         { PT _ (TS _ 137)        }
+  'salb'        { PT _ (TS _ 138)        }
+  'sall'        { PT _ (TS _ 139)        }
+  'salq'        { PT _ (TS _ 140)        }
+  'salw'        { PT _ (TS _ 141)        }
+  'sarb'        { PT _ (TS _ 142)        }
+  'sarl'        { PT _ (TS _ 143)        }
+  'sarq'        { PT _ (TS _ 144)        }
+  'sarw'        { PT _ (TS _ 145)        }
+  'sete'        { PT _ (TS _ 146)        }
+  'setg'        { PT _ (TS _ 147)        }
+  'setge'       { PT _ (TS _ 148)        }
+  'setl'        { PT _ (TS _ 149)        }
+  'setle'       { PT _ (TS _ 150)        }
+  'setne'       { PT _ (TS _ 151)        }
+  'setnz'       { PT _ (TS _ 152)        }
+  'setz'        { PT _ (TS _ 153)        }
+  'subb'        { PT _ (TS _ 154)        }
+  'subl'        { PT _ (TS _ 155)        }
+  'subq'        { PT _ (TS _ 156)        }
+  'subw'        { PT _ (TS _ 157)        }
+  'testb'       { PT _ (TS _ 158)        }
+  'testl'       { PT _ (TS _ 159)        }
+  'testq'       { PT _ (TS _ 160)        }
+  'testw'       { PT _ (TS _ 161)        }
+  'xchgb'       { PT _ (TS _ 162)        }
+  'xchgl'       { PT _ (TS _ 163)        }
+  'xchgq'       { PT _ (TS _ 164)        }
+  'xchgw'       { PT _ (TS _ 165)        }
+  'xorb'        { PT _ (TS _ 166)        }
+  'xorl'        { PT _ (TS _ 167)        }
+  'xorq'        { PT _ (TS _ 168)        }
+  'xorw'        { PT _ (TS _ 169)        }
   L_integ       { PT _ (TI _)            }
   L_quoted      { PT _ (TL _)            }
   L_CommentLike { PT _ (T_CommentLike _) }
@@ -334,14 +337,17 @@ AsmInstr
   | 'idivw' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'incw' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.INC16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'decw' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.DEC16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
-  | 'negb' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.NEG8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
-  | 'idivb' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
-  | 'incb' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.INC8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
-  | 'decb' Target16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.DEC8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'negb' Target8 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.NEG8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'idivb' Target8 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.IDIV8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'incb' Target8 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.INC8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'decb' Target8 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.DEC8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'pushq' Source64 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'pushl' Source32 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'pushw' Source16 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH16 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
+  | 'pushb' Source8 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'call' Label CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CALL (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'call' '*' Integer '(' Reg64 ')' CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CALLINDIRECT (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5) (snd $7)) }
   | 'pop' Reg64 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.POP (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
-  | 'push' Reg64 CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.PUSH (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3)) }
   | 'leave' CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.LEAVE (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'ret' CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.RET (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | 'cdq' CommentAnn '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.CDQ (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }

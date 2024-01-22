@@ -50,6 +50,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , idiv
 , inc
 , dec
+, push
 , sete
 , setg
 , setge
@@ -59,7 +60,6 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , setz
 , setnz
 , pop
-, push
 , leave
 , ret
 , cdq
@@ -125,7 +125,7 @@ data GeneratorError a =
 	| EDataUnexpectedSize a Size
 	| EDataUnexpectedLocation a Loc
 	| ENoOutputCodeGenerated
-	| ENonRegisterLocationGiven a Loc
+	| ENonRegisterLocationGiven a String Loc
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
 generatorFail :: (Monad m) => GeneratorError a -> ASMGeneratorT a anno m v
@@ -689,7 +689,7 @@ toBytes Size8 = 1
 
 -- Instruction wrappers
 
-data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | IDIV a Size (Loc) (Annotation a anno) | INC a Size (Loc) (Annotation a anno) | DEC a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | J a (ValOrd) (String) (Annotation a anno) | SET a (ValOrd) (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | PUSH a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
+data Instr a anno = CALL a String (Annotation a anno) | CALL_INDIRECT a Reg Integer (Annotation a anno) | Label a String (Annotation a anno) | ADD a Size (Loc) (Loc) (Annotation a anno) | AND a Size (Loc) (Loc) (Annotation a anno) | CMP a Size (Loc) (Loc) (Annotation a anno) | IMUL a Size (Loc) (Loc) (Annotation a anno) | LEA a Size (Loc) (Loc) (Annotation a anno) | MOV a Size (Loc) (Loc) (Annotation a anno) | SUB a Size (Loc) (Loc) (Annotation a anno) | TEST a Size (Loc) (Loc) (Annotation a anno) | XOR a Size (Loc) (Loc) (Annotation a anno) | XCHG a Size (Loc) (Loc) (Annotation a anno) | SAL a Size (Loc) (Loc) (Annotation a anno) | SAR a Size (Loc) (Loc) (Annotation a anno) | NEG a Size (Loc) (Annotation a anno) | IDIV a Size (Loc) (Annotation a anno) | INC a Size (Loc) (Annotation a anno) | DEC a Size (Loc) (Annotation a anno) | PUSH a Size (Loc) (Annotation a anno) | JMP a (String) (Annotation a anno) | J a (ValOrd) (String) (Annotation a anno) | SET a (ValOrd) (Loc) (Annotation a anno) | POP a (Loc) (Annotation a anno) | LEAVE a (Annotation a anno) | RET a (Annotation a anno) | CDQ a (Annotation a anno)
 	deriving (Eq, Ord, Show, Read, Generic, Foldable, Traversable, Functor, Typeable)
 
 
@@ -779,6 +779,11 @@ dec pos size loc ann =
 	_emitInstr pos $ DEC pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
+push :: (Monad m) => a -> Size -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
+push pos size loc ann =
+	_emitInstr pos $ PUSH pos size loc $ maybe (NoAnnotation pos) (Annotation pos) ann
+
+
 sete :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 sete pos loc ann =
 	_emitInstr pos $ SET pos OrdE loc $ maybe (NoAnnotation pos) (Annotation pos) ann
@@ -822,11 +827,6 @@ setnz pos loc ann =
 pop :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
 pop pos loc ann =
 	_emitInstr pos $ POP pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
-
-
-push :: (Monad m) => a -> Loc -> (Maybe anno) -> ASMGeneratorT a anno m ()
-push pos loc ann =
-	_emitInstr pos $ PUSH pos loc $ maybe (NoAnnotation pos) (Annotation pos) ann
 
 
 leave :: (Monad m) => a -> (Maybe anno) -> ASMGeneratorT a anno m ()
@@ -916,9 +916,9 @@ mapInstrData f g (NEG pos size to ann) = NEG (f pos) size to (mapAnnotationData 
 mapInstrData f g (IDIV pos size to ann) = IDIV (f pos) size to (mapAnnotationData f g ann)
 mapInstrData f g (INC pos size to ann) = INC (f pos) size to (mapAnnotationData f g ann)
 mapInstrData f g (DEC pos size to ann) = DEC (f pos) size to (mapAnnotationData f g ann)
+mapInstrData f g (PUSH pos size from ann) = PUSH (f pos) size from (mapAnnotationData f g ann)
 mapInstrData f g (SET pos ordVal loc ann) = SET (f pos) ordVal loc (mapAnnotationData f g ann)
 mapInstrData f g (POP pos loc ann) = POP (f pos) loc (mapAnnotationData f g ann)
-mapInstrData f g (PUSH pos loc ann) = PUSH (f pos) loc (mapAnnotationData f g ann)
 mapInstrData f g (JMP pos label ann) = JMP (f pos) label (mapAnnotationData f g ann)
 mapInstrData f g (J pos ordVal label ann) = J (f pos) ordVal label (mapAnnotationData f g ann)
 mapInstrData f g (LEAVE pos ann) = LEAVE (f pos) (mapAnnotationData f g ann)
@@ -1012,26 +1012,29 @@ _convertInstr (DEC pos Size32 loc ann) = return $ Syntax.DEC32 pos (_locToTarget
 _convertInstr (DEC pos Size16 loc ann) = return $ Syntax.DEC16 pos (_locToTarget pos Size16 loc) (_convert_annotation ann)
 _convertInstr (DEC pos Size8 loc ann) = return $ Syntax.DEC8 pos (_locToTarget pos Size8 loc) (_convert_annotation ann)
 _convertInstr (DEC pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
+_convertInstr (PUSH pos Size64 loc ann) = return $ Syntax.PUSH64 pos (_locToSource pos Size64 loc) (_convert_annotation ann)
+_convertInstr (PUSH pos Size32 loc ann) = return $ Syntax.PUSH32 pos (_locToSource pos Size32 loc) (_convert_annotation ann)
+_convertInstr (PUSH pos Size16 loc ann) = return $ Syntax.PUSH16 pos (_locToSource pos Size16 loc) (_convert_annotation ann)
+_convertInstr (PUSH pos Size8 loc ann) = return $ Syntax.PUSH8 pos (_locToSource pos Size8 loc) (_convert_annotation ann)
+_convertInstr (PUSH pos size _ _) = generatorFail $ EDataUnexpectedSize pos size
 _convertInstr (SET pos OrdE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETE pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdE loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdG loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETG pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdG loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdG loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdGE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETGE pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdGE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdGE loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdL loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETL pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdL loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdL loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdLE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETLE pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdLE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdLE loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdNE loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNE pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdNE loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdNE loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdZ loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETZ pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdZ loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdZ loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (SET pos OrdNZ loc ann) = let (Syntax.ToReg8 _ r) = (_locToTarget pos Size8 loc) in return $ Syntax.SETNZ pos r (_convert_annotation ann)
-_convertInstr (SET pos OrdNZ loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (SET pos OrdNZ loc _) = generatorFail $ ENonRegisterLocationGiven pos "SET" loc
 _convertInstr (POP pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.POP pos r (_convert_annotation ann)
-_convertInstr (POP pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
-_convertInstr (PUSH pos loc@(LocReg reg) ann) = let (Syntax.ToReg64 _ r) = (_locToTarget pos Size64 loc) in return $ Syntax.PUSH pos r (_convert_annotation ann)
-_convertInstr (PUSH pos loc _) = generatorFail $ ENonRegisterLocationGiven pos loc
+_convertInstr (POP pos loc _) = generatorFail $ ENonRegisterLocationGiven pos "POP" loc
 _convertInstr (JMP pos label ann) = return $ Syntax.JMP pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
 _convertInstr (J pos OrdE label ann) = return $ Syntax.JE pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)
 _convertInstr (J pos OrdG label ann) = return $ Syntax.JG pos (Syntax.Label $ sanitizeLabel label) (_convert_annotation ann)

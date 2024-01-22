@@ -36,6 +36,7 @@ data Value = Constant (Syntax.Lit Position) | Dynamic
 
 data ConstPropagationEnv = ConstPropagationEnv {
     _cpVars :: M.Map String (Syntax.Ident Position, Value) --[(Syntax.Ident Position, Value)]
+    , _cpAllVars :: M.Map String (Syntax.Ident Position, Value)
     , _cpCurrentScopeStart :: Maybe (Syntax.Stmt Position)
     , _cpScopes :: [S.Set String]
     , _cpCurrentScopeVars :: M.Map String (Syntax.Ident Position, Value)
@@ -50,6 +51,7 @@ makeLensesWith abbreviatedFields ''ConstPropagationEnv
 initialState :: ConstPropagationEnv
 initialState = ConstPropagationEnv {
     _cpVars = M.empty
+    , _cpAllVars = M.empty
     , _cpCurrentScopeStart = Nothing
     , _cpCurrentScopeVars = M.empty
     , _cpScopes = []
@@ -66,7 +68,7 @@ run :: Syntax.Program Position -> Optimizer ConstPropagationEnv (Syntax.Program 
 run prog = do
     startTime <- liftPipelineOpt nanos
     --normalizeScope =<< transformBools =<< foldConst p
-    (_, optimizedProg) <- findFixedPoint [foldConst, transformBools, normalizeScope] (0, startTime) prog
+    (_, optimizedProg) <- findFixedPoint [normalizeScope, foldConst, transformBools] (0, startTime) prog
     return optimizedProg
     where
         findFixedPoint :: [(Syntax.Program Position -> Optimizer ConstPropagationEnv (Syntax.Program Position))] -> (Int, Int) -> (Syntax.Program Position) -> Optimizer ConstPropagationEnv (Int, Syntax.Program Position)
@@ -110,7 +112,7 @@ extractAssignedVars (Syntax.IfElse _ _ sl sr) = extractAssignedVars sl ++ extrac
 extractAssignedVars _ = []
 
 addVarEnv :: Syntax.Ident Position -> Value -> ConstPropagationEnv -> ConstPropagationEnv
-addVarEnv name@(Syntax.Ident _ id) val env = env & scopes %~ (\scp -> (S.insert id $ head scp) : tail scp) & nextFreeGlobalBlockUID %~ (+1) & vars %~ M.insert id (name, val) & renamedVars %~ (M.insert id $ "_var_" ++ show (env^.nextFreeGlobalBlockUID) ++ "#" ++ extractOriginalId id)
+addVarEnv name@(Syntax.Ident _ id) val env = env & scopes %~ (\scp -> (S.insert id $ head scp) : tail scp) & nextFreeGlobalBlockUID %~ (+1) & allVars %~ M.insert id (name, val) & vars %~ M.insert id (name, val) & renamedVars %~ (M.insert id $ "_var_" ++ show (env^.nextFreeGlobalBlockUID) ++ "#" ++ extractOriginalId id)
     where
         extractOriginalId :: String -> String
         extractOriginalId name = T.unpack $ last $ T.splitOn (T.pack "#") (T.pack name)
@@ -125,6 +127,7 @@ exprToValue _ = Dynamic
 isInCurrentScope :: String -> Optimizer ConstPropagationEnv Bool
 isInCurrentScope name = do
     scp <- oStateGet (head . (^.scopes))
+    liftPipelineOpt $ printLogInfoStr $ "DBGNSCP isInCurrentScope[" ++ name ++ "] ~> " ++ (show $ S.member name $ scp)
     return $ S.member name $ scp
 
 withBlockContext :: (Syntax.Block Position) -> Optimizer ConstPropagationEnv a -> Optimizer ConstPropagationEnv a
@@ -145,7 +148,7 @@ withScopedVars :: [(Syntax.Ident Position, Value)] -> Optimizer ConstPropagation
 withScopedVars varsList m = do
     prevVars <- oStateGet (\env -> env^.vars)
     scopeVarNames <- return $ S.fromList $ map (\(Syntax.Ident _ n, _) -> n) varsList
-    withOState (\env -> env & scopes %~ tail & vars .~ prevVars & currentScopeStart .~ Nothing & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> foldl (flip $ uncurry addVarEnv) (env & currentScopeStart .~ Nothing & scopes %~ ((:) scopeVarNames) & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) varsList) m
+    withOState (\env -> env & scopes %~ tail & allVars .~ M.empty & vars .~ prevVars & currentScopeStart .~ Nothing & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) . return =<< withOState (\env -> foldl (flip $ uncurry addVarEnv) (env & currentScopeStart .~ Nothing & scopes %~ ((:) scopeVarNames) & allVars .~ M.empty & currentScopeVars .~ M.empty & nextFreeGlobalBlockUID %~ (+1)) varsList) m
 
 zero :: Syntax.Type Position -> Value
 zero (Syntax.IntT p) = Constant (Syntax.Int p 0)
@@ -184,8 +187,10 @@ instance ConstFoldable Syntax.Program where
     doTransformBools (Syntax.Program p defs) = do
         ndefs <- mapM transformBools defs
         return (Syntax.Program p ndefs)
-    doNormalizeScope (Syntax.Program p defs) = do
+    doNormalizeScope p1@(Syntax.Program p defs) = do
+        liftPipelineOpt $ printLogInfoStr $ "DBGNSCP Before doNormalizeScope(Syntax.Program) " ++ (printi 0 p1)
         ndefs <- mapM normalizeScope defs
+        liftPipelineOpt $ printLogInfoStr $ "DBGNSCP After doNormalizeScope(Syntax.Program) " ++ (printi 0 (Syntax.Program p ndefs))
         return (Syntax.Program p ndefs)
 
 instance ConstFoldable Syntax.ClassDecl where
@@ -597,7 +602,7 @@ instance ConstFoldable Syntax.Expr where
             _ -> return (Syntax.Cast p t ne)
     doFoldConst (Syntax.Var p id@(Syntax.Ident _ n)) = do
         env <- ask
-        m <- oStateGet (\env -> snd <$> (M.lookup n $ env^.vars))
+        m <- oStateGet (\env -> snd <$> (M.lookup n $ env^.allVars))
         case m of
             Just Dynamic -> return (Syntax.Var p id)
             Just (Constant l) -> return (Syntax.Lit p l)

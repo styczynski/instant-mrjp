@@ -103,10 +103,20 @@ IDIV16. AsmInstr ::= "idivw" Target16 CommentAnn "<ENDL>" ;
 INC16. AsmInstr ::= "incw" Target16 CommentAnn "<ENDL>" ;
 DEC16. AsmInstr ::= "decw" Target16 CommentAnn "<ENDL>" ;
 
-NEG8. AsmInstr ::= "negb" Target16 CommentAnn "<ENDL>" ;
-IDIV8. AsmInstr ::= "idivb" Target16 CommentAnn "<ENDL>" ;
-INC8. AsmInstr ::= "incb" Target16 CommentAnn "<ENDL>" ;
-DEC8. AsmInstr ::= "decb" Target16 CommentAnn "<ENDL>" ;
+NEG8. AsmInstr ::= "negb" Target8 CommentAnn "<ENDL>" ;
+IDIV8. AsmInstr ::= "idivb" Target8 CommentAnn "<ENDL>" ;
+INC8. AsmInstr ::= "incb" Target8 CommentAnn "<ENDL>" ;
+DEC8. AsmInstr ::= "decb" Target8 CommentAnn "<ENDL>" ;
+
+
+-- 1-operand arithmetics (source parameter)
+PUSH64. AsmInstr ::= "pushq" Source64 CommentAnn "<ENDL>" ;
+
+PUSH32. AsmInstr ::= "pushl" Source32 CommentAnn "<ENDL>" ;
+
+PUSH16. AsmInstr ::= "pushw" Source16 CommentAnn "<ENDL>" ;
+
+PUSH8. AsmInstr ::= "pushb" Source8 CommentAnn "<ENDL>" ;
 
 
 -- Calls
@@ -116,7 +126,6 @@ CALLINDIRECT. AsmInstr ::= "call" "*" Integer "(" Reg64 ")" CommentAnn "<ENDL>" 
 
 -- Stack operations
 POP. AsmInstr ::= "pop" Reg64 CommentAnn "<ENDL>" ;
-PUSH. AsmInstr ::= "push" Reg64 CommentAnn "<ENDL>" ;
 
 
 -- Zero arg instructions

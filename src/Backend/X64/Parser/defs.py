@@ -70,6 +70,10 @@ INSTR_JMP = [
     "jmp",
 ]
 
+INSTR_ARITM_1OPSRC = [
+    "push",
+]
+
 INSTR_ARITM_1OP = [
     "neg",
     "idiv",
@@ -79,7 +83,7 @@ INSTR_ARITM_1OP = [
 
 INSTR_STACK = [
     "pop",
-    "push",
+    #"push",
 ]
 
 INSTR_NOARG = [

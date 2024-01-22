@@ -79,7 +79,13 @@ def generate_grammar(output_grammar_path):
         {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Target64", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
         {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Target32", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
         {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"w"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
-        {embed([rule(instr.upper()+"8", "AsmInstr", lit(instr+"b"), "Target16", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+        {embed([rule(instr.upper()+"8", "AsmInstr", lit(instr+"b"), "Target8", "CommentAnn", newline) for instr in INSTR_ARITM_1OP])}
+
+        -- 1-operand arithmetics (source parameter)
+        {embed([rule(instr.upper()+"64", "AsmInstr", lit(instr+"q"), "Source64", "CommentAnn", newline) for instr in INSTR_ARITM_1OPSRC])}
+        {embed([rule(instr.upper()+"32", "AsmInstr", lit(instr+"l"), "Source32", "CommentAnn", newline) for instr in INSTR_ARITM_1OPSRC])}
+        {embed([rule(instr.upper()+"16", "AsmInstr", lit(instr+"w"), "Source16", "CommentAnn", newline) for instr in INSTR_ARITM_1OPSRC])}
+        {embed([rule(instr.upper()+"8", "AsmInstr", lit(instr+"b"), "Source8", "CommentAnn", newline) for instr in INSTR_ARITM_1OPSRC])}
 
         -- Calls
         {embed([
