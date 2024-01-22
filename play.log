@@ -112,7 +112,19 @@ int foo(int _var_3000025#a)
 {
 	return 0;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DEBUG COLLECT_FUNCTIONS PROTOTYPES
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [int main()
+    int t_1 = <int>1
+    int t_2 = <int>t_1
+    int t_3 = <int>1
+    int t_4 =     call<function> foo(<int>t_3)
+    return <int>t_4
+,int foo(int t_5)
+    int t_6 = <int>0
+    return <int>t_6
+]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] END DEBUG
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Initial IR: 
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -141,14 +153,15 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_0 = <int>1
-    int t_1 = <int>t_0
-    int t_2 =     call<function> foo()
-    return <int>t_2
-
-int foo(int t_3)
-    int t_4 = <int>0
+    int t_1 = <int>1
+    int t_2 = <int>t_1
+    int t_3 = <int>1
+    int t_4 =     call<function> foo(<int>t_3)
     return <int>t_4
+
+int foo(int t_5)
+    int t_6 = <int>0
+    return <int>t_6
 
 
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
@@ -184,14 +197,15 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_0 = <int>1
-    int t_1 = <int>t_0
-    int t_2 =     call<function> foo()
-    return <int>t_2
-
-int foo(int t_3)
-    int t_4 = <int>0
+    int t_1 = <int>1
+    int t_2 = <int>t_1
+    int t_3 = <int>1
+    int t_4 =     call<function> foo(<int>t_3)
     return <int>t_4
+
+int foo(int t_5)
+    int t_6 = <int>0
+    return <int>t_6
 
 
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
@@ -222,10 +236,10 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_2 =     call<function> foo()
-    return <int>t_2
+    int t_4 =     call<function> foo(<int>1)
+    return <int>t_4
 
-int foo(int t_3)
+int foo(int t_5)
     return <int>0
 
 
@@ -233,7 +247,7 @@ int foo(int t_3)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 1 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 5 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -262,10 +276,10 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_2 =     call<function> foo()
-    return <int>t_2
+    int t_4 =     call<function> foo(<int>1)
+    return <int>t_4
 
-int foo(int t_3)
+int foo(int t_5)
     return <int>0
 
 
@@ -297,10 +311,10 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_2 =     call<function> foo()
-    return <int>t_2
+    int t_4 =     call<function> foo(<int>1)
+    return <int>t_4
 
-int foo(int t_3)
+int foo(int t_5)
     return <int>0
 
 
@@ -333,10 +347,10 @@ struct String extends [String, Object]
     method int String.getHashCode ()
 
 int main()
-    int t_2 =     call<function> foo()
-    return <int>t_2
+    int t_4 =     call<function> foo(<int>1)
+    return <int>t_4
 
-int foo(int t_3)
+int foo(int t_5)
     return <int>0
 
 
@@ -424,16 +438,16 @@ int foo(int t_3)
 ]
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
   return int %v_return;
 ]
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -474,8 +488,8 @@ CFG for ~cl_TopLevel.main:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -487,9 +501,9 @@ CFG for ~cl_TopLevel.foo:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -508,8 +522,8 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -521,9 +535,9 @@ CFG for ~cl_TopLevel.foo:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -549,8 +563,8 @@ Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -561,14 +575,14 @@ CFG for ~cl_TopLevel.foo:
 [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [("%a_t_3",(1,Ref () (Int ())))], out = [("%a_t_3",(0,Ref () (Int ())))], use = [], kill = []
+Liveness at start of .L_entry: in = [("%a_t_5",(1,Ref () (Int ())))], out = [("%a_t_5",(0,Ref () (Int ())))], use = [], kill = []
 Liveness at end of .L_entry: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
 Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
 Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -590,8 +604,8 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -603,9 +617,9 @@ CFG for ~cl_TopLevel.foo:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -623,10 +637,10 @@ Code:
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),ICall ./play.lat:4:10 (ValIdent "%v_t_2") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [] []),ISet ./play.lat:4:3 (ValIdent "%v___temp_0") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v_t_2")),ISet ./play.lat:4:3 (ValIdent "%v_return") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:4:3 (LabIdent ".L_exit"),ILabel ./play.lat:2:1 (LabIdent ".L_exit"),IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
+,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),ICall ./play.lat:4:10 (ValIdent "%v_t_4") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:4:10 1] []),ISet ./play.lat:4:3 (ValIdent "%v___temp_0") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v_t_4")),ISet ./play.lat:4:3 (ValIdent "%v_return") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:4:3 (LabIdent ".L_exit"),ILabel ./play.lat:2:1 (LabIdent ".L_exit"),IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_3")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_3") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_3")),ISet ./play.lat:8:3 (ValIdent "%v___temp_1") (VInt ./play.lat:8:3 0),ISet ./play.lat:8:3 (ValIdent "%v_return") (VVal ./play.lat:8:3 (Int ./play.lat:8:10) (ValIdent "%v___temp_1")),IJmp ./play.lat:8:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
+,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_5")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_5") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_5")),ISet ./play.lat:8:3 (ValIdent "%v___temp_1") (VInt ./play.lat:8:3 0),ISet ./play.lat:8:3 (ValIdent "%v_return") (VVal ./play.lat:8:3 (Int ./play.lat:8:10) (ValIdent "%v___temp_1")),IJmp ./play.lat:8:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END SSA CODE DUMP 
 
 
@@ -640,8 +654,8 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -653,9 +667,9 @@ CFG for ~cl_TopLevel.foo:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -673,10 +687,10 @@ Code:
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),ICall ./play.lat:4:10 (ValIdent "%v_t_2") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [] []),ISet ./play.lat:4:3 (ValIdent "%v___temp_0") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v_t_2")),ISet ./play.lat:4:3 (ValIdent "%v_return") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:4:3 (LabIdent ".L_exit"),ILabel ./play.lat:2:1 (LabIdent ".L_exit"),IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
+,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),ICall ./play.lat:4:10 (ValIdent "%v_t_4") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:4:10 1] []),ISet ./play.lat:4:3 (ValIdent "%v___temp_0") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v_t_4")),ISet ./play.lat:4:3 (ValIdent "%v_return") (VVal ./play.lat:4:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:4:3 (LabIdent ".L_exit"),ILabel ./play.lat:2:1 (LabIdent ".L_exit"),IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_3")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_3") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_3")),ISet ./play.lat:8:3 (ValIdent "%v___temp_1") (VInt ./play.lat:8:3 0),ISet ./play.lat:8:3 (ValIdent "%v_return") (VVal ./play.lat:8:3 (Int ./play.lat:8:10) (ValIdent "%v___temp_1")),IJmp ./play.lat:8:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
+,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_5")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_5") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_5")),ISet ./play.lat:8:3 (ValIdent "%v___temp_1") (VInt ./play.lat:8:3 0),ISet ./play.lat:8:3 (ValIdent "%v_return") (VVal ./play.lat:8:3 (Int ./play.lat:8:10) (ValIdent "%v___temp_1")),IJmp ./play.lat:8:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END OPTIMIZED CODE DUMP 
 
 
@@ -688,14 +702,14 @@ Code:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_2",(4,Int ()))], out = [("%v_t_2",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_2",(2,Int ()))], out = [("%v_t_2",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_2",(0,Int ()))], out = [], use = [("%v_t_2",Int ())], kill = []
+Liveness at end of .L_entry: in = [("%v_t_4",(4,Int ()))], out = [("%v_t_4",(3,Int ()))], use = [], kill = []
+Liveness at start of .L_exit: in = [("%v_t_4",(2,Int ()))], out = [("%v_t_4",(1,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_t_4",(0,Int ()))], out = [], use = [("%v_t_4",Int ())], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -711,9 +725,9 @@ Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
 Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
 Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -733,14 +747,14 @@ Code:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_2",(4,Int ()))], out = [("%v_t_2",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_2",(2,Int ()))], out = [("%v_t_2",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_2",(0,Int ()))], out = [], use = [("%v_t_2",Int ())], kill = []
+Liveness at end of .L_entry: in = [("%v_t_4",(4,Int ()))], out = [("%v_t_4",(3,Int ()))], use = [], kill = []
+Liveness at start of .L_exit: in = [("%v_t_4",(2,Int ()))], out = [("%v_t_4",(1,Int ()))], use = [], kill = []
+Liveness at end of .L_exit: in = [("%v_t_4",(0,Int ()))], out = [], use = [("%v_t_4",Int ())], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -756,9 +770,9 @@ Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
 Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
 Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -767,7 +781,8 @@ Code:
 ]
 
 
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v_t_2 (reg preference: CallerSaved) (RAX): []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v_t_4 (reg preference: CallerSaved) (RAX): []
+~arg_0_RDI (reg preference: CallerSaved) (RDI): []
 ,]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Allocating registers...
 
@@ -782,8 +797,8 @@ Code:
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_2 := call int ~cl_TopLevel.foo ();
-  %v___temp_0 := int %v_t_2;
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
+  %v___temp_0 := int %v_t_4;
   %v_return := int %v___temp_0;
   jump .L_exit;
 .L_exit:
@@ -795,9 +810,9 @@ CFG for ~cl_TopLevel.foo:
 ".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
-  %v_t_3 := load int & param 0 %a_t_3;
+  %v_t_5 := load int & param 0 %a_t_5;
   %v___temp_1 := 0;
   %v_return := int %v___temp_1;
   jump .L_exit;
@@ -819,16 +834,16 @@ Code:
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_2 := call int ~cl_TopLevel.foo ();
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
   endphi;
-  return int %v_t_2;
+  return int %v_t_4;
 ]
 
 CFG for ~cl_TopLevel.foo:
 [".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
   endphi;
   endphi;
@@ -846,14 +861,14 @@ Code:
 [".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_2",(0,Int ()))], out = [], use = [("%v_t_2",Int ())], kill = []
+Liveness at end of .L_entry: in = [("%v_t_4",(0,Int ()))], out = [], use = [("%v_t_4",Int ())], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_2 := call int ~cl_TopLevel.foo ();
+  %v_t_4 := call int ~cl_TopLevel.foo (1);
   endphi;
-  return int %v_t_2;
+  return int %v_t_4;
 ]
 
 CFG for ~cl_TopLevel.foo:
@@ -862,7 +877,7 @@ CFG for ~cl_TopLevel.foo:
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
 Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
 Code: 
-.method int ~cl_TopLevel.foo (int %a_t_3): [
+.method int ~cl_TopLevel.foo (int %a_t_5): [
 .L_entry:
   endphi;
   endphi;
@@ -877,11 +892,11 @@ Code:
 
 CompiledProg ./play.lat:2:1 (Meta ./play.lat:2:1 [ClDef inside standard library (SymIdent "Array") [SymIdent "Array",SymIdent "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "Object"))) (SymIdent "elements"),FldDef inside standard library (Int inside standard library) (SymIdent "length"),FldDef inside standard library (Int inside standard library) (SymIdent "elementSize")] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Array") (SymIdent "toString"))],ClDef inside standard library (SymIdent "Object") [SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "toString"))],ClDef inside standard library (SymIdent "String") [SymIdent "String",SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "charAt")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "concat")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "startsWith")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "endsWith")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getBytes")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "indexOf")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "length")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "substring")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "toString")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getHashCode"))],ClDef ./play.lat:2:1 (SymIdent "~cl_TopLevel") [] [] [MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Array"))) []) (QIdent ./play.lat:2:1 (SymIdent "Array") (SymIdent "toString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))) []) (QIdent ./play.lat:2:1 (SymIdent "Object") (SymIdent "toString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:1 (SymIdent "Object") (SymIdent "getHashCode")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))]) (QIdent ./play.lat:2:1 (SymIdent "Object") (SymIdent "equals")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "equals")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "getHashCode")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) []) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "toString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) []) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "substring")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "length")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String")),Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "indexOf")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) []) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "getBytes")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "endsWith")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "startsWith")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String")),Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "concat")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "String") (SymIdent "charAt")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "printString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "printInt")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "printByte")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "printBoolean")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Array"))]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "printBinArray")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "byteToString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "boolToString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) [Int ./play.lat:2:1]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "intToString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "print")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "error")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "readInt")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "String"))) []) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "readString")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))) [Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object")),Ref ./play.lat:2:1 (Cl ./play.lat:2:1 (SymIdent "Object"))]) (QIdent ./play.lat:2:1 (SymIdent "~cl_TopLevel") (SymIdent "__cast")),MthdDef ./play.lat:2:1 (FType ./play.lat:2:1 (Int ./play.lat:2:1) []) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")),MthdDef ./play.lat:7:1 (FType ./play.lat:7:1 (Int ./play.lat:7:1) [Int ./play.lat:7:9]) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo"))]]) [([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
-,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:2:1,ICall ./play.lat:4:10 (Val/usr/bin/ld: /tmp/ccTTnnHB.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
+,Mthd ./play.lat:2:1 (Int ./play.lat:2:1) (QIdent ./play.lat:2:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:2:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:2:1,ICall ./play.lat:4:10 (Val/usr/bin/ld: /tmp/ccgt6k4W.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
 /usr/bin/ld: warning: creating DT_TEXTREL in a PIE
-Ident "%v_t_2") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [] []),IEndPhi ./play.lat:2:1,IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_t_2"))],RegAlloc {regAlloc = fromList [(ValIdent "%v_t_2",RAX)], numLocals = 0}),([".L_entry"]
+Ident "%v_t_4") (Call ./play.lat:4:10 (Int ./play.lat:7:1) (QIdent ./play.lat:4:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:4:10 1] []),IEndPhi ./play.lat:2:1,IRet ./play.lat:2:1 (VVal ./play.lat:2:1 (Int ./play.lat:2:1) (ValIdent "%v_t_4"))],RegAlloc {regAlloc = fromList [(ValIdent "%v_t_4",RAX),(ValIdent "~arg_0_RDI",RDI)], numLocals = 0}),([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_3")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:7:1,IEndPhi ./play.lat:7:1,IRet ./play.lat:7:1 (VInt ./play.lat:7:1 0)],RegAlloc {regAlloc = fromList [], numLocals = 0})]
+,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_5")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:7:1,IEndPhi ./play.lat:7:1,IRet ./play.lat:7:1 (VInt ./play.lat:7:1 0)],RegAlloc {regAlloc = fromList [], numLocals = 0})]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running correct compiler backend: X64
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Created file: ./play.s
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Calling backend compile step: X64

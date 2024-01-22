@@ -96,6 +96,7 @@ push %RBP                     #-- ./play.lat:2:1 --#
 movq %RSP, %RBP               #-- ./play.lat:2:1 --#
 subq $0, %RSP                 #-- ./play.lat:2:1 --#
 __cl_TopLevel.main.L_entry :  #-- ./play.lat:2:1 --#
+movl $1, %EDI                 #-- passing arg at ./play.lat:4:10 --#
 subq $0, %RSP                 #-- ./play.lat:4:10 --#
 call __cl_TopLevel.foo        #-- ./play.lat:4:10 --#
 addq $0, %RSP                 #-- ./play.lat:4:10 --#

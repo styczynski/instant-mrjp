@@ -200,13 +200,22 @@ collectStructures classes = do
 --             else return [toEntity $ B.Fun name (ct t) [] []]
 collectFunctions :: [A.Definition Position] -> LinearConverter () [B.Function Position]
 collectFunctions defs = do
-    let fns = concatMap collectFromDef defs
-    fnPrototypes <- IM.fromM (idMapFailure "collectFunctions" Errors.ILNEDuplicateFunctionName) $ builtIns ++ map (\(FnProto pos cls name@(B.Label _ id) retType _ _) -> B.Fun pos cls name retType [] []) fns
-    lcStateSet (\env -> env & functions .~ fnPrototypes)
+    let fnProtos = concatMap collectFromDef defs
+    fnPrototypes <- (\fns -> IM.fromM (idMapFailure "collectFunctions" Errors.ILNEDuplicateFunctionName) $ builtIns ++ fns) =<< mapM convertFnProto fnProtos
+    --fnPrototypes <- IM.fromM (idMapFailure "collectFunctions" Errors.ILNEDuplicateFunctionName) $ builtIns ++ map (\(FnProto pos cls name@(B.Label _ id) retType _ _) -> B.Fun pos cls name retType [] []) fns
+    lcStateSet (\env -> env & functions .~ fnPrototypes )
     --liftPipelineOpt $ printLogInfo $ T.pack $ show fnPrototypes
-    mapM_ (transformFunction >=> overrideFunction) fns
-    lcStateGet (\env -> IM.elems (env ^. functions) \\ builtIns)
+    mapM_ (transformFunction >=> overrideFunction) fnProtos
+    fns <- lcStateGet (\env -> IM.elems (env ^. functions) \\ builtIns)
+    liftPipelineOpt $ printLogInfoStr "DEBUG COLLECT_FUNCTIONS PROTOTYPES"
+    liftPipelineOpt $ printLogInfoStr $ show fns
+    liftPipelineOpt $ printLogInfoStr "END DEBUG"
+    return fns
     where
+        convertFnProto :: FnProto -> LinearConverter () (B.Function Position)
+        convertFnProto (FnProto pos cls name@(B.Label _ id) retType args _) = do
+            nargs <- mapM (\(A.Arg _ t n) -> newNameFor n (ct t) <&> (,) (ct t)) args
+            return $ B.Fun pos cls name retType nargs []
         collectFromDef :: A.Definition Position -> [FnProto]
         collectFromDef (A.FunctionDef pos t (A.Ident idpos name) args (A.Block _ stmts)) = [FnProto pos Nothing (B.Label idpos name) (ct t) args stmts]
         collectFromDef (A.ClassDef _ (A.Ident _ clname) _ mems) = concatMap (collectFromClassDecl clname) mems
