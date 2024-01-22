@@ -76,6 +76,21 @@ def create_data_types():
             data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset {{ ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }}
             {INDENT}deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
+            class LocFunctor a where
+            {INDENT}mapLoc :: (Loc -> Loc) -> a -> a
+
+            instance LocFunctor Loc where
+            {INDENT}mapLoc fn = fn
+
+            -- instance (Functor f, LocFunctor g) => LocFunctor (f g) where
+            -- {INDENT}mapLoc fn = fmap (mapLoc fn)
+
+            instance (LocFunctor g) => LocFunctor [g] where
+            {INDENT}mapLoc fn = fmap (mapLoc fn)
+
+            instance LocFunctor (GeneratorOut a anno) where
+            {INDENT}mapLoc fn (GeneratorOut pos instrs defs) = GeneratorOut pos (mapLoc fn instrs) defs 
+
             isReg :: Loc -> Bool
             isReg loc = case loc of
                 {INDENT}LocReg _ -> True
@@ -316,6 +331,37 @@ def create_instr_wrappers():
             callIndirect pos reg offset ann =
                 {INDENT}_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
         """
+    ]
+    # LocFunctor definition
+    syms = syms + ["LocFunctor(..)"]
+    ret = ret + [
+        f"""
+            instance LocFunctor (Instr a anno1) where
+            {INDENT}mapLoc fn (CALL_INDIRECT pos reg offset ann) = let (LocReg reg') = fn (LocReg reg) in CALL_INDIRECT pos reg' offset ann
+        """,
+    ]
+    for instr in INSTR_ARITM_2OP:
+        ret = ret+[
+            f"""{INDENT}mapLoc fn ({instr.upper()} pos size from to ann) = {instr.upper()} pos size (fn from) (fn to) ann"""
+        ]
+    for instr in INSTR_ARITM_1OP:
+        ret = ret+[
+            f"""{INDENT}mapLoc fn ({instr.upper()} pos size to ann) = {instr.upper()} pos size (fn to) ann"""
+        ]
+    for instr in INSTR_ARITM_1OPSRC:
+        ret = ret+[
+            f"""{INDENT}mapLoc fn ({instr.upper()} pos size from ann) = {instr.upper()} pos size (fn from) ann"""
+        ]
+    for instr in INSTR_SET:
+        ret = ret+[
+            f"""{INDENT}mapLoc fn ({instr.upper()} pos ordVal loc ann) = {instr.upper()} pos ordVal (fn loc) ann"""
+        ]
+    for instr in INSTR_STACK:
+        ret = ret+[
+            f"""{INDENT}mapLoc fn ({instr.upper()} pos loc ann) = {instr.upper()} pos (fn loc) ann"""
+        ]
+    ret = ret+[
+        f"""{INDENT}mapLoc fn instr = instr""",
     ]
     # Set instr data
     ret = ret + [

@@ -103,7 +103,7 @@ emitMethod :: (Show a) => (M.Map SymIdent CompiledClass) -> (CFG a Liveness, Met
 emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
     let initStack = stackNew (numLocals rs)
         initState = GeneratorEnv [] [] cs initStack Map.empty emptyLiveness 0
-    result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (execStateT (genMethod pos g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
+    result <- gen $ lift $ lift $ X64.execASMGeneratorT (runExceptT $ runReaderT (runStateT (genMethod pos g qi rs) initState) (GeneratorContext (labelFor qi) rs classMap))
     case result of 
         (Left err) -> do
             gen $ lift $ lift $ printLogInfoStr $ "emitMethod failure. ASM generator reported an error: " ++ (show err)
@@ -111,11 +111,17 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
         (Right ((Left err), _)) -> do
             gen $ lift $ lift $ printLogInfoStr $ "emitMethod failure. ASM generator reported an error: " ++ (show err)
             return cs
-        (Right ((Right env), cnt)) -> do
-            gen $ X64.continueASMGeneratorT cnt
+        (Right ((Right (offset, env)), cnt)) -> do
+            -- FIX METHOD OFFSET
+            gen $ lift $ lift $ printLogInfoStr $ "emitMethod Fix method stack offsets " ++ show offset
+            let cnt' = X64.mapLoc (fixMethodOffsetsStack offset) cnt
+            gen $ X64.continueASMGeneratorT cnt'
             return $ env ^. consts
     where
-        genMethod :: (Show a) => a -> (Map.Map LabIdent (Node a Liveness)) -> QIdent a -> RegisterAllocation -> Generator a ()
+        fixMethodOffsetsStack :: Int -> X64.Loc -> X64.Loc
+        fixMethodOffsetsStack offset (X64.LocMem (X64.RBP, addrOffset)) = (X64.LocMem (X64.RBP, fromIntegral offset + addrOffset))
+        fixMethodOffsetsStack _ loc = loc
+        genMethod :: (Show a) => a -> (Map.Map LabIdent (Node a Liveness)) -> QIdent a -> RegisterAllocation -> Generator a Int
         genMethod pos g qi rs = do
             traceM' ("register allocation: " ++ show (Map.toList $ regAlloc rs))
             traceM' ("========== starting method: " ++ toStr (labelFor qi (LabIdent "")))
@@ -148,6 +154,7 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
             when (needsAlignment) (decrStack pos 8)
             mapM_ (\r -> gen $ X64.pop pos (X64.LocReg r) Nothing) savedRegs
             gen $ X64.ret pos Nothing
+            return paramOffset
         genNode :: (Show a) => Node a Liveness -> Generator a ()
         genNode node = do
             traceM' ("===== starting block: " ++ toStr (node ^. nodeLabel))
@@ -215,10 +222,10 @@ genInstr baseInstr =
                         case (src1, src2) of
                             (X64.LocConst n, _) | isPowerOfTwo n -> do
                                 when (dest /= src2) (gen $ X64.mov pos X64.Size32 src2 dest Nothing)
-                                gen $ X64.sal pos X64.Size32 (X64.LocConst $ fromIntegral $ log2 $ fromIntegral n) dest (comment $ "multiply by " ++ show n)
+                                gen $ X64.sal pos X64.Size32 (X64.LocConst $ fromIntegral $ log2 $ fromIntegral n) dest (comment $ "multiply by " ++ show n ++ " src1="++show src1++" src2="++show src2++" dest="++show dest)
                             (_, X64.LocConst n) | isPowerOfTwo n -> do
-                                when (dest == src1) (gen $ X64.mov pos X64.Size32 src1 dest Nothing)
-                                gen $ X64.sal pos X64.Size32 (X64.LocConst $ fromIntegral $ log2 $ fromIntegral n) dest (comment $ "multiply by " ++ show n)
+                                when (dest /= src1) (gen $ X64.mov pos X64.Size32 src1 dest Nothing)
+                                gen $ X64.sal pos X64.Size32 (X64.LocConst $ fromIntegral $ log2 $ fromIntegral n) dest (comment $ "multiply by " ++ show n ++ " src1="++show src1++" src2="++show src2++" dest="++show dest)
                             _ -> do
                                 if dest == src1 then
                                   gen $ X64.imul pos X64.Size32 src2 dest Nothing

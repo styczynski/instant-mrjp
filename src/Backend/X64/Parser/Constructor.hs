@@ -74,6 +74,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , jnz
 , call
 , callIndirect
+, LocFunctor(..)
 , toBytes) where
 
 import Data.Generics.Product
@@ -332,6 +333,21 @@ negValOrd OrdNZ = OrdZ
 
 data Loc = LocLabel String | LocLabelPIC String | LocConst Integer | LocReg Reg | LocMem (Reg, Int64) | LocMemOffset { ptrBase :: Reg, ptrIdx :: Reg, ptrOffset :: Int64, ptrScale :: Size }
 	deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+class LocFunctor a where
+	mapLoc :: (Loc -> Loc) -> a -> a
+
+instance LocFunctor Loc where
+	mapLoc fn = fn
+
+-- instance (Functor f, LocFunctor g) => LocFunctor (f g) where
+-- 	mapLoc fn = fmap (mapLoc fn)
+
+instance (LocFunctor g) => LocFunctor [g] where
+	mapLoc fn = fmap (mapLoc fn)
+
+instance LocFunctor (GeneratorOut a anno) where
+	mapLoc fn (GeneratorOut pos instrs defs) = GeneratorOut pos (mapLoc fn instrs) defs
 
 isReg :: Loc -> Bool
 isReg loc = case loc of
@@ -896,6 +912,30 @@ callIndirect :: (Monad m) => a -> Reg -> Integer -> (Maybe anno) -> ASMGenerator
 callIndirect pos reg offset ann =
 	_emitInstr pos $ CALL_INDIRECT pos reg offset $ maybe (NoAnnotation pos) (Annotation pos) ann
 
+
+instance LocFunctor (Instr a anno1) where
+	mapLoc fn (CALL_INDIRECT pos reg offset ann) = let (LocReg reg') = fn (LocReg reg) in CALL_INDIRECT pos reg' offset ann
+
+	mapLoc fn (ADD pos size from to ann) = ADD pos size (fn from) (fn to) ann
+	mapLoc fn (AND pos size from to ann) = AND pos size (fn from) (fn to) ann
+	mapLoc fn (CMP pos size from to ann) = CMP pos size (fn from) (fn to) ann
+	mapLoc fn (IMUL pos size from to ann) = IMUL pos size (fn from) (fn to) ann
+	mapLoc fn (LEA pos size from to ann) = LEA pos size (fn from) (fn to) ann
+	mapLoc fn (MOV pos size from to ann) = MOV pos size (fn from) (fn to) ann
+	mapLoc fn (SUB pos size from to ann) = SUB pos size (fn from) (fn to) ann
+	mapLoc fn (TEST pos size from to ann) = TEST pos size (fn from) (fn to) ann
+	mapLoc fn (XOR pos size from to ann) = XOR pos size (fn from) (fn to) ann
+	mapLoc fn (XCHG pos size from to ann) = XCHG pos size (fn from) (fn to) ann
+	mapLoc fn (SAL pos size from to ann) = SAL pos size (fn from) (fn to) ann
+	mapLoc fn (SAR pos size from to ann) = SAR pos size (fn from) (fn to) ann
+	mapLoc fn (NEG pos size to ann) = NEG pos size (fn to) ann
+	mapLoc fn (IDIV pos size to ann) = IDIV pos size (fn to) ann
+	mapLoc fn (INC pos size to ann) = INC pos size (fn to) ann
+	mapLoc fn (DEC pos size to ann) = DEC pos size (fn to) ann
+	mapLoc fn (PUSH pos size from ann) = PUSH pos size (fn from) ann
+	mapLoc fn (SET pos ordVal loc ann) = SET pos ordVal (fn loc) ann
+	mapLoc fn (POP pos loc ann) = POP pos (fn loc) ann
+	mapLoc fn instr = instr
 mapInstrData :: (a -> b) -> (anno1 -> anno2) -> Instr a anno1 -> Instr b anno2
 mapInstrData f g (CALL_INDIRECT pos reg offset ann) = CALL_INDIRECT (f pos) reg offset (mapAnnotationData f g ann)
 mapInstrData f g (CALL pos label ann) = CALL (f pos) label (mapAnnotationData f g ann)
