@@ -1,13 +1,78 @@
-int main() {
-  int a=1,b=2,c=1,d=2,e=1,f=2,g=1,h=2,i=1,j=2,k=1,l=2,m=1,n=2;
-  return foo(a,b,c,d,e,f,g,h,i,j,k,l,m,n);
+
+string repStr(string s, int n) {
+  string r = "";
+  int i = 0;
+  while(i<n) {
+    r = r + s;
+    i++;
+  }
+ return r;
 }
 
+int main() {
+	printInt(fac(10));
+	printInt(rfac(10));
+	printInt(mfac(10));
+        printInt(ifac(10));
+        string r ; // just to test blocks 
+	{
+	  int n = 10;
+	  int r = 1;
+	  while (n>0) {
+	    r = r * n;
+	    n--;
+	  }
+	  printInt(r);
+	}
+  string xx = repStr("=",60);
+	printString (xx);
+	printString ("hello */");
+        printString ("/* world") ;
+        return 0 ;
+}
 
-int foo(int a,int b,int c,int d,int e,int f,int g,
-        int h,int i,int j,int k,int l,int m, int n) {
-	
-  int r = (2*a+b/2+c+d+e+f+g+h+i+j/2+k+l+m+n)%10;
-  printInt(r);
-  return r;
+int fac(int a) {
+	int r;
+	int n;
+
+	r = 1;
+	n = a;
+	while (n > 0) {
+	  r = r * n;
+	  n = n - 1;
+	}
+	return r;
+}
+
+int rfac(int n) {
+	if (n == 0)
+	  return 1;
+	else
+	  return n * rfac(n-1);
+}
+
+int mfac(int n) {
+	if (n == 0)
+	  return 1;
+	else
+	  return n * nfac(n-1);
+}
+
+int nfac(int n) {
+	if (n != 0)
+	  return mfac(n-1) * n;
+	else
+	  return 1;
+}
+
+int ifac(int n) { return ifac2f(1,n); }
+
+int ifac2f(int l, int h) {
+        if (l == h)
+          return l;
+        if (l > h)
+          return 1;
+        int m;
+        m = (l + h) / 2;
+        return ifac2f(l,m) * ifac2f(m+1,h);
 }

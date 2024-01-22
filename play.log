@@ -2,1846 +2,315 @@
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Parsed: ./play.lat
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Transformed: ./play.lat
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Construct inheritance graph
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> string repStr(string s, int n)
 {
-	int a = 1;
-	int b = 2;
-	int c = 1;
-	int d = 2;
-	int e = 1;
-	int f = 2;
-	int g = 1;
-	int h = 2;
-	int i = 1;
-	int j = 2;
-	int k = 1;
-	int l = 2;
-	int m = 1;
-	int n = 2;
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+	string r = "";
+	int i = 0;
+	while ((i < n))
+		{
+			r = (r + s);
+			i = <implicit>(i + 1);
+		}
+	return r;
 }
 
-int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
+int main()
 {
-	int r = (((((((((((((((2 * a) + (b / 2)) + c) + d) + e) + f) + g) + h) + i) + (j / 2)) + k) + l) + m) + n) % 10);
-	printInt(r);
+	printInt(fac(10));
+	printInt(rfac(10));
+	printInt(mfac(10));
+	printInt(ifac(10));
+	string r;
+	{
+		int n = 10;
+		int r = 1;
+		while ((n > 0))
+			{
+				r = (r * n);
+				n = <implicit>(n - 1);
+			}
+		printInt(r);
+	}
+	string xx = repStr("=", 60);
+	printString(xx);
+	printString("hello */");
+	printString("/* world");
+	return 0;
+}
+
+int fac(int a)
+{
+	int r;
+	int n;
+	r = 1;
+	n = a;
+	while ((n > 0))
+		{
+			r = (r * n);
+			n = (n + -1);
+		}
 	return r;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
+
+int rfac(int n)
 {
-	int a = 1;
-	int b = 2;
-	int c = 1;
-	int d = 2;
-	int e = 1;
-	int f = 2;
-	int g = 1;
-	int h = 2;
-	int i = 1;
-	int j = 2;
-	int k = 1;
-	int l = 2;
-	int m = 1;
-	int n = 2;
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+	if ((n == 0))
+		return 1;
+	else
+		return (n * rfac((n + -1)));
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int a = 1;
-int b = 2;
-int c = 1;
-int d = 2;
-int e = 1;
-int f = 2;
-int g = 1;
-int h = 2;
-int i = 1;
-int j = 2;
-int k = 1;
-int l = 2;
-int m = 1;
-int n = 2;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int a = (int)(1);
-int b = (int)(2);
-int c = (int)(1);
-int d = (int)(2);
-int e = (int)(1);
-int f = (int)(2);
-int g = (int)(1);
-int h = (int)(2);
-int i = (int)(1);
-int j = (int)(2);
-int k = (int)(1);
-int l = (int)(2);
-int m = (int)(1);
-int n = (int)(2);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
+
+int mfac(int n)
 {
-	int a = (int)(1);
-	int b = (int)(2);
-	int c = (int)(1);
-	int d = (int)(2);
-	int e = (int)(1);
-	int f = (int)(2);
-	int g = (int)(1);
-	int h = (int)(2);
-	int i = (int)(1);
-	int j = (int)(2);
-	int k = (int)(1);
-	int l = (int)(2);
-	int m = (int)(1);
-	int n = (int)(2);
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+	if ((n == 0))
+		return 1;
+	else
+		return (n * nfac((n + -1)));
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
+
+int nfac(int n)
 {
-	int r = (((((((((((((((2 * a) + (b / 2)) + c) + d) + e) + f) + g) + h) + i) + (j / 2)) + k) + l) + m) + n) % 10);
-	printInt(r);
+	if ((n != 0))
+		return (mfac((n + -1)) * n);
+	else
+		return 1;
+}
+
+int ifac(int n)
+{
+	return ifac2f(1, n);
+}
+
+int ifac2f(int l, int h)
+{
+	if ((l == h))
+		return l;
+	else
+		;
+	if ((l > h))
+		return 1;
+	else
+		;
+	int m;
+	m = ((l + h) / 2);
+	return (ifac2f(l, m) * ifac2f((m + 1), h));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> string repStr(string s, int n)
+{
+	string r = "";
+	int i = 0;
+	while ((i < n))
+		{
+			r = (r + s);
+			i = <implicit>(i + 1);
+		}
 	return r;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int r = (((((((((((((((2 * a) + (b / 2)) + c) + d) + e) + f) + g) + h) + i) + (j / 2)) + k) + l) + m) + n) % 10);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(r);
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(r);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> string r = "";
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- string r = "";
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int i = 0;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int i = (int)(0);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> while ((i < n))
+	{
+		r = (r + s);
+		i = <implicit>(i + 1);
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	r = (r + s);
+	i = <implicit>(i + 1);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+r = (r + s);
+i = <implicit>(i + 1);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> r = (r + s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> r
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- r = r.concat<"String">(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> i = <implicit>(i + 1);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> i
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- i = <implicit>(i + (int)(1));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+r = r.concat<"String">(s);
+i = <implicit>(i + (int)(1));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	r = r.concat<"String">(s);
+	i = <implicit>(i + (int)(1));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- while ((i < n))
+	{
+		r = r.concat<"String">(s);
+		i = <implicit>(i + (int)(1));
+	}
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> return r;
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return r;
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- string repStr(string s, int n)
 {
-	int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
-	printInt(r);
+	string r = "";
+	int i = (int)(0);
+	while ((i < n))
+		{
+			r = r.concat<"String">(s);
+			i = <implicit>(i + (int)(1));
+		}
 	return r;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
 {
-	int a = (int)(1);
-	int b = (int)(2);
-	int c = (int)(1);
-	int d = (int)(2);
-	int e = (int)(1);
-	int f = (int)(2);
-	int g = (int)(1);
-	int h = (int)(2);
-	int i = (int)(1);
-	int j = (int)(2);
-	int k = (int)(1);
-	int l = (int)(2);
-	int m = (int)(1);
-	int n = (int)(2);
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+	printInt(fac(10));
+	printInt(rfac(10));
+	printInt(mfac(10));
+	printInt(ifac(10));
+	string r;
+	{
+		int n = 10;
+		int r = 1;
+		while ((n > 0))
+			{
+				r = (r * n);
+				n = <implicit>(n - 1);
+			}
+		printInt(r);
+	}
+	string xx = repStr("=", 60);
+	printString(xx);
+	printString("hello */");
+	printString("/* world");
+	return 0;
 }
-
-int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
-{
-	int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(fac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(fac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(rfac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(rfac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(mfac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(mfac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(ifac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(ifac(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> string r;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- string r;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	int n = 10;
+	int r = 1;
+	while ((n > 0))
+		{
+			r = (r * n);
+			n = <implicit>(n - 1);
+		}
 	printInt(r);
-	return r;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Typecheck done./play.lat
-
-int main()
-{
-	int a = (int)(1);
-	int b = (int)(2);
-	int c = (int)(1);
-	int d = (int)(2);
-	int e = (int)(1);
-	int f = (int)(2);
-	int g = (int)(1);
-	int h = (int)(2);
-	int i = (int)(1);
-	int j = (int)(2);
-	int k = (int)(1);
-	int l = (int)(2);
-	int m = (int)(1);
-	int n = (int)(2);
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+int n = 10;
+int r = 1;
+while ((n > 0))
+	{
+		r = (r * n);
+		n = <implicit>(n - 1);
+	}
+printInt(r);
 }
-
-int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
-{
-	int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int n = 10;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int n = (int)(10);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int r = 1;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int r = (int)(1);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> while ((n > 0))
+	{
+		r = (r * n);
+		n = <implicit>(n - 1);
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	r = (r * n);
+	n = <implicit>(n - 1);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+r = (r * n);
+n = <implicit>(n - 1);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> r = (r * n);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> r
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- r = (r * n);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> n = <implicit>(n - 1);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> n
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- n = <implicit>(n - (int)(1));
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+r = (r * n);
+n = <implicit>(n - (int)(1));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	r = (r * n);
+	n = <implicit>(n - (int)(1));
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- while ((n > (int)(0)))
+	{
+		r = (r * n);
+		n = <implicit>(n - (int)(1));
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> printInt(r);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- printInt(r);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+int n = (int)(10);
+int r = (int)(1);
+while ((n > (int)(0)))
+	{
+		r = (r * n);
+		n = <implicit>(n - (int)(1));
+	}
+printInt(r);
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	int n = (int)(10);
+	int r = (int)(1);
+	while ((n > (int)(0)))
+		{
+			r = (r * n);
+			n = <implicit>(n - (int)(1));
+		}
 	printInt(r);
-	return r;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
-{
-	int a = (int)(1);
-	int b = (int)(2);
-	int c = (int)(1);
-	int d = (int)(2);
-	int e = (int)(1);
-	int f = (int)(2);
-	int g = (int)(1);
-	int h = (int)(2);
-	int i = (int)(1);
-	int j = (int)(2);
-	int k = (int)(1);
-	int l = (int)(2);
-	int m = (int)(1);
-	int n = (int)(2);
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
-}
-
-int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
-{
-	int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
-	printInt(r);
-	return r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP Before doNormalizeScope(Syntax.Program) int main()
-{
-	int a = (int)(1);
-	int b = (int)(2);
-	int c = (int)(1);
-	int d = (int)(2);
-	int e = (int)(1);
-	int f = (int)(2);
-	int g = (int)(1);
-	int h = (int)(2);
-	int i = (int)(1);
-	int j = (int)(2);
-	int k = (int)(1);
-	int l = (int)(2);
-	int m = (int)(1);
-	int n = (int)(2);
-	return foo(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
-}
-
-int foo(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n)
-{
-	int r = ((((((((((((((((int)(2) * a) + (b / (int)(2))) + c) + d) + e) + f) + g) + h) + i) + (j / (int)(2))) + k) + l) + m) + n) % (int)(10));
-	printInt(r);
-	return r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP After doNormalizeScope(Syntax.Program) int main()
-{
-	int _var_1000002#a = (int)(1);
-	int _var_1000003#b = (int)(2);
-	int _var_1000004#c = (int)(1);
-	int _var_1000005#d = (int)(2);
-	int _var_1000006#e = (int)(1);
-	int _var_1000007#f = (int)(2);
-	int _var_1000008#g = (int)(1);
-	int _var_1000009#h = (int)(2);
-	int _var_1000010#i = (int)(1);
-	int _var_1000011#j = (int)(2);
-	int _var_1000012#k = (int)(1);
-	int _var_1000013#l = (int)(2);
-	int _var_1000014#m = (int)(1);
-	int _var_1000015#n = (int)(2);
-	return foo(_var_1000002#a, _var_1000003#b, _var_1000004#c, _var_1000005#d, _var_1000006#e, _var_1000007#f, _var_1000008#g, _var_1000009#h, _var_1000010#i, _var_1000011#j, _var_1000012#k, _var_1000013#l, _var_1000014#m, _var_1000015#n);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((((int)(2) * _var_1000019#a) + (_var_1000020#b / (int)(2))) + _var_1000021#c) + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + (_var_1000028#j / (int)(2))) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) % (int)(10));
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 1 (took 9 ms)
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP Before doNormalizeScope(Syntax.Program) int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP After doNormalizeScope(Syntax.Program) int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 9 ms)
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimization done./play.lat
-
-int main()
-{
-	int _var_1000002#a = 1;
-	int _var_1000003#b = 2;
-	int _var_1000004#c = 1;
-	int _var_1000005#d = 2;
-	int _var_1000006#e = 1;
-	int _var_1000007#f = 2;
-	int _var_1000008#g = 1;
-	int _var_1000009#h = 2;
-	int _var_1000010#i = 1;
-	int _var_1000011#j = 2;
-	int _var_1000012#k = 1;
-	int _var_1000013#l = 2;
-	int _var_1000014#m = 1;
-	int _var_1000015#n = 2;
-	return foo(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-}
-
-int foo(int _var_1000019#a, int _var_1000020#b, int _var_1000021#c, int _var_1000022#d, int _var_1000023#e, int _var_1000024#f, int _var_1000025#g, int _var_1000026#h, int _var_1000027#i, int _var_1000028#j, int _var_1000029#k, int _var_1000030#l, int _var_1000031#m, int _var_1000032#n)
-{
-	int _var_1000034#r = ((((((((((((((_var_1000021#c + _var_1000022#d) + _var_1000023#e) + _var_1000024#f) + _var_1000025#g) + _var_1000026#h) + _var_1000027#i) + _var_1000029#k) + _var_1000030#l) + _var_1000031#m) + _var_1000032#n) + (2 * _var_1000019#a)) + (_var_1000020#b / 2)) + (_var_1000028#j / 2)) % 10);
-	printInt(_var_1000034#r);
-	return _var_1000034#r;
-}
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int,int,int,int,int,int,int,int,int,int,int,int,int,int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [int]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DEBUG COLLECT_FUNCTIONS PROTOTYPES
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [int main()
-    int t_14 = <int>1
-    int t_15 = <int>t_14
-    int t_16 = <int>2
-    int t_17 = <int>t_16
-    int t_18 = <int>1
-    int t_19 = <int>t_18
-    int t_20 = <int>2
-    int t_21 = <int>t_20
-    int t_22 = <int>1
-    int t_23 = <int>t_22
-    int t_24 = <int>2
-    int t_25 = <int>t_24
-    int t_26 = <int>1
-    int t_27 = <int>t_26
-    int t_28 = <int>2
-    int t_29 = <int>t_28
-    int t_30 = <int>1
-    int t_31 = <int>t_30
-    int t_32 = <int>2
-    int t_33 = <int>t_32
-    int t_34 = <int>1
-    int t_35 = <int>t_34
-    int t_36 = <int>2
-    int t_37 = <int>t_36
-    int t_38 = <int>1
-    int t_39 = <int>t_38
-    int t_40 = <int>2
-    int t_41 = <int>t_40
-    int t_42 = <int>1
-    int t_43 = <int>2
-    int t_44 = <int>1
-    int t_45 = <int>2
-    int t_46 = <int>1
-    int t_47 = <int>2
-    int t_48 = <int>1
-    int t_49 = <int>2
-    int t_50 = <int>1
-    int t_51 = <int>2
-    int t_52 = <int>1
-    int t_53 = <int>2
-    int t_54 = <int>1
-    int t_55 = <int>2
-    int t_56 =     call<function> foo(<int>t_42, <int>t_43, <int>t_44, <int>t_45, <int>t_46, <int>t_47, <int>t_48, <int>t_49, <int>t_50, <int>t_51, <int>t_52, <int>t_53, <int>t_54, <int>t_55)
-    return <int>t_56
-,int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_81 = <int>2
-    int t_82 = <int>t_57 * <int>t_81
-    int t_83 = <int>t_80 + <int>t_82
-    int t_84 = <int>2
-    int t_85 = <int>t_58 / <int>t_84
-    int t_86 = <int>t_83 + <int>t_85
-    int t_87 = <int>2
-    int t_88 = <int>t_66 / <int>t_87
-    int t_89 = <int>t_86 + <int>t_88
-    int t_90 = <int>10
-    int t_91 = <int>t_89 % <int>t_90
-    int t_92 = <int>t_91
-    byte t_93 =     call<function> printInt(<int>t_92)
-    return <int>t_92
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] END DEBUG
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Initial IR: 
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_14 = <int>1
-    int t_15 = <int>t_14
-    int t_16 = <int>2
-    int t_17 = <int>t_16
-    int t_18 = <int>1
-    int t_19 = <int>t_18
-    int t_20 = <int>2
-    int t_21 = <int>t_20
-    int t_22 = <int>1
-    int t_23 = <int>t_22
-    int t_24 = <int>2
-    int t_25 = <int>t_24
-    int t_26 = <int>1
-    int t_27 = <int>t_26
-    int t_28 = <int>2
-    int t_29 = <int>t_28
-    int t_30 = <int>1
-    int t_31 = <int>t_30
-    int t_32 = <int>2
-    int t_33 = <int>t_32
-    int t_34 = <int>1
-    int t_35 = <int>t_34
-    int t_36 = <int>2
-    int t_37 = <int>t_36
-    int t_38 = <int>1
-    int t_39 = <int>t_38
-    int t_40 = <int>2
-    int t_41 = <int>t_40
-    int t_42 = <int>1
-    int t_43 = <int>2
-    int t_44 = <int>1
-    int t_45 = <int>2
-    int t_46 = <int>1
-    int t_47 = <int>2
-    int t_48 = <int>1
-    int t_49 = <int>2
-    int t_50 = <int>1
-    int t_51 = <int>2
-    int t_52 = <int>1
-    int t_53 = <int>2
-    int t_54 = <int>1
-    int t_55 = <int>2
-    int t_56 =     call<function> foo(<int>t_42, <int>t_43, <int>t_44, <int>t_45, <int>t_46, <int>t_47, <int>t_48, <int>t_49, <int>t_50, <int>t_51, <int>t_52, <int>t_53, <int>t_54, <int>t_55)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_81 = <int>2
-    int t_82 = <int>t_57 * <int>t_81
-    int t_83 = <int>t_80 + <int>t_82
-    int t_84 = <int>2
-    int t_85 = <int>t_58 / <int>t_84
-    int t_86 = <int>t_83 + <int>t_85
-    int t_87 = <int>2
-    int t_88 = <int>t_66 / <int>t_87
-    int t_89 = <int>t_86 + <int>t_88
-    int t_90 = <int>10
-    int t_91 = <int>t_89 % <int>t_90
-    int t_92 = <int>t_91
-    byte t_93 =     call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 1 (took 0 ms)
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_14 = <int>1
-    int t_15 = <int>t_14
-    int t_16 = <int>2
-    int t_17 = <int>t_16
-    int t_18 = <int>1
-    int t_19 = <int>t_18
-    int t_20 = <int>2
-    int t_21 = <int>t_20
-    int t_22 = <int>1
-    int t_23 = <int>t_22
-    int t_24 = <int>2
-    int t_25 = <int>t_24
-    int t_26 = <int>1
-    int t_27 = <int>t_26
-    int t_28 = <int>2
-    int t_29 = <int>t_28
-    int t_30 = <int>1
-    int t_31 = <int>t_30
-    int t_32 = <int>2
-    int t_33 = <int>t_32
-    int t_34 = <int>1
-    int t_35 = <int>t_34
-    int t_36 = <int>2
-    int t_37 = <int>t_36
-    int t_38 = <int>1
-    int t_39 = <int>t_38
-    int t_40 = <int>2
-    int t_41 = <int>t_40
-    int t_42 = <int>1
-    int t_43 = <int>2
-    int t_44 = <int>1
-    int t_45 = <int>2
-    int t_46 = <int>1
-    int t_47 = <int>2
-    int t_48 = <int>1
-    int t_49 = <int>2
-    int t_50 = <int>1
-    int t_51 = <int>2
-    int t_52 = <int>1
-    int t_53 = <int>2
-    int t_54 = <int>1
-    int t_55 = <int>2
-    int t_56 =     call<function> foo(<int>t_42, <int>t_43, <int>t_44, <int>t_45, <int>t_46, <int>t_47, <int>t_48, <int>t_49, <int>t_50, <int>t_51, <int>t_52, <int>t_53, <int>t_54, <int>t_55)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_81 = <int>2
-    int t_82 = <int>t_57 * <int>t_81
-    int t_83 = <int>t_80 + <int>t_82
-    int t_84 = <int>2
-    int t_85 = <int>t_58 / <int>t_84
-    int t_86 = <int>t_83 + <int>t_85
-    int t_87 = <int>2
-    int t_88 = <int>t_66 / <int>t_87
-    int t_89 = <int>t_86 + <int>t_88
-    int t_90 = <int>10
-    int t_91 = <int>t_89 % <int>t_90
-    int t_92 = <int>t_91
-    byte t_93 =     call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_56 =     call<function> foo(<int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_82 = <int>t_57 * <int>2
-    int t_83 = <int>t_80 + <int>t_82
-    int t_85 = <int>t_58 / <int>2
-    int t_86 = <int>t_83 + <int>t_85
-    int t_88 = <int>t_66 / <int>2
-    int t_89 = <int>t_86 + <int>t_88
-    int t_91 = <int>t_89 % <int>10
-    int t_92 = <int>t_91
-    discard<byte> call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Value propagator
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 3 ms)
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_56 =     call<function> foo(<int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_82 = <int>t_57 * <int>2
-    int t_83 = <int>t_80 + <int>t_82
-    int t_85 = <int>t_58 / <int>2
-    int t_86 = <int>t_83 + <int>t_85
-    int t_88 = <int>t_66 / <int>2
-    int t_89 = <int>t_86 + <int>t_88
-    int t_91 = <int>t_89 % <int>10
-    int t_92 = <int>t_91
-    discard<byte> call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] > AFTER ROUND
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_56 =     call<function> foo(<int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_82 = <int>t_57 * <int>2
-    int t_83 = <int>t_80 + <int>t_82
-    int t_85 = <int>t_58 / <int>2
-    int t_86 = <int>t_83 + <int>t_85
-    int t_88 = <int>t_66 / <int>2
-    int t_89 = <int>t_86 + <int>t_88
-    int t_91 = <int>t_89 % <int>10
-    int t_92 = <int>t_91
-    discard<byte> call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Convert to FIR
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] AST to convert:
-struct Array extends [Array, Object]
-    field obj<Object> elements;
-    field int length;
-    field int elementSize;
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Array.toString ()
-
-struct Object extends [Object]
-    method byte Object.equals ( obj<Object>)
-    method int Object.getHashCode ()
-    method obj<String> Object.toString ()
-
-struct String extends [String, Object]
-    method int String.charAt ( int)
-    method byte String.equals ( obj<Object>)
-    method obj<String> String.concat ( obj<String>)
-    method byte String.startsWith ( obj<String>)
-    method byte String.endsWith ( obj<String>)
-    method array<byte> String.getBytes ()
-    method int String.indexOf ( int)
-    method int String.length ()
-    method obj<String> String.substring ( int)
-    method obj<String> String.toString ()
-    method int String.getHashCode ()
-
-int main()
-    int t_56 =     call<function> foo(<int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2, <int>1, <int>2)
-    return <int>t_56
-
-int foo(int t_57, int t_58, int t_59, int t_60, int t_61, int t_62, int t_63, int t_64, int t_65, int t_66, int t_67, int t_68, int t_69, int t_70)
-    int t_71 = <int>t_59 + <int>t_60
-    int t_72 = <int>t_71 + <int>t_61
-    int t_73 = <int>t_72 + <int>t_62
-    int t_74 = <int>t_73 + <int>t_63
-    int t_75 = <int>t_74 + <int>t_64
-    int t_76 = <int>t_75 + <int>t_65
-    int t_77 = <int>t_76 + <int>t_67
-    int t_78 = <int>t_77 + <int>t_68
-    int t_79 = <int>t_78 + <int>t_69
-    int t_80 = <int>t_79 + <int>t_70
-    int t_82 = <int>t_57 * <int>2
-    int t_83 = <int>t_80 + <int>t_82
-    int t_85 = <int>t_58 / <int>2
-    int t_86 = <int>t_83 + <int>t_85
-    int t_88 = <int>t_66 / <int>2
-    int t_89 = <int>t_86 + <int>t_88
-    int t_91 = <int>t_89 % <int>10
-    int t_92 = <int>t_91
-    discard<byte> call<function> printInt(<int>t_92)
-    return <int>t_92
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Convert to FIR
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Linearizer terminated
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] IR conversion done./play.lat
-
-.metadata: [
-  .classes: [
-    Array  extends [SymIdent "Array", SymIdent "Object"] : [
-      .fields: [
-        Object & elements;
-        int length;
-        int elementSize;
-      ]
-      .methods: [
-        int (Object &)Object.equals;
-        int () Object.getHashCode;
-        String & () Array.toString;
-      ]
-    ]
-    Object  extends [SymIdent "Object"] : [
-      .fields: [
-        ]
-      .methods: [
-        int (Object &)Object.equals;
-        int () Object.getHashCode;
-        String & () Object.toString;
-      ]
-    ]
-    String  extends [SymIdent "String", SymIdent "Object"] : [
-      .fields: [
-        ]
-      .methods: [
-        int (int)String.charAt;
-        int (Object &)String.equals;
-        String & (String &)String.concat;
-        int (String &)String.startsWith;
-        int (String &)String.endsWith;
-        int [] & () String.getBytes;
-        int (int)String.indexOf;
-        int () String.length;
-        String & (int)String.substring;
-        String & () String.toString;
-        int () String.getHashCode;
-      ]
-    ]
-    ~cl_TopLevel  extends [] : [
-      .fields: [
-        ]
-      .methods: [
-        Array & () Array.toString;
-        Object & () Object.toString;
-        int () Object.getHashCode;
-        int (Object &)Object.equals;
-        int (Object &)String.equals;
-        int () String.getHashCode;
-        String & () String.toString;
-        String & () String.substring;
-        int () String.length;
-        int (String &, int)String.indexOf;
-        String & () String.getBytes;
-        int (String &)String.endsWith;
-        int (String &)String.startsWith;
-        String & (String &, String &)String.concat;
-        int (int)String.charAt;
-        int (String &)~cl_TopLevel.printString;
-        int (int)~cl_TopLevel.printInt;
-        int (int)~cl_TopLevel.printByte;
-        int (int)~cl_TopLevel.printBoolean;
-        int (Array &)~cl_TopLevel.printBinArray;
-        String & (int)~cl_TopLevel.byteToString;
-        String & (int)~cl_TopLevel.boolToString;
-        String & (int)~cl_TopLevel.intToString;
-        int (Object &)~cl_TopLevel.print;
-        int () ~cl_TopLevel.error;
-        int () ~cl_TopLevel.readInt;
-        String & () ~cl_TopLevel.readString;
-        Object & (Object &, Object &)~cl_TopLevel.__cast;
-        int () ~cl_TopLevel.main;
-        int (int, int, int, int, int, int, int, int, int, int, int, int, int, int)~cl_TopLevel.foo;
-      ]
-    ]
-  ]
-]
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge .L_entry == to => .L_exit
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge .L_entry == to => .L_exit
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED CFGS
-
-CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Removing unreachable blocks...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Removing unreachable blocks...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Analysing liveness...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [("%a_t_64",(8,Ref () (Int ()))),("%a_t_66",(10,Ref () (Int ()))),("%a_t_60",(4,Ref () (Int ()))),("%a_t_70",(14,Ref () (Int ()))),("%a_t_62",(6,Ref () (Int ()))),("%a_t_68",(12,Ref () (Int ()))),("%a_t_58",(2,Ref () (Int ()))),("%a_t_57",(1,Ref () (Int ()))),("%a_t_65",(9,Ref () (Int ()))),("%a_t_67",(11,Ref () (Int ()))),("%a_t_61",(5,Ref () (Int ()))),("%a_t_63",(7,Ref () (Int ()))),("%a_t_69",(13,Ref () (Int ()))),("%a_t_59",(3,Ref () (Int ())))], out = [("%a_t_64",(7,Ref () (Int ()))),("%a_t_66",(9,Ref () (Int ()))),("%a_t_60",(3,Ref () (Int ()))),("%a_t_70",(13,Ref () (Int ()))),("%a_t_62",(5,Ref () (Int ()))),("%a_t_68",(11,Ref () (Int ()))),("%a_t_58",(1,Ref () (Int ()))),("%a_t_57",(0,Ref () (Int ()))),("%a_t_65",(8,Ref () (Int ()))),("%a_t_67",(10,Ref () (Int ()))),("%a_t_61",(4,Ref () (Int ()))),("%a_t_63",(6,Ref () (Int ()))),("%a_t_69",(12,Ref () (Int ()))),("%a_t_59",(2,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Analysing liveness...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Transforming to SSA...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Transforming to SSA...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> ENTIRE SSA CODE DUMP 
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),ICall ./play.lat:3:10 (ValIdent "%v_t_56") (Call ./play.lat:3:10 (Int ./play.lat:7:1) (QIdent ./play.lat:3:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2] []),ISet ./play.lat:3:3 (ValIdent "%v___temp_0") (VVal ./play.lat:3:3 (Int ./play.lat:7:1) (ValIdent "%v_t_56")),ISet ./play.lat:3:3 (ValIdent "%v_return") (VVal ./play.lat:3:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:3:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_57"),Param ./play.lat:7:1 (Int ./play.lat:7:15) (ValIdent "%a_t_58"),Param ./play.lat:7:1 (Int ./play.lat:7:21) (ValIdent "%a_t_59"),Param ./play.lat:7:1 (Int ./play.lat:7:27) (ValIdent "%a_t_60"),Param ./play.lat:7:1 (Int ./play.lat:7:33) (ValIdent "%a_t_61"),Param ./play.lat:7:1 (Int ./play.lat:7:39) (ValIdent "%a_t_62"),Param ./play.lat:7:1 (Int ./play.lat:7:45) (ValIdent "%a_t_63"),Param ./play.lat:7:1 (Int ./play.lat:8:9) (ValIdent "%a_t_64"),Param ./play.lat:7:1 (Int ./play.lat:8:15) (ValIdent "%a_t_65"),Param ./play.lat:7:1 (Int ./play.lat:8:21) (ValIdent "%a_t_66"),Param ./play.lat:7:1 (Int ./play.lat:8:27) (ValIdent "%a_t_67"),Param ./play.lat:7:1 (Int ./play.lat:8:33) (ValIdent "%a_t_68"),Param ./play.lat:7:1 (Int ./play.lat:8:39) (ValIdent "%a_t_69"),Param ./play.lat:7:1 (Int ./play.lat:8:46) (ValIdent "%a_t_70")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_57") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_57")),ILoad ./play.lat:7:1 (ValIdent "%v_t_58") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:15)) 1 (ValIdent "%a_t_58")),ILoad ./play.lat:7:1 (ValIdent "%v_t_59") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:21)) 2 (ValIdent "%a_t_59")),ILoad ./play.lat:7:1 (ValIdent "%v_t_60") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:27)) 3 (ValIdent "%a_t_60")),ILoad ./play.lat:7:1 (ValIdent "%v_t_61") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:33)) 4 (ValIdent "%a_t_61")),ILoad ./play.lat:7:1 (ValIdent "%v_t_62") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:39)) 5 (ValIdent "%a_t_62")),ILoad ./play.lat:7:1 (ValIdent "%v_t_63") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:45)) 6 (ValIdent "%a_t_63")),ILoad ./play.lat:7:1 (ValIdent "%v_t_64") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:9)) 7 (ValIdent "%a_t_64")),ILoad ./play.lat:7:1 (ValIdent "%v_t_65") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:15)) 8 (ValIdent "%a_t_65")),ILoad ./play.lat:7:1 (ValIdent "%v_t_66") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:21)) 9 (ValIdent "%a_t_66")),ILoad ./play.lat:7:1 (ValIdent "%v_t_67") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:27)) 10 (ValIdent "%a_t_67")),ILoad ./play.lat:7:1 (ValIdent "%v_t_68") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:33)) 11 (ValIdent "%a_t_68")),ILoad ./play.lat:7:1 (ValIdent "%v_t_69") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:39)) 12 (ValIdent "%a_t_69")),ILoad ./play.lat:7:1 (ValIdent "%v_t_70") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:46)) 13 (ValIdent "%a_t_70")),IOp ./play.lat:10:43 (ValIdent "%v_t_71") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_59")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_60")),IOp ./play.lat:10:43 (ValIdent "%v_t_72") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_71")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_61")),IOp ./play.lat:10:43 (ValIdent "%v_t_73") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_72")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_62")),IOp ./play.lat:10:43 (ValIdent "%v_t_74") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_73")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_63")),IOp ./play.lat:10:43 (ValIdent "%v_t_75") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_74")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_64")),IOp ./play.lat:10:43 (ValIdent "%v_t_76") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_75")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_65")),IOp ./play.lat:10:43 (ValIdent "%v_t_77") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_76")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_67")),IOp ./play.lat:10:43 (ValIdent "%v_t_78") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_77")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_68")),IOp ./play.lat:10:43 (ValIdent "%v_t_79") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_78")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_69")),IOp ./play.lat:10:43 (ValIdent "%v_t_80") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_79")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_70")),IOp ./play.lat:10:13 (ValIdent "%v_t_82") (VVal ./play.lat:10:13 (Int ./play.lat:10:12) (ValIdent "%v_t_57")) (OpMul ./play.lat:10:13) (VInt ./play.lat:10:13 2),IOp ./play.lat:10:43 (ValIdent "%v_t_83") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_80")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_82")),IOp ./play.lat:10:17 (ValIdent "%v_t_85") (VVal ./play.lat:10:17 (Int ./play.lat:7:15) (ValIdent "%v_t_58")) (OpDiv ./play.lat:10:17) (VInt ./play.lat:10:17 2),IOp ./play.lat:10:43 (ValIdent "%v_t_86") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_83")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_85")),IOp ./play.lat:10:35 (ValIdent "%v_t_88") (VVal ./play.lat:10:35 (Int ./play.lat:8:21) (ValIdent "%v_t_66")) (OpDiv ./play.lat:10:35) (VInt ./play.lat:10:35 2),IOp ./play.lat:10:43 (ValIdent "%v_t_89") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_86")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_88")),IOp ./play.lat:10:46 (ValIdent "%v_t_91") (VVal ./play.lat:10:46 (Int ./play.lat:7:21) (ValIdent "%v_t_89")) (OpMod ./play.lat:10:46) (VInt ./play.lat:10:46 10),ISet ./play.lat:10:7 (ValIdent "%v_t_92") (VVal ./play.lat:10:7 (Int ./play.lat:7:21) (ValIdent "%v_t_91")),IVCall ./play.lat:11:3 (Call ./play.lat:11:3 (Int inside standard library) (QIdent ./play.lat:11:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:11:3 (Int inside standard library) (ValIdent "%v_t_92")] []),ISet ./play.lat:12:3 (ValIdent "%v___temp_1") (VVal ./play.lat:12:3 (Int ./play.lat:10:3) (ValIdent "%v_t_92")),ISet ./play.lat:12:3 (ValIdent "%v_return") (VVal ./play.lat:12:3 (Int ./play.lat:10:3) (ValIdent "%v___temp_1")),IJmp ./play.lat:12:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END SSA CODE DUMP 
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Optimising Espresso...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Optimising Espresso...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> ENTIRE OPTIMIZED CODE DUMP 
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),ICall ./play.lat:3:10 (ValIdent "%v_t_56") (Call ./play.lat:3:10 (Int ./play.lat:7:1) (QIdent ./play.lat:3:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2] []),ISet ./play.lat:3:3 (ValIdent "%v___temp_0") (VVal ./play.lat:3:3 (Int ./play.lat:7:1) (ValIdent "%v_t_56")),ISet ./play.lat:3:3 (ValIdent "%v_return") (VVal ./play.lat:3:3 (Int ./play.lat:7:1) (ValIdent "%v___temp_0")),IJmp ./play.lat:3:3 (LabIdent ".L_exit"),ILabel ./play.lat:1:1 (LabIdent ".L_exit"),IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_return"))]),(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_57"),Param ./play.lat:7:1 (Int ./play.lat:7:15) (ValIdent "%a_t_58"),Param ./play.lat:7:1 (Int ./play.lat:7:21) (ValIdent "%a_t_59"),Param ./play.lat:7:1 (Int ./play.lat:7:27) (ValIdent "%a_t_60"),Param ./play.lat:7:1 (Int ./play.lat:7:33) (ValIdent "%a_t_61"),Param ./play.lat:7:1 (Int ./play.lat:7:39) (ValIdent "%a_t_62"),Param ./play.lat:7:1 (Int ./play.lat:7:45) (ValIdent "%a_t_63"),Param ./play.lat:7:1 (Int ./play.lat:8:9) (ValIdent "%a_t_64"),Param ./play.lat:7:1 (Int ./play.lat:8:15) (ValIdent "%a_t_65"),Param ./play.lat:7:1 (Int ./play.lat:8:21) (ValIdent "%a_t_66"),Param ./play.lat:7:1 (Int ./play.lat:8:27) (ValIdent "%a_t_67"),Param ./play.lat:7:1 (Int ./play.lat:8:33) (ValIdent "%a_t_68"),Param ./play.lat:7:1 (Int ./play.lat:8:39) (ValIdent "%a_t_69"),Param ./play.lat:7:1 (Int ./play.lat:8:46) (ValIdent "%a_t_70")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),ILoad ./play.lat:7:1 (ValIdent "%v_t_57") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_57")),ILoad ./play.lat:7:1 (ValIdent "%v_t_58") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:15)) 1 (ValIdent "%a_t_58")),ILoad ./play.lat:7:1 (ValIdent "%v_t_59") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:21)) 2 (ValIdent "%a_t_59")),ILoad ./play.lat:7:1 (ValIdent "%v_t_60") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:27)) 3 (ValIdent "%a_t_60")),ILoad ./play.lat:7:1 (ValIdent "%v_t_61") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:33)) 4 (ValIdent "%a_t_61")),ILoad ./play.lat:7:1 (ValIdent "%v_t_62") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:39)) 5 (ValIdent "%a_t_62")),ILoad ./play.lat:7:1 (ValIdent "%v_t_63") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:45)) 6 (ValIdent "%a_t_63")),ILoad ./play.lat:7:1 (ValIdent "%v_t_64") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:9)) 7 (ValIdent "%a_t_64")),ILoad ./play.lat:7:1 (ValIdent "%v_t_65") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:15)) 8 (ValIdent "%a_t_65")),ILoad ./play.lat:7:1 (ValIdent "%v_t_66") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:21)) 9 (ValIdent "%a_t_66")),ILoad ./play.lat:7:1 (ValIdent "%v_t_67") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:27)) 10 (ValIdent "%a_t_67")),ILoad ./play.lat:7:1 (ValIdent "%v_t_68") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:33)) 11 (ValIdent "%a_t_68")),ILoad ./play.lat:7:1 (ValIdent "%v_t_69") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:39)) 12 (ValIdent "%a_t_69")),ILoad ./play.lat:7:1 (ValIdent "%v_t_70") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:46)) 13 (ValIdent "%a_t_70")),IOp ./play.lat:10:43 (ValIdent "%v_t_71") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_59")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_60")),IOp ./play.lat:10:43 (ValIdent "%v_t_72") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_71")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_61")),IOp ./play.lat:10:43 (ValIdent "%v_t_73") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_72")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_62")),IOp ./play.lat:10:43 (ValIdent "%v_t_74") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_73")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_63")),IOp ./play.lat:10:43 (ValIdent "%v_t_75") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_74")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_64")),IOp ./play.lat:10:43 (ValIdent "%v_t_76") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_75")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_65")),IOp ./play.lat:10:43 (ValIdent "%v_t_77") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_76")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_67")),IOp ./play.lat:10:43 (ValIdent "%v_t_78") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_77")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_68")),IOp ./play.lat:10:43 (ValIdent "%v_t_79") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_78")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_69")),IOp ./play.lat:10:43 (ValIdent "%v_t_80") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_79")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_70")),IOp ./play.lat:10:13 (ValIdent "%v_t_82") (VVal ./play.lat:10:13 (Int ./play.lat:10:12) (ValIdent "%v_t_57")) (OpMul ./play.lat:10:13) (VInt ./play.lat:10:13 2),IOp ./play.lat:10:43 (ValIdent "%v_t_83") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_80")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_82")),IOp ./play.lat:10:17 (ValIdent "%v_t_85") (VVal ./play.lat:10:17 (Int ./play.lat:7:15) (ValIdent "%v_t_58")) (OpDiv ./play.lat:10:17) (VInt ./play.lat:10:17 2),IOp ./play.lat:10:43 (ValIdent "%v_t_86") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_83")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_85")),IOp ./play.lat:10:35 (ValIdent "%v_t_88") (VVal ./play.lat:10:35 (Int ./play.lat:8:21) (ValIdent "%v_t_66")) (OpDiv ./play.lat:10:35) (VInt ./play.lat:10:35 2),IOp ./play.lat:10:43 (ValIdent "%v_t_89") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_86")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_88")),IOp ./play.lat:10:46 (ValIdent "%v_t_91") (VVal ./play.lat:10:46 (Int ./play.lat:7:21) (ValIdent "%v_t_89")) (OpMod ./play.lat:10:46) (VInt ./play.lat:10:46 10),ISet ./play.lat:10:7 (ValIdent "%v_t_92") (VVal ./play.lat:10:7 (Int ./play.lat:7:21) (ValIdent "%v_t_91")),IVCall ./play.lat:11:3 (Call ./play.lat:11:3 (Int inside standard library) (QIdent ./play.lat:11:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:11:3 (Int inside standard library) (ValIdent "%v_t_92")] []),ISet ./play.lat:12:3 (ValIdent "%v___temp_1") (VVal ./play.lat:12:3 (Int ./play.lat:10:3) (ValIdent "%v_t_92")),ISet ./play.lat:12:3 (ValIdent "%v_return") (VVal ./play.lat:12:3 (Int ./play.lat:10:3) (ValIdent "%v___temp_1")),IJmp ./play.lat:12:3 (LabIdent ".L_exit"),ILabel ./play.lat:7:1 (LabIdent ".L_exit"),IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_return"))])]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END OPTIMIZED CODE DUMP 
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Reanalysing liveness...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_56",(4,Int ()))], out = [("%v_t_56",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_56",(2,Int ()))], out = [("%v_t_56",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_56",(0,Int ()))], out = [], use = [("%v_t_56",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [("%a_t_64",(9,Ref () (Int ()))),("%a_t_66",(11,Ref () (Int ()))),("%a_t_60",(5,Ref () (Int ()))),("%a_t_70",(15,Ref () (Int ()))),("%a_t_62",(7,Ref () (Int ()))),("%a_t_68",(13,Ref () (Int ()))),("%a_t_58",(3,Ref () (Int ()))),("%a_t_57",(2,Ref () (Int ()))),("%a_t_65",(10,Ref () (Int ()))),("%a_t_67",(12,Ref () (Int ()))),("%a_t_61",(6,Ref () (Int ()))),("%a_t_63",(8,Ref () (Int ()))),("%a_t_69",(14,Ref () (Int ()))),("%a_t_59",(4,Ref () (Int ())))], out = [("%a_t_64",(8,Ref () (Int ()))),("%a_t_66",(10,Ref () (Int ()))),("%a_t_60",(4,Ref () (Int ()))),("%a_t_70",(14,Ref () (Int ()))),("%a_t_62",(6,Ref () (Int ()))),("%a_t_68",(12,Ref () (Int ()))),("%a_t_58",(2,Ref () (Int ()))),("%a_t_57",(1,Ref () (Int ()))),("%a_t_65",(9,Ref () (Int ()))),("%a_t_67",(11,Ref () (Int ()))),("%a_t_61",(5,Ref () (Int ()))),("%a_t_63",(7,Ref () (Int ()))),("%a_t_69",(13,Ref () (Int ()))),("%a_t_59",(3,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_91",(4,Int ()))], out = [("%v_t_91",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_91",(2,Int ()))], out = [("%v_t_91",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_91",(0,Int ()))], out = [], use = [("%v_t_91",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Reanalysing liveness...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Allocating registers...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_56",(4,Int ()))], out = [("%v_t_56",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_56",(2,Int ()))], out = [("%v_t_56",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_56",(0,Int ()))], out = [], use = [("%v_t_56",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Liveness at start of .L_entry: in = [("%a_t_64",(9,Ref () (Int ()))),("%a_t_66",(11,Ref () (Int ()))),("%a_t_60",(5,Ref () (Int ()))),("%a_t_70",(15,Ref () (Int ()))),("%a_t_62",(7,Ref () (Int ()))),("%a_t_68",(13,Ref () (Int ()))),("%a_t_58",(3,Ref () (Int ()))),("%a_t_57",(2,Ref () (Int ()))),("%a_t_65",(10,Ref () (Int ()))),("%a_t_67",(12,Ref () (Int ()))),("%a_t_61",(6,Ref () (Int ()))),("%a_t_63",(8,Ref () (Int ()))),("%a_t_69",(14,Ref () (Int ()))),("%a_t_59",(4,Ref () (Int ())))], out = [("%a_t_64",(8,Ref () (Int ()))),("%a_t_66",(10,Ref () (Int ()))),("%a_t_60",(4,Ref () (Int ()))),("%a_t_70",(14,Ref () (Int ()))),("%a_t_62",(6,Ref () (Int ()))),("%a_t_68",(12,Ref () (Int ()))),("%a_t_58",(2,Ref () (Int ()))),("%a_t_57",(1,Ref () (Int ()))),("%a_t_65",(9,Ref () (Int ()))),("%a_t_67",(11,Ref () (Int ()))),("%a_t_61",(5,Ref () (Int ()))),("%a_t_63",(7,Ref () (Int ()))),("%a_t_69",(13,Ref () (Int ()))),("%a_t_59",(3,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_91",(4,Int ()))], out = [("%v_t_91",(3,Int ()))], use = [], kill = []
-Liveness at start of .L_exit: in = [("%v_t_91",(2,Int ()))], out = [("%v_t_91",(1,Int ()))], use = [], kill = []
-Liveness at end of .L_exit: in = [("%v_t_91",(0,Int ()))], out = [], use = [("%v_t_91",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] [%v_t_56 (reg preference: CallerSaved) (RAX): []
-~arg_0_RDI (reg preference: CallerSaved) (RDI): []
-~arg_1_RSI (reg preference: CallerSaved) (RSI): []
-~arg_2_RDX (reg preference: CallerSaved) (RDX): []
-~arg_3_RCX (reg preference: CallerSaved) (RCX): []
-~arg_4_R8 (reg preference: CallerSaved) (R8): []
-~arg_5_R9 (reg preference: CallerSaved) (R9): []
-,%a_t_57 (reg preference: CallerSaved) (RDI): ["%a_t_58","%a_t_59","%a_t_60","%a_t_61","%a_t_62"]
-%a_t_58 (reg preference: CallerSaved) (RSI): ["%a_t_57","%a_t_59","%a_t_60","%a_t_61","%a_t_62","%v_t_57"]
-%a_t_59 (reg preference: CallerSaved) (RDX): ["%a_t_57","%a_t_58","%a_t_60","%a_t_61","%a_t_62","%v_t_57","%v_t_58"]
-%a_t_60 (reg preference: CallerSaved) (RCX): ["%a_t_57","%a_t_58","%a_t_59","%a_t_61","%a_t_62","%v_t_57","%v_t_58","%v_t_59"]
-%a_t_61 (reg preference: CallerSaved) (R8): ["%a_t_57","%a_t_58","%a_t_59","%a_t_60","%a_t_62","%v_t_57","%v_t_58","%v_t_59","%v_t_60"]
-%a_t_62 (reg preference: CallerSaved) (R9): ["%a_t_57","%a_t_58","%a_t_59","%a_t_60","%a_t_61","%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61"]
-%v_t_57 (reg preference: CallerSaved) (R15): ["%a_t_58","%a_t_59","%a_t_60","%a_t_61","%a_t_62","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77","%v_t_78","%v_t_79","%v_t_80"]
-%v_t_58 (reg preference: CallerSaved) (RDI): ["%a_t_59","%a_t_60","%a_t_61","%a_t_62","%v_t_57","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77","%v_t_78","%v_t_79","%v_t_80","%v_t_82","%v_t_83"]
-%v_t_59 (reg preference: CallerSaved) (R14): ["%a_t_60","%a_t_61","%a_t_62","%v_t_57","%v_t_58","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_60 (reg preference: CallerSaved) (R13): ["%a_t_61","%a_t_62","%v_t_57","%v_t_58","%v_t_59","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_61 (reg preference: CallerSaved) (R12): ["%a_t_62","%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71"]
-%v_t_62 (reg preference: CallerSaved) (RBX): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72"]
-%v_t_63 (reg preference: CallerSaved) (R11): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73"]
-%v_t_64 (reg preference: CallerSaved) (R10): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74"]
-%v_t_65 (reg preference: CallerSaved) (R9): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75"]
-%v_t_66 (reg preference: CallerSaved) (RAX): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_67","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77","%v_t_78","%v_t_79","%v_t_80","%v_t_82","%v_t_83","%v_t_85","%v_t_86"]
-%v_t_67 (reg preference: CallerSaved) (R8): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_68","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76"]
-%v_t_68 (reg preference: CallerSaved) (RSI): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_69","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77"]
-%v_t_69 (reg preference: CallerSaved) (RDX): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_70","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77","%v_t_78"]
-%v_t_70 (reg preference: CallerSaved) (RCX): ["%v_t_57","%v_t_58","%v_t_59","%v_t_60","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_71","%v_t_72","%v_t_73","%v_t_74","%v_t_75","%v_t_76","%v_t_77","%v_t_78","%v_t_79"]
-%v_t_71 (reg preference: CallerSaved) (R13): ["%v_t_57","%v_t_58","%v_t_61","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_72 (reg preference: CallerSaved) (R12): ["%v_t_57","%v_t_58","%v_t_62","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_73 (reg preference: CallerSaved) (RBX): ["%v_t_57","%v_t_58","%v_t_63","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_74 (reg preference: CallerSaved) (R11): ["%v_t_57","%v_t_58","%v_t_64","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_75 (reg preference: CallerSaved) (R10): ["%v_t_57","%v_t_58","%v_t_65","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_76 (reg preference: CallerSaved) (R9): ["%v_t_57","%v_t_58","%v_t_66","%v_t_67","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_77 (reg preference: CallerSaved) (R8): ["%v_t_57","%v_t_58","%v_t_66","%v_t_68","%v_t_69","%v_t_70"]
-%v_t_78 (reg preference: CallerSaved) (RSI): ["%v_t_57","%v_t_58","%v_t_66","%v_t_69","%v_t_70"]
-%v_t_79 (reg preference: CallerSaved) (RDX): ["%v_t_57","%v_t_58","%v_t_66","%v_t_70"]
-%v_t_80 (reg preference: CallerSaved) (RCX): ["%v_t_57","%v_t_58","%v_t_66","%v_t_82"]
-%v_t_82 (reg preference: CallerSaved) (RDX): ["%v_t_58","%v_t_66","%v_t_80"]
-%v_t_83 (reg preference: CallerSaved) (RDX): ["%v_t_58","%v_t_66","%v_t_85"]
-%v_t_85 (reg preference: CallerSaved) (RCX): ["%v_t_66","%v_t_83"]
-%v_t_86 (reg preference: CallerSaved) (RCX): ["%v_t_66","%v_t_88"]
-%v_t_88 (reg preference: CallerSaved) (RAX): ["%v_t_86"]
-%v_t_89 (reg preference: CallerSaved) (RCX): ["~div_0_rax","~div_0_rdx"]
-%v_t_91 (reg preference: CalleeSaved) (RDX): []
-~arg_0_RDI (reg preference: CallerSaved) (RDI): []
-~div_0_rax (reg preference: CallerSaved) (RAX): ["~div_0_rdx"]
-~div_0_rdx (reg preference: CallerSaved) (RDX): ["~div_0_rax"]
-]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Allocating registers...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Unfolding phis...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  %v___temp_0 := int %v_t_56;
-  %v_return := int %v___temp_0;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [LabIdent ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [LabIdent ".L_entry"]
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  %v_t_92 := int %v_t_91;
-  call int ~cl_TopLevel.printInt (int %v_t_92);
-  %v___temp_1 := int %v_t_92;
-  %v_return := int %v___temp_1;
-  jump .L_exit;
-.L_exit:
-  return int %v_return;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Unfolding phis...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Inlining trivial jumps...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  endphi;
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  endphi;
-  return int %v_t_56;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  endphi;
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  call int ~cl_TopLevel.printInt (int %v_t_91);
-  endphi;
-  return int %v_t_91;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Inlining trivial jumps...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED INTERMEDIATE STEP Final liveness analysis...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] CFG for ~cl_TopLevel.main:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_56",(0,Int ()))], out = [], use = [("%v_t_56",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.main (): [
-.L_entry:
-  endphi;
-  %v_t_56 := call int ~cl_TopLevel.foo (1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2);
-  endphi;
-  return int %v_t_56;
-]
-
-CFG for ~cl_TopLevel.foo:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-Liveness at start of .L_entry: in = [("%a_t_64",(9,Ref () (Int ()))),("%a_t_66",(11,Ref () (Int ()))),("%a_t_60",(5,Ref () (Int ()))),("%a_t_70",(15,Ref () (Int ()))),("%a_t_62",(7,Ref () (Int ()))),("%a_t_68",(13,Ref () (Int ()))),("%a_t_58",(3,Ref () (Int ()))),("%a_t_57",(2,Ref () (Int ()))),("%a_t_65",(10,Ref () (Int ()))),("%a_t_67",(12,Ref () (Int ()))),("%a_t_61",(6,Ref () (Int ()))),("%a_t_63",(8,Ref () (Int ()))),("%a_t_69",(14,Ref () (Int ()))),("%a_t_59",(4,Ref () (Int ())))], out = [("%a_t_64",(8,Ref () (Int ()))),("%a_t_66",(10,Ref () (Int ()))),("%a_t_60",(4,Ref () (Int ()))),("%a_t_70",(14,Ref () (Int ()))),("%a_t_62",(6,Ref () (Int ()))),("%a_t_68",(12,Ref () (Int ()))),("%a_t_58",(2,Ref () (Int ()))),("%a_t_57",(1,Ref () (Int ()))),("%a_t_65",(9,Ref () (Int ()))),("%a_t_67",(11,Ref () (Int ()))),("%a_t_61",(5,Ref () (Int ()))),("%a_t_63",(7,Ref () (Int ()))),("%a_t_69",(13,Ref () (Int ()))),("%a_t_59",(3,Ref () (Int ())))], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_t_91",(0,Int ()))], out = [], use = [("%v_t_91",Int ())], kill = []
-Code: 
-.method int ~cl_TopLevel.foo (int %a_t_57, int %a_t_58, int %a_t_59, int %a_t_60, int %a_t_61, int %a_t_62, int %a_t_63, int %a_t_64, int %a_t_65, int %a_t_66, int %a_t_67, int %a_t_68, int %a_t_69, int %a_t_70): [
-.L_entry:
-  endphi;
-  %v_t_57 := load int & param 0 %a_t_57;
-  %v_t_58 := load int & param 1 %a_t_58;
-  %v_t_59 := load int & param 2 %a_t_59;
-  %v_t_60 := load int & param 3 %a_t_60;
-  %v_t_61 := load int & param 4 %a_t_61;
-  %v_t_62 := load int & param 5 %a_t_62;
-  %v_t_63 := load int & param 6 %a_t_63;
-  %v_t_64 := load int & param 7 %a_t_64;
-  %v_t_65 := load int & param 8 %a_t_65;
-  %v_t_66 := load int & param 9 %a_t_66;
-  %v_t_67 := load int & param 10 %a_t_67;
-  %v_t_68 := load int & param 11 %a_t_68;
-  %v_t_69 := load int & param 12 %a_t_69;
-  %v_t_70 := load int & param 13 %a_t_70;
-  %v_t_71 := int %v_t_59 + int %v_t_60;
-  %v_t_72 := int %v_t_71 + int %v_t_61;
-  %v_t_73 := int %v_t_72 + int %v_t_62;
-  %v_t_74 := int %v_t_73 + int %v_t_63;
-  %v_t_75 := int %v_t_74 + int %v_t_64;
-  %v_t_76 := int %v_t_75 + int %v_t_65;
-  %v_t_77 := int %v_t_76 + int %v_t_67;
-  %v_t_78 := int %v_t_77 + int %v_t_68;
-  %v_t_79 := int %v_t_78 + int %v_t_69;
-  %v_t_80 := int %v_t_79 + int %v_t_70;
-  %v_t_82 := int %v_t_57 * 2;
-  %v_t_83 := int %v_t_80 + int %v_t_82;
-  %v_t_85 := int %v_t_58 / 2;
-  %v_t_86 := int %v_t_83 + int %v_t_85;
-  %v_t_88 := int %v_t_66 / 2;
-  %v_t_89 := int %v_t_86 + int %v_t_88;
-  %v_t_91 := int %v_t_89 % 10;
-  call int ~cl_TopLevel.printInt (int %v_t_91);
-  endphi;
-  return int %v_t_91;
-]
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Final liveness analysis...
-
-
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] COMPL_ DONE./play.lat
-
-CompiledProg ./play.lat:1:1 (Meta ./play.lat:1:1 [ClDef inside standard library (SymIdent "Array") [SymIdent "Array",SymIdent "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "Object"))) (SymIdent "elements"),FldDef inside standard library (Int inside standard library) (SymIdent "length"),FldDef inside standard library (Int inside standard library) (SymIdent "elementSize")] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Array") (SymIdent "toString"))],ClDef inside standard library (SymIdent "Object") [SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "Object") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "getHashCode")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "Object") (SymIdent "toString"))],ClDef inside standard library (SymIdent "String") [SymIdent "String",SymIdent "Object"] [] [MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "charAt")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "Object"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "equals")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "concat")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "startsWith")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (SymIdent "String"))]) (QIdent inside standard library (SymIdent "String") (SymIdent "endsWith")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getBytes")),MthdDef inside standard library (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "indexOf")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "length")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) [Int inside standard library]) (QIdent inside standard library (SymIdent "String") (SymIdent "substring")),MthdDef inside standard library (FType inside standard library (Ref inside standard library (Cl inside standard library (SymIdent "String"))) []) (QIdent inside standard library (SymIdent "String") (SymIdent "toString")),MthdDef inside standard library (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (SymIdent "String") (SymIdent "getHashCode"))],ClDef ./play.lat:1:1 (SymIdent "~cl_TopLevel") [] [] [MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))) []) (QIdent ./play.lat:1:1 (SymIdent "Array") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "Object") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "equals")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getHashCode")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "toString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "substring")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "length")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "indexOf")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "getBytes")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "endsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "startsWith")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "concat")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "String") (SymIdent "charAt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printByte")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBoolean")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Array"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "printBinArray")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "byteToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "boolToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) [Int ./play.lat:1:1]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "intToString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "print")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "error")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readInt")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "String"))) []) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "readString")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))) [Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object")),Ref ./play.lat:1:1 (Cl ./play.lat:1:1 (SymIdent "Object"))]) (QIdent ./play.lat:1:1 (SymIdent "~cl_TopLevel") (SymIdent "__cast")),MthdDef ./play.lat:1:1 (FType ./play.lat:1:1 (Int ./play.lat:1:1) []) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")),MthdDef ./play.lat:7:1 (FType ./play.lat:7:1 (Int ./play.lat:7:1) [Int ./play.lat:7:9,Int ./play.lat:7:15,Int ./play.lat:7:21,Int ./play.lat:7:27,Int ./play.lat:7:33,Int ./play.lat:7:39,Int ./play.lat:7:45,Int ./play.lat:8:9,Int ./play.lat:8:15,Int ./play.lat:8:21,Int ./play.lat:8:27,Int ./play.lat:8:33,Int ./play.lat:8:39,Int ./play.lat:8:46]) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo"))]]) [([".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-,Mthd ./play.lat:1:1 (Int ./play.lat:1:1) (QIdent ./play.lat:1:5 (SymIdent "~cl_TopLevel") (SymIdent "main")) [] [ILabel ./play.lat:1:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:1:1,ICall ./play.lat:3:10 (ValIdent "%v_t_56") (Call ./play.lat:3:10 (Int ./play.lat:7:1) (QIdent ./play.lat:3:10 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2,VInt ./play.lat:3:10 1,VInt ./play.lat:3:10 2] []),IEndPhi ./play.lat:1:1,IRet ./play.lat:1:1 (VVal ./play.lat:1:1 (Int ./play.lat:1:1) (ValIdent "%v_t_56"))],RegAlloc {regAlloc = fromList [(ValIdent "%v_t_56",RAX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~arg_1_RSI",RSI),(ValIdent "~arg_2_RDX",RDX),(ValIdent "~arg_3_RCX",RCX),(ValIdent "~arg_4_R8",R8),(ValIdent "~arg_5_R9",R9)], numLocals = 0}),([".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-,Mthd ./play.lat:7:1 (Int ./play.lat:7:1) (QIdent ./play.lat:7:5 (SymIdent "~cl_TopLevel") (SymIdent "foo")) [Param ./play.lat:7:1 (Int ./play.lat:7:9) (ValIdent "%a_t_57"),Param ./play.lat:7:1 (Int ./play.lat:7:15) (ValIdent "%a_t_58"),Param ./play.lat:7:1 (Int ./play.lat:7:21) (ValIdent "%a_t_59"),Param ./play.lat:7:1 (Int ./play.lat:7:27) (ValIdent "%a_t_60"),Param ./play.lat:7:1 (Int ./play.lat:7:33) (ValIdent "%a_t_61"),Param ./play.lat:7:1 (Int ./play.lat:7:39) (ValIdent "%a_t_62"),Param ./play.lat:7:1 (Int ./play.lat:7:45) (ValIdent "%a_t_63"),Param ./play.lat:7:1 (Int ./play.lat:8:9) (ValIdent "%a_t_64"),Param ./play.lat:7:1 (Int ./play.lat:8:15) (ValIdent "%a_t_65"),Param ./play.lat:7:1 (Int ./play.lat:8:21) (ValIdent "%a_t_66"),Param ./play.lat:7:1 (Int ./play.lat:8:27) (ValIdent "%a_t_67"),Param ./play.lat:7:1 (Int ./play.lat:8:33) (ValIdent "%a_t_68"),Param ./play.lat:7:1 (Int ./play.lat:8:39) (ValIdent "%a_t_69"),Param ./play.lat:7:1 (Int ./play.lat:8:46) (ValIdent "%a_t_70")] [ILabel ./play.lat:7:1 (LabIdent ".L_entry"),IEndPhi ./play.lat:7:1,ILoad ./play.lat:7:1 (ValIdent "%v_t_57") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:9)) 0 (ValIdent "%a_t_57")),ILoad ./play.lat:7:1 (ValIdent "%v_t_58") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:15)) 1 (ValIdent "%a_t_58")),ILoad ./play.lat:7:1 (ValIdent "%v_t_59") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:21)) 2 (ValIdent "%a_t_59")),ILoad ./play.lat:7:1 (ValIdent "%v_t_60") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:27)) 3 (ValIdent "%a_t_60")),ILoad ./play.lat:7:1 (ValIdent "%v_t_61") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:33)) 4 (ValIdent "%a_t_61")),ILoad ./play.lat:7:1 (ValIdent "%v_t_62") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:39)) 5 (ValIdent "%a_t_62")),ILoad ./play.lat:7:1 (ValIdent "%v_t_63") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:7:45)) 6 (ValIdent "%a_t_63")),ILoad ./play.lat:7:1 (ValIdent "%v_t_64") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:9)) 7 (ValIdent "%a_t_64")),ILoad ./play.lat:7:1 (ValIdent "%v_t_65") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:15)) 8 (ValIdent "%a_t_65")),ILoad ./play.lat:7:1 (ValIdent "%v_t_66") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:21)) 9 (ValIdent "%a_t_66")),ILoad ./play.lat:7:1 (ValIdent "%v_t_67") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:27)) 10 (ValIdent "%a_t_67")),ILoad ./play.lat:7:1 (ValIdent "%v_t_68") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:33)) 11 (ValIdent "%a_t_68")),ILoad ./play.lat:7:1 (ValIdent "%v_t_69") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:39)) 12 (ValIdent "%a_t_69")),ILoad ./play.lat:7:1 (ValIdent "%v_t_70") (PParam ./play.lat:7:1 (Ref ./play.lat:7:1 (Int ./play.lat:8:46)) 13 (ValIdent "%a_t_70")),IOp ./play.lat:10:43 (ValIdent "%v_t_71") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_59")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_60")),IOp ./play.lat:10:43 (ValIdent "%v_t_72") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_71")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_61")),IOp ./play.lat:10:43 (ValIdent "%v_t_73") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_72")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_62")),IOp ./play.lat:10:43 (ValIdent "%v_t_74") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_73")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_63")),IOp ./play.lat:10:43 (ValIdent "%v_t_75") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_74")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_64")),IOp ./play.lat:10:43 (ValIdent "%v_t_76") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_75")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_65")),IOp ./play.lat:10:43 (ValIdent "%v_t_77") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_76")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_67")),IOp ./play.lat:10:43 (ValIdent "%v_t_78") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_77")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_68")),IOp ./play.lat:10:43 (ValIdent "%v_t_79") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_78")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_69")),IOp ./play.lat:10:43 (ValIdent "%v_t_80") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_79")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_70")),IOp ./play.lat:10:13 (ValIdent "%v_t_82") (VVal ./play.lat:10:13 (Int ./play.lat:10:12) (ValIdent "%v_t_57")) (OpMul ./play.lat:10:13) (VInt ./play.lat:10:13 2),IOp ./play.lat:10:43 (ValIdent "%v_t_83") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_80")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_82")),IOp ./play.lat:10:17 (ValIdent "%v_t_85") (VVal ./play.lat:10:17 (Int ./play.lat:7:15) (ValIdent "%v_t_58")) (OpDiv ./play.lat:10:17) (VInt ./play.lat:10:17 2),IOp ./play.lat:10:43 (ValIdent "%v_t_86") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_83")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_85")),IOp ./play.lat:10:35 (ValIdent "%v_t_88") (VVal ./play.lat:10:35 (Int ./play.lat:8:21) (ValIdent "%v_t_66")) (OpDiv ./play.lat:10:35) (VInt ./play.lat:10:35 2),IOp ./play.lat:10:43 (ValIdent "%v_t_89") (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_86")) (OpAdd ./play.lat:10:43) (VVal ./play.lat:10:43 (Int ./play.lat:7:21) (ValIdent "%v_t_88")),IOp ./play.lat:10:46 (ValIdent "%v_t_91") (VVal ./play.lat:10:46 (Int ./play.lat:7:21) (ValIdent "%v_t_89")) (OpMod ./play.lat:10:46) (VInt ./play.lat:10:46 10),IVCall ./play.lat:11:3 (Call ./play.lat:11:3 (Int inside standard library) (QIdent ./play.lat:11:3 (SymIdent "~cl_TopLevel") (SymIdent "printInt")) [VVal ./play.lat:11:3 (Int ./play.lat:11:3) (ValIdent "%v_t_91")] []),IEndPhi ./play.lat:7:1,IRet ./play.lat:7:1 (VVal ./play.lat:7:1 (Int ./play.lat:7:1) (ValIdent "%v_t_91"))],RegAlloc {regAlloc = fromList [(ValIdent "%a_t_57",RDI),(ValIdent "%a_t_58",RSI),(ValIdent "%a_t_59",RDX),(ValIdent "%a_t_60",RCX),(ValIdent "%a_t_61",R8),(ValIdent "%a_t_62",R9),(ValIdent "%v_t_57",R15),(ValIdent "%v_t_58",RDI),(ValIdent "%v_t_59",R14),(ValIdent "%v_t_60",R13),(ValIdent "%v_t_61",R12),(ValIdent "%v_t_62",RBX),(ValIdent "%v_t_63",R11),(ValIdent "%v_t_64",R10),(ValIdent "%v_t_65",R9),(ValIdent "%v_t_66",RAX),(ValIdent "%v_t_67",R8),(ValIdent "%v_t_68",RSI),(ValIdent "%v_t_69",RDX),(ValIdent "%v_t_70",RCX),(ValIdent "%v_t_71",R13),(ValIdent "%v_t_/usr/bin/ld: /tmp/ccV2fDgL.o: warning: relocation against `_String_getBytes' in read-only section `.rodata'
-/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
-72",R12),(ValIdent "%v_t_73",RBX),(ValIdent "%v_t_74",R11),(ValIdent "%v_t_75",R10),(ValIdent "%v_t_76",R9),(ValIdent "%v_t_77",R8),(ValIdent "%v_t_78",RSI),(ValIdent "%v_t_79",RDX),(ValIdent "%v_t_80",RCX),(ValIdent "%v_t_82",RDX),(ValIdent "%v_t_83",RDX),(ValIdent "%v_t_85",RCX),(ValIdent "%v_t_86",RCX),(ValIdent "%v_t_88",RAX),(ValIdent "%v_t_89",RCX),(ValIdent "%v_t_91",RDX),(ValIdent "~arg_0_RDI",RDI),(ValIdent "~div_0_rax",RAX),(ValIdent "~div_0_rdx",RDX)], numLocals = 0})]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Running correct compiler backend: X64
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 56
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 8
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Created file: ./play.s
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Calling backend compile step: X64
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Run GCC for X64 backend to generate './play' executable from object file './play.o'
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Executing command 'gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./play.s -o ./play -z noexecstack'
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Command executed successfully.
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] X64 compilation of './play.s' seems to be successfull
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Backend code generation completed successfully ./play.lat -> ./play
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DONE
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> string xx = repStr("=", 60);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Typecheck failed
+[0;91;1m[error][0m: Problem: Invalid call
+     [0;90;1m╭──▶[0m [0;32;1m./play.lat@27:15-27:21[0m
+     [0;90;1m│[0m
+[0;90;1m  27 │[0m [0;97m [0m[0;97m [0m[0;97ms[0m[0;97mt[0m[0;97mr[0m[0;97mi[0m[0;97mn[0m[0;97mg[0m[0;97m [0m[0;97mx[0m[0;97mx[0m[0;97m [0m[0;97m=[0m[0;97m [0m[0;91;1mr[0m[0;91;1me[0m[0;91;1mp[0m[0;91;1mS[0m[0;91;1mt[0m[0;91;1mr[0m[0;97m([0m[0;97m"[0m[0;97m=[0m[0;97m"[0m[0;97m,[0m[0;97m6[0m[0;97m0[0m[0;97m)[0m[0;97m;[0m
+     [0;90;1m•[0m               [0;91m┬[0m[0;91m─[0m[0;91m─[0m[0;91m─[0m[0;91m─[0m[0;91m─[0m 
+     [0;90;1m•[0m               [0;91m├╸[0m [0;91mCalling value that expects parameter of type string at position 1, but got int[0m
+     [0;90;1m•[0m               [0;34m╰╸[0m [0;34mCorrect the type of 1-th parameter[0m
+[0;90;1m─────╯[0m
+[0;90;1m            ────────────────────────────────────────[0m
+[0;90m        │[0m 
+      [0;90m  │ [0m 
+      [0;90mT │ [0m [0;90;1m    Infer types: [0m
+      [0;90my │ [0m  [0;97m [0m[0;97m [0m[0;97ms[0m[0;97mt[0m[0;97mr[0m[0;97mi[0m[0;97mn[0m[0;97mg[0m[0;97m [0m[0;97mx[0m[0;97mx[0m[0;97m [0m[0;97m=[0m[0;97m [0m[0;34;1mr[0m[0;34;1me[0m[0;34;1mp[0m[0;34;1mS[0m[0;34;1mt[0m[0;34;1mr[0m[0;97m([0m[0;34;1m"[0m[0;34;1m=[0m[0;34;1m"[0m[0;97m,[0m[0;34;1m6[0m[0;34;1m0[0m[0;97m)[0m[0;97m;[0m
+      [0;90mp │ [0m                [0;34m┬[0m[0;34m─[0m[0;34m─[0m[0;34m─[0m[0;34m─[0m[0;34m─[0m [0;34m┬[0m[0;34m─[0m[0;34m─[0m [0;34m┬[0m[0;34m─[0m 
+      [0;90me │ [0m                [0;34m│[0m      [0;34m│[0m   [0;34m╰╸[0m [0;34mType: byte[0m
+      [0;90m  │ [0m                [0;34m│[0m      [0;34m╰╸[0m [0;34mType: string[0m
+      [0;90mc │ [0m                [0;34m╰╸[0m [0;34mType: (string (int, string))[0m
+      [0;90mo │ [0m  
+      [0;90mn │ [0m 
+      [0;90mt │ [0m 
+      [0;90me │ [0m 
+      [0;90mx │ [0m 
+      [0;90mt │ [0m 
+
+      [0;90m        │[0m 
+      [0;90m  │ [0m 
+      [0;90mF │ [0m [0;90;1m    The error occurred in function 'main'[0m
+      [0;90mu │ [0m  [0;34;1mi[0m[0;34;1mn[0m[0;34;1mt[0m[0;34;1m [0m[0;97mm[0m[0;97ma[0m[0;97mi[0m[0;97mn[0m[0;97m([0m[0;97m)[0m[0;97m [0m[0;97m{[0m
+      [0;90mn │ [0m  [0;34m┬[0m[0;34m─[0m[0;34m─[0m[0;34m─[0m 
+      [0;90mc │ [0m  [0;34m╰╸[0m [0;34mLocation of function 'main'[0m
+      [0;90mt │ [0m  
+      [0;90mi │ [0m 
+      [0;90mo │ [0m 
+      [0;90mn │ [0m 
+      [0;90m  │ [0m 
+      [0;90mc │ [0m 
+      [0;90mo │ [0m 
+      [0;90mn │ [0m 
+      [0;90mt │ [0m 
+      [0;90me │ [0m 
+      [0;90mx │ [0m 
+      [0;90mt │ [0m 
+
+
+
+[91m[Error]   [0m[Reporting.Logs.logError#88] Typecheck failed

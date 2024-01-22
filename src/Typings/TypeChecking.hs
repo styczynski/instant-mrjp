@@ -423,6 +423,8 @@ instance TypeCheckable Syntax.Expr where
             elemF _ [] = Nothing
     doInferType appCall@(Syntax.App pos efun es) = do
         (nef, eft) <- inferType efun
+        -- DBGELO
+        liftPipelineTC $ printLogInfo $ T.pack $ "DBGELO App ===> " ++ show eft
         case eft of
             fn@(Syntax.FunT _ ret args) -> do
                 nes <- mapM inferType es
