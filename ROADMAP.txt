@@ -1,13 +1,13 @@
 Do naprawienia:
 .- Krzywe wypiwywanie błędów - ./tests/bad/bad019.lat
-.- brak instrukcji pomocniczej przy dostepie ref -> data -> *
+x- brak instrukcji pomocniczej przy dostepie ref -> data -> *
 .- problem z allokacja rejestrow i DIV ?
 .- Implementacja checka na lvalue w typecheckerze
 X- problem z return f() gdzie f zwraca void
 .- Liczenie refenencji trzeba zrobic
 .- Redukcja mocy???
 .- inlining funkcji
-.- Naprawienie generycznego printa w runtime.c
+x- Naprawienie generycznego printa w runtime.c
 .- Poprawna obsługa bledow generatora asm
 
 naprawa testów

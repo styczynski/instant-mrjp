@@ -1,8 +1,0 @@
-int foo(int a) {
-	return 2+a;
-}
-
-int main() {
-	printInt(foo(2+2));
-	return 0;
-}

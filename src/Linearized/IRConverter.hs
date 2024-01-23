@@ -112,7 +112,7 @@ convertType :: A.Type a -> B.SType a
 convertType (A.IntT p) = B.Int p
 convertType (A.ByteT p) = B.Bool p
 convertType (A.Reference p (A.Label _ clname)) = B.Ref p $ B.Cl p $ B.SymIdent clname
-convertType (A.ArrT p t) = B.Ref p $ B.Arr p (convertType t)
+convertType (A.ArrT p t) =  B.Ref p $ B.Arr p (convertType t)
 
 functionName :: (Maybe (A.Label a)) -> A.Label a -> B.QIdent a
 functionName Nothing (A.Label p name) = B.QIdent p (B.SymIdent "~cl_TopLevel") (B.SymIdent name)

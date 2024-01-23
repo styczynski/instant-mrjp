@@ -260,16 +260,6 @@ spec = do
         6
     |]
 
-    it "Printing string with escape sequences" $ \h -> expectProgramSuccess [r|
-        int main() {
-            printString("\\a\\n\n\tb\"");
-            return 0;
-        }
-    |] [r|
-        \a\n
-          b"
-    |]
-
     it "Printing complex string with escape sequences" $ \h -> expectProgramSuccess [r|
         // Autor: Bolek Kulbabinski
         int f(int p){

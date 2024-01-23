@@ -44,9 +44,6 @@ runBackend filePath fileName ast backend = do
     runBackend' filePath fileName ast backend = do
       lift $ printLogInfo $ "Running correct compiler backend: " <> (T.pack $ backendName backend)
       outputCode <- (run backend) fileName ast
-      -- case backendResponse of
-      --   Left e -> return $ Left e
-      --   Right outputCode -> do
       lift $ printLogInfo $ "Created file: " <> (T.pack filePath)
       liftIO $ writeFile filePath outputCode
       lift $ printLogInfo $ "Calling backend compile step: " <> (T.pack $ backendName backend)
@@ -67,5 +64,4 @@ execCmd cmd args = do
       (_,_,_,phandle) <- createProcess_ "Backend.execCmd" (proc cmd args){ std_err = UseHandle stdout}
       waitForProcess phandle
       return ()
-      --callProcess cmd args
-      --return $ ()
+

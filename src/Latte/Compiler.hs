@@ -65,7 +65,6 @@ compileLattePipeline config input = do
     parsedAST <- parseLatte file contents
     case parsedAST of 
         p@(ParserTypes.ProgramParseError err) -> do
-            --liftIO $ (input ^. inputFileContentClose) contentsHandle
             return $ CompilationFailed (ParseError err) file contents p
         ast -> do
             printLogInfo $ "Parsed: " <> (T.pack file)
@@ -74,14 +73,12 @@ compileLattePipeline config input = do
             typingResult <- TypeChecker.checkTypes prog
             case typingResult of
                 Left err -> do
-                    --liftIO $ (input ^. inputFileContentClose) contentsHandle
                     return $ CompilationFailed (CompilationError err) file contents parsedAST
                 Right (tcEnv, prog', _) -> do
                     printLogInfo $ "Typecheck done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog')
                     optimizerResult <- Optimizer.optimize tcEnv prog'
                     case optimizerResult of
                         Left err -> do
-                            --liftIO $ (input ^. inputFileContentClose) contentsHandle
                             return $ CompilationFailed (CompilationError err) file contents parsedAST
                         Right (optimizerEnv, prog'') -> do
                             printLogInfo $ "Optimization done" <> (T.pack file) <> "\n\n" <> (T.pack $ printi 0 prog'')

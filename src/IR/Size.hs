@@ -10,6 +10,7 @@ typeSize t = case t of
     Int _   -> X64.Size32
     Bool _  -> X64.Size8
     Ref _ _ -> X64.Size64
+    --(Cl _ _) -> X64.Size64
     _       -> error $ "typeSize: invalid type " ++ show (() <$ t)
 
 valSize :: Val a -> X64.Size

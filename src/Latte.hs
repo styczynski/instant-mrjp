@@ -43,8 +43,6 @@ runPipeline backend = do
   args <- liftIO $ getArgs
   case args of
     file : rest -> do
-      --let noBin = "no-bin" `elem` rest
-      --    jasminName = replaceExtension file (inputExtension backend)
       contents <- liftIO $ readFile file
       printLogInfo $ "Parsing: " <> (T.pack file)
       parsedAST <- parseLatte file contents

@@ -6,9 +6,10 @@
 #include "runtime.h"
 
 #define __LATTE_RUNTIME_DEBUG_ENABLED false
-#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES true
+#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
 #define __LATTE_RUNTIME_GC_ENABLED false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
+#define XDEBUG(args...) if(true) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
 #define FORMAT_PTR(PTR) ((__LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES)?(PTR):((void*)(0)))
 
 extern void bzero(void *s, size_t n);
@@ -163,7 +164,7 @@ void __errorNull() {
 
 obj __createString(char *c) {
     DEBUG("Call __createString() v2");
-    DEBUG("Try to create string from %p", FORMAT_PTR(c));
+    //DEBUG("Try to create string from %p", FORMAT_PTR(c));
     if (c == NULL) {
         DEBUG("C is NULL exit");
         return __createString(emptyString);
@@ -188,7 +189,6 @@ obj __createString(char *c) {
         str[len] = 0;
     } else {
         r->data = emptyString;
-        return r;
     }
     DEBUG("Str init completed %p (with data=%p, size=%d, str='%s')", FORMAT_PTR(r), FORMAT_PTR(r->data), r->length, r->data);
     return r;

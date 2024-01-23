@@ -42,20 +42,7 @@ traceEnabled = False
 gen :: (X64.ASMGeneratorT a (ASMAnno) LattePipeline) v -> Generator a v
 gen = lift . lift . lift
 
--- isReg :: Loc -> Bool
--- isReg loc = case loc of
---     LocReg _ -> True
---     _        -> False
 
--- asReg :: Loc -> Reg
--- asReg loc = case loc of
---     LocReg r -> r
---     _        -> error "asReg: not a reg"
-
--- For n-th argument of a function (starting from zero) give
--- the location it is stored in. Assumes only the return
--- address is stored after arguments on stack, the consumer
--- must correct for the actual offset.
 argLoc :: Integer -> X64.Loc
 argLoc idx = case idx of
     0 -> X64.LocReg X64.RDI
@@ -111,7 +98,6 @@ getLoc vi = do
             error $ "internal error. value not found " ++ toStr vi ++ " in vars " ++ (show vs)
 
 getValLoc :: Val b -> Generator a X64.Loc
---getValLoc val = return $ argLoc 0
 getValLoc val = case val of
     VInt _ n    -> return $ X64.LocConst (fromInteger n)
     VNegInt _ n -> return $ X64.LocConst (fromInteger $ -n)
@@ -137,14 +123,12 @@ newStrConst s = do
     gEnvSet (\env -> env & consts .~ cs)
     return c
 
--- Generate a label in the context of the current method.
 label :: LabIdent -> Generator a LabIdent
 label l = gContext ((\f -> f l) . (^. labelGen))
 
 setStack :: Stack -> Generator a ()
 setStack s = gEnvSet (\env -> env & stack .~ s)
 
--- Get the description of a variable.
 getVarS :: ValIdent -> Generator a VarState
 getVarS vi = do
     mb <- gEnvGet (Map.lookup vi . (^. vars))
@@ -152,7 +136,6 @@ getVarS vi = do
         Nothing -> error $ "internal error. no varS for var " ++ show vi
         Just g  -> return g
 
--- Get class metadata.
 getClass :: SymIdent -> Generator a CompiledClass
 getClass i = do
     mb <- gContext (Map.lookup i . (^. classes))
@@ -160,34 +143,20 @@ getClass i = do
         Nothing -> error $ "internal error. no class " ++ toStr i
         Just cl -> return cl
 
--- Get the size of a variable.
 varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varS ^. varType 
 
--- Is the variable currently alive.
 isLive :: ValIdent -> Generator a Bool
 isLive (ValIdent vi) = do
     l <- gEnvGet (^. live)
     return $ HashMap.member vi $ liveIn l
 
--- Debug
-
 fullTrace :: Generator a ()
 fullTrace = return ()
--- fullTrace = do
---     l <-gEnvGet (^. live)
---     traceM' ("live: " ++ show (HashMap.keys $ liveIn l))
---     varSs <- gEnvGet (Map.elems . (^. vars))
---     s <- gEnvGet (^. stack)
---     traceM' ("stack: " ++ show (stackReservedSize s) ++ " + " ++ show (stackOverheadSize s))
---     mapM_ (\vs -> traceM' ("value " ++ toStr (varName vs) ++ ", "
---             ++ "type: " ++ show (vs ^. varType)
---             ++ " loc: " ++ show (vs ^. varLoc))) varSs
 
 traceM' :: String -> Generator a ()
 traceM' s = when traceEnabled (do
     gEnvSet (\env -> env & traceIdx %~ (+1))
     idx <- gEnvGet (^. traceIdx)
     return ()
-    --traceM ("{" ++ show idx ++ "}  " ++ s)
     )

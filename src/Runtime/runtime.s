@@ -31,57 +31,57 @@ __new:
 	.cfi_def_cfa_register 6
 	subq	$32, %rsp	#,
 	movq	%rdi, -24(%rbp)	# t, t
-# src/Runtime/runtime.c:31:     obj r = malloc(sizeof(struct Reference)+t->dataSize);
+# src/Runtime/runtime.c:32:     obj r = malloc(sizeof(struct Reference)+t->dataSize);
 	movq	-24(%rbp), %rax	# t, tmp93
-	movl	8(%rax), %eax	# t_14(D)->dataSize, _1
+	movl	8(%rax), %eax	# t_18(D)->dataSize, _1
 	cltq
-# src/Runtime/runtime.c:31:     obj r = malloc(sizeof(struct Reference)+t->dataSize);
+# src/Runtime/runtime.c:32:     obj r = malloc(sizeof(struct Reference)+t->dataSize);
 	addq	$36, %rax	#, _3
 	movq	%rax, %rdi	# _3,
 	call	malloc@PLT	#
 	movq	%rax, -8(%rbp)	# tmp94, r
-# src/Runtime/runtime.c:33:     r->type = t;
+# src/Runtime/runtime.c:34:     r->type = t;
 	movq	-8(%rbp), %rax	# r, tmp95
 	movq	-24(%rbp), %rdx	# t, tmp96
-	movq	%rdx, (%rax)	# tmp96, r_16->type
-# src/Runtime/runtime.c:34:     r->counter = 0;
+	movq	%rdx, (%rax)	# tmp96, r_20->type
+# src/Runtime/runtime.c:35:     r->counter = 0;
 	movq	-8(%rbp), %rax	# r, tmp97
-	movl	$0, 16(%rax)	#, r_16->counter
-# src/Runtime/runtime.c:35:     r->data = 0;
+	movl	$0, 16(%rax)	#, r_20->counter
+# src/Runtime/runtime.c:36:     r->data = 0;
 	movq	-8(%rbp), %rax	# r, tmp98
-	movq	$0, 8(%rax)	#, r_16->data
-# src/Runtime/runtime.c:37:     if (t->dataSize > 0) {
+	movq	$0, 8(%rax)	#, r_20->data
+# src/Runtime/runtime.c:38:     if (t->dataSize > 0) {
 	movq	-24(%rbp), %rax	# t, tmp99
-	movl	8(%rax), %eax	# t_14(D)->dataSize, _6
-# src/Runtime/runtime.c:37:     if (t->dataSize > 0) {
-	testl	%eax, %eax	# _6
+	movl	8(%rax), %eax	# t_18(D)->dataSize, _10
+# src/Runtime/runtime.c:38:     if (t->dataSize > 0) {
+	testl	%eax, %eax	# _10
 	jle	.L2	#,
-# src/Runtime/runtime.c:38:         bzero((r+36), t->dataSize);
+# src/Runtime/runtime.c:39:         bzero((r+36), t->dataSize);
 	movq	-24(%rbp), %rax	# t, tmp100
-	movl	8(%rax), %eax	# t_14(D)->dataSize, _7
-# src/Runtime/runtime.c:38:         bzero((r+36), t->dataSize);
+	movl	8(%rax), %eax	# t_18(D)->dataSize, _11
+# src/Runtime/runtime.c:39:         bzero((r+36), t->dataSize);
 	cltq
-# src/Runtime/runtime.c:38:         bzero((r+36), t->dataSize);
+# src/Runtime/runtime.c:39:         bzero((r+36), t->dataSize);
 	movq	-8(%rbp), %rdx	# r, tmp101
-	addq	$1296, %rdx	#, _9
-# src/Runtime/runtime.c:38:         bzero((r+36), t->dataSize);
-	movq	%rdx, %rcx	# _9, tmp102
+	addq	$1296, %rdx	#, _13
+# src/Runtime/runtime.c:39:         bzero((r+36), t->dataSize);
+	movq	%rdx, %rcx	# _13, tmp102
 	movq	%rax, %rdx	# tmp103,
 	movl	$0, %esi	#,
 	movq	%rcx, %rdi	# tmp102,
 	call	memset@PLT	#
 .L2:
-# src/Runtime/runtime.c:48:     r->methods = r->type->methods;
+# src/Runtime/runtime.c:49:     r->methods = r->type->methods;
 	movq	-8(%rbp), %rax	# r, tmp106
-	movq	(%rax), %rax	# r_16->type, _10
-# src/Runtime/runtime.c:48:     r->methods = r->type->methods;
-	movq	12(%rax), %rdx	# _10->methods, _11
-# src/Runtime/runtime.c:48:     r->methods = r->type->methods;
+	movq	(%rax), %rax	# r_20->type, _14
+# src/Runtime/runtime.c:49:     r->methods = r->type->methods;
+	movq	12(%rax), %rdx	# _14->methods, _15
+# src/Runtime/runtime.c:49:     r->methods = r->type->methods;
 	movq	-8(%rbp), %rax	# r, tmp107
-	movq	%rdx, 20(%rax)	# _11, r_16->methods
-# src/Runtime/runtime.c:50:     return r;
+	movq	%rdx, 20(%rax)	# _15, r_20->methods
+# src/Runtime/runtime.c:51:     return r;
 	movq	-8(%rbp), %rax	# r, _5
-# src/Runtime/runtime.c:51: }
+# src/Runtime/runtime.c:52: }
 	leave	
 	.cfi_def_cfa 7, 8
 	ret	
@@ -100,97 +100,97 @@ __free:
 	.cfi_def_cfa_register 6
 	subq	$48, %rsp	#,
 	movq	%rdi, -40(%rbp)	# r, r
-# src/Runtime/runtime.c:55:     if (r->type == &_class_Array) {
+# src/Runtime/runtime.c:56:     if (r->type == &_class_Array) {
 	movq	-40(%rbp), %rax	# r, tmp92
 	movq	(%rax), %rdx	# r_17(D)->type, _5
-# src/Runtime/runtime.c:55:     if (r->type == &_class_Array) {
+# src/Runtime/runtime.c:56:     if (r->type == &_class_Array) {
 	leaq	_class_Array(%rip), %rax	#, tmp93
 	cmpq	%rax, %rdx	# tmp93, _5
 	jne	.L5	#,
-# src/Runtime/runtime.c:57:         void **els = r->data;
+# src/Runtime/runtime.c:58:         void **els = r->data;
 	movq	-40(%rbp), %rax	# r, tmp94
 	movq	8(%rax), %rax	# r_17(D)->data, tmp95
 	movq	%rax, -24(%rbp)	# tmp95, els
-# src/Runtime/runtime.c:58:         if (r->elementSize == sizeof(void *)) {
+# src/Runtime/runtime.c:59:         if (r->elementSize == sizeof(void *)) {
 	movq	-40(%rbp), %rax	# r, tmp96
 	movl	28(%rax), %eax	# r_17(D)->elementSize, _6
-# src/Runtime/runtime.c:58:         if (r->elementSize == sizeof(void *)) {
+# src/Runtime/runtime.c:59:         if (r->elementSize == sizeof(void *)) {
 	cmpl	$8, %eax	#, _6
 	jne	.L6	#,
-# src/Runtime/runtime.c:59:             for (int i = 0; i < r->length; i++)
+# src/Runtime/runtime.c:60:             for (int i = 0; i < r->length; i++)
 	movl	$0, -4(%rbp)	#, i
-# src/Runtime/runtime.c:59:             for (int i = 0; i < r->length; i++)
+# src/Runtime/runtime.c:60:             for (int i = 0; i < r->length; i++)
 	jmp	.L7	#
 .L8:
-# src/Runtime/runtime.c:60:                 __decRef(els[i]);
+# src/Runtime/runtime.c:61:                 __decRef(els[i]);
 	movl	-4(%rbp), %eax	# i, tmp97
 	cltq
 	leaq	0(,%rax,8), %rdx	#, _8
 	movq	-24(%rbp), %rax	# els, tmp98
 	addq	%rdx, %rax	# _8, _9
-# src/Runtime/runtime.c:60:                 __decRef(els[i]);
+# src/Runtime/runtime.c:61:                 __decRef(els[i]);
 	movq	(%rax), %rax	# *_9, _10
 	movq	%rax, %rdi	# _10,
 	call	__decRef	#
-# src/Runtime/runtime.c:59:             for (int i = 0; i < r->length; i++)
+# src/Runtime/runtime.c:60:             for (int i = 0; i < r->length; i++)
 	addl	$1, -4(%rbp)	#, i
 .L7:
-# src/Runtime/runtime.c:59:             for (int i = 0; i < r->length; i++)
+# src/Runtime/runtime.c:60:             for (int i = 0; i < r->length; i++)
 	movq	-40(%rbp), %rax	# r, tmp99
 	movl	32(%rax), %eax	# r_17(D)->length, _11
-# src/Runtime/runtime.c:59:             for (int i = 0; i < r->length; i++)
+# src/Runtime/runtime.c:60:             for (int i = 0; i < r->length; i++)
 	cmpl	%eax, -4(%rbp)	# _11, i
 	jl	.L8	#,
 .L6:
-# src/Runtime/runtime.c:62:         if (els != NULL)
+# src/Runtime/runtime.c:63:         if (els != NULL)
 	cmpq	$0, -24(%rbp)	#, els
 	je	.L9	#,
-# src/Runtime/runtime.c:63:             free(els);
+# src/Runtime/runtime.c:64:             free(els);
 	movq	-24(%rbp), %rax	# els, tmp100
 	movq	%rax, %rdi	# tmp100,
 	call	free@PLT	#
 	jmp	.L9	#
 .L5:
-# src/Runtime/runtime.c:64:     } else if (r->type == &_class_String) {
+# src/Runtime/runtime.c:65:     } else if (r->type == &_class_String) {
 	movq	-40(%rbp), %rax	# r, tmp101
 	movq	(%rax), %rdx	# r_17(D)->type, _12
-# src/Runtime/runtime.c:64:     } else if (r->type == &_class_String) {
+# src/Runtime/runtime.c:65:     } else if (r->type == &_class_String) {
 	leaq	_class_String(%rip), %rax	#, tmp102
 	cmpq	%rax, %rdx	# tmp102, _12
 	jne	.L9	#,
-# src/Runtime/runtime.c:65:         void *els = (r->data);
+# src/Runtime/runtime.c:66:         void *els = (r->data);
 	movq	-40(%rbp), %rax	# r, tmp103
 	movq	8(%rax), %rax	# r_17(D)->data, tmp104
 	movq	%rax, -16(%rbp)	# tmp104, els
-# src/Runtime/runtime.c:66:         if (els != NULL && els != emptyString)
+# src/Runtime/runtime.c:67:         if (els != NULL && els != emptyString)
 	cmpq	$0, -16(%rbp)	#, els
 	je	.L9	#,
-# src/Runtime/runtime.c:66:         if (els != NULL && els != emptyString)
+# src/Runtime/runtime.c:67:         if (els != NULL && els != emptyString)
 	leaq	emptyString(%rip), %rax	#, tmp105
 	cmpq	%rax, -16(%rbp)	# tmp105, els
 	je	.L9	#,
-# src/Runtime/runtime.c:67:             free(els);
+# src/Runtime/runtime.c:68:             free(els);
 	movq	-16(%rbp), %rax	# els, tmp106
 	movq	%rax, %rdi	# tmp106,
 	call	free@PLT	#
 .L9:
-# src/Runtime/runtime.c:69:     if (r->data != NULL)
+# src/Runtime/runtime.c:70:     if (r->data != NULL)
 	movq	-40(%rbp), %rax	# r, tmp107
 	movq	8(%rax), %rax	# r_17(D)->data, _13
-# src/Runtime/runtime.c:69:     if (r->data != NULL)
+# src/Runtime/runtime.c:70:     if (r->data != NULL)
 	testq	%rax, %rax	# _13
 	je	.L10	#,
-# src/Runtime/runtime.c:70:         free(r->data);
+# src/Runtime/runtime.c:71:         free(r->data);
 	movq	-40(%rbp), %rax	# r, tmp108
 	movq	8(%rax), %rax	# r_17(D)->data, _14
 	movq	%rax, %rdi	# _14,
 	call	free@PLT	#
 .L10:
-# src/Runtime/runtime.c:71:     free(r);
+# src/Runtime/runtime.c:72:     free(r);
 	movq	-40(%rbp), %rax	# r, tmp109
 	movq	%rax, %rdi	# tmp109,
 	call	free@PLT	#
-# src/Runtime/runtime.c:72: }
+# src/Runtime/runtime.c:73: }
 	nop	
 	leave	
 	.cfi_def_cfa 7, 8
@@ -209,9 +209,9 @@ __incRef:
 	movq	%rsp, %rbp	#,
 	.cfi_def_cfa_register 6
 	movq	%rdi, -8(%rbp)	# r, r
-# src/Runtime/runtime.c:75:     if (!__LATTE_RUNTIME_GC_ENABLED) return;
+# src/Runtime/runtime.c:76:     if (!__LATTE_RUNTIME_GC_ENABLED) return;
 	nop	
-# src/Runtime/runtime.c:81: }
+# src/Runtime/runtime.c:82: }
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
 	ret	
@@ -229,9 +229,9 @@ __decRef:
 	movq	%rsp, %rbp	#,
 	.cfi_def_cfa_register 6
 	movq	%rdi, -8(%rbp)	# r, r
-# src/Runtime/runtime.c:84:     if (!__LATTE_RUNTIME_GC_ENABLED) return;
+# src/Runtime/runtime.c:85:     if (!__LATTE_RUNTIME_GC_ENABLED) return;
 	nop	
-# src/Runtime/runtime.c:96: }
+# src/Runtime/runtime.c:97: }
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
 	ret	
@@ -250,12 +250,12 @@ __newRefArray:
 	.cfi_def_cfa_register 6
 	subq	$16, %rsp	#,
 	movl	%edi, -4(%rbp)	# length, length
-# src/Runtime/runtime.c:98: obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
+# src/Runtime/runtime.c:99: obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
 	movl	-4(%rbp), %eax	# length, tmp84
 	movl	%eax, %esi	# tmp84,
 	movl	$8, %edi	#,
 	call	__newArray	#
-# src/Runtime/runtime.c:98: obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
+# src/Runtime/runtime.c:99: obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
 	leave	
 	.cfi_def_cfa 7, 8
 	ret	
@@ -274,12 +274,12 @@ __newIntArray:
 	.cfi_def_cfa_register 6
 	subq	$16, %rsp	#,
 	movl	%edi, -4(%rbp)	# length, length
-# src/Runtime/runtime.c:100:     return __newArray(sizeof(int32_t), length);
+# src/Runtime/runtime.c:101:     return __newArray(sizeof(int32_t), length);
 	movl	-4(%rbp), %eax	# length, tmp84
 	movl	%eax, %esi	# tmp84,
 	movl	$4, %edi	#,
 	call	__newArray	#
-# src/Runtime/runtime.c:101: }
+# src/Runtime/runtime.c:102: }
 	leave	
 	.cfi_def_cfa 7, 8
 	ret	
@@ -298,12 +298,12 @@ __newByteArray:
 	.cfi_def_cfa_register 6
 	subq	$16, %rsp	#,
 	movl	%edi, -4(%rbp)	# length, length
-# src/Runtime/runtime.c:103:     return __newArray(sizeof(int8_t), length);
+# src/Runtime/runtime.c:104:     return __newArray(sizeof(int8_t), length);
 	movl	-4(%rbp), %eax	# length, tmp84
 	movl	%eax, %esi	# tmp84,
 	movl	$1, %edi	#,
 	call	__newArray	#
-# src/Runtime/runtime.c:104: }
+# src/Runtime/runtime.c:105: }
 	leave	
 	.cfi_def_cfa 7, 8
 	ret	
@@ -323,38 +323,38 @@ __newArray:
 	subq	$32, %rsp	#,
 	movl	%edi, -20(%rbp)	# size, size
 	movl	%esi, -24(%rbp)	# length, length
-# src/Runtime/runtime.c:106:     obj r = __new(&_class_Array);
+# src/Runtime/runtime.c:107:     obj r = __new(&_class_Array);
 	leaq	_class_Array(%rip), %rax	#, tmp88
 	movq	%rax, %rdi	# tmp88,
 	call	__new	#
 	movq	%rax, -8(%rbp)	# tmp89, r
-# src/Runtime/runtime.c:107:     void* arr = malloc(size * length);
+# src/Runtime/runtime.c:108:     void* arr = malloc(size * length);
 	movl	-20(%rbp), %eax	# size, tmp90
 	imull	-24(%rbp), %eax	# length, _1
-# src/Runtime/runtime.c:107:     void* arr = malloc(size * length);
+# src/Runtime/runtime.c:108:     void* arr = malloc(size * length);
 	cltq
 	movq	%rax, %rdi	# _2,
 	call	malloc@PLT	#
 	movq	%rax, -16(%rbp)	# tmp91, arr
-# src/Runtime/runtime.c:108:     r->data = arr;
+# src/Runtime/runtime.c:109:     r->data = arr;
 	movq	-8(%rbp), %rax	# r, tmp92
 	movq	-16(%rbp), %rdx	# arr, tmp93
 	movq	%rdx, 8(%rax)	# tmp93, r_8->data
-# src/Runtime/runtime.c:109:     r->elementSize = size;
+# src/Runtime/runtime.c:110:     r->elementSize = size;
 	movq	-8(%rbp), %rax	# r, tmp94
 	movl	-20(%rbp), %edx	# size, tmp95
 	movl	%edx, 28(%rax)	# tmp95, r_8->elementSize
-# src/Runtime/runtime.c:110:     r->length = length;
+# src/Runtime/runtime.c:111:     r->length = length;
 	movq	-8(%rbp), %rax	# r, tmp96
 	movl	-24(%rbp), %edx	# length, tmp97
 	movl	%edx, 32(%rax)	# tmp97, r_8->length
-# src/Runtime/runtime.c:111:     if (length > 0) {
+# src/Runtime/runtime.c:112:     if (length > 0) {
 	cmpl	$0, -24(%rbp)	#, length
 	jle	.L22	#,
-# src/Runtime/runtime.c:113:         bzero(arr, size * length);
+# src/Runtime/runtime.c:114:         bzero(arr, size * length);
 	movl	-20(%rbp), %eax	# size, tmp98
 	imull	-24(%rbp), %eax	# length, _3
-# src/Runtime/runtime.c:113:         bzero(arr, size * length);
+# src/Runtime/runtime.c:114:         bzero(arr, size * length);
 	cltq
 	movq	-16(%rbp), %rdx	# arr, tmp99
 	movq	%rdx, %rcx	# tmp99, tmp100
@@ -363,9 +363,9 @@ __newArray:
 	movq	%rcx, %rdi	# tmp100,
 	call	memset@PLT	#
 .L22:
-# src/Runtime/runtime.c:115:     return r;
+# src/Runtime/runtime.c:116:     return r;
 	movq	-8(%rbp), %rax	# r, _17
-# src/Runtime/runtime.c:116: }
+# src/Runtime/runtime.c:117: }
 	leave	
 	.cfi_def_cfa 7, 8
 	ret	
@@ -384,9 +384,9 @@ __getelementptr:
 	.cfi_def_cfa_register 6
 	movq	%rdi, -8(%rbp)	# array, array
 	movl	%esi, -12(%rbp)	# index, index
-# src/Runtime/runtime.c:130:     return NULL;
+# src/Runtime/runtime.c:131:     return NULL;
 	movl	$0, %eax	#, _1
-# src/Runtime/runtime.c:131: }
+# src/Runtime/runtime.c:132: }
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
 	ret	
@@ -405,52 +405,52 @@ __cast:
 	.cfi_def_cfa_register 6
 	movq	%rdi, -24(%rbp)	# o, o
 	movq	%rsi, -32(%rbp)	# t, t
-# src/Runtime/runtime.c:136:     if (o == NULL) {
+# src/Runtime/runtime.c:137:     if (o == NULL) {
 	cmpq	$0, -24(%rbp)	#, o
 	jne	.L27	#,
-# src/Runtime/runtime.c:138:         return NULL;
+# src/Runtime/runtime.c:139:         return NULL;
 	movl	$0, %eax	#, _3
 	jmp	.L28	#
 .L27:
-# src/Runtime/runtime.c:141:     struct Type *to = o->type;
+# src/Runtime/runtime.c:142:     struct Type *to = o->type;
 	movq	-24(%rbp), %rax	# o, tmp84
 	movq	(%rax), %rax	# o_10(D)->type, tmp85
 	movq	%rax, -8(%rbp)	# tmp85, to
-# src/Runtime/runtime.c:142:     while (to != NULL) {
+# src/Runtime/runtime.c:143:     while (to != NULL) {
 	jmp	.L29	#
 .L32:
-# src/Runtime/runtime.c:144:         if (t == to) {
+# src/Runtime/runtime.c:145:         if (t == to) {
 	movq	-32(%rbp), %rax	# t, tmp86
 	cmpq	-8(%rbp), %rax	# to, tmp86
 	jne	.L30	#,
-# src/Runtime/runtime.c:146:             return o;
+# src/Runtime/runtime.c:147:             return o;
 	movq	-24(%rbp), %rax	# o, _3
 	jmp	.L28	#
 .L30:
-# src/Runtime/runtime.c:148:         struct Type *prev = to;
+# src/Runtime/runtime.c:149:         struct Type *prev = to;
 	movq	-8(%rbp), %rax	# to, tmp87
 	movq	%rax, -16(%rbp)	# tmp87, prev
-# src/Runtime/runtime.c:149:         to = to->parent;
+# src/Runtime/runtime.c:150:         to = to->parent;
 	movq	-8(%rbp), %rax	# to, tmp88
 	movq	(%rax), %rax	# to_8->parent, tmp89
 	movq	%rax, -8(%rbp)	# tmp89, to
-# src/Runtime/runtime.c:150:         if (prev == to) {
+# src/Runtime/runtime.c:151:         if (prev == to) {
 	movq	-16(%rbp), %rax	# prev, tmp90
 	cmpq	-8(%rbp), %rax	# to, tmp90
 	je	.L34	#,
 .L29:
-# src/Runtime/runtime.c:142:     while (to != NULL) {
+# src/Runtime/runtime.c:143:     while (to != NULL) {
 	cmpq	$0, -8(%rbp)	#, to
 	jne	.L32	#,
 	jmp	.L33	#
 .L34:
-# src/Runtime/runtime.c:152:             break;
+# src/Runtime/runtime.c:153:             break;
 	nop	
 .L33:
-# src/Runtime/runtime.c:156:     return NULL;
+# src/Runtime/runtime.c:157:     return NULL;
 	movl	$0, %eax	#, _3
 .L28:
-# src/Runtime/runtime.c:157: }
+# src/Runtime/runtime.c:158: }
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
 	ret	
@@ -472,13 +472,13 @@ __errorNull:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp	#,
 	.cfi_def_cfa_register 6
-# src/Runtime/runtime.c:160:     errMsg = "ERROR: Null pointer reference.";
+# src/Runtime/runtime.c:161:     errMsg = "ERROR: Null pointer reference.";
 	leaq	.LC0(%rip), %rax	#, tmp82
 	movq	%rax, errMsg(%rip)	# tmp82, errMsg
-# src/Runtime/runtime.c:161:     error();
+# src/Runtime/runtime.c:162:     error();
 	movl	$0, %eax	#,
 	call	error	#
-# src/Runtime/runtime.c:162: }
+# src/Runtime/runtime.c:163: }
 	nop	
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
@@ -503,104 +503,103 @@ __createString:
 	.cfi_def_cfa_register 6
 	subq	$48, %rsp	#,
 	movq	%rdi, -40(%rbp)	# c, c
-# src/Runtime/runtime.c:167:     if (c == NULL) {
+# src/Runtime/runtime.c:168:     if (c == NULL) {
 	cmpq	$0, -40(%rbp)	#, c
 	jne	.L37	#,
-# src/Runtime/runtime.c:169:         return __createString(emptyString);
+# src/Runtime/runtime.c:170:         return __createString(emptyString);
 	leaq	emptyString(%rip), %rax	#, tmp97
 	movq	%rax, %rdi	# tmp97,
 	call	__createString	#
 	jmp	.L38	#
 .L37:
-# src/Runtime/runtime.c:172:     obj r = __new(&_class_String);
+# src/Runtime/runtime.c:173:     obj r = __new(&_class_String);
 	leaq	_class_String(%rip), %rax	#, tmp98
 	movq	%rax, %rdi	# tmp98,
 	call	__new	#
-	movq	%rax, -32(%rbp)	# tmp99, r
-# src/Runtime/runtime.c:175:     r->length = u8_strlen(c);
+	movq	%rax, -16(%rbp)	# tmp99, r
+# src/Runtime/runtime.c:176:     r->length = u8_strlen(c);
 	movq	-40(%rbp), %rax	# c, tmp100
 	movq	%rax, %rdi	# tmp100,
 	call	u8_strlen@PLT	#
-# src/Runtime/runtime.c:175:     r->length = u8_strlen(c);
-	movl	%eax, %edx	# _3, _4
-	movq	-32(%rbp), %rax	# r, tmp101
-	movl	%edx, 32(%rax)	# _4, r_35->length
-# src/Runtime/runtime.c:177:     uint8_t* invalid_unit = u8_check(c, r->length);
-	movq	-32(%rbp), %rax	# r, tmp102
-	movl	32(%rax), %eax	# r_35->length, _10
-# src/Runtime/runtime.c:177:     uint8_t* invalid_unit = u8_check(c, r->length);
-	movslq	%eax, %rdx	# _10, _11
+# src/Runtime/runtime.c:176:     r->length = u8_strlen(c);
+	movl	%eax, %edx	# _4, _5
+	movq	-16(%rbp), %rax	# r, tmp101
+	movl	%edx, 32(%rax)	# _5, r_17->length
+# src/Runtime/runtime.c:178:     uint8_t* invalid_unit = u8_check(c, r->length);
+	movq	-16(%rbp), %rax	# r, tmp102
+	movl	32(%rax), %eax	# r_17->length, _11
+# src/Runtime/runtime.c:178:     uint8_t* invalid_unit = u8_check(c, r->length);
+	movslq	%eax, %rdx	# _11, _12
 	movq	-40(%rbp), %rax	# c, tmp103
-	movq	%rdx, %rsi	# _11,
+	movq	%rdx, %rsi	# _12,
 	movq	%rax, %rdi	# tmp103,
 	call	u8_check@PLT	#
-	movq	%rax, -16(%rbp)	# tmp104, invalid_unit
-# src/Runtime/runtime.c:178:     if (u8_check(c, r->length) != NULL) {
-	movq	-32(%rbp), %rax	# r, tmp105
-	movl	32(%rax), %eax	# r_35->length, _12
-# src/Runtime/runtime.c:178:     if (u8_check(c, r->length) != NULL) {
-	movslq	%eax, %rdx	# _12, _13
+	movq	%rax, -24(%rbp)	# tmp104, invalid_unit
+# src/Runtime/runtime.c:179:     if (u8_check(c, r->length) != NULL) {
+	movq	-16(%rbp), %rax	# r, tmp105
+	movl	32(%rax), %eax	# r_17->length, _13
+# src/Runtime/runtime.c:179:     if (u8_check(c, r->length) != NULL) {
+	movslq	%eax, %rdx	# _13, _14
 	movq	-40(%rbp), %rax	# c, tmp106
-	movq	%rdx, %rsi	# _13,
+	movq	%rdx, %rsi	# _14,
 	movq	%rax, %rdi	# tmp106,
 	call	u8_check@PLT	#
-# src/Runtime/runtime.c:178:     if (u8_check(c, r->length) != NULL) {
-	testq	%rax, %rax	# _14
+# src/Runtime/runtime.c:179:     if (u8_check(c, r->length) != NULL) {
+	testq	%rax, %rax	# _15
 	je	.L39	#,
-# src/Runtime/runtime.c:180:         errMsg = "ERROR: Non-unicode string encoding.";
+# src/Runtime/runtime.c:181:         errMsg = "ERROR: Non-unicode string encoding.";
 	leaq	.LC1(%rip), %rax	#, tmp107
 	movq	%rax, errMsg(%rip)	# tmp107, errMsg
-# src/Runtime/runtime.c:181:         error();
+# src/Runtime/runtime.c:182:         error();
 	movl	$0, %eax	#,
 	call	error	#
 .L39:
-# src/Runtime/runtime.c:183:     if (r->length > 0) {
-	movq	-32(%rbp), %rax	# r, tmp108
-	movl	32(%rax), %eax	# r_35->length, _23
-# src/Runtime/runtime.c:183:     if (r->length > 0) {
-	testl	%eax, %eax	# _23
+# src/Runtime/runtime.c:184:     if (r->length > 0) {
+	movq	-16(%rbp), %rax	# r, tmp108
+	movl	32(%rax), %eax	# r_17->length, _24
+# src/Runtime/runtime.c:184:     if (r->length > 0) {
+	testl	%eax, %eax	# _24
 	jle	.L40	#,
-# src/Runtime/runtime.c:184:         int len = r->length;
-	movq	-32(%rbp), %rax	# r, tmp109
-	movl	32(%rax), %eax	# r_35->length, tmp110
-	movl	%eax, -20(%rbp)	# tmp110, len
-# src/Runtime/runtime.c:185:         uint8_t *str = malloc(len + 1);
-	movl	-20(%rbp), %eax	# len, tmp111
-	addl	$1, %eax	#, _24
-# src/Runtime/runtime.c:185:         uint8_t *str = malloc(len + 1);
+# src/Runtime/runtime.c:185:         int len = r->length;
+	movq	-16(%rbp), %rax	# r, tmp109
+	movl	32(%rax), %eax	# r_17->length, tmp110
+	movl	%eax, -28(%rbp)	# tmp110, len
+# src/Runtime/runtime.c:186:         uint8_t *str = malloc(len + 1);
+	movl	-28(%rbp), %eax	# len, tmp111
+	addl	$1, %eax	#, _25
+# src/Runtime/runtime.c:186:         uint8_t *str = malloc(len + 1);
 	cltq
-	movq	%rax, %rdi	# _25,
+	movq	%rax, %rdi	# _26,
 	call	malloc@PLT	#
 	movq	%rax, -8(%rbp)	# tmp112, str
-# src/Runtime/runtime.c:186:         r->data = str;
-	movq	-32(%rbp), %rax	# r, tmp113
+# src/Runtime/runtime.c:187:         r->data = str;
+	movq	-16(%rbp), %rax	# r, tmp113
 	movq	-8(%rbp), %rdx	# str, tmp114
-	movq	%rdx, 8(%rax)	# tmp114, r_35->data
-# src/Runtime/runtime.c:187:         memcpy(str, c, len);
-	movl	-20(%rbp), %eax	# len, tmp115
-	movslq	%eax, %rdx	# tmp115, _26
+	movq	%rdx, 8(%rax)	# tmp114, r_17->data
+# src/Runtime/runtime.c:188:         memcpy(str, c, len);
+	movl	-28(%rbp), %eax	# len, tmp115
+	movslq	%eax, %rdx	# tmp115, _27
 	movq	-40(%rbp), %rcx	# c, tmp116
 	movq	-8(%rbp), %rax	# str, tmp117
 	movq	%rcx, %rsi	# tmp116,
 	movq	%rax, %rdi	# tmp117,
 	call	memcpy@PLT	#
-# src/Runtime/runtime.c:188:         str[len] = 0;
-	movl	-20(%rbp), %eax	# len, tmp118
-	movslq	%eax, %rdx	# tmp118, _27
+# src/Runtime/runtime.c:189:         str[len] = 0;
+	movl	-28(%rbp), %eax	# len, tmp118
+	movslq	%eax, %rdx	# tmp118, _28
 	movq	-8(%rbp), %rax	# str, tmp119
-	addq	%rdx, %rax	# _27, _28
-# src/Runtime/runtime.c:188:         str[len] = 0;
-	movb	$0, (%rax)	#, *_28
-# src/Runtime/runtime.c:194:     return r;
-	movq	-32(%rbp), %rax	# r, _2
-	jmp	.L38	#
+	addq	%rdx, %rax	# _28, _29
+# src/Runtime/runtime.c:189:         str[len] = 0;
+	movb	$0, (%rax)	#, *_29
+	jmp	.L41	#
 .L40:
-# src/Runtime/runtime.c:190:         r->data = emptyString;
-	movq	-32(%rbp), %rax	# r, tmp120
+# src/Runtime/runtime.c:191:         r->data = emptyString;
+	movq	-16(%rbp), %rax	# r, tmp120
 	leaq	emptyString(%rip), %rdx	#, tmp121
-	movq	%rdx, 8(%rax)	# tmp121, r_35->data
-# src/Runtime/runtime.c:191:         return r;
-	movq	-32(%rbp), %rax	# r, _2
+	movq	%rdx, 8(%rax)	# tmp121, r_17->data
+.L41:
+# src/Runtime/runtime.c:194:     return r;
+	movq	-16(%rbp), %rax	# r, _3
 .L38:
 # src/Runtime/runtime.c:195: }
 	leave	
@@ -655,7 +654,7 @@ _Object_getHashCode:
 	.cfi_def_cfa_register 6
 	movq	%rdi, -8(%rbp)	# o, o
 # src/Runtime/runtime.c:203: int32_t _Object_getHashCode(obj o) { return (int32_t)(int64_t)o; }
-	movq	-8(%rbp), %rax	# o, o.114_1
+	movq	-8(%rbp), %rax	# o, o.110_1
 # src/Runtime/runtime.c:203: int32_t _Object_getHashCode(obj o) { return (int32_t)(int64_t)o; }
 	popq	%rbp	#
 	.cfi_def_cfa 7, 8
@@ -907,7 +906,7 @@ _Array_toString:
 	call	u8_strlen@PLT	#
 # src/Runtime/runtime.c:237:     int32_t bufferSize = u8_strlen(start) + totalLenght +
 	movl	%eax, %edx	# _59, _60
-	movl	-20(%rbp), %eax	# totalLenght, totalLenght.115_61
+	movl	-20(%rbp), %eax	# totalLenght, totalLenght.111_61
 	leal	(%rdx,%rax), %ebx	#, _62
 # src/Runtime/runtime.c:238:                          (arr->length - 1) * u8_strlen(delim) +
 	movq	-136(%rbp), %rax	# arr, tmp227
@@ -1313,11 +1312,11 @@ _String_substring:
 	addq	%rax, -8(%rbp)	# _3, offset_str
 .L75:
 # src/Runtime/runtime.c:302:     while (startIndex-- > 0)
-	movl	-76(%rbp), %eax	# startIndex, startIndex.116_4
+	movl	-76(%rbp), %eax	# startIndex, startIndex.112_4
 	leal	-1(%rax), %edx	#, tmp110
 	movl	%edx, -76(%rbp)	# tmp110, startIndex
 # src/Runtime/runtime.c:302:     while (startIndex-- > 0)
-	testl	%eax, %eax	# startIndex.116_4
+	testl	%eax, %eax	# startIndex.112_4
 	jg	.L76	#,
 # src/Runtime/runtime.c:304:     uint8_t *end = offset_str;
 	movq	-8(%rbp), %rax	# offset_str, tmp111
@@ -1562,11 +1561,11 @@ _String_indexOf:
 	addq	%rax, -32(%rbp)	# _6, start
 .L89:
 # src/Runtime/runtime.c:344:     while (startFrom-- > 0) {
-	movl	-84(%rbp), %eax	# startFrom, startFrom.117_7
+	movl	-84(%rbp), %eax	# startFrom, startFrom.113_7
 	leal	-1(%rax), %edx	#, tmp109
 	movl	%edx, -84(%rbp)	# tmp109, startFrom
 # src/Runtime/runtime.c:344:     while (startFrom-- > 0) {
-	testl	%eax, %eax	# startFrom.117_7
+	testl	%eax, %eax	# startFrom.113_7
 	jg	.L91	#,
 # src/Runtime/runtime.c:349:     uint8_t *index = u8_strstr(start, rsub);
 	movq	-48(%rbp), %rdx	# rsub, tmp110
@@ -1634,10 +1633,10 @@ _String_getBytes:
 	jmp	.L97	#
 .L96:
 # src/Runtime/runtime.c:357:     int32_t len = rs == NULL ? 0 : u8_strlen(rs);
-	movl	$0, %eax	#, iftmp.118_5
+	movl	$0, %eax	#, iftmp.114_5
 .L97:
 # src/Runtime/runtime.c:357:     int32_t len = rs == NULL ? 0 : u8_strlen(rs);
-	movl	%eax, -12(%rbp)	# iftmp.118_5, len
+	movl	%eax, -12(%rbp)	# iftmp.114_5, len
 # src/Runtime/runtime.c:358:     obj arr = __newByteArray(len + 1);
 	movl	-12(%rbp), %eax	# len, tmp92
 	addl	$1, %eax	#, _2
@@ -1923,11 +1922,11 @@ _String_charAt:
 	addq	%rax, -8(%rbp)	# _3, rs
 .L109:
 # src/Runtime/runtime.c:409:     while (index-- > 0) {
-	movl	-28(%rbp), %eax	# index, index.139_4
+	movl	-28(%rbp), %eax	# index, index.135_4
 	leal	-1(%rax), %edx	#, tmp98
 	movl	%edx, -28(%rbp)	# tmp98, index
 # src/Runtime/runtime.c:409:     while (index-- > 0) {
-	testl	%eax, %eax	# index.139_4
+	testl	%eax, %eax	# index.135_4
 	jg	.L111	#,
 # src/Runtime/runtime.c:416:     if (u8_strmbtouc(&c, rs) <= 0) {
 	movq	-8(%rbp), %rdx	# rs, tmp99
@@ -1946,7 +1945,7 @@ _String_charAt:
 	call	error	#
 .L112:
 # src/Runtime/runtime.c:420:     return c;
-	movl	-12(%rbp), %eax	# c, c.140_6
+	movl	-12(%rbp), %eax	# c, c.136_6
 # src/Runtime/runtime.c:421: }
 	leave	
 	.cfi_def_cfa 7, 8
@@ -2309,7 +2308,7 @@ printBinArray:
 	movq	%rax, %rdi	# tmp89,
 	call	__incRef	#
 # src/Runtime/runtime.c:510:     fwrite(arr->data, sizeof(int8_t), arr->length, stdout);
-	movq	stdout(%rip), %rcx	# stdout, stdout.217_5
+	movq	stdout(%rip), %rcx	# stdout, stdout.213_5
 # src/Runtime/runtime.c:510:     fwrite(arr->data, sizeof(int8_t), arr->length, stdout);
 	movq	-8(%rbp), %rax	# arr, tmp90
 	movl	32(%rax), %eax	# arr_11(D)->length, _6
@@ -2353,26 +2352,26 @@ error:
 	movq	%rsp, %rbp	#,
 	.cfi_def_cfa_register 6
 # src/Runtime/runtime.c:518:     if (errMsg != NULL)
-	movq	errMsg(%rip), %rax	# errMsg, errMsg.226_2
+	movq	errMsg(%rip), %rax	# errMsg, errMsg.222_2
 # src/Runtime/runtime.c:518:     if (errMsg != NULL)
-	testq	%rax, %rax	# errMsg.226_2
+	testq	%rax, %rax	# errMsg.222_2
 	je	.L139	#,
 # src/Runtime/runtime.c:519:         fprintf(stderr, "%s\n", errMsg);
-	movq	errMsg(%rip), %rdx	# errMsg, errMsg.227_3
-	movq	stderr(%rip), %rax	# stderr, stderr.228_4
+	movq	errMsg(%rip), %rdx	# errMsg, errMsg.223_3
+	movq	stderr(%rip), %rax	# stderr, stderr.224_4
 	leaq	.LC17(%rip), %rcx	#, tmp87
 	movq	%rcx, %rsi	# tmp87,
-	movq	%rax, %rdi	# stderr.228_4,
+	movq	%rax, %rdi	# stderr.224_4,
 	movl	$0, %eax	#,
 	call	fprintf@PLT	#
 	jmp	.L140	#
 .L139:
 # src/Runtime/runtime.c:521:         fprintf(stderr, "%s\n", "ERROR: User error.");
-	movq	stderr(%rip), %rax	# stderr, stderr.229_5
+	movq	stderr(%rip), %rax	# stderr, stderr.225_5
 	leaq	.LC18(%rip), %rdx	#, tmp88
 	leaq	.LC17(%rip), %rcx	#, tmp89
 	movq	%rcx, %rsi	# tmp89,
-	movq	%rax, %rdi	# stderr.229_5,
+	movq	%rax, %rdi	# stderr.225_5,
 	movl	$0, %eax	#,
 	call	fprintf@PLT	#
 .L140:
@@ -2402,7 +2401,7 @@ readInt:
 # src/Runtime/runtime.c:530:     size_t size = 0;
 	movq	$0, -32(%rbp)	#, size
 # src/Runtime/runtime.c:531:     ssize_t unused = getline(&line, &size, stdin);
-	movq	stdin(%rip), %rdx	# stdin, stdin.234_1
+	movq	stdin(%rip), %rdx	# stdin, stdin.230_1
 	leaq	-32(%rbp), %rcx	#, tmp87
 	leaq	-24(%rbp), %rax	#, tmp88
 	movq	%rcx, %rsi	# tmp87,
@@ -2410,17 +2409,17 @@ readInt:
 	call	getline@PLT	#
 	movq	%rax, -8(%rbp)	# tmp89, unused
 # src/Runtime/runtime.c:532:     int unused2 = sscanf(line, "%d ", &i);
-	movq	-24(%rbp), %rax	# line, line.235_2
+	movq	-24(%rbp), %rax	# line, line.231_2
 	leaq	-16(%rbp), %rdx	#, tmp90
 	leaq	.LC19(%rip), %rcx	#, tmp91
 	movq	%rcx, %rsi	# tmp91,
-	movq	%rax, %rdi	# line.235_2,
+	movq	%rax, %rdi	# line.231_2,
 	movl	$0, %eax	#,
 	call	__isoc99_sscanf@PLT	#
 	movl	%eax, -12(%rbp)	# tmp92, unused2
 # src/Runtime/runtime.c:533:     free(line);
-	movq	-24(%rbp), %rax	# line, line.236_3
-	movq	%rax, %rdi	# line.236_3,
+	movq	-24(%rbp), %rax	# line, line.232_3
+	movq	%rax, %rdi	# line.232_3,
 	call	free@PLT	#
 # src/Runtime/runtime.c:534:     return i;
 	movl	-16(%rbp), %eax	# i, _12
@@ -2447,7 +2446,7 @@ readString:
 # src/Runtime/runtime.c:538:     size_t size = 0;
 	movq	$0, -32(%rbp)	#, size
 # src/Runtime/runtime.c:539:     ssize_t unused = getline(&line, &size, stdin);
-	movq	stdin(%rip), %rdx	# stdin, stdin.237_1
+	movq	stdin(%rip), %rdx	# stdin, stdin.233_1
 	leaq	-32(%rbp), %rcx	#, tmp93
 	leaq	-24(%rbp), %rax	#, tmp94
 	movq	%rcx, %rsi	# tmp93,
@@ -2455,21 +2454,21 @@ readString:
 	call	getline@PLT	#
 	movq	%rax, -8(%rbp)	# tmp95, unused
 # src/Runtime/runtime.c:540:     size = u8_strlen(line);
-	movq	-24(%rbp), %rax	# line, line.238_2
-	movq	%rax, %rdi	# line.238_2,
+	movq	-24(%rbp), %rax	# line, line.234_2
+	movq	%rax, %rdi	# line.234_2,
 	call	u8_strlen@PLT	#
 # src/Runtime/runtime.c:540:     size = u8_strlen(line);
 	movq	%rax, -32(%rbp)	# _3, size
 # src/Runtime/runtime.c:541:     line[size - 1] = 0; // remove newline
-	movq	-24(%rbp), %rax	# line, line.239_4
-	movq	-32(%rbp), %rdx	# size, size.240_5
+	movq	-24(%rbp), %rax	# line, line.235_4
+	movq	-32(%rbp), %rdx	# size, size.236_5
 	subq	$1, %rdx	#, _6
 	addq	%rdx, %rax	# _6, _7
 # src/Runtime/runtime.c:541:     line[size - 1] = 0; // remove newline
 	movb	$0, (%rax)	#, *_7
 # src/Runtime/runtime.c:542:     obj l = __createString(line);
-	movq	-24(%rbp), %rax	# line, line.241_8
-	movq	%rax, %rdi	# line.241_8,
+	movq	-24(%rbp), %rax	# line, line.237_8
+	movq	%rax, %rdi	# line.237_8,
 	call	__createString	#
 	movq	%rax, -16(%rbp)	# tmp96, l
 # src/Runtime/runtime.c:543:     __incRef(l);
@@ -2477,8 +2476,8 @@ readString:
 	movq	%rax, %rdi	# tmp97,
 	call	__incRef	#
 # src/Runtime/runtime.c:544:     free(line);
-	movq	-24(%rbp), %rax	# line, line.242_9
-	movq	%rax, %rdi	# line.242_9,
+	movq	-24(%rbp), %rax	# line, line.238_9
+	movq	%rax, %rdi	# line.238_9,
 	call	free@PLT	#
 # src/Runtime/runtime.c:545:     return l;
 	movq	-16(%rbp), %rax	# l, _21

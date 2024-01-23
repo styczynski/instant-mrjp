@@ -1,0 +1,14 @@
+
+        void heapDown(int[] heap, int index, int heapSize) {
+            
+        }
+        void heapSort(int[] heap) {
+            while (0 >= 0) {
+                heapDown(heap, 0, heap.length);
+            }
+        }
+        int main() {
+            int n = readInt();
+            int[] tab = new int[n];
+			return 0;
+        }

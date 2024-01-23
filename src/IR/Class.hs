@@ -59,6 +59,6 @@ getVTableRelPos _ _ = 100
 
 generateVTable :: [MethodDef a] -> VTable
 generateVTable mthdDefs =
-    let lookupList = zipWith (\(MthdDef _ _ qi@(QIdent _ _ si)) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos cls mtd, ct, idx * 8))) mthdDefs [0..] in
-    let lookupList' = map (\(si, (score, name, offset)) -> (si, (name, offset))) $ sortBy (\(si, (score, name, offset)) (si2, (score2, name2, offset2)) -> compare score score2) lookupList
+    let lookupList = zipWith (\(MthdDef _ _ qi@(QIdent _ _ si)) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos cls mtd, ct, 0))) mthdDefs [0..] in
+    let lookupList' = map (\(newIndex, (si, (score, name, _))) -> (si, (name, newIndex * 8))) $ zip [0..] $ sortBy (\(si, (score, name, offset)) (si2, (score2, name2, offset2)) -> compare score score2) lookupList
     in  VTab (map snd lookupList') (Map.fromList lookupList')

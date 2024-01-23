@@ -255,9 +255,6 @@ genInstr baseInstr =
                     OpMod _ -> do
                         case src2 of
                             X64.LocConst n | isPowerOfTwo n -> do
-                                -- n % 2^k
-                                -- is the same as
-                                -- n AND (2^k - 1)
                                 gen $ X64.mov pos X64.Size32 src1 dest Nothing
                                 gen $ X64.and pos X64.Size32 (X64.LocConst (n - 1)) dest (comment $ "modulo by " ++ show n)
                             X64.LocConst {} -> do
@@ -332,8 +329,6 @@ genInstr baseInstr =
                         (X64.LocReg tmpReg) = X64.argLoc 0
                     let clLabel = classDefIdent clIdent
                     genCall pos (CallDirect "__new") [] [clLabel] (do
-                        --X64.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
-                        --X64.mov X64.Size64 (X64.LocReg tmpReg) ( X64.LocMem (X64.RAX 0) "store vtable"
                         gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
                 _ -> error $ "internal error. new on nonclass " ++ show t
             INewStr _ vi str -> do
@@ -346,14 +341,6 @@ genInstr baseInstr =
                 genCall pos (CallDirect "__createString") [VVal () t vi] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
             INewArr _ vi t val -> do
                 dest <- getLoc vi
-                --let sizeArg = VInt () (toInteger $ sizeInBytes $ typeSize t)
-                --() <$ val, 
-                -- | = Int a
-                -- | Bool a
-                -- | Void a
-                -- | Arr a (SType a)
-                -- | Cl a SymIdent
-                -- | Ref a (SType a)
                 case t of 
                     (Int _) -> genCall pos (CallDirect "__newIntArray") [() <$ val] [] (gen $  X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
                     (Bool _) -> genCall pos (CallDirect "__newByteArray") [() <$ val] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
@@ -461,9 +448,6 @@ genCallVirt (QIdent pos cli i) args cont = do
 emitCmpBin :: a -> Op a -> X64.Loc -> X64.Loc -> X64.Loc -> X64.Size -> Generator a ()
 emitCmpBin pos op dest src1 src2 size = do
     case src1 of
-        -- LocImm {} -> do
-        --     X64.cmp size src1 src2
-        --     revCmpEmitter op dest
         X64.LocConst {} -> do
             gen $ X64.cmp pos size src1 src2 Nothing
             revCmpEmitter op dest  Nothing
@@ -508,15 +492,8 @@ getPtrLoc tmpReg doPush ptr = case ptr of
     PElem pos elemT arrVal idxVal -> do
         let elemSize = typeSize $ deref elemT
             idxOffset = 0
-            -- idxOffset = if elemSize < Double
-            --               then sizeInBytes Double
-            --               else sizeInBytes elemSize
         arrSrc <- getValLoc arrVal
         idxSrc <- getValLoc idxVal
-        -- (LocReg arrReg, LocReg idxReg) ->
-        --         return $ LocPtrCmplx arrReg idxReg idxOffset elemSize
-        -- (LocReg arrReg, LocImm idx) ->
-        --         return $ LocPtr arrReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
         case (arrSrc, idxSrc) of
             (X64.LocReg arrReg, X64.LocReg idxReg) -> do
                 when (doPush) (gen $ X64.push pos X64.Size64 (X64.LocReg tmpReg) Nothing)

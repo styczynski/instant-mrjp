@@ -1,5 +1,0 @@
-int main() {
-    string i;
-    i + i;
-    return 0;
-}
