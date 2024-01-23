@@ -19,16 +19,96 @@ packages:
   original:
     hackage: diagnose-2.5.1
 - completed:
-    name: jvm-parser
+    hackage: keys-3.12.3@sha256:6e868d49982f304462bba35a249662ee41bae1d9f692d8c64369122ef1eee662,2322
     pantry-tree:
-      sha256: 5de607a47d7abc8687c8f27b0f7f1edf76d97572536f54ccc6f5130b57c98e93
-      size: 2066
-    sha256: 1fec89977f476302e9867ba6d5d6bfbbaa229b4f4e2621c4462d9223b5262c07
-    size: 37304
-    url: https://github.com/GaloisInc/jvm-parser/archive/6cb3fce6c390d8b4963ca211d0a3ca88fb6ec2ca.tar.gz
-    version: 0.3.0.0
+      sha256: 018031774733527f739192a9b76f8372c678cb9474915d8191450cc4345ba4dd
+      size: 426
   original:
-    url: https://github.com/GaloisInc/jvm-parser/archive/6cb3fce6c390d8b4963ca211d0a3ca88fb6ec2ca.tar.gz
+    hackage: keys-3.12.3
+- completed:
+    hackage: stacked-dag-0.1.1.0@sha256:e6ad1b75fc6ed9971ccd5da8620fe98bdf6f1a282d5fc8e1c95c962d54e701d9,1888
+    pantry-tree:
+      sha256: 6395eaf52f0be1a0a92cd62df549585ea8d63226bf63ae295e10eb5b233085a9
+      size: 551
+  original:
+    hackage: stacked-dag-0.1.1.0
+- completed:
+    hackage: fgl-5.8.2.0@sha256:9bc966528db0a9bd57c63dd3cb2bbe08e1a2d2de7ac7f517aaaa5d79607f759e,3796
+    pantry-tree:
+      sha256: 8c0adc211f52608695ccda906eca4fa8a60f6e62315b14815b2243c0ddb417e2
+      size: 2749
+  original:
+    hackage: fgl-5.8.2.0
+- completed:
+    hackage: fuzzyset-0.3.1@sha256:344e16deedb43da5cabae558450e5710843cff7ac2f3073be9db453c6f3a3fb7,2373
+    pantry-tree:
+      sha256: 89e22c2ce70a7c7c4b599ffe2546cda5699e4f8f15410eac49f39af8c4c381c8
+      size: 643
+  original:
+    hackage: fuzzyset-0.3.1
+- completed:
+    hackage: monad-extras-0.6.0@sha256:a97a5fcedaa9336b88be4f88f1e91d86082ce76b790f936701c1f933aedd7b8c,625
+    pantry-tree:
+      sha256: 6b752224ea4bd60e6f34fd9dfa17712ff15986054f320c7bc298c35d5bec75d9
+      size: 218
+  original:
+    hackage: monad-extras-0.6.0
+- completed:
+    hackage: tuple-append-0.3.0.0@sha256:d66b8374ab1f49b0cbccd4d82773951d0f62249ab0af69e4b1326d4ea3362683,1520
+    pantry-tree:
+      sha256: 7de7ee01888eea6a25ed2ac9783c49be6e7eaff0fdcea329e3c031430e2c1ada
+      size: 670
+  original:
+    hackage: tuple-append-0.3.0.0
+- completed:
+    hackage: generic-lens-2.2.2.0@sha256:7e2e9fb6af836c31f7b7fe9ad4d54974acb44f8f2f8b507ca8866c4ccc060f16,3962
+    pantry-tree:
+      sha256: d689de290e2e51b207e78e65378b1142f0617a6ae3ce04d278561100e5ded4f6
+      size: 2470
+  original:
+    hackage: generic-lens-2.2.2.0
+- completed:
+    hackage: prettyprinter-1.7.1@sha256:9c43c9d8c3cd9f445596e5a2379574bba87f935a4d1fa41b5407ee3cf4edc743,6987
+    pantry-tree:
+      sha256: cd6f393bf7cba603a1958a139915fc343efd5488e36fd7b3b5c6956c002d04fa
+      size: 3460
+  original:
+    hackage: prettyprinter-1.7.1
+- completed:
+    hackage: prettyprinter-ansi-terminal-1.1.3@sha256:b00f727b964cf13adff7acf575a71fa7e405f5240aff50b07f10df76ab89f8d3,2574
+    pantry-tree:
+      sha256: b5d276267049502c72fdcd2f1d84c15b3598160d61de0482a2e5bb62c40bd4ea
+      size: 820
+  original:
+    hackage: prettyprinter-ansi-terminal-1.1.3
+- completed:
+    hackage: time-1.12.2@sha256:88e8493d9130038d3b9968a2530a0900141cd3d938483c83dde56e12b875ebc8,6510
+    pantry-tree:
+      sha256: de0ab314661da3788b5dad20254e44929b1659b00d32b5a0cd54922a05e006e8
+      size: 7264
+  original:
+    hackage: time-1.12.2
+- completed:
+    hackage: ordered-containers-0.2.3@sha256:89e2aca36de1335c3464c0f4893cbf791cadf9df36b2fb5e07a0e2d92f1e0cb6,810
+    pantry-tree:
+      sha256: 7b3cafa50f564930339d8839bf8a7dcee7fb0e1590b8421f145e0150a3972c38
+      size: 526
+  original:
+    hackage: ordered-containers-0.2.3
+- completed:
+    hackage: deepseq-1.4.8.0@sha256:69d8ddc37acb85081795c4c450f180a0ee6c5613f0ca98f08b3481aa6d307a3a,2372
+    pantry-tree:
+      sha256: f6d2dc9a5e8867fc026de9d57ee60539f6f65a100479ce8c3696bd51ad1d1b32
+      size: 385
+  original:
+    hackage: deepseq-1.4.8.0
+- completed:
+    hackage: raw-strings-qq-1.1@sha256:3ea0f14f036649e3576749aef0db4dd0b1102c5331f2e0e2551250e2030ce669,1467
+    pantry-tree:
+      sha256: 473e62ea5320c8734f66049e48b308dd0ab197c6d3071c8ca1a828b05b7536ae
+      size: 379
+  original:
+    hackage: raw-strings-qq-1.1
 snapshots:
 - completed:
     sha256: 85d2382958c178491d3fe50d770a624621f5ab456beef7d31ac7521f780c9bc7
