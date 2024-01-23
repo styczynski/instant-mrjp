@@ -45,3 +45,106 @@ spec = do
         2
         [[Hello!, null, :D], null, null, null]
     |]
+
+    it "Simple array length" $ \h -> expectProgramSuccess [r|
+        int main() {
+            printInt((new int[1]).length);
+            return 0;
+        }
+    |] [r|
+        1
+    |]
+
+    it "Simple array new (string)" $ \h -> expectProgramSuccess [r|
+        int main() {
+            string[] a = new string[1];
+            return 0;
+        }
+    |] [r|
+
+    |]
+
+    it "Accessing inline new array" $ \h -> expectProgramSuccess [r|
+        int main() {
+            (new int[1])[0];
+            return 0;
+        }
+    |] [r|
+
+    |]
+
+    it "Accessing array of strings" $ \h -> expectProgramSuccess [r|
+        int main() {
+            string[] a = new string[1];
+            a[0] = "abc";
+            printString(a[0]);
+            return 0;
+        }
+    |] [r|
+        abc
+    |]
+
+    it "Array Heapsort" $ \h -> expectProgramSuccessIn ["8", "-5", "0", "1000000", "29", "14", "-1", "10", "-3"] [r|
+        void swap(int[] tab, int x, int y) {
+            int temp = tab[x];
+            tab[x] = tab[y];
+            tab[y] = temp;
+        }
+        void heapDown(int[] heap, int index, int heapSize) {
+            while (index * 2 < heapSize - 1) {
+                int left = index * 2 + 1;
+                int right = left + 1;
+                int max = left;
+                if (right < heapSize && heap[right] > heap[max]) {
+                    max = right;
+                }
+                if (heap[max] > heap[index]) {
+                    swap(heap, max, index);
+                    index = max;
+                } else {
+                    return;
+                }
+            }
+        }
+        int extractMax(int[] heap, int heapSize) {
+            int max = heap[0];
+            heap[0] = heap[heapSize - 1];
+            heapDown(heap, 0, heapSize - 1);
+            return max;
+        }
+        void heapSort(int[] heap) {
+            int i = heap.length / 2;
+            while (i >= 0) {
+                heapDown(heap, i, heap.length);
+                i--;
+            }
+            i = heap.length - 1;
+            while (i >= 0) {
+                heap[i] = extractMax(heap, i + 1);
+                i--;
+            }
+        }
+        int main() {
+            int n = readInt();
+            int[] tab = new int[n];
+            int i = 0;
+            while (i < n) {
+                tab[i] = readInt();
+                i++;
+            }
+            heapSort(tab);
+            for (int elem : tab) {
+                printInt(elem);
+            }
+            return 0;
+        }
+    |] [r|
+        -5
+        -3
+        -1
+        0
+        10
+        14
+        29
+        1000000
+    |]
