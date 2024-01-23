@@ -1,0 +1,65 @@
+int main() {
+    Node w = plus(liczba(69), liczba(42));
+    //print(w);
+    int rrr = w.value();
+    return 0;
+}
+Node plus(Node n1, Node n2) {
+    Operator res = new Plus;
+    res.left = n1;
+    res.right = n2;
+    return res;
+}
+Node liczba(int l) {
+    Liczba res = new Liczba;
+    res.v = l;
+    return res;
+}
+class Node {
+    int value() {
+        return 0;
+    }
+    String toString() {
+        return "Node{}";
+    }
+}
+class Liczba extends Node {
+    int v;
+    int value() {
+        return 42;
+    }
+    String toString() {
+        return "Liczba{"+this.v+"}";
+    }
+}
+class Operator extends Node {
+    Node left;
+    Node right;
+    int operator(int n1, int n2) {
+        printString("Node.operator()");
+        return 0;
+    }
+    int value() {
+        printString("Node.value()");
+        //int l = this.left.value();
+        //int r = this.right.value();
+        //return l+r;
+        //return this.operator(l, r);
+        return 0;
+    }
+    String toString() {
+        return this.toStringFor("?");
+    }
+    String toStringFor(string opName) {
+        return "Operator{"+(this.left.toString())+" "+opName+" "+(this.right.toString())+"}";
+    }
+}
+class Plus extends Operator {
+    int operator(int a, int b) {
+        printString("Plus.operator()");
+        return a + b;
+    }
+    String toString() {
+        return this.toStringFor("+");
+    }
+}

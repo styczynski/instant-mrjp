@@ -38,7 +38,7 @@ initialState = IRConverterEnv {
 
 extractMethodDef :: (B.Method a) -> (B.MethodDef a)
 extractMethodDef (B.Mthd p rt l params _) = 
-    B.MthdDef p (B.FType p rt $ map (\(B.Param _ t _) -> t) params) l
+    B.MthdDef p "" (B.FType p rt $ map (\(B.Param _ t _) -> t) params) l
 
 run :: (A.Program a) -> LinearConverter (IRConverterEnv a) (B.Program a)
 run prog@(A.Program p structs fns datas) = do
@@ -46,7 +46,7 @@ run prog@(A.Program p structs fns datas) = do
     liftPipelineOpt $ printLogInfoStr $ "AST to convert:\n" ++ (show prog)
     classDefs <- IM.mapListM (\_ struct -> convertStructureToFIR struct) structs
     methodsFns <- IM.mapListM (\_ fn -> convertFunctionToFIR fn) fns
-    builtinFns <- return $ map (\(A.Fun _ cls l rt args stmts) -> B.MthdDef p (B.FType p (convertType rt) $ map (convertType . fst) args) (functionName cls l)) $ map (fmap (const p)) builtIns
+    builtinFns <- return $ map (\(A.Fun _ cls l rt args stmts) -> B.MthdDef p "" (B.FType p (convertType rt) $ map (convertType . fst) args) (functionName cls l)) $ map (fmap (const p)) builtIns
     globalClassDef <- return $ B.ClDef p (B.SymIdent "~cl_TopLevel") [] [] (builtinFns ++ map extractMethodDef methodsFns)
     return $ B.Program p (B.Meta p $ classDefs ++ [globalClassDef]) methodsFns
 
@@ -54,7 +54,7 @@ convertStructureToFIR :: (A.Structure a) -> LinearConverter (IRConverterEnv a) (
 convertStructureToFIR (A.Struct p (A.Label _ name) chain methods fields) = do
     --(A.Label fieldPos fieldName), fieldType, _
     fields <- return $ IM.mapList (\_ (A.Field fieldPos fieldType (A.Label _ fieldName)) -> B.FldDef fieldPos (convertType fieldType) $ B.SymIdent fieldName) fields
-    methods <- return $ IM.mapList (\_ (A.Method methodPos methodCls methodName methodType methodArgs) -> B.MthdDef methodPos (B.FType methodPos (convertType methodType) (map (convertType . fst) methodArgs)) (functionName (Just methodCls) methodName)) methods
+    methods <- return $ IM.mapList (\_ (A.Method methodPos (A.Label _ methodParent) methodCls methodName methodType methodArgs) -> B.MthdDef methodPos methodParent (B.FType methodPos (convertType methodType) (map (convertType . fst) methodArgs)) (functionName (Just methodCls) methodName)) methods
     return $ B.ClDef p (B.SymIdent name) (map (\(A.Label _ pCls) -> B.SymIdent pCls) chain) fields methods
 
 convertFunctionToFIR :: (A.Function a) -> LinearConverter (IRConverterEnv a) (B.Method a)

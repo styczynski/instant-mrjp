@@ -107,7 +107,7 @@ getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
     struct@(B.Struct _ _ _ methods _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) (clsName) (env ^. structures))
     --existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return) $ listToMaybe $ filter (\name -> stripClassName name == methodName) $ IM.mapList (\name _ -> name) methods
-    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return . fst) $ listToMaybe $ filter snd $ IM.mapList (\k (B.Method _ (B.Label _ mCls) (B.Label _ mName) _ _) -> (k, mName == methodName)) methods
+    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return . fst) $ listToMaybe $ filter snd $ IM.mapList (\k (B.Method _ _ (B.Label _ mCls) (B.Label _ mName) _ _) -> (k, mName == methodName)) methods
     (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) (existingMethodName) methods
     return method
 
@@ -167,7 +167,7 @@ collectStructures classes = do
             completeStruct' <- classParentMerge clname clname completeStruct selfFields selfMethods
             return [completeStruct']
         translateToMethod :: String -> Types.Member -> Maybe (B.Method Position)
-        translateToMethod clname (Types.Method (A.Ident p n) retType args _) = Just $ B.Method p (B.Label p clname) (B.Label p n) (ct retType) (map (\(A.Ident p' argName, argType) -> (ct argType, B.Name p' argName)) $ IM.elems args)--(B.Label p $ "_" ++ clname ++ "_" ++ n)
+        translateToMethod clname (Types.Method (A.Ident p n) retType args _) = Just $ B.Method p (B.Label p clname) (B.Label p clname) (B.Label p n) (ct retType) (map (\(A.Ident p' argName, argType) -> (ct argType, B.Name p' argName)) $ IM.elems args)--(B.Label p $ "_" ++ clname ++ "_" ++ n)
         translateToMethod _ _ = Nothing
         translateToField :: String -> Types.Member -> Maybe (B.Field Position)
         translateToField _ (Types.Field (A.Ident p n) t _) = Just $ B.Field p (ct t) (B.Label p n)
@@ -176,10 +176,11 @@ collectStructures classes = do
         classParentMerge clsName parentName (B.Struct pos name chain methods fields) parentFields parentMethods = do
             -- (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods)
             --let overridenMethods = filter (\name -> let pkeys = IM.keys parentMethods in any (\pname -> stripClassName name == stripClassName pname) pkeys) $ IM.keys methods
-            let parentMethodEntries = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ (B.Label _ parName) name _ _) -> ((m, name), parName == parentName)) parentMethods
-            let overridenMethods = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ _ name _ _) -> ((k, m), any (\(_, pname) -> pname == name) parentMethodEntries)) methods
+            let parentMethodEntries = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ _ (B.Label _ parName) name _ _) -> ((m, name), parName == parentName)) parentMethods
+            let overridenMethods = map fst $ filter snd $ IM.mapList (\k m@(B.Method _ _ _ name _ _) -> ((k, m), any (\(_, pname) -> pname == name) parentMethodEntries)) methods
             --let newMethods = (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++parentName++"_"++stripClassName id) parentMethods)
-            let newMethods = map (\(B.Method mPos mClass mName mType mArgs) -> B.Method mPos (B.Label pos parentName) mName mType mArgs) $ map fst parentMethodEntries
+            let lookupOriginalParent = (\lookupName -> maybe (parentName) (\(n, _) -> n) $ listToMaybe $ filter snd $ map (\(B.Method _ (B.Label _ parName) _ (B.Label _ name) _ _) -> (parName, name == lookupName)) $ IM.mapList (\_ v -> v) methods)
+            let newMethods = map (\(B.Method mPos mPar mClass mName@(B.Label _ mNameStr) mType mArgs) -> B.Method mPos (B.Label mPos (lookupOriginalParent mNameStr)) (B.Label pos parentName) mName mType mArgs) $ map fst parentMethodEntries
             combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany (map fst overridenMethods) methods
             --combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods) methods
             combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m field -> field) parentFields fields
@@ -397,7 +398,7 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
             (A.Member p e (A.Ident _ m) (Just clsName)) -> do
                 (en, enc) <- transform (B.Reference p $ B.Label p clsName) e
                 ent <- typeOf en
-                method@(B.Method _ _ _ retType args) <- getMethod p clsName m
+                method@(B.Method _ _ _ _ retType args) <- getMethod p clsName m
                 let argst = map fst args
                 (ens, ensc) <- second concat <$> unzip <$> mapM (uncurry transform) (zip argst es)
                 n <- newName retType

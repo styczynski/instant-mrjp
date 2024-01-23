@@ -164,8 +164,8 @@ updatedVal v@(L.Var p (L.Name _ n) _) = (maybe (return v) (return . L.setPosIR p
 updatedVal v = return v
 
 addVar :: (L.Value L.IRPosition) -> (L.Name L.IRPosition) -> ValuePropagator ()
-addVar val name = do --join $ oStateSet (\env -> env & valuesMap %~ IM.insertM (idMapFailure "ValuePropagator.addVar" Errors.ILNEDuplicateValueMapping) (name, val))
-    newValues <- (IM.insertM (idMapFailure "ValuePropagator.addVar" Errors.ILNEDuplicateValueMapping) (name, val)) =<< oStateGet (^. valuesMap)
+addVar val name@(L.Name _ n) = do --join $ oStateSet (\env -> env & valuesMap %~ IM.insertM (idMapFailure "ValuePropagator.addVar" Errors.ILNEDuplicateValueMapping) (name, val))
+    newValues <- (IM.insertM (idMapFailure "ValuePropagator.addVar" Errors.ILNEDuplicateValueMapping) (name, val)) =<< (return . IM.delete n) =<< oStateGet (^. valuesMap)
     oStateSet (\env -> env & valuesMap .~ newValues)
 
 removeVar :: (L.Name L.IRPosition) -> ValuePropagator ()

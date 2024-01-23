@@ -44,12 +44,12 @@ data FieldDef a = FldDef a (SType a) SymIdent
 instance Functor FieldDef where
     fmap f x = case x of
         FldDef a stype symident -> FldDef (f a) (fmap f stype) symident
-data MethodDef a = MthdDef a (FType a) (QIdent a)
+data MethodDef a = MthdDef a String (FType a) (QIdent a)
   deriving (Eq, Ord, Show, Read, Foldable)
 
 instance Functor MethodDef where
     fmap f x = case x of
-        MthdDef a ftype qident -> MthdDef (f a) (fmap f ftype) (fmap f qident)
+        MthdDef a parName ftype qident -> MthdDef (f a) parName (fmap f ftype) (fmap f qident)
 data FType a = FType a (SType a) [SType a]
   deriving (Eq, Ord, Show, Read, Foldable)
 

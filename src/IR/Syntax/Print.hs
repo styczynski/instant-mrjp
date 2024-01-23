@@ -140,7 +140,7 @@ instance Print (FieldDef a) where
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print (MethodDef a) where
   prt i e = case e of
-    MthdDef _ ftype qident -> prPrec i 0 (concatD [prt 0 ftype, prt 0 qident])
+    MthdDef _ _ ftype qident -> prPrec i 0 (concatD [prt 0 ftype, prt 0 qident])
   prtList _ [] = (concatD [])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ";"), prt 0 xs])
 instance Print (FType a) where

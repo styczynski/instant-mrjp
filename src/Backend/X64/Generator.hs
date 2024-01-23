@@ -60,10 +60,49 @@ generate meta methods = do
 
 genProgram :: (Show a) => Metadata a -> [(CFG a Liveness, Method a, RegisterAllocation)] -> Generator a ()
 genProgram (Meta pos clDefs) mthds = do
-    let compiledClasses = map compileClass clDefs
+    compiledClasses <- mapM compileClass clDefs
     let compiledClassesMap = Map.fromList $ map (\cl -> (clName cl, cl)) compiledClasses
     cs <- foldrM (emitMethod compiledClassesMap) (constsEmpty) mthds
     genData pos compiledClasses cs
+    where 
+        compileClass :: ClassDef a -> Generator a CompiledClass
+        compileClass (ClDef _ i chain fldDefs mthdDefs) = do
+            let (flds, unalignedSize) = layoutFields fldDefs
+            vTable <- generateVTable mthdDefs chain
+            return $ CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) (alignSize unalignedSize) vTable chain
+        getVTableRelPos :: [String] -> String -> String -> Int
+        getVTableRelPos _ _ "equals" = 3
+        getVTableRelPos _ _ "getHashCode" = 2
+        getVTableRelPos _ _ "toString" = 1
+        getVTableRelPos chainNames cls _ =
+            case (cls, elemIndex cls (reverse chainNames)) of
+                (_, Just pos) -> 100+pos
+                ("", _) -> 1000
+                (_, Nothing) -> error $ "Cannot correctly layout missing class in class inheritance hierarchy: Class "++show cls++" for linearized hierarchy "++show chainNames
+        generateVTable :: [MethodDef a] -> [SymIdent] -> Generator a VTable
+        generateVTable mthdDefs chain = do
+            gen $ lift $ lift $ printLogInfoStr $ "generateVTable START\n " ++ (show $ map (\(MthdDef _ parName _ qi@(QIdent _ (SymIdent clsName) si@(SymIdent methodName))) -> (parName, clsName, methodName)) mthdDefs) ++ " \n START for chain: \n"++(show chain) ++ "\n====\n"
+            let chainNames = map (\(SymIdent name) -> name) chain
+            let lookupList = zipWith (\(MthdDef _ parName _ qi@(QIdent _ (SymIdent clsName) si@(SymIdent methodName))) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos chainNames parName methodName, ct, idx))) mthdDefs [0..] 
+            gen $ lift $ lift $ printLogInfoStr $ "generateVTable fields: " ++ (show lookupList) ++ " for chain: "++(show chain)
+            let lookupList' = map (\(newIndex, (si, (score, name, _))) -> (si, (name, newIndex * 8))) $ zip [0..] $ sortBy (\(si, (score, name, idx)) (si2, (score2, name2, idx2)) -> compare (score, name, idx) (score2, name2, idx2)) lookupList
+            return $ VTab (map snd lookupList') (Map.fromList lookupList')
+        alignSize :: Int64 -> Int64
+        alignSize n = if n `mod` 8 == 0
+                        then n
+                        else n + (8 - n `mod` 8)
+        layoutFields :: [FieldDef a] -> ([CompiledField], Int64)
+        layoutFields fldDefs =
+            let fldBase = map (\(FldDef _ t sym) -> Fld sym (() <$ t) 0) fldDefs
+            in  foldl' go ([], 0) fldBase
+            where
+                go (flds, offset) fld =
+                    let fldSize = X64.toBytes (typeSize (fldType fld))
+                        padding = if offset `mod` fldSize == 0
+                                    then 0
+                                    else fldSize - (offset `mod` fldSize)
+                    in (fld{fldOffset = offset + padding}:flds, offset + padding + fldSize)
+
 
 genData :: (Show a) => a -> [CompiledClass] -> ConstSet -> Generator a ()
 genData pos cls allConsts = do

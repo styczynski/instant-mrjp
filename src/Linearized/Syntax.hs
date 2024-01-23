@@ -43,7 +43,7 @@ data Program a = Program a (M.Map (Structure a)) (M.Map (Function a)) (M.Map (Da
 instance IsIR Program
 
 --(Type a) [{-args-}(Type a, Name a)]
-data Method a = Method a (Label a) (Label a) (Type a) [(Type a, Name a)]
+data Method a = Method a (Label a) (Label a) (Label a) (Type a) [(Type a, Name a)]
     deriving (Ord, Read, Generic, Foldable, Traversable, Functor, NFData)
 instance IsIR Method
 
@@ -83,7 +83,7 @@ data Label a = Label a String
 instance IsIR Label
 
 instance M.Idable (Method a) where
-    getID (Method _ clsName methodName _ _) = M.getID clsName ++ "." ++ M.getID methodName
+    getID (Method _ par clsName methodName _ _) = "<from:" ++ M.getID par ++ ">" ++ M.getID clsName ++ "." ++ M.getID methodName
 
 instance M.Idable (Field a) where
     getID (Field _ _ fieldName) = M.getID fieldName
@@ -200,7 +200,7 @@ instance Show (Program a) where
     show (Program _ ss fs datas) = intercalate "\n" (M.mapList (curry $ show . snd) ss) ++"\n"++ intercalate "\n" (M.mapList (curry $ show . snd) fs) ++ "\n" ++ intercalate "\n" (M.mapList (curry $ show . snd) datas)
 
 instance Show (Method a) where
-    show (Method _ cls name retType args) = "method "++show retType++" "++show cls++"."++show name++" ("++(intercalate ", " $ map (\(aName, aType) -> show aType++" "++show aName) args)++")"
+    show (Method _ par cls name retType args) = "method <from:"++show par++"> "++show retType++" "++show cls++"."++show name++" ("++(intercalate ", " $ map (\(aName, aType) -> show aType++" "++show aName) args)++")"
 
 instance Show (Field a) where
     show (Field _ fieldType name) = "field "++show fieldType++" "++show name++";"
