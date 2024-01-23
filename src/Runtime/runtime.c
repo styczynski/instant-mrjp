@@ -5,8 +5,8 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED false
-#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
+#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES true
 #define __LATTE_RUNTIME_GC_ENABLED false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
 #define FORMAT_PTR(PTR) ((__LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES)?(PTR):((void*)(0)))
@@ -25,7 +25,9 @@ char *errMsg;
 uint8_t emptyString[] = "";
 
 obj __new(struct Type *t) {
-    DEBUG("Perform reference malloc type=%p <type parent=%p> [%d]", FORMAT_PTR(t), FORMAT_PTR(t->parent), t->dataSize);
+    DEBUG("Calling __new v3");
+    DEBUG("Perform reference malloc type=%p", FORMAT_PTR(t));
+    DEBUG("__new examine type: <type parent=%p> [%d]", FORMAT_PTR(t->parent), t->dataSize);
     obj r = malloc(sizeof(struct Reference)+10);
     DEBUG("Set __new type/counter");
     r->type = t;

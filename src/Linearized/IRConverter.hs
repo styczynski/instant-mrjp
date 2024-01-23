@@ -96,6 +96,12 @@ trimLabel instrs = let (instrs', rem) = trimLabels' $ reverse instrs in (reverse
 --Mthd a (SType a) (QIdent a) [Param a] [Instr a]
 --Fun a (Label a) (Type a) [{-args-}(Type a, Name a)] [Stmt a]
 
+newLabel :: a -> String -> LinearConverter (IRConverterEnv a) (B.LabIdent)
+newLabel p prefix = do
+    tvnc <- oStateGet (^. tempVarNameCounter)
+    oStateSet (\env -> env & tempVarNameCounter %~ (+1))
+    return $ B.LabIdent $ "_LT_" ++ prefix ++ (show tvnc)
+
 newRetTempName :: a -> LinearConverter (IRConverterEnv a) (A.Name a)
 newRetTempName p = do
     tvnc <- oStateGet (^. tempVarNameCounter)
@@ -104,7 +110,7 @@ newRetTempName p = do
 
 convertType :: A.Type a -> B.SType a
 convertType (A.IntT p) = B.Int p
-convertType (A.ByteT p) = B.Int p
+convertType (A.ByteT p) = B.Bool p
 convertType (A.Reference p (A.Label _ clname)) = B.Ref p $ B.Cl p $ B.SymIdent clname
 convertType (A.ArrT p t) = B.Ref p $ B.Arr p (convertType t)
 
@@ -131,8 +137,9 @@ convertOp (A.Sub p) = B.OpSub p
 convertOp (A.Mul p) = B.OpMul p
 convertOp (A.Div p) = B.OpDiv p
 convertOp (A.Mod p) = B.OpMod p
-convertOp (A.And p) = B.OpMul p
-convertOp (A.Or p) = B.OpAdd p
+convertOp _ = error "Invalid operation in convertOp"
+-- convertOp (A.And p) = B.OpMul p
+-- convertOp (A.Or p) = B.OpAdd p
 
 
 
@@ -182,14 +189,51 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
         return [B.ILoad p (nameToValIdent vn) (B.PFld p ((B.Ref p) $ convertType fieldType) (B.VVal p (classType cls) (nameToValIdent n)) (functionName (Just cls) member) )]
     A.IntToByte p' v -> todoAddLogic
     A.ByteToInt p' v -> todoAddLogic
-    A.Not p' v -> return [B.IOp p (nameToValIdent vn) (B.VInt p' 0) (B.OpSub p') (convertValue v)]
+    A.BinOp p' (A.And p'') v1 v2 -> do
+        --boolVal <- newRetTempName p''
+        lnext <- newLabel p' "ANEXT"
+        lend <- newLabel p' "AEND"
+        ltrue <- newLabel p' "ATRUE"
+        return [
+            B.ISet p' (nameToValIdent vn) (B.VFalse p'')
+            , B.ICondJmp p (convertValue v1) lnext lend
+            , B.ILabel p lnext
+            , B.ICondJmp p (convertValue v2) ltrue lend
+            , B.ILabel p ltrue
+            , B.ISet p' (nameToValIdent vn) (B.VTrue p'')
+            , B.IJmp p lend
+            , B.ILabel p lend]
+    A.BinOp p' (A.Or p'') v1 v2 -> do
+        --boolVal <- newRetTempName p''
+        lnext <- newLabel p' "ONEXT"
+        lend <- newLabel p' "OEND"
+        lfalse <- newLabel p' "OFALSE"
+        return [
+            B.ISet p' (nameToValIdent vn) (B.VTrue p'')
+            , B.ICondJmp p (convertValue v1) lend lnext
+            , B.ILabel p lnext
+            , B.ICondJmp p (convertValue v2) lend lfalse
+            , B.ILabel p lfalse
+            , B.ISet p' (nameToValIdent vn) (B.VFalse p'')
+            , B.IJmp p lend
+            , B.ILabel p lend]
+    A.Not p' v -> do --return [B.IOp p (nameToValIdent vn) (B.VInt p' 0) (B.OpSub p') (convertValue v)]
+        lend <- newLabel p' "NEND"
+        lfalse <- newLabel p' "NFALSE"
+        return [
+            B.ISet p' (nameToValIdent vn) (B.VTrue p')
+            , B.ICondJmp p (convertValue v) lfalse lend
+            , B.ILabel p lfalse
+            , B.ISet p' (nameToValIdent vn) (B.VFalse p')
+            , B.IJmp p lend
+            , B.ILabel p lend]
     A.BinOp p' op v1 v2 -> return [B.IOp p (nameToValIdent vn) (convertValue v1) (convertOp op) (convertValue v2)]
     A.Cast p' l@(A.Label _ clsName) v ->
         return [B.ICall p (nameToValIdent vn) (B.Call p (convertType $ A.Reference p l) (functionName Nothing $ A.Label p "__cast") [convertValue v] [B.LabIdent $ "_class_" ++ clsName])]
 convertStmtToFIR (A.VCall p vt fnLabel params) = do
     return [B.IVCall p (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params) [])]
---convertStmtToFIR (A.VMCall p vt (A.Name _ clsName) (A.Label _ fnName) params) = do
---    return [B.IVCall p (B.Call p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent fnName)) (map convertValue params))]
+convertStmtToFIR (A.VMCall p vt _ (A.Label _ methodName) (A.Label _ clsName) params) = do
+    return [B.IVCall p (B.CallVirt p (convertType vt) (B.QIdent p (B.SymIdent clsName) (B.SymIdent methodName)) (map convertValue $ params))]
 convertStmtToFIR (A.Assign p vt (A.Variable p' n) expr) = convertStmtToFIR $ A.VarDecl p vt n expr
 convertStmtToFIR (A.Assign p vt (A.Member p' mVal mCls mName) expr) = do 
     exprValName <- newRetTempName p
@@ -217,7 +261,7 @@ convertStmtToFIR (A.JumpCmp p cmp (A.Label _ l) (A.Label _ lpass) v1 v2) = do
     --     B.IOp p (nameToValIdent cndName) (convertValue v1) (cmpToOp cmp) (convertValue v2)
     --     , B.ICondJmp p (B.VVal p (B.Bool p) $ nameToValIdent cndName) (B.LabIdent l) (B.LabIdent $ "_easy_" ++ l)
     --     , B.ILabel p $ B.LabIdent $ "_easy_" ++ l]
-
+convertStmtToFIR stmt = return $ error $ "Unhandled stmt in convertStmtToFIR: " ++ (show stmt)
 --cmpToOp
 --ICondJmp a (Val a) LabIdent LabIdent
 

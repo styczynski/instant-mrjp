@@ -85,4 +85,5 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - lattec
+      - lens
 

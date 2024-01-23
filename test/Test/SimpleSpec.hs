@@ -312,12 +312,12 @@ spec = do
     it "Inline modulo of positive and negative consts" $ \h -> expectProgramSuccess [r|
         int main() {
             printInt(5 % 3);
-            printInt(-5 % 3); // -2 - sic!
+            printInt(-5 % 3); // This should be 1
             return 0;
         }
     |] [r|
         2
-        -2
+        1
     |]
 
     it "Inline string addition" $ \h -> expectProgramSuccess [r|
@@ -337,4 +337,13 @@ spec = do
         }
     |] [r|
         1
+    |]
+
+    it "Some strange var indentifier" $ \h -> expectProgramSuccess [r|
+        int main() {
+            int abcABC000___ = 0;
+            return abcABC000___;
+        }
+    |] [r|
+
     |]

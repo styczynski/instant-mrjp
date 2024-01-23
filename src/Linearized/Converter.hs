@@ -94,8 +94,8 @@ typeOf (B.Name _ varName) =
 
 ct :: (Show a) => A.Type a -> B.Type a
 ct (A.BoolT p) = B.ByteT p
-ct (A.ByteT p) = B.ByteT p
-ct (A.VoidT p) = B.ByteT p
+ct (A.ByteT p) = B.IntT p
+ct (A.VoidT p) = B.IntT p
 ct (A.IntT p) = B.IntT p
 ct (A.ArrayT p t) = B.ArrT p $ ct t
 ct (A.StringT p) = B.Reference p $ B.Label p "String"
@@ -107,7 +107,7 @@ getMethod pos clsName methodName = do
     --cls <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethodInfo" $ Errors.ILNEMissingClass name Nothing pos)) return $ TypeChecker.findClassInEnv tcEnv name
     struct@(B.Struct _ _ _ methods _) <- join $ lcStateGet (\env -> IM.findM (idMapFailure "getMethod" (\clsName -> Errors.ILNEMissingClass (clsName) Nothing pos)) (clsName) (env ^. structures))
     --existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return) $ listToMaybe $ filter (\name -> stripClassName name == methodName) $ IM.mapList (\name _ -> name) methods
-    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return . fst) $ listToMaybe $ filter snd $ IM.mapList (\k (B.Method _ (B.Label _ mCls) (B.Label _ mName) _ _) -> (k, mCls == clsName && mName == methodName)) methods
+    existingMethodName <- maybe (failure (\(tcEnv, lnEnv) -> Errors.InternalLinearizerFailure tcEnv lnEnv "getMethod" $ Errors.ILNEMissingMethod methodName struct)) (return . fst) $ listToMaybe $ filter snd $ IM.mapList (\k (B.Method _ (B.Label _ mCls) (B.Label _ mName) _ _) -> (k, mName == methodName)) methods
     (_, method, methodIndex) <- IM.findElemM (idMapFailure "getMethod" (`Errors.ILNEMissingMethod` struct)) (existingMethodName) methods
     return method
 
@@ -278,13 +278,13 @@ instance IRConvertable A.Expr B.Stmt (B.Name Position) where
             litType et l = case l of 
                             A.Null p -> et
                             A.Int p _ -> B.IntT p
-                            A.Byte p _ -> B.ByteT p
+                            A.Byte p _ -> B.IntT p
                             A.Bool p _ -> B.ByteT p
             litC :: (B.Type Position) ->  (A.Lit Position) -> (B.Constant Position)
             litC et l = case l of                    
                         A.Null p -> B.Null p et
                         A.Int p i -> B.IntC p i
-                        A.Byte p i -> B.ByteC p i
+                        A.Byte p i -> B.IntC p i
                         A.Bool p True -> B.ByteC p 1
                         A.Bool p False -> B.ByteC p 0
     doTransform _ (A.Var p (A.Ident _ x)) = ((flip (,)) []) <$> nameOf p x

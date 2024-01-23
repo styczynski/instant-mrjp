@@ -407,9 +407,9 @@ genCall pos target varArgs labelArgs cont = do
                 let self@(X64.LocReg selfReg) = X64.argLoc 0
                 gen $ X64.test pos X64.Size64 self self Nothing
                 gen $ X64.jz pos nullRefLabelStr Nothing
-                gen $ X64.mov pos X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg X64.RAX) $ comment $ "load address of vtable"
+                gen $ X64.mov pos X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg selfReg) $ comment $ "load address of vtable"
                 --X64.mov X64.Size64 ( X64.LocMem (X64.RAX 12) (X64.LocReg selfReg) "load address of vtable"
-                gen $ X64.callIndirect pos X64.RAX (fromIntegral offset) (comment $ "call " ++ s)
+                gen $ X64.callIndirect pos selfReg (fromIntegral offset) (comment $ "call " ++ s)
         decrStack pos (stackAfter - stackBefore)
         gEnvSet (\env -> env & stack %~ (\s -> s {stackOverheadSize = stackBefore}))
         cont

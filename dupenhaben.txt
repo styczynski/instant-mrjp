@@ -628,7 +628,7 @@ it "points" $ \h -> expectProgramSuccess [r|
 |]
 
 
-it "fibonacci" $ \h -> expectProgramSuccess [r|
+it "fibonacci" $ \h -> expectProgramSuccessIn ["23"] [r|
     /**
      * Iterative fibonacci.
      *

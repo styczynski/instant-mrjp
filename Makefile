@@ -46,4 +46,4 @@ runtest:
 	stack test
 
 # stack exec --profile -- ./latc_x86 ./simple.lat +RTS -p -xc -M380M -i0.001 -K1000
-# stack exec --profile -- ./latc_x86 ./test.lat +RTS -p -xc
+# stack exec --profile -- ./latc_x86 ./play.lat +RTS -p -xc
