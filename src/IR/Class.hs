@@ -9,21 +9,21 @@ import           IR.Size         (typeSize)
 import qualified Backend.X64.Parser.Constructor as X64
 
 data CompiledClass = CompiledCl {
-    clName   :: SymIdent,
-    clFlds   :: Map.Map SymIdent CompiledField,
+    clName   :: IRTargetRefName,
+    clFlds   :: Map.Map IRTargetRefName CompiledField,
     clSize   :: Int64,
     clVTable :: VTable,
-    clChain  :: [SymIdent]
+    clChain  :: [IRTargetRefName]
 }
 
 data CompiledField = Fld {
-    fldName   :: SymIdent,
+    fldName   :: IRTargetRefName,
     fldType   :: SType (),
     fldOffset :: Int64
 }
 
 data VTable = VTab {
     vtabMthds   :: [(String, Int64)],
-    vtabMthdMap :: Map.Map SymIdent (String, Int64)
+    vtabMthdMap :: Map.Map IRTargetRefName (String, Int64)
 }
 

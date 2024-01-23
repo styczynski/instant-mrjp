@@ -50,7 +50,7 @@ generate (Meta () clDefs) mthds =
         where
             goOne = do
                 traceM' ("register allocation: " ++ show (Map.toList $ regAlloc rs))
-                traceM' ("========== starting method: " ++ toStr (labelFor qi (LabIdent "")))
+                traceM' ("========== starting method: " ++ toStr (labelFor qi (IRLabelName "")))
                 let nodes = Map.elems g
                     entryNode = single $ filter ((== entryLabel) . (^.nodeLabel)) nodes
                     exitNode = single $ filter (any isRet . (^.nodeBody)) nodes
@@ -223,7 +223,7 @@ genInstr instr =
                         (X64.LocReg tmpReg) = X64.argLoc 0
                     let clLabel = classDefIdent clIdent
                     genCall (CallDirect "__new") [] [clLabel] (do
-                        --Emit.leaOfConst (toStr $ vTableLabIdent clIdent) tmpReg
+                        --Emit.leaOfConst (toStr $ vTableIRLabelName clIdent) tmpReg
                         --Emit.mov X64.Size64 (X64.LocReg tmpReg) ( X64.LocMem (X64.RAX 0) "store vtable"
                         Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
                 _ -> error $ "internal error. new on nonclass " ++ show t
@@ -243,7 +243,7 @@ genInstr instr =
                 -- | Bool a
                 -- | Void a
                 -- | Arr a (SType a)
-                -- | Cl a SymIdent
+                -- | Cl a IRTargetRefName
                 -- | Ref a (SType a)
                 case t of 
                     (Int _) -> genCall (CallDirect "__newIntArray") [() <$ val] [] (Emit.mov X64.Size64 (X64.LocReg X64.RAX) dest "")
@@ -277,9 +277,9 @@ genInstr instr =
 
 data CallTarget = CallDirect String | CallVirtual Int64 String
 
-data CallArg a = CallArgVal (Val a) | CallArgLabel (LabIdent)
+data CallArg a = CallArgVal (Val a) | CallArgLabel (IRLabelName)
 
-genCall :: CallTarget -> [Val a] -> [LabIdent] -> GenM () -> GenM ()
+genCall :: CallTarget -> [Val a] -> [IRLabelName] -> GenM () -> GenM ()
 genCall target varArgs labelArgs cont = do
         let args = (map CallArgVal varArgs) ++ (map CallArgLabel labelArgs)
         regs_ <- getPreservedRegs
@@ -317,7 +317,7 @@ genCall target varArgs labelArgs cont = do
             loc <- getValLoc val
             Emit.mov (valSize val) loc (X64.LocReg reg_) "passing arg"
           prepOnStack :: CallArg a -> GenM X64.Loc
-          prepOnStack ((CallArgLabel (LabIdent l))) = do
+          prepOnStack ((CallArgLabel (IRLabelName l))) = do
               s <- gets stack
               let s' = stackPush X64.Size64 s
               setStack s'

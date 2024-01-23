@@ -14,21 +14,14 @@ import           Control.Monad.State
 import qualified Data.Map            as Map
 import qualified Data.Set            as Set
 import           IR.Syntax.Syntax
--- import           Identifiers         (ToString (toStr), entryLabel)
--- import           Utilities           (single)
 
--- A CFG is a set of nodes representing basic blocks, identified by their starting labels.
-newtype CFG a d = CFG (Map.Map LabIdent (Node a d)) deriving (Functor, Foldable)
+newtype CFG a d = CFG (Map.Map IRLabelName (Node a d)) deriving (Functor, Foldable)
 
 data Node a d = Node {
-    -- Starting label of this basic block.
-    _nNodeLabel :: LabIdent,
-    -- All code in this basic block.
+    _nNodeLabel :: IRLabelName,
     _nNodeBody  :: [Instr (a, d)],
-    -- All basic blocks reachable from this block.
-    _nNodeOut   :: Set.Set LabIdent,
-    -- All basic blocks that can reach this block.
-    _nNodeIn    :: Set.Set LabIdent
+    _nNodeOut   :: Set.Set IRLabelName,
+    _nNodeIn    :: Set.Set IRLabelName
 } deriving (Functor, Foldable)
 
 makeLensesWith abbreviatedFields ''Node
@@ -45,7 +38,7 @@ mapNodePos f node = node { _nNodeBody = map (fmap (\(p, d) -> (f p, d))) (node^.
 mapNode :: ((a, d) -> (b, e)) -> Node a d -> Node b e
 mapNode f node = node { _nNodeBody = map (fmap f) (node^.nodeBody)}
 
-lookupCFGNode :: (CFG a d) -> LabIdent -> Node a d
+lookupCFGNode :: (CFG a d) -> IRLabelName -> Node a d
 lookupCFGNode cfg@(CFG m) name = case Map.lookup name m of 
     Nothing -> error $ "lookupCFGNode: Cannot find CFG Node labelled " ++ (show name) ++ " in CFG: " ++ (show $ mapCFG (const ((), ())) cfg)
     (Just node) -> node
@@ -70,8 +63,15 @@ nodeCode = map (fmap snd) . (^. nodeBody)
 instance Show (Node a d) where
     show = toStr . (^. nodeLabel)
 
--- Convert an Espresso method to a CFG. Code that is unreachable within a basic block,
--- that is instructions occuring after a jump, are removed.
+isJump :: Instr a -> Bool
+isJump instr = case instr of
+    IJmp {}     -> True
+    ICondJmp {} -> True
+    IVRet {}    -> True
+    IRet {}     -> True
+    _           -> False
+
+
 cfg :: Method a -> CFG a ()
 cfg (Mthd pos _ _ _ instrs) =
     let basicBlocks = splitBasicBlocks instrs
@@ -80,6 +80,23 @@ cfg (Mthd pos _ _ _ instrs) =
 
 linearMap :: (Node a d -> Node b e) -> CFG a d -> CFG b e
 linearMap f g = CFG (Map.fromList $ map (\n -> (n ^. nodeLabel, f n)) $ lineariseNodes g)
+
+
+linearise :: CFG a d -> [Instr (a, d)]
+linearise = concatMap (^. nodeBody) . lineariseNodes
+
+splitBasicBlocks :: [Instr a] -> [(IRLabelName, [Instr (a, ())])]
+splitBasicBlocks = map (\(lab, instrs) -> (lab, map (fmap (\d -> (d, ()))) instrs)) . go []
+    where
+        go bbs []                         = map finalizeBlock bbs
+        go bbs (i@(ILabel _ l):is)        = go ((l, [i]):bbs) is
+        go bbs (i@(ILabelAnn _ l _ _):is) = go ((l, [i]):bbs) is
+        go ((l, x):bbs) (j:is) | isJump j = go ((l, j:x):bbs) (dropWhile (not . isLabel) is)
+        go ((l, x):bbs) (i:is)            = go ((l, i:x):bbs) is
+        go [] _                           = error "first instruction is not a label"
+        finalizeBlock (l, []) = error ("empty basic block: " ++ toStr l)
+        finalizeBlock (l, is@(i:_)) | isJump i = (l, reverse is)
+        finalizeBlock (l, _)  = error ("basic block not ending with a jump: " ++ toStr l)
 
 lineariseNodes :: CFG a d -> [Node a d]
 lineariseNodes (CFG g) =
@@ -99,30 +116,8 @@ lineariseNodes (CFG g) =
                         go node
                 Nothing -> error $ "internal error. malformed graph, no " ++ toStr l ++ " node"
 
--- Convert a CFG to a sequence of instructions. It is guaranteed to start with the
--- .L_entry block. Blocks that are unreachable from the entry block will be ignored.
-linearise :: CFG a d -> [Instr (a, d)]
-linearise = concatMap (^. nodeBody) . lineariseNodes
 
-
--- Split the instruction sequence into basic blocks. A basic block spans from a label
--- to the first consecutive jump instruction. All instructions after a jump are dead
--- code and are ignored.
-splitBasicBlocks :: [Instr a] -> [(LabIdent, [Instr (a, ())])]
-splitBasicBlocks = map (\(lab, instrs) -> (lab, map (fmap (\d -> (d, ()))) instrs)) . go []
-    where
-        go bbs []                         = map finalizeBlock bbs
-        go bbs (i@(ILabel _ l):is)        = go ((l, [i]):bbs) is
-        go bbs (i@(ILabelAnn _ l _ _):is) = go ((l, [i]):bbs) is
-        go ((l, x):bbs) (j:is) | isJump j = go ((l, j:x):bbs) (dropWhile (not . isLabel) is)
-        go ((l, x):bbs) (i:is)            = go ((l, i:x):bbs) is
-        go [] _                           = error "first instruction is not a label"
-        finalizeBlock (l, []) = error ("empty basic block: " ++ toStr l)
-        finalizeBlock (l, is@(i:_)) | isJump i = (l, reverse is)
-        finalizeBlock (l, _)  = error ("basic block not ending with a jump: " ++ toStr l)
-
--- Constructs a CFG from basic blocks.
-construct :: [(LabIdent, [Instr (a, d)])] -> State (CFG a d) ()
+construct :: [(IRLabelName, [Instr (a, d)])] -> State (CFG a d) ()
 construct = mapM_ fromJumps
     where fromJumps (_, [])      = return ()
           fromJumps (from, i:is) = fromInstr from i >> fromJumps (from, is)
@@ -131,8 +126,7 @@ construct = mapM_ fromJumps
               ICondJmp _ _ to1 to2 -> addEdge from to1 >> addEdge from to2
               _                    -> return ()
 
--- Add an edge between two blocks to the current CFG.
-addEdge :: LabIdent -> LabIdent -> State (CFG a d) ()
+addEdge :: IRLabelName -> IRLabelName -> State (CFG a d) ()
 addEdge from to = do
     mbfromNode <- gets (\(CFG g) -> Map.lookup from g)
     mbtoNode <- gets (\(CFG g) -> Map.lookup to g)
@@ -150,10 +144,3 @@ instance Show (CFG a d) where
         where nodes = show (map toStr $ Map.keys g)
               edges node = show (toStr $ node ^. nodeLabel) ++ " -> " ++ show (node ^. nodeOut) ++ " <- " ++ show (node ^. nodeIn)
 
-isJump :: Instr a -> Bool
-isJump instr = case instr of
-    IJmp {}     -> True
-    ICondJmp {} -> True
-    IVRet {}    -> True
-    IRet {}     -> True
-    _           -> False

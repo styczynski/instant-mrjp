@@ -23,13 +23,13 @@ except ``"`` unless preceded by ``\``.
 
 
 
-SymIdent literals are recognized by the regular expression
+IRTargetRefName literals are recognized by the regular expression
 `````('~' | letter) (["'_~"] | digit | letter)*`````
 
-LabIdent literals are recognized by the regular expression
+IRLabelName literals are recognized by the regular expression
 `````{".L_"} (["'_"] | digit | letter)*`````
 
-ValIdent literals are recognized by the regular expression
+IRValueName literals are recognized by the regular expression
 `````'%' ["av"] '_' (["'_~"] | digit | letter)*`````
 
 
@@ -64,11 +64,11 @@ The symbols -> (production),  **|**  (union)
 and **eps** (empty rule) belong to the BNF notation.
 All other symbols are terminals.
 
-  | //QIdent// | -> | //SymIdent// ``.`` //SymIdent//
+  | //QIdent// | -> | //IRTargetRefName// ``.`` //IRTargetRefName//
   | //Program// | -> | //Metadata// //[Method]//
   | //Metadata// | -> | ``.metadata`` ``:`` ``[`` ``.classes`` ``:`` ``[`` //[ClassDef]// ``]`` ``]``
-  | //ClassDef// | -> | //SymIdent// ``:`` ``[`` ``.fields`` ``:`` ``[`` //[FieldDef]// ``]`` ``.methods`` ``:`` ``[`` //[MethodDef]// ``]`` ``]``
-  | //FieldDef// | -> | //SType// //SymIdent//
+  | //ClassDef// | -> | //IRTargetRefName// ``:`` ``[`` ``.fields`` ``:`` ``[`` //[FieldDef]// ``]`` ``.methods`` ``:`` ``[`` //[MethodDef]// ``]`` ``]``
+  | //FieldDef// | -> | //SType// //IRTargetRefName//
   | //MethodDef// | -> | //FType// //QIdent//
   | //[FieldDef]// | -> | **eps**
   |  |  **|**  | //FieldDef// ``;`` //[FieldDef]//
@@ -81,43 +81,43 @@ All other symbols are terminals.
   |  |  **|**  | ``boolean``
   |  |  **|**  | ``void``
   |  |  **|**  | //SType// ``[]``
-  |  |  **|**  | //SymIdent//
+  |  |  **|**  | //IRTargetRefName//
   |  |  **|**  | //SType// ``&``
   | //[SType]// | -> | **eps**
   |  |  **|**  | //SType//
   |  |  **|**  | //SType// ``,`` //[SType]//
   | //Method// | -> | ``.method`` //SType// //QIdent// ``(`` //[Param]// ``)`` ``:`` ``[`` //[Instr]// ``]``
-  | //Param// | -> | //SType// //ValIdent//
+  | //Param// | -> | //SType// //IRValueName//
   | //[Param]// | -> | **eps**
   |  |  **|**  | //Param//
   |  |  **|**  | //Param// ``,`` //[Param]//
   | //[Method]// | -> | **eps**
   |  |  **|**  | //Method// //[Method]//
-  | //Instr// | -> | //LabIdent// ``:``
-  |  |  **|**  | //LabIdent// ``:`` ``(`` ``lines`` //Integer// ``to`` //Integer// ``)``
+  | //Instr// | -> | //IRLabelName// ``:``
+  |  |  **|**  | //IRLabelName// ``:`` ``(`` ``lines`` //Integer// ``to`` //Integer// ``)``
   |  |  **|**  | ``return`` ``;``
   |  |  **|**  | ``return`` //Val// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` //Val// //Op// //Val// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` //Val// ``;``
-  |  |  **|**  | ``swap`` //SType// //ValIdent// //ValIdent// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` //UnOp// //Val// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` //Val// //Op// //Val// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` //Val// ``;``
+  |  |  **|**  | ``swap`` //SType// //IRValueName// //IRValueName// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` //UnOp// //Val// ``;``
   |  |  **|**  | //Call// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` //Call// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` ``new`` //SType// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` ``newarr`` //SType// ``[`` //Val// ``]`` ``;``
-  |  |  **|**  | //ValIdent// ``:=`` ``newstr`` //String// ``;``
-  |  |  **|**  | ``jump`` //LabIdent// ``;``
-  |  |  **|**  | ``jump`` ``if`` //Val// ``then`` //LabIdent// ``else`` //LabIdent// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` ``load`` //Ptr// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` //Call// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` ``new`` //SType// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` ``newarr`` //SType// ``[`` //Val// ``]`` ``;``
+  |  |  **|**  | //IRValueName// ``:=`` ``newstr`` //String// ``;``
+  |  |  **|**  | ``jump`` //IRLabelName// ``;``
+  |  |  **|**  | ``jump`` ``if`` //Val// ``then`` //IRLabelName// ``else`` //IRLabelName// ``;``
+  |  |  **|**  | //IRValueName// ``:=`` ``load`` //Ptr// ``;``
   |  |  **|**  | ``store`` //Val// ``into`` //Ptr// ``;``
-  |  |  **|**  | //ValIdent// ``:=`` ``phi`` ``(`` //[PhiVariant]// ``)`` ``;``
+  |  |  **|**  | //IRValueName// ``:=`` ``phi`` ``(`` //[PhiVariant]// ``)`` ``;``
   |  |  **|**  | ``endphi`` ``;``
   | //Ptr// | -> | //SType// ``fldptr`` //Val// //QIdent//
   |  |  **|**  | //SType// ``elemptr`` //Val// ``[`` //Val// ``]``
   |  |  **|**  | ``arrlen`` //Val//
   |  |  **|**  | //SType// ``local`` //Integer//
-  |  |  **|**  | //SType// ``param`` //Integer// //ValIdent//
-  | //PhiVariant// | -> | //LabIdent// ``:`` //Val//
+  |  |  **|**  | //SType// ``param`` //Integer// //IRValueName//
+  | //PhiVariant// | -> | //IRLabelName// ``:`` //Val//
   | //Call// | -> | ``call`` //SType// //QIdent// ``(`` //[Val]// ``)``
   |  |  **|**  | ``callvirt`` //SType// //QIdent// ``(`` //[Val]// ``)``
   | //[Instr]// | -> | **eps**
@@ -133,7 +133,7 @@ All other symbols are terminals.
   |  |  **|**  | ``true``
   |  |  **|**  | ``false``
   |  |  **|**  | //SType// ``null``
-  |  |  **|**  | //SType// //ValIdent//
+  |  |  **|**  | //SType// //IRValueName//
   | //Op// | -> | ``+``
   |  |  **|**  | ``-``
   |  |  **|**  | ``*``

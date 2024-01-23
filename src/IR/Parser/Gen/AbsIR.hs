@@ -24,7 +24,7 @@ import qualified Data.Data    as C (Data, Typeable)
 import qualified GHC.Generics as C (Generic)
 
 type QIdent = QIdent' BNFC'Position
-data QIdent' a = QIdent a SymIdent SymIdent
+data QIdent' a = QIdent a IRTargetRefName IRTargetRefName
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Program = Program' BNFC'Position
@@ -36,11 +36,11 @@ data Metadata' a = Meta a [ClassDef' a]
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type ClassDef = ClassDef' BNFC'Position
-data ClassDef' a = ClDef a SymIdent [FieldDef' a] [MethodDef' a]
+data ClassDef' a = ClDef a IRTargetRefName [FieldDef' a] [MethodDef' a]
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type FieldDef = FieldDef' BNFC'Position
-data FieldDef' a = FldDef a (SType' a) SymIdent
+data FieldDef' a = FldDef a (SType' a) IRTargetRefName
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type MethodDef = MethodDef' BNFC'Position
@@ -57,7 +57,7 @@ data SType' a
     | Bool a
     | Void a
     | Arr a (SType' a)
-    | Cl a SymIdent
+    | Cl a IRTargetRefName
     | Ref a (SType' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
@@ -67,29 +67,29 @@ data Method' a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Param = Param' BNFC'Position
-data Param' a = Param a (SType' a) ValIdent
+data Param' a = Param a (SType' a) IRValueName
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Instr = Instr' BNFC'Position
 data Instr' a
-    = ILabel a LabIdent
-    | ILabelAnn a LabIdent Integer Integer
+    = ILabel a IRLabelName
+    | ILabelAnn a IRLabelName Integer Integer
     | IVRet a
     | IRet a (Val' a)
-    | IOp a ValIdent (Val' a) (Op' a) (Val' a)
-    | ISet a ValIdent (Val' a)
-    | ISwap a (SType' a) ValIdent ValIdent
-    | IUnOp a ValIdent (UnOp' a) (Val' a)
+    | IOp a IRValueName (Val' a) (Op' a) (Val' a)
+    | ISet a IRValueName (Val' a)
+    | ISwap a (SType' a) IRValueName IRValueName
+    | IUnOp a IRValueName (UnOp' a) (Val' a)
     | IVCall a (Call' a)
-    | ICall a ValIdent (Call' a)
-    | INew a ValIdent (SType' a)
-    | INewArr a ValIdent (SType' a) (Val' a)
-    | INewStr a ValIdent String
-    | IJmp a LabIdent
-    | ICondJmp a (Val' a) LabIdent LabIdent
-    | ILoad a ValIdent (Ptr' a)
+    | ICall a IRValueName (Call' a)
+    | INew a IRValueName (SType' a)
+    | INewArr a IRValueName (SType' a) (Val' a)
+    | INewStr a IRValueName String
+    | IJmp a IRLabelName
+    | ICondJmp a (Val' a) IRLabelName IRLabelName
+    | ILoad a IRValueName (Ptr' a)
     | IStore a (Val' a) (Ptr' a)
-    | IPhi a ValIdent [PhiVariant' a]
+    | IPhi a IRValueName [PhiVariant' a]
     | IEndPhi a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
@@ -99,11 +99,11 @@ data Ptr' a
     | PElem a (SType' a) (Val' a) (Val' a)
     | PArrLen a (Val' a)
     | PLocal a (SType' a) Integer
-    | PParam a (SType' a) Integer ValIdent
+    | PParam a (SType' a) Integer IRValueName
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type PhiVariant = PhiVariant' BNFC'Position
-data PhiVariant' a = PhiVar a LabIdent (Val' a)
+data PhiVariant' a = PhiVar a IRLabelName (Val' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Call = Call' BNFC'Position
@@ -119,7 +119,7 @@ data Val' a
     | VTrue a
     | VFalse a
     | VNull a (SType' a)
-    | VVal a (SType' a) ValIdent
+    | VVal a (SType' a) IRValueName
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type Op = Op' BNFC'Position
@@ -141,13 +141,13 @@ type UnOp = UnOp' BNFC'Position
 data UnOp' a = UnOpNeg a | UnOpNot a
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
-newtype SymIdent = SymIdent String
+newtype IRTargetRefName = IRTargetRefName String
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
 
-newtype LabIdent = LabIdent String
+newtype IRLabelName = IRLabelName String
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
 
-newtype ValIdent = ValIdent String
+newtype IRValueName = IRValueName String
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)
 
 -- | Start position (line, column) of something.

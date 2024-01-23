@@ -45,17 +45,17 @@ $white+ ;
 @rsyms
     { tok (eitherResIdent TV) }
 
--- token SymIdent
+-- token IRTargetRefName
 (\~ | $l)([\' \_ \~]| ($d | $l)) *
-    { tok (eitherResIdent T_SymIdent) }
+    { tok (eitherResIdent T_IRTargetRefName) }
 
--- token LabIdent
+-- token IRLabelName
 \. L \_ ([\' \_]| ($d | $l)) *
-    { tok (eitherResIdent T_LabIdent) }
+    { tok (eitherResIdent T_IRLabelName) }
 
--- token ValIdent
+-- token IRValueName
 \% [a v]\_ ([\' \_ \~]| ($d | $l)) *
-    { tok (eitherResIdent T_ValIdent) }
+    { tok (eitherResIdent T_IRValueName) }
 
 -- Keywords and Ident
 $l $i*
@@ -82,9 +82,9 @@ data Tok
   | TV !String                    -- ^ Identifier.
   | TD !String                    -- ^ Float literal.
   | TC !String                    -- ^ Character literal.
-  | T_SymIdent !String
-  | T_LabIdent !String
-  | T_ValIdent !String
+  | T_IRTargetRefName !String
+  | T_IRLabelName !String
+  | T_IRValueName !String
   deriving (Eq, Show, Ord)
 
 -- | Smart constructor for 'Tok' for the sake of backwards compatibility.
@@ -147,9 +147,9 @@ tokenText t = case t of
   PT _ (TD s)   -> s
   PT _ (TC s)   -> s
   Err _         -> "#error"
-  PT _ (T_SymIdent s) -> s
-  PT _ (T_LabIdent s) -> s
-  PT _ (T_ValIdent s) -> s
+  PT _ (T_IRTargetRefName s) -> s
+  PT _ (T_IRLabelName s) -> s
+  PT _ (T_IRValueName s) -> s
 
 -- | Convert a token to a string.
 prToken :: Token -> String

@@ -82,9 +82,9 @@ import IR.Parser.Gen.LexIR
   'void'      { PT _ (TS _ 57)      }
   L_integ     { PT _ (TI _)         }
   L_quoted    { PT _ (TL _)         }
-  L_SymIdent  { PT _ (T_SymIdent _) }
-  L_LabIdent  { PT _ (T_LabIdent _) }
-  L_ValIdent  { PT _ (T_ValIdent _) }
+  L_IRTargetRefName  { PT _ (T_IRTargetRefName _) }
+  L_IRLabelName  { PT _ (T_IRLabelName _) }
+  L_IRValueName  { PT _ (T_IRValueName _) }
 
 %%
 
@@ -94,18 +94,18 @@ Integer  : L_integ  { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $
 String  :: { (IR.Parser.Gen.AbsIR.BNFC'Position, String) }
 String   : L_quoted { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), ((\(PT _ (TL s)) -> s) $1)) }
 
-SymIdent :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.SymIdent) }
-SymIdent  : L_SymIdent { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.SymIdent (tokenText $1)) }
+IRTargetRefName :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.IRTargetRefName) }
+IRTargetRefName  : L_IRTargetRefName { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IRTargetRefName (tokenText $1)) }
 
-LabIdent :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.LabIdent) }
-LabIdent  : L_LabIdent { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.LabIdent (tokenText $1)) }
+IRLabelName :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.IRLabelName) }
+IRLabelName  : L_IRLabelName { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IRLabelName (tokenText $1)) }
 
-ValIdent :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.ValIdent) }
-ValIdent  : L_ValIdent { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.ValIdent (tokenText $1)) }
+IRValueName :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.IRValueName) }
+IRValueName  : L_IRValueName { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IRValueName (tokenText $1)) }
 
 QIdent :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.QIdent) }
 QIdent
-  : SymIdent '.' SymIdent { (fst $1, IR.Parser.Gen.AbsIR.QIdent (fst $1) (snd $1) (snd $3)) }
+  : IRTargetRefName '.' IRTargetRefName { (fst $1, IR.Parser.Gen.AbsIR.QIdent (fst $1) (snd $1) (snd $3)) }
 
 Program :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Program) }
 Program
@@ -117,11 +117,11 @@ Metadata
 
 ClassDef :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.ClassDef) }
 ClassDef
-  : SymIdent ':' '[' '.fields' ':' '[' ListFieldDef ']' '.methods' ':' '[' ListMethodDef ']' ']' { (fst $1, IR.Parser.Gen.AbsIR.ClDef (fst $1) (snd $1) (snd $7) (snd $12)) }
+  : IRTargetRefName ':' '[' '.fields' ':' '[' ListFieldDef ']' '.methods' ':' '[' ListMethodDef ']' ']' { (fst $1, IR.Parser.Gen.AbsIR.ClDef (fst $1) (snd $1) (snd $7) (snd $12)) }
 
 FieldDef :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.FieldDef) }
 FieldDef
-  : SType SymIdent { (fst $1, IR.Parser.Gen.AbsIR.FldDef (fst $1) (snd $1) (snd $2)) }
+  : SType IRTargetRefName { (fst $1, IR.Parser.Gen.AbsIR.FldDef (fst $1) (snd $1) (snd $2)) }
 
 MethodDef :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.MethodDef) }
 MethodDef
@@ -152,7 +152,7 @@ SType
   | 'boolean' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.Bool (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
   | 'void' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.Void (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
   | SType '[]' { (fst $1, IR.Parser.Gen.AbsIR.Arr (fst $1) (snd $1)) }
-  | SymIdent { (fst $1, IR.Parser.Gen.AbsIR.Cl (fst $1) (snd $1)) }
+  | IRTargetRefName { (fst $1, IR.Parser.Gen.AbsIR.Cl (fst $1) (snd $1)) }
   | SType '&' { (fst $1, IR.Parser.Gen.AbsIR.Ref (fst $1) (snd $1)) }
 
 ListSType :: { (IR.Parser.Gen.AbsIR.BNFC'Position, [IR.Parser.Gen.AbsIR.SType]) }
@@ -167,7 +167,7 @@ Method
 
 Param :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Param) }
 Param
-  : SType ValIdent { (fst $1, IR.Parser.Gen.AbsIR.Param (fst $1) (snd $1) (snd $2)) }
+  : SType IRValueName { (fst $1, IR.Parser.Gen.AbsIR.Param (fst $1) (snd $1) (snd $2)) }
 
 ListParam :: { (IR.Parser.Gen.AbsIR.BNFC'Position, [IR.Parser.Gen.AbsIR.Param]) }
 ListParam
@@ -182,24 +182,24 @@ ListMethod
 
 Instr :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Instr) }
 Instr
-  : LabIdent ':' { (fst $1, IR.Parser.Gen.AbsIR.ILabel (fst $1) (snd $1)) }
-  | LabIdent ':' '(' 'lines' Integer 'to' Integer ')' { (fst $1, IR.Parser.Gen.AbsIR.ILabelAnn (fst $1) (snd $1) (snd $5) (snd $7)) }
+  : IRLabelName ':' { (fst $1, IR.Parser.Gen.AbsIR.ILabel (fst $1) (snd $1)) }
+  | IRLabelName ':' '(' 'lines' Integer 'to' Integer ')' { (fst $1, IR.Parser.Gen.AbsIR.ILabelAnn (fst $1) (snd $1) (snd $5) (snd $7)) }
   | 'return' ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IVRet (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
   | 'return' Val ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IRet (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2)) }
-  | ValIdent ':=' Val Op Val ';' { (fst $1, IR.Parser.Gen.AbsIR.IOp (fst $1) (snd $1) (snd $3) (snd $4) (snd $5)) }
-  | ValIdent ':=' Val ';' { (fst $1, IR.Parser.Gen.AbsIR.ISet (fst $1) (snd $1) (snd $3)) }
-  | 'swap' SType ValIdent ValIdent ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.ISwap (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3) (snd $4)) }
-  | ValIdent ':=' UnOp Val ';' { (fst $1, IR.Parser.Gen.AbsIR.IUnOp (fst $1) (snd $1) (snd $3) (snd $4)) }
+  | IRValueName ':=' Val Op Val ';' { (fst $1, IR.Parser.Gen.AbsIR.IOp (fst $1) (snd $1) (snd $3) (snd $4) (snd $5)) }
+  | IRValueName ':=' Val ';' { (fst $1, IR.Parser.Gen.AbsIR.ISet (fst $1) (snd $1) (snd $3)) }
+  | 'swap' SType IRValueName IRValueName ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.ISwap (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $3) (snd $4)) }
+  | IRValueName ':=' UnOp Val ';' { (fst $1, IR.Parser.Gen.AbsIR.IUnOp (fst $1) (snd $1) (snd $3) (snd $4)) }
   | Call ';' { (fst $1, IR.Parser.Gen.AbsIR.IVCall (fst $1) (snd $1)) }
-  | ValIdent ':=' Call ';' { (fst $1, IR.Parser.Gen.AbsIR.ICall (fst $1) (snd $1) (snd $3)) }
-  | ValIdent ':=' 'new' SType ';' { (fst $1, IR.Parser.Gen.AbsIR.INew (fst $1) (snd $1) (snd $4)) }
-  | ValIdent ':=' 'newarr' SType '[' Val ']' ';' { (fst $1, IR.Parser.Gen.AbsIR.INewArr (fst $1) (snd $1) (snd $4) (snd $6)) }
-  | ValIdent ':=' 'newstr' String ';' { (fst $1, IR.Parser.Gen.AbsIR.INewStr (fst $1) (snd $1) (snd $4)) }
-  | 'jump' LabIdent ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IJmp (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2)) }
-  | 'jump' 'if' Val 'then' LabIdent 'else' LabIdent ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.ICondJmp (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5) (snd $7)) }
-  | ValIdent ':=' 'load' Ptr ';' { (fst $1, IR.Parser.Gen.AbsIR.ILoad (fst $1) (snd $1) (snd $4)) }
+  | IRValueName ':=' Call ';' { (fst $1, IR.Parser.Gen.AbsIR.ICall (fst $1) (snd $1) (snd $3)) }
+  | IRValueName ':=' 'new' SType ';' { (fst $1, IR.Parser.Gen.AbsIR.INew (fst $1) (snd $1) (snd $4)) }
+  | IRValueName ':=' 'newarr' SType '[' Val ']' ';' { (fst $1, IR.Parser.Gen.AbsIR.INewArr (fst $1) (snd $1) (snd $4) (snd $6)) }
+  | IRValueName ':=' 'newstr' String ';' { (fst $1, IR.Parser.Gen.AbsIR.INewStr (fst $1) (snd $1) (snd $4)) }
+  | 'jump' IRLabelName ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IJmp (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | 'jump' 'if' Val 'then' IRLabelName 'else' IRLabelName ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.ICondJmp (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $3) (snd $5) (snd $7)) }
+  | IRValueName ':=' 'load' Ptr ';' { (fst $1, IR.Parser.Gen.AbsIR.ILoad (fst $1) (snd $1) (snd $4)) }
   | 'store' Val 'into' Ptr ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IStore (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2) (snd $4)) }
-  | ValIdent ':=' 'phi' '(' ListPhiVariant ')' ';' { (fst $1, IR.Parser.Gen.AbsIR.IPhi (fst $1) (snd $1) (snd $5)) }
+  | IRValueName ':=' 'phi' '(' ListPhiVariant ')' ';' { (fst $1, IR.Parser.Gen.AbsIR.IPhi (fst $1) (snd $1) (snd $5)) }
   | 'endphi' ';' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.IEndPhi (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
 
 Ptr :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Ptr) }
@@ -208,11 +208,11 @@ Ptr
   | SType 'elemptr' Val '[' Val ']' { (fst $1, IR.Parser.Gen.AbsIR.PElem (fst $1) (snd $1) (snd $3) (snd $5)) }
   | 'arrlen' Val { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.PArrLen (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | SType 'local' Integer { (fst $1, IR.Parser.Gen.AbsIR.PLocal (fst $1) (snd $1) (snd $3)) }
-  | SType 'param' Integer ValIdent { (fst $1, IR.Parser.Gen.AbsIR.PParam (fst $1) (snd $1) (snd $3) (snd $4)) }
+  | SType 'param' Integer IRValueName { (fst $1, IR.Parser.Gen.AbsIR.PParam (fst $1) (snd $1) (snd $3) (snd $4)) }
 
 PhiVariant :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.PhiVariant) }
 PhiVariant
-  : LabIdent ':' Val { (fst $1, IR.Parser.Gen.AbsIR.PhiVar (fst $1) (snd $1) (snd $3)) }
+  : IRLabelName ':' Val { (fst $1, IR.Parser.Gen.AbsIR.PhiVar (fst $1) (snd $1) (snd $3)) }
 
 Call :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Call) }
 Call
@@ -243,7 +243,7 @@ Val
   | 'true' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.VTrue (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
   | 'false' { (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1), IR.Parser.Gen.AbsIR.VFalse (uncurry IR.Parser.Gen.AbsIR.BNFC'Position (tokenLineCol $1))) }
   | SType 'null' { (fst $1, IR.Parser.Gen.AbsIR.VNull (fst $1) (snd $1)) }
-  | SType ValIdent { (fst $1, IR.Parser.Gen.AbsIR.VVal (fst $1) (snd $1) (snd $2)) }
+  | SType IRValueName { (fst $1, IR.Parser.Gen.AbsIR.VVal (fst $1) (snd $1) (snd $2)) }
 
 Op :: { (IR.Parser.Gen.AbsIR.BNFC'Position, IR.Parser.Gen.AbsIR.Op) }
 Op

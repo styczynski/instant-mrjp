@@ -1,7 +1,6 @@
 module IR.Types where
 
 import           IR.Syntax.Syntax
---import           IR.Utils  (toSymIdent)
 
 defaultVal :: SType a -> Val ()
 defaultVal t = case deref t of
@@ -30,7 +29,7 @@ isStr :: SType a -> Bool
 isStr t = (() <$ deref t) == strType
 
 strType :: SType ()
-strType = Cl () (SymIdent "String")
+strType = Cl () (IRTargetRefName "String")
 
 -- toSType :: Latte.Type a -> SType a
 -- toSType t = case t of
@@ -39,7 +38,7 @@ strType = Cl () (SymIdent "String")
 --     Latte.Void a               -> Void a
 --     Latte.Var {}               -> error "toSType: not a simple type 'var'"
 --     Latte.Arr a t'             -> Ref a (Arr a (toSType t'))
---     Latte.Cl a i               -> Ref a (Cl a (toSymIdent i))
+--     Latte.Cl a i               -> Ref a (Cl a (toIRTargetRefName i))
 --     Latte.Fun{}                -> error "toSType: not a simple type Fun"
 --     Latte.Ref _ (Latte.Int a)  -> Int a
 --     Latte.Ref _ (Latte.Bool a) -> Bool a

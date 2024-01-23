@@ -19,21 +19,17 @@ import IR.RegisterAllocation.InterferenceGraph
 import IR.RegisterAllocation.RegisterAllocation
 import IR.Utils
 import IR.Phi
---import IR.CodeGen.Generator
 import IR.Syntax.Syntax
 import qualified Data.Map as Map
 import Reporting.Logs
-import           IR.Syntax.Print                     as PrintEsp (Print,
+import           IR.Syntax.Print                     as PrintUtils (Print,
                                                                           printTree,
                                                                           printTreeWithInstrComments)
---- Debug
 
--- Extract the element from the first instruction in the block.
 nodeHead :: Node a b -> b
 nodeHead node = let firstInstr = head $ nodeCode node
                 in single firstInstr
 
--- Extract the element from the last instruction in the block.
 nodeTail :: Node a b -> b
 nodeTail node = let lastInstr = last $ nodeCode node
                 in single lastInstr
@@ -42,7 +38,7 @@ nodeTail node = let lastInstr = last $ nodeCode node
 showCfgs :: [(CFG a d, Method a)] -> String
 showCfgs cfgs = unlines $ map showCfg cfgs
   where
-    showCfg (g, m@(Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ body)) =
+    showCfg (g, m@(Mthd _ _ (QIdent _ (IRTargetRefName i1) (IRTargetRefName i2)) _ body)) =
       "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show g ++ "Code: " ++ printTree m
 
 cfgsToMthds :: b -> [(CFG a d, Method a)] -> [Method b]
@@ -52,32 +48,32 @@ cfgsToMthds default_ = map (\(g, Mthd _ r i ps _) ->
 showCfgsWithLiveness :: [(CFG a Liveness, Method a)] -> String
 showCfgsWithLiveness cfgs = unlines $ map showCfg cfgs
   where
-    showCfg (CFG g, m@(Mthd _ _ (QIdent _ (SymIdent i1) (SymIdent i2)) _ _)) =
+    showCfg (CFG g, m@(Mthd _ _ (QIdent _ (IRTargetRefName i1) (IRTargetRefName i2)) _ _)) =
       "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show (CFG g) ++ concatMap showLiveness (Map.elems g) ++ "Code: " ++ printTree m
     showLiveness node =
         "Liveness at start of " ++ toStr (node ^. nodeLabel) ++ ": " ++ show (nodeHead node) ++ "\n" ++
            "Liveness at end of " ++ toStr (node ^. nodeLabel) ++ ": " ++ show (nodeTail node) ++ "\n"
 
 showEspWithLiveness :: Metadata a -> [Method (a, Liveness)] -> String
-showEspWithLiveness meta mthds = PrintEsp.printTreeWithInstrComments (Program emptyLiveness (emptyLiveness <$ meta) (map (fmap (snd)) mthds))
+showEspWithLiveness meta mthds = PrintUtils.printTreeWithInstrComments (Program emptyLiveness (emptyLiveness <$ meta) (map (fmap (snd)) mthds))
 
 
-genEspStep :: Metadata a -> [(CFG a (), Method a)] -> String -> LattePipeline ()
-genEspStep meta cfgs comment = do
-    let esp = PrintEsp.printTree $ Program () (() <$ meta) (cfgsToMthds () cfgs)
+runCodeGenerationStep :: Metadata a -> [(CFG a (), Method a)] -> String -> LattePipeline ()
+runCodeGenerationStep meta cfgs comment = do
+    let esp = PrintUtils.printTree $ Program () (() <$ meta) (cfgsToMthds () cfgs)
     printLogInfoStr $ ">> GENERATED INTERMEDIATE STEP " ++ comment ++ "\n\n"
     printLogInfoStr $ showCfgs cfgs
     printLogInfoStr $ ">> END STEP " ++ comment ++ "\n\n"
 
-genEspWithLivenessStep :: Metadata a -> [(CFG a Liveness, Method a)] -> String -> LattePipeline ()
-genEspWithLivenessStep meta cfgs comment = do
+runCodeGenerationWithLivenessStep :: Metadata a -> [(CFG a Liveness, Method a)] -> String -> LattePipeline ()
+runCodeGenerationWithLivenessStep meta cfgs comment = do
     let esp = showEspWithLiveness (() <$ meta) (cfgsToMthds ((), emptyLiveness) $ map (\(cfg, method) -> (mapCFGPos (const ()) cfg, () <$ method)) cfgs)
     printLogInfoStr $ ">> GENERATED INTERMEDIATE STEP " ++ comment ++ "\n\n"
     printLogInfoStr $ showCfgsWithLiveness cfgs
     printLogInfoStr $ ">> END STEP " ++ comment ++ "\n\n"
 
-genEspWithLivenessAndIGsStep :: Metadata a -> [(SSA a Liveness, Method a, InterferenceGraph)] -> String -> LattePipeline ()
-genEspWithLivenessAndIGsStep meta cfgs comment = do
+runCodeGenerationWithLivenessAndIGsStep :: Metadata a -> [(SSA a Liveness, Method a, InterferenceGraph)] -> String -> LattePipeline ()
+runCodeGenerationWithLivenessAndIGsStep meta cfgs comment = do
     let cfgs' = map (\(SSA c, m, _) -> (c, m)) cfgs
         esp = showEspWithLiveness (() <$ meta) (cfgsToMthds ((), emptyLiveness) $ map (\(cfg, method) -> (mapCFGPos (const ()) cfg, () <$ method)) cfgs')
         ig_ = map (\(_, _, g) -> g) cfgs
@@ -86,7 +82,6 @@ genEspWithLivenessAndIGsStep meta cfgs comment = do
     printLogInfoStr $ show ig_
     printLogInfoStr $ ">> END STEP " ++ comment ++ "\n\n"
 
---- End debug
 
 data CompiledProg a =
     CompiledProg a (Metadata a) [(CFG a Liveness, Method a, RegisterAllocation)]
@@ -107,39 +102,38 @@ instance Functor (CompiledProg) where
 compl_ :: (Show a) => (Program a) -> LattePipeline (CompiledProg a)
 compl_ (Program pos meta mthds) = do
     let cfgs = zip (map cfg mthds) mthds
-    let cfgsLin = map (uncurry removeUnreachable) cfgs
-    let cfgsWithLiveness = map (first analyseLiveness) cfgsLin
-    let ssaCode = map (\(g, mthd) -> (transformToSSA g mthd, mthd)) cfgsWithLiveness
-    let optimisedCode = map (\(ssa, mthd) -> (optimise ssa mthd, mthd)) ssaCode
-    let optimisedWithLiveness = map (first (\(SSA g) -> SSA $ analyseLiveness g)) optimisedCode
+    let linearCFGs = map (uncurry removeUnreachable) cfgs
+    let cfgsAnnotated = map (first analyseLiveness) linearCFGs
+    let ssaCode = map (\(g, mthd) -> (transformToSSA g mthd, mthd)) cfgsAnnotated
+    let optCode = map (\(ssa, mthd) -> (optimise ssa mthd, mthd)) ssaCode
+    let optWithLiveness = map (first (\(SSA g) -> SSA $ analyseLiveness g)) optCode
     let allocatedCfgs = map (\(cfg_, mthd) ->
             let (ig_, cfg') = getColouredInterferenceGraph cfg_
-            in  (cfg', mthd, ig_)) optimisedWithLiveness
+            in  (cfg', mthd, ig_)) optWithLiveness
     let unfoldedPhi = map (\(SSA c, m, g) -> (unfoldPhi (SSA c) m (getRegisterAllocation c g), m, g)) allocatedCfgs
-    optimisedCfgs <- mapM (\(c, m, g) -> do
+    optCfgs <- mapM (\(c, m, g) -> do
         c' <- inlineTrivialBlocks c
         let (c'', m'') = removeUnreachable c' m
         return (c'', m'', g)) unfoldedPhi
-    let finalCfgs = map (\(c, m, g) -> (removeDeadCode $ analyseLiveness c, m, g)) optimisedCfgs
+    let finalCfgs = map (\(c, m, g) -> (removeDeadCode $ analyseLiveness c, m, g)) optCfgs
     printLogInfoStr $ ">> GENERATED CFGS\n\n" ++ (showCfgs cfgs)
-    genEspStep meta cfgsLin "Removing unreachable blocks..."
-    genEspWithLivenessStep meta cfgsWithLiveness "Analysing liveness..."
-    genEspStep meta (map (first unwrapSSA) ssaCode) "Transforming to SSA..."
+    runCodeGenerationStep meta linearCFGs "Removing unreachable blocks..."
+    runCodeGenerationWithLivenessStep meta cfgsAnnotated "Analysing liveness..."
+    runCodeGenerationStep meta (map (first unwrapSSA) ssaCode) "Transforming to SSA..."
 
     printLogInfoStr $ ">> ENTIRE SSA CODE DUMP \n\n"
     printLogInfoStr $ show ssaCode
     printLogInfoStr $ ">> END SSA CODE DUMP \n\n"
 
-    genEspStep meta (map (first unwrapSSA) optimisedCode) "Optimising Espresso..."
+    runCodeGenerationStep meta (map (first unwrapSSA) optCode) "Optimising ..."
 
     printLogInfoStr $ ">> ENTIRE OPTIMIZED CODE DUMP \n\n"
-    printLogInfoStr $ show optimisedCode
+    printLogInfoStr $ show optCode
     printLogInfoStr $ ">> END OPTIMIZED CODE DUMP \n\n"
 
-    genEspWithLivenessStep meta (map (first unwrapSSA) optimisedWithLiveness) "Reanalysing liveness..."
-    genEspWithLivenessAndIGsStep meta allocatedCfgs "Allocating registers..."
-    genEspStep meta (map (\(c, m, _) -> (c, m)) unfoldedPhi) "Unfolding phis..."
-    genEspStep meta (map (\(c, m, _) -> (c, m)) optimisedCfgs) "Inlining trivial jumps..."
-    genEspWithLivenessStep meta (map (\(c, m, _) -> (c, m)) finalCfgs) "Final liveness analysis..."
-    --show $ (map (\(c, m, _) -> (c, m)) finalCfgs)
+    runCodeGenerationWithLivenessStep meta (map (first unwrapSSA) optWithLiveness) "Reanalysing liveness..."
+    runCodeGenerationWithLivenessAndIGsStep meta allocatedCfgs "Allocating registers..."
+    runCodeGenerationStep meta (map (\(c, m, _) -> (c, m)) unfoldedPhi) "Unfolding phis..."
+    runCodeGenerationStep meta (map (\(c, m, _) -> (c, m)) optCfgs) "Inlining trivial jumps..."
+    runCodeGenerationWithLivenessStep meta (map (\(c, m, _) -> (c, m)) finalCfgs) "Final liveness analysis..."
     return $ CompiledProg pos meta (map (\(c, m, g) -> (c, m, getRegisterAllocation c g)) finalCfgs)

@@ -14,7 +14,7 @@ main = do
     args <- liftIO $ getArgs
     case args of
         file : rest -> do
-            let config = (Compiler.defaultConfigFor BackendX64.backend) & Compiler.loggingLevel .~ LogEverything
+            let config = (Compiler.defaultConfigFor BackendX64.backend) & Compiler.loggingLevel .~ LogError
             Compiler.compileLatteThen config (Compiler.inputFile file) resultHandler
     where 
         resultHandler :: Compiler.CompilationResult -> LattePipeline ()
@@ -22,7 +22,7 @@ main = do
             case result of
                 (Compiler.CompilationFailed err file contents rawProgram) -> do
                     Compiler.printCompilerErrors err file contents rawProgram
-                    latteError "Optimizer failed" 
+                    latteError "Compiler has failed" 
                 (Compiler.CompilationOK output) -> do
                     printLogInfo $ "DONE"
                     latteSuccess

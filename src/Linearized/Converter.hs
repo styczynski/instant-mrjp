@@ -183,7 +183,7 @@ collectStructures classes = do
             let newMethods = map (\(B.Method mPos mPar mClass mName@(B.Label _ mNameStr) mType mArgs) -> B.Method mPos (B.Label mPos (lookupOriginalParent mNameStr)) (B.Label pos parentName) mName mType mArgs) $ map fst parentMethodEntries
             combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) newMethods $ IM.deleteMany (map fst overridenMethods) methods
             --combinedMethods <- IM.insertManyM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (IM.mapList (\_ (B.Label lPos id) -> B.Label pos $ "_"++clsName++"_z"++stripClassName id) parentMethods) methods
-            combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m field -> field) parentFields fields
+            combinedFields <- IM.concatSequenceM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureMember name) (\m field -> field) parentFields $ IM.deleteMany (IM.mapList (\k _-> k) parentFields) fields
             --(B.Label idpos $ "_class_"++id) name newParent
             --newParent <- return $ parent >>= (\(A.Label _ pid) -> return $ w"_class_"++pid)
             --IM.concatM (idMapFailure "classParentMerge" $ Errors.ILNEEncounteredDuplicateStructureField name) fields ()

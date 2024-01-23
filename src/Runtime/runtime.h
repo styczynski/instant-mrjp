@@ -19,17 +19,6 @@ struct Reference {
     // Fields go here    // offset 36
 } __attribute__((__packed__ ));
 
-// struct Array {
-//     int32_t elementSize;
-//     int32_t length;
-//     void *elements;
-// };
-
-// struct String {
-//     int32_t length;
-//     uint8_t *data;
-// };
-
 typedef struct Reference *obj;
 
 obj __new(struct Type *t);

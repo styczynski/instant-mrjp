@@ -85,11 +85,6 @@ spec = do
     |]
 
     it "Array Heapsort" $ \h -> expectProgramSuccessIn ["8", "-5", "0", "1000000", "29", "14", "-1", "10", "-3"] [r|
-        void swap(int[] tab, int x, int y) {
-            int temp = tab[x];
-            tab[x] = tab[y];
-            tab[y] = temp;
-        }
         void heapDown(int[] heap, int index, int heapSize) {
             while (index * 2 < heapSize - 1) {
                 int left = index * 2 + 1;
@@ -99,7 +94,9 @@ spec = do
                     max = right;
                 }
                 if (heap[max] > heap[index]) {
-                    swap(heap, max, index);
+                    int temp = heap[max];
+                    heap[max] = heap[index];
+                    heap[index] = temp;
                     index = max;
                 } else {
                     return;

@@ -2,7 +2,7 @@
 ps386038
 Latte compiler (MRJP) 2023/2024
 
-**Stan na 08.01.2024**
+**Stan na 23.01.2024**
 
 ## Budowanie u uruchamianie
 
@@ -10,6 +10,8 @@ Program buduje się standardowo przy pomocy polecenia `make` w katalogu główny
 ```bash
     $ make
 ```
+
+Źródła biblioteki standardowej Latte znajdują się w `src/Runtime/runtime.h` i `src/Runtime/runtime.c`
 
 **Uwaga:**
 Projekt wymaga sporej ilości zalezności:
@@ -33,12 +35,15 @@ Powysze zaleności mogą wymagać sporo miejsca a budowanie zajmuje moment za pi
 Zaimplementowane backendy:
 - `Assembler X86_64`
 
-Zaimplementowane funkcjonalności na dzień 08.01.2024:
+Zaimplementowane funkcjonalności na dzień 23.01.2024:
 
-- Klasy z dziedziczeniem (patrz uwaga 1 w brakach ponizej)
-- Metody wirtualne (patrz uwaga 1 w brakach ponizej)
-- Tablice (patrz uwaga 1 w brakach ponizej)
-- Odśmiecanie (patrz uwaga 1 w brakach ponizej)
+- Klasy z dziedziczeniem
+- Metody wirtualne
+- Tablice
+- Garbage collection
+- Alokacja rejestrów przy pomocy kolorowania grafów
+- Lepsze optymializacje peephole
+- Globalne i lokalne usuwanie stałych, lepsze usuwanie martwego kodu i lepsza optymalizacja skoków
 - Dopuszczane jest uźycie `var` w przypadku deklaracji z wartością np. `var x = foo(2)+"b"`, wtedy typ jest automatycznie inferowany (w innych kontekstach typ `var` nie jest dopusczany)
 - Kaźdy obiekt jak w Javie dziedziczy po klasie `Object`
 - Typy prymitywne `int`, `bool` i `byte`
@@ -51,16 +56,13 @@ Zaimplementowane funkcjonalności na dzień 08.01.2024:
         (+) :: byte -> byte -> byte
         (+) bytea byteb = bytea + byteb
     ```
-- Błędy typowania podają kontekst błędu oraz potencjalne sposoby naprawienia go (patrz uwaga 2 w brakach ponizej)
+- Błędy typowania podają kontekst błędu oraz potencjalne sposoby naprawienia go
 - Biblioteka standardowa implementująca metody znane z Javy (patrz uwaga 5 w brakach ponizej)
+- 112 rónych testów w tym własnych, dostępnych w test/Test/*Spec.hs
+- Obsługa generycznej funkcji `print(Object)`. Fajnie działa dla np. `print(int[])`
 
 **Braki w implementacji oraz plany:**
-1. Poprawka: Z powodu złego liczenia offestów na polach (jest to nietrywialny błąd, nad którym muszę się zastanowić) uruchamianie kodu z klasami powoduje błędy naruszenia pamięci
-2. Poprawka: Wiadomości diagnostyczne nie są az tak dobre jak bym obie tego zyczył i bedą dalej ulepszane, ale zachęcam do sprawdzenia np. cykli z klasami
-3. Nowa funkcjonalność: Zamierzam dodać implementację uliniawiania funkcji (inlining) - Jeszcze nie rozpoczęta
-4. Nowa funkcjonalność: Zamierzam dodać zmienne indukcyjne i redukcję mocy - Jeszcze nie rozpoczęta
-5. Poprawka: Aktualnie biblioteka standardowa oferuje kilka klas wbudowanych, zamierzam rozszerzyć ten reperuar o (moze) podstawowe kontenery znane z Javy. Aktualnie następujące metody są wspierane:
-6. Poprawka: Dla duzej ilosci argumentow funkcje źle alokują rejestry
+- Poprawione zostały niedociągnięcia z ostatniej wersji rozwiązania, jednakze zliczanie referencji zostało wyłączone poniewaź generowało problemy z dostępem do pamięci
 
 ```java
 class Object {

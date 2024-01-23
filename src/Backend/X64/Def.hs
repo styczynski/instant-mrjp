@@ -80,7 +80,7 @@ updateLocs = do
     where
         updateLoc :: (String, (Int, SType ())) -> Generator a ()
         updateLoc (s, (_, t)) = do
-            let vi = ValIdent s
+            let vi = IRValueName s
             mbcol <- gContext (Map.lookup vi . regAlloc . (^. regs))
             case mbcol of
                 Just reg_ -> do
@@ -88,7 +88,7 @@ updateLocs = do
                     return ()
                 Nothing -> return ()
 
-getLoc :: ValIdent -> Generator a X64.Loc
+getLoc :: IRValueName -> Generator a X64.Loc
 getLoc vi = do
     mbvar <- gEnvGet (Map.lookup vi . (^. vars))
     case mbvar of
@@ -123,20 +123,20 @@ newStrConst s = do
     gEnvSet (\env -> env & consts .~ cs)
     return c
 
-label :: LabIdent -> Generator a LabIdent
+label :: IRLabelName -> Generator a IRLabelName
 label l = gContext ((\f -> f l) . (^. labelGen))
 
 setStack :: Stack -> Generator a ()
 setStack s = gEnvSet (\env -> env & stack .~ s)
 
-getVarS :: ValIdent -> Generator a VarState
+getVarS :: IRValueName -> Generator a VarState
 getVarS vi = do
     mb <- gEnvGet (Map.lookup vi . (^. vars))
     case mb of
         Nothing -> error $ "internal error. no varS for var " ++ show vi
         Just g  -> return g
 
-getClass :: SymIdent -> Generator a CompiledClass
+getClass :: IRTargetRefName -> Generator a CompiledClass
 getClass i = do
     mb <- gContext (Map.lookup i . (^. classes))
     case mb of
@@ -146,8 +146,8 @@ getClass i = do
 varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varS ^. varType 
 
-isLive :: ValIdent -> Generator a Bool
-isLive (ValIdent vi) = do
+isLive :: IRValueName -> Generator a Bool
+isLive (IRValueName vi) = do
     l <- gEnvGet (^. live)
     return $ HashMap.member vi $ liveIn l
 

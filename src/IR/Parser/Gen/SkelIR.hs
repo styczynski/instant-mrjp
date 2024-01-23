@@ -15,17 +15,17 @@ type Result = Err String
 failure :: Show a => a -> Result
 failure x = Left $ "Undefined case: " ++ show x
 
-transSymIdent :: IR.Parser.Gen.AbsIR.SymIdent -> Result
-transSymIdent x = case x of
-  IR.Parser.Gen.AbsIR.SymIdent string -> failure x
+transIRTargetRefName :: IR.Parser.Gen.AbsIR.IRTargetRefName -> Result
+transIRTargetRefName x = case x of
+  IR.Parser.Gen.AbsIR.IRTargetRefName string -> failure x
 
-transLabIdent :: IR.Parser.Gen.AbsIR.LabIdent -> Result
-transLabIdent x = case x of
-  IR.Parser.Gen.AbsIR.LabIdent string -> failure x
+transIRLabelName :: IR.Parser.Gen.AbsIR.IRLabelName -> Result
+transIRLabelName x = case x of
+  IR.Parser.Gen.AbsIR.IRLabelName string -> failure x
 
-transValIdent :: IR.Parser.Gen.AbsIR.ValIdent -> Result
-transValIdent x = case x of
-  IR.Parser.Gen.AbsIR.ValIdent string -> failure x
+transIRValueName :: IR.Parser.Gen.AbsIR.IRValueName -> Result
+transIRValueName x = case x of
+  IR.Parser.Gen.AbsIR.IRValueName string -> failure x
 
 transQIdent :: Show a => IR.Parser.Gen.AbsIR.QIdent' a -> Result
 transQIdent x = case x of

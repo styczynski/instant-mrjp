@@ -130,8 +130,8 @@ extern s = emit $ ".extern " ++ s
 globalMain :: EmitM m => m ()
 globalMain = emit ".global main"
 
-global :: EmitM m => LabIdent -> m ()
-global (LabIdent l) = emit $ ".global " ++ sanitiseAssembly l
+global :: EmitM m => IRLabelName -> m ()
+global (IRLabelName l) = emit $ ".global " ++ sanitiseAssembly l
 
 -- Emit an instruction logically increasing the stack
 -- by decreasing the rsp pointer.
@@ -163,19 +163,19 @@ imul src dest =
 
 -- Emit a jump to a label.
 --   jmp <l>
-jmp :: EmitM m => LabIdent -> m ()
-jmp (LabIdent l) = emitInd $ "jmp " ++ sanitiseAssembly l
+jmp :: EmitM m => IRLabelName -> m ()
+jmp (IRLabelName l) = emitInd $ "jmp " ++ sanitiseAssembly l
 
 -- Emit a conditional jump instruction that tests the ZF CPU flag
 -- and jumps if it is set.
 --   jz <l>
-jz :: EmitM m => LabIdent -> m ()
-jz (LabIdent l) = emitInd $ "jz " ++ sanitiseAssembly l
+jz :: EmitM m => IRLabelName -> m ()
+jz (IRLabelName l) = emitInd $ "jz " ++ sanitiseAssembly l
 
 -- Emit a label.
 -- <l>: # <comment>
-label :: EmitM m => LabIdent -> String -> m ()
-label (LabIdent l) comment_ = emit $ sanitiseAssembly l ++ ":" ++ comment comment_
+label :: EmitM m => IRLabelName -> String -> m ()
+label (IRLabelName l) comment_ = emit $ sanitiseAssembly l ++ ":" ++ comment comment_
 
 lea :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> String -> m ()
 lea size src dest comment_ =
@@ -195,8 +195,8 @@ leave = emitInd "leave"
 
 -- Move the pointer to a constant into a location.
 --   movq $<i>, <loc>
-movConst :: EmitM m => LabIdent -> X64.Reg -> m ()
-movConst (LabIdent i) reg_ = emitInd $ bin "mov" X64.Size64 (i ++ "(%rip)") (sizedReg X64.Size64 reg_) ""
+movConst :: EmitM m => IRLabelName -> X64.Reg -> m ()
+movConst (IRLabelName i) reg_ = emitInd $ bin "mov" X64.Size64 (i ++ "(%rip)") (sizedReg X64.Size64 reg_) ""
 
 mov :: EmitM m => X64.Size -> X64.Loc -> X64.Loc -> String -> m ()
 mov size src dest comment_ = emitInd $ bin "mov" size (loc size src) (loc size dest) comment_

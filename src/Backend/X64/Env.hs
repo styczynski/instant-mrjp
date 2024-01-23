@@ -25,7 +25,7 @@ import Data.Int
 import qualified Backend.X64.Parser.Constructor as X64
 
 data VarState = VarState {
-    _varstVarName :: ValIdent,
+    _varstVarName :: IRValueName,
     _varstVarType :: SType (),
     _varstVarLoc  :: X64.Loc
 } deriving (Show)
@@ -46,15 +46,15 @@ data GeneratorEnv = GeneratorEnv {
     _geeCode   :: [String],
     _geeConsts   :: ConstSet,
     _geeStack    :: Stack,
-    _geeVars     :: Map.Map ValIdent VarState,
+    _geeVars     :: Map.Map IRValueName VarState,
     _geeLive     :: Liveness,
     _geeTraceIdx :: Integer
 }
 
 data GeneratorContext = GeneratorContext {
-    _gecLabelGen :: LabIdent -> LabIdent,
+    _gecLabelGen :: IRLabelName -> IRLabelName,
     _gecRegs     :: RegisterAllocation,
-    _gecClasses  :: Map.Map SymIdent CompiledClass
+    _gecClasses  :: Map.Map IRTargetRefName CompiledClass
 }
 
 

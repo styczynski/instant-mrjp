@@ -23,7 +23,7 @@ generateModule cls mthds allConsts =
           "\n" ++ unlines (map Emit.emitAsString nullRef) ++
           "\n\n" ++ code
     where mainEntry = toStr $
-            labelFor (QIdent () (SymIdent "~cl_TopLevel") (SymIdent "main")) entryLabel
+            labelFor (QIdent () (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) entryLabel
           emitMthd mthd =
               let code = unlines $ mthdPrologue mthd ++ mthdCode mthd ++ mthdEpilogue mthd
               in if mthdEntry mthd == mainEntry then "main:\n" ++ code else code
@@ -35,14 +35,14 @@ generateModule cls mthds allConsts =
                               "    Field size:   " ++ show (X64.toBytes $ typeSize $ fldType fld)]
           vtable cl = if toStr (clName cl) == "~cl_TopLevel" then []
                       else [Emit.global (classDefIdent (clName cl))
-                            ,Emit.global (vTableLabIdent (clName cl))
+                            ,Emit.global (vTableIRLabelName (clName cl))
                             ,Emit.label (classDefIdent (clName cl)) ""
-                            ,Emit.quadDef (let (LabIdent l) = (if length (clChain cl) == 1 then (LabIdent "0") else classDefIdent ((clChain cl)!!1)) in l) -- parent
+                            ,Emit.quadDef (let (IRLabelName l) = (if length (clChain cl) == 1 then (IRLabelName "0") else classDefIdent ((clChain cl)!!1)) in l) -- parent
                             ,Emit.longDef (show $ clSize cl)
-                            ,Emit.quadDef (let (LabIdent l) = vTableLabIdent (clName cl) in l)
+                            ,Emit.quadDef (let (IRLabelName l) = vTableIRLabelName (clName cl) in l)
                             ,Emit.longDef "0"
                             ,Emit.quadDef "0"
-                            ,Emit.label (vTableLabIdent (clName cl)) ""]++map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
+                            ,Emit.label (vTableIRLabelName (clName cl)) ""]++map (Emit.quadDef . fst) (vtabMthds $ clVTable cl)
           nullRef = [Emit.label nullrefLabel "runtime error on null dereference",
                      Emit.and X64.Size64 (X64.LocConst (-16)) (X64.LocReg X64.RSP) "16 bytes allign",
                      Emit.callDirect "__errorNull"]

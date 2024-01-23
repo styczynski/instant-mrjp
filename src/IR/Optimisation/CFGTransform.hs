@@ -11,17 +11,16 @@ import Control.Lens hiding (Const)
 
 import Reporting.Logs
 
--- Some labels and jumps between them might be trivial and unnecessary,
--- namely when there are node (v, u) such that v -> u and there are no
--- other outgoing edges from v or incoming edges into u, they can be
--- collapsed to a single node.
-inlineTrivialBlocks :: CFG a d -> LattePipeline (CFG a d)
-inlineTrivialBlocks = fixpointByM (\(CFG g) -> Map.keys g) collapseOnce
+
 
 removeUnreachable :: CFG a d -> Method a -> (CFG a (), Method a)
 removeUnreachable cfg_ (Mthd pos t qi ps _) =
     let mthd = Mthd pos t qi ps (map (fmap fst) $ linearise cfg_)
     in  (cfg mthd, mthd)
+
+inlineTrivialBlocks :: CFG a d -> LattePipeline (CFG a d)
+inlineTrivialBlocks = fixpointByM (\(CFG g) -> Map.keys g) collapseOnce
+
 
 collapseOnce :: CFG a d -> LattePipeline (CFG a d)
 collapseOnce cfg_@(CFG g) = do

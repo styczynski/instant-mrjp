@@ -1,5 +1,3 @@
--- Implementation of Global Common Subexpression Elimination for Espresso.
--- Since this step has proven to be computationally costly, hashmaps are utilised.
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE FlexibleInstances #-}
 module IR.Optimisation.CommonSubexpressions where
@@ -34,12 +32,10 @@ globalCommonSubexpressionElimination :: SSA a Liveness -> SSA a ()
 globalCommonSubexpressionElimination (SSA g) = SSA $ linearMap (\n -> n {_nNodeBody = eliminate $ n ^. nodeBody}) g
 
 data GCSEState = St {
-    subexprs :: Map.HashMap (Subexpression ()) ValIdent,
-    dict     :: Map.HashMap ValIdent ValIdent
+    subexprs :: Map.HashMap (Subexpression ()) IRValueName,
+    dict     :: Map.HashMap IRValueName IRValueName
 }
 
--- Since the input is in SSA the operation is a simple static replacement of identical right-hand-sides.
--- The induced copies will be eliminated later.
 eliminate :: [Instr (a, Liveness)] -> [Instr (a, ())]
 eliminate instrs = evalState (mapM go instrs >>= mapM replaceInInstr >>= mapM (\instr -> return $ fmap (\(pos, _) -> (pos, ())) instr)) (St Map.empty Map.empty)
     where
@@ -138,32 +134,29 @@ replaceInVal val = case val of
             Nothing  -> VVal pos t vi
     _ -> return val
 
--- If the instruction is a valid one to propagate, split it into
--- the left-hand-side (identifier) and the right-hand-side (subexpression).
-split :: Instr a -> Maybe (ValIdent, Subexpression ())
+split :: Instr a -> Maybe (IRValueName, Subexpression ())
 split instr = case (() <$ instr) of
     IOp _ vi v1 op v2 -> Just (vi, SOp v1 op v2)
     INewStr _ vi s    -> Just (vi, SStr s)
     IUnOp _ vi op v   -> Just (vi, SUnOp v op)
     IPhi _ vi vs      -> Just (vi, SPhi vs)
-    -- The following are not valid to propagate.
-    ILabel {}         -> Nothing -- Not an assignment.
-    ILabelAnn {}      -> Nothing -- Not an assignment.
-    IVRet {}          -> Nothing -- Not an assignment.
-    IRet {}           -> Nothing -- Not an assignment.
-    ISet {}           -> Nothing -- Handled by propagation.
-    ISwap {}          -> Nothing -- Nontrivial memory operation.
-    IVCall {}         -> Nothing -- Not an assignment.
-    ICall {}          -> Nothing -- Can have sideffects
-    INew {}           -> Nothing -- Has sideffects.
-    INewArr {}        -> Nothing -- Has sideffects.
-    IJmp {}           -> Nothing -- Not an assignment.
-    ICondJmp {}       -> Nothing -- Not an assignment.
-    ILoad {}          -> Nothing -- Nontrivial memory operation.
-    IStore {}         -> Nothing -- Nontrivial memory operation.
-    IEndPhi {}        -> Nothing -- Not an assignment.
+    ILabel {}         -> Nothing 
+    ILabelAnn {}      -> Nothing 
+    IVRet {}          -> Nothing
+    IRet {}           -> Nothing
+    ISet {}           -> Nothing 
+    ISwap {}          -> Nothing 
+    IVCall {}         -> Nothing 
+    ICall {}          -> Nothing 
+    INew {}           -> Nothing 
+    INewArr {}        -> Nothing 
+    IJmp {}           -> Nothing 
+    ICondJmp {}       -> Nothing
+    ILoad {}          -> Nothing 
+    IStore {}         -> Nothing 
+    IEndPhi {}        -> Nothing 
 
-fuse :: a -> ValIdent -> Subexpression () -> Instr a
+fuse :: a -> IRValueName -> Subexpression () -> Instr a
 fuse pos vi subexpr = case (pos <$ subexpr) of
     SOp v1 op v2 -> IOp pos vi v1 op v2
     SStr s       -> INewStr pos vi s

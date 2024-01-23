@@ -9,7 +9,6 @@ import           IR.Flow.SSA
 import           IR.Syntax.Syntax
 import           IR.Utils
 
--- Remove assignments to dead variables and unreachable code.
 removeDeadCode :: CFG a Liveness -> CFG a Liveness
 removeDeadCode = linearMap (\n -> n & nodeBody %~ loopRemove True)
 

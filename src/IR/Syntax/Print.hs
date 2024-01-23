@@ -103,22 +103,22 @@ instance Print Double where
 
 
 
-instance Print SymIdent where
-  prt _ (SymIdent i) = doc (showString ( i))
+instance Print IRTargetRefName where
+  prt _ (IRTargetRefName i) = doc (showString ( i))
 
 
-instance Print LabIdent where
-  prt _ (LabIdent i) = doc (showString ( i))
+instance Print IRLabelName where
+  prt _ (IRLabelName i) = doc (showString ( i))
 
 
-instance Print ValIdent where
-  prt _ (ValIdent i) = doc (showString ( i))
+instance Print IRValueName where
+  prt _ (IRValueName i) = doc (showString ( i))
 
 
 
 instance Print (QIdent a) where
   prt i e = case e of
-    QIdent _ (SymIdent s1) (SymIdent s2) -> prPrec i 0 (doc (showString s1 . showString "." . showString s2))
+    QIdent _ (IRTargetRefName s1) (IRTargetRefName s2) -> prPrec i 0 (doc (showString s1 . showString "." . showString s2))
 
 instance Print (Program a) where
   prt i e = case e of
@@ -172,7 +172,7 @@ instance Print (Param a) where
 instance Print (Instr a) where
   prt i e = case e of
     ILabel _ labident -> prPrec i 0 (concatD [prt 0 labident, doc (showString ":")])
-    ILabelAnn _ (LabIdent ident) n1 n2 -> prPrec i 0 (concatD [doc (showString ident), doc (showString ":"), doc (showString "/*"), doc (showString "lines"), prt 0 n1, doc (showString "to"), prt 0 n2, doc (showString "*/")])
+    ILabelAnn _ (IRLabelName ident) n1 n2 -> prPrec i 0 (concatD [doc (showString ident), doc (showString ":"), doc (showString "/*"), doc (showString "lines"), prt 0 n1, doc (showString "to"), prt 0 n2, doc (showString "*/")])
     IVRet _ -> prPrec i 0 (concatD [doc (showString "return"), doc (showString ";")])
     IRet _ val -> prPrec i 0 (concatD [doc (showString "return"), prt 0 val, doc (showString ";")])
     IOp _ valident val1 op val2 -> prPrec i 0 (concatD [prt 0 valident, doc (showString ":="), prt 0 val1, prt 0 op, prt 0 val2, doc (showString ";")])
@@ -201,7 +201,7 @@ instance Print (Ptr a) where
     PParam _ stype n valident -> prPrec i 0 (concatD [prt 0 stype, doc (showString "param"), prt 0 n, prt 0 valident])
 instance Print (PhiVariant a) where
   prt i e = case e of
-    PhiVar _ (LabIdent l) val -> prPrec i 0 (concatD [doc (showString l . showChar ':'), prt 0 val])
+    PhiVar _ (IRLabelName l) val -> prPrec i 0 (concatD [doc (showString l . showChar ':'), prt 0 val])
   prtList _ [] = (concatD [])
   prtList _ [x] = (concatD [prt 0 x])
   prtList _ (x:xs) = (concatD [prt 0 x, doc (showString ","), prt 0 xs])
@@ -260,13 +260,13 @@ instance PrintWithComments Integer where
 instance PrintWithComments Double where
   prtWComments = prt
 
-instance PrintWithComments SymIdent where
+instance PrintWithComments IRTargetRefName where
   prtWComments = prt
 
-instance PrintWithComments LabIdent where
+instance PrintWithComments IRLabelName where
   prtWComments = prt
 
-instance PrintWithComments ValIdent where
+instance PrintWithComments IRValueName where
   prtWComments = prt
 
 instance PrintWithComments (QIdent a) where
@@ -303,7 +303,7 @@ instance Show a => PrintWithComments (Method a) where
 instance Show a => PrintWithComments (Instr a) where
   prtWComments i e = case e of
     ILabel a labident -> prPrec i 0 (concatD [prt 0 labident, doc (showString ":"), doc (showString "/*"), doc (shows a), doc (showString "*/")])
-    ILabelAnn a (LabIdent ident) n1 n2 -> prPrec i 0 (concatD [doc (showString ident), doc (showString ":"), doc (showString "/*"), doc (showString "lines"), prt 0 n1, doc (showString "to"), prt 0 n2, doc (showString "*/"), doc (showString "/*"), doc (shows a), doc (showString "*/")])
+    ILabelAnn a (IRLabelName ident) n1 n2 -> prPrec i 0 (concatD [doc (showString ident), doc (showString ":"), doc (showString "/*"), doc (showString "lines"), prt 0 n1, doc (showString "to"), prt 0 n2, doc (showString "*/"), doc (showString "/*"), doc (shows a), doc (showString "*/")])
     IVRet a -> prPrec i 0 (concatD [doc (showString "return"), doc (showString ";"), doc (showString "/*"), doc (shows a), doc (showString "*/")])
     IRet a val -> prPrec i 0 (concatD [doc (showString "return"), prt 0 val, doc (showString ";"), doc (showString "/*"), doc (shows a), doc (showString "*/")])
     IOp a valident val1 op val2 -> prPrec i 0 (concatD [prt 0 valident, doc (showString ":="), prt 0 val1, prt 0 op, prt 0 val2, doc (showString ";"), doc (showString "/*"), doc (shows a), doc (showString "*/")])

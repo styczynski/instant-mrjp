@@ -8,7 +8,6 @@ import           IR.Optimisation.Propagation
 import           IR.Syntax.Syntax
 import           IR.Utils
 
--- Main optimisation pipeline.
 optimise :: SSA a () -> Method a -> SSA a ()
 optimise ssa mthd = fixpoint ((`propagateCopiesAndConsts` mthd) .
                     (() <$) .

@@ -138,12 +138,12 @@ instance Print Integer where
 instance Print Double where
   prt _ x = doc (shows x)
 
-instance Print IR.Parser.Gen.AbsIR.SymIdent where
-  prt _ (IR.Parser.Gen.AbsIR.SymIdent i) = doc $ showString i
-instance Print IR.Parser.Gen.AbsIR.LabIdent where
-  prt _ (IR.Parser.Gen.AbsIR.LabIdent i) = doc $ showString i
-instance Print IR.Parser.Gen.AbsIR.ValIdent where
-  prt _ (IR.Parser.Gen.AbsIR.ValIdent i) = doc $ showString i
+instance Print IR.Parser.Gen.AbsIR.IRTargetRefName where
+  prt _ (IR.Parser.Gen.AbsIR.IRTargetRefName i) = doc $ showString i
+instance Print IR.Parser.Gen.AbsIR.IRLabelName where
+  prt _ (IR.Parser.Gen.AbsIR.IRLabelName i) = doc $ showString i
+instance Print IR.Parser.Gen.AbsIR.IRValueName where
+  prt _ (IR.Parser.Gen.AbsIR.IRValueName i) = doc $ showString i
 instance Print (IR.Parser.Gen.AbsIR.QIdent' a) where
   prt i = \case
     IR.Parser.Gen.AbsIR.QIdent _ symident1 symident2 -> prPrec i 0 (concatD [prt 0 symident1, doc (showString "."), prt 0 symident2])

@@ -1,4 +1,3 @@
--- Implementation of copy and constant propagation for Espresso.
 {-# LANGUAGE DeriveTraversable #-}
 module IR.Optimisation.Propagation where
 
@@ -12,13 +11,13 @@ import           IR.Flow.SSA
 import           IR.Syntax.Syntax
 import           IR.Utils
 
-data ValKind a = ValSimple (Val a)   -- Value is a simple copy of another value.
-             | ValString String     -- Value is a string constant.
-             | ValComplex           -- Value is computed by a complex expression and irreducible.
+data ValKind a = ValSimple (Val a) 
+             | ValString String
+             | ValComplex 
     deriving (Show, Eq, Functor, Foldable)
 
 newtype PropagationState a = St {
-    values :: Map.Map ValIdent (ValKind ())
+    values :: Map.Map IRValueName (ValKind ())
 } deriving Eq
 
 propagateCopiesAndConsts :: SSA a () -> Method a -> SSA a ()
@@ -133,13 +132,13 @@ propagateInPhiVar (PhiVar pos l val) = do
     x <- tryPropagate val
     return $ PhiVar pos l x
 
-setComplex :: ValIdent -> State (PropagationState a) ()
+setComplex :: IRValueName -> State (PropagationState a) ()
 setComplex vi = modify (St . Map.insert vi ValComplex . values)
 
-setString :: ValIdent -> String -> State (PropagationState a) ()
+setString :: IRValueName -> String -> State (PropagationState a) ()
 setString vi str = modify (St . Map.insert vi (ValString str) . values)
 
-setSimple :: a -> ValIdent -> Val a -> State (PropagationState a) ()
+setSimple :: a -> IRValueName -> Val a -> State (PropagationState a) ()
 setSimple pos vi val = do
     x <- tryPropagate val
     let vk = ValSimple x

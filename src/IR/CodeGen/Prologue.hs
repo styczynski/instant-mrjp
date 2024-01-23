@@ -17,7 +17,7 @@ withPrologue qi rs mthd =
         savedRegs = sort $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
         needsAlignment = odd $ length savedRegs
         prologue =
-            [colouredInterferenceComment, Emit.label (labelFor qi (LabIdent "")) ""] ++
+            [colouredInterferenceComment, Emit.label (labelFor qi (IRLabelName "")) ""] ++
             map (\r -> Emit.push (X64.LocReg r) "") savedRegs ++
             [Emit.incrStack 8 "16 bytes alignment" | needsAlignment] ++
             [

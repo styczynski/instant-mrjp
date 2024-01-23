@@ -9,9 +9,8 @@ type ASMOptRule a anno = [ASM.Instr a anno] -> [ASM.Instr a anno] -> [ASM.Instr 
 
 optimizeASM :: [ASM.Instr a anno] -> LattePipeline [ASM.Instr a anno]
 optimizeASM instrs = do 
-        return instrs
-        --optimizedInstrs <- fixpointByM (\instrs -> map (ASM.mapInstrData (const ()) (const ())) instrs) (applyRulesPass applyRulesSingle) instrs
-        --return optimizedInstrs
+        optimizedInstrs <- fixpointByM (\instrs -> map (ASM.mapInstrData (const ()) (const ())) instrs) (applyRulesPass applyRulesSingle) instrs
+        return optimizedInstrs
     where
         applyRulesPass :: (ASMOptRule a anno) -> [ASM.Instr a anno] -> LattePipeline [ASM.Instr a anno]
         applyRulesPass rule instrs = do

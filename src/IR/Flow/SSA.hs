@@ -15,17 +15,16 @@ import           IR.Flow.CFG
 import           IR.Flow.Liveness
 import           IR.Flow.Phi
 import           IR.Syntax.Syntax
---import           Identifiers
 
 import IR.Utils
 
 newtype RenameDictionary = Dict {
-    dict :: Map.Map ValIdent ValIdent
+    dict :: Map.Map IRValueName IRValueName
 } deriving Eq
 
 newtype SSA a d = SSA (CFG a d) deriving (Eq, Functor, Show)
 
-data RenamedValIdent = NewValIdent {_ident :: ValIdent, version :: Integer}
+data RenamedIRValueName = NewIRValueName {_ident :: IRValueName, version :: Integer}
 
 unwrapSSA :: SSA a d -> CFG a d
 unwrapSSA (SSA g) = g
@@ -36,9 +35,6 @@ transformToSSA g (Mthd _ _ _ params _) =
         (g'', dicts) = transformLocally g' params
     in SSA $ removeTrivialPhis $ fillPhis g'' dicts
 
--- For each node u and its predecessors v1, ..., vn insert
--- empty phi instructions for every variable x alive at the start of u:
---- x = phi(v1: x, ..., vn: x)
 insertEmptyPhis :: CFG a Liveness -> CFG a ()
 insertEmptyPhis = linearMap insertInNode
     where
@@ -55,14 +51,12 @@ insertEmptyPhis = linearMap insertInNode
             in  node {_nNodeBody = ls' ++ phis' ++ endPhi ++ code'}
         phis :: a -> Node a Liveness -> [Instr (a, ())]
         phis pos node = map fst $ foldl' (addPhiVars pos) (emptyPhis pos node) (Set.elems $ node ^. nodeIn)
-        addPhiVars :: a -> [(Instr (a, ()), SType (a, ()))] -> LabIdent -> [(Instr (a, ()), SType (a, ()))]
+        addPhiVars :: a -> [(Instr (a, ()), SType (a, ()))] -> IRLabelName -> [(Instr (a, ()), SType (a, ()))]
         addPhiVars pos xs n = map (\(IPhi p vi phiVars, t) -> (IPhi p vi (PhiVar p n (VVal p t vi):(phiVars)), t)) xs
         emptyPhis :: a -> Node a Liveness -> [(Instr (a, ()), SType (a, ()))]
-        emptyPhis pos node = map (\(vi, (_, t)) -> (IPhi (pos, ()) (ValIdent vi) [], fmap (const (pos, ())) t)) (HashMap.toList $ liveIn $ nodeLiveness node)
+        emptyPhis pos node = map (\(vi, (_, t)) -> (IPhi (pos, ()) (IRValueName vi) [], fmap (const (pos, ())) t)) (HashMap.toList $ liveIn $ nodeLiveness node)
 
--- Given the translations for each incoming label, replace the empty phi instruction
--- with the actual values from each node.
-fillPhis :: CFG a () -> Map.Map LabIdent RenameDictionary -> CFG a ()
+fillPhis :: CFG a () -> Map.Map IRLabelName RenameDictionary -> CFG a ()
 fillPhis g dicts = linearMap fillInNode g
     where
         fillInNode node =
@@ -78,18 +72,14 @@ fillPhis g dicts = linearMap fillInNode g
             in  PhiVar p n (VVal p t vi')
         fillPhiVar _ = error "impossible"
 
--- Perform SSA translation without touching the contents of phi instructions.
--- Each assignment generates new version of the value.
--- That version is valid until next static assignment.
--- The resulting RenameDictionary is the version of the value at end of a block.
-type TransformState = (Map.Map ValIdent ValIdent, Map.Map ValIdent RenamedValIdent)
-transformLocally :: CFG a d -> [Param a] -> (CFG a d, Map.Map LabIdent RenameDictionary)
+type TransformState = (Map.Map IRValueName IRValueName, Map.Map IRValueName RenamedIRValueName)
+transformLocally :: CFG a d -> [Param a] -> (CFG a d, Map.Map IRLabelName RenameDictionary)
 transformLocally g params =
-    let paramMap = Map.fromList (map (\(Param _ _ vi) -> (vi, NewValIdent vi 1)) params)
+    let paramMap = Map.fromList (map (\(Param _ _ vi) -> (vi, NewIRValueName vi 1)) params)
         g' = Map.fromList $ evalState (mapM transformNode (lineariseNodes g)) (Map.empty, paramMap)
     in (CFG $ Map.map fst g', Map.map snd g')
     where
-        transformNode :: Node a d -> State TransformState (LabIdent, (Node a d, RenameDictionary))
+        transformNode :: Node a d -> State TransformState (IRLabelName, (Node a d, RenameDictionary))
         transformNode node = do
             instrs <- mapM transformInstr (node ^. nodeBody)
             (d, _) <- get
@@ -179,7 +169,7 @@ transformLocally g params =
             let version' = case mbvi' of
                     Just vi' -> version vi' + 1
                     Nothing  -> 1
-                ident' = ValIdent $ toStr vi ++ if version' == 1 then "" else "~" ++ show version'
+                ident' = IRValueName $ toStr vi ++ if version' == 1 then "" else "~" ++ show version'
             modify (first $ Map.insert vi ident')
-            modify (second $ Map.insert vi (NewValIdent ident' version'))
+            modify (second $ Map.insert vi (NewIRValueName ident' version'))
             return ident'

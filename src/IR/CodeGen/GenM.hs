@@ -43,7 +43,7 @@ traceEnabled :: Bool
 traceEnabled = False
 
 data VarState = VarS {
-    varName :: ValIdent,
+    varName :: IRValueName,
     varType :: SType (),
     varLoc  :: X64.Loc
 } deriving (Show)
@@ -61,7 +61,7 @@ data Store = St {
     -- The current state of the stack.
     stack    :: Stack,
     -- Descriptions of variables.
-    vars     :: Map.Map ValIdent VarState,
+    vars     :: Map.Map IRValueName VarState,
     -- Currently live variables and their next usage.
     live     :: Liveness,
     traceIdx :: Integer -- debug
@@ -69,11 +69,11 @@ data Store = St {
 
 data Env = Env {
     -- Generator of labels for the current method.
-    labelGen :: LabIdent -> LabIdent,
+    labelGen :: IRLabelName -> IRLabelName,
     -- Location colouring of variables.
     regs     :: RegisterAllocation,
     -- Type metadata.
-    classes  :: Map.Map SymIdent CompiledClass
+    classes  :: Map.Map IRTargetRefName CompiledClass
 }
 
 data CompiledMethod = CmpMthd {
@@ -101,14 +101,14 @@ updateLocs = do
     where
         updateLoc :: (String, (Int, SType ())) -> GenM ()
         updateLoc (s, (_, t)) = do
-            let vi = ValIdent s
+            let vi = IRValueName s
             mbcol <- asks (Map.lookup vi . regAlloc . regs)
             case mbcol of
                 Just reg_ -> do
                     modify (\st -> st{vars = Map.insert vi (VarS vi t (X64.LocReg reg_)) (vars st)})
                 Nothing -> return ()
 
-getLoc :: ValIdent -> GenM X64.Loc
+getLoc :: IRValueName -> GenM X64.Loc
 getLoc vi = do
     mbvar <- gets (Map.lookup vi . vars)
     case mbvar of
@@ -144,14 +144,14 @@ newStrConst s = do
     return c
 
 -- Generate a label in the context of the current method.
-label :: LabIdent -> GenM LabIdent
+label :: IRLabelName -> GenM IRLabelName
 label l = asks (`labelGen` l)
 
 setStack :: Stack -> GenM ()
 setStack s = modify (\st -> st {stack = s})
 
 -- Get the description of a variable.
-getVarS :: ValIdent -> GenM VarState
+getVarS :: IRValueName -> GenM VarState
 getVarS vi = do
     mb <- gets (Map.lookup vi . vars)
     case mb of
@@ -159,7 +159,7 @@ getVarS vi = do
         Just g  -> return g
 
 -- Get class metadata.
-getClass :: SymIdent -> GenM CompiledClass
+getClass :: IRTargetRefName -> GenM CompiledClass
 getClass i = do
     mb <- asks (Map.lookup i . classes)
     case mb of
@@ -171,8 +171,8 @@ varSize :: VarState -> X64.Size
 varSize varS = typeSize $ varType varS
 
 -- Is the variable currently alive.
-isLive :: ValIdent -> GenM Bool
-isLive (ValIdent vi) = do
+isLive :: IRValueName -> GenM Bool
+isLive (IRValueName vi) = do
     l <- gets live
     return $ HashMap.member vi $ liveIn l
 

@@ -66,26 +66,29 @@ genProgram (Meta pos clDefs) mthds = do
     genData pos compiledClasses cs
     where 
         compileClass :: ClassDef a -> Generator a CompiledClass
-        compileClass (ClDef _ i chain fldDefs mthdDefs) = do
+        compileClass (ClDef _ i@(IRTargetRefName className) chain fldDefs mthdDefs) = do
             let (flds, unalignedSize) = layoutFields fldDefs
-            vTable <- generateVTable mthdDefs chain
+            vTable <- generateVTable className mthdDefs chain
             return $ CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) (alignSize unalignedSize) vTable chain
-        getVTableRelPos :: [String] -> String -> String -> Int
-        getVTableRelPos _ _ "equals" = 3
-        getVTableRelPos _ _ "getHashCode" = 2
-        getVTableRelPos _ _ "toString" = 1
-        getVTableRelPos chainNames cls _ =
-            case (cls, elemIndex cls (reverse chainNames)) of
-                (_, Just pos) -> 100+pos
-                ("", _) -> 1000
-                (_, Nothing) -> error $ "Cannot correctly layout missing class in class inheritance hierarchy: Class "++show cls++" for linearized hierarchy "++show chainNames
-        generateVTable :: [MethodDef a] -> [SymIdent] -> Generator a VTable
-        generateVTable mthdDefs chain = do
-            gen $ lift $ lift $ printLogInfoStr $ "generateVTable START\n " ++ (show $ map (\(MthdDef _ parName _ qi@(QIdent _ (SymIdent clsName) si@(SymIdent methodName))) -> (parName, clsName, methodName)) mthdDefs) ++ " \n START for chain: \n"++(show chain) ++ "\n====\n"
-            let chainNames = map (\(SymIdent name) -> name) chain
-            let lookupList = zipWith (\(MthdDef _ parName _ qi@(QIdent _ (SymIdent clsName) si@(SymIdent methodName))) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos chainNames parName methodName, ct, idx))) mthdDefs [0..] 
+        getVTableRelPos :: [String] -> [String] -> String -> String -> Int
+        getVTableRelPos _ _ _ "equals" = 3
+        getVTableRelPos _ _ _ "getHashCode" = 2
+        getVTableRelPos _ _ _ "toString" = 1
+        getVTableRelPos allNames chainNames cls m =
+            case (cls, elemIndex cls (reverse chainNames), elemIndex m allNames) of
+                (_, Just pos, Just mpos) -> 1000000+pos*1000+mpos
+                ("", _, Just mpos) -> 1000000+mpos
+                ("", _, _) -> 1000000
+                (_, Nothing, _) -> error $ "Cannot correctly layout missing class in class inheritance hierarchy: Class "++show cls++" for linearized hierarchy "++show chainNames
+        generateVTable :: String -> [MethodDef a] -> [IRTargetRefName] -> Generator a VTable
+        generateVTable className mthdDefs chain = do
+            gen $ lift $ lift $ printLogInfoStr $ "generateVTable " ++ show className ++ " START\n " ++ (show $ map (\(MthdDef _ parName _ qi@(QIdent _ (IRTargetRefName clsName) si@(IRTargetRefName methodName))) -> (parName, clsName, methodName)) mthdDefs) ++ " \n START for chain: \n"++(show chain) ++ "\n====\n"
+            let chainNames = map (\(IRTargetRefName name) -> name) chain
+            let allNames = map (\(MthdDef _ parName _ qi@(QIdent _ (IRTargetRefName clsName) si@(IRTargetRefName methodName))) -> methodName) mthdDefs
+            let lookupList = zipWith (\(MthdDef _ parName _ qi@(QIdent _ (IRTargetRefName clsName) si@(IRTargetRefName methodName))) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos allNames chainNames parName methodName, ct, idx))) mthdDefs [0..] 
             gen $ lift $ lift $ printLogInfoStr $ "generateVTable fields: " ++ (show lookupList) ++ " for chain: "++(show chain)
-            let lookupList' = map (\(newIndex, (si, (score, name, _))) -> (si, (name, newIndex * 8))) $ zip [0..] $ sortBy (\(si, (score, name, idx)) (si2, (score2, name2, idx2)) -> compare (score, name, idx) (score2, name2, idx2)) lookupList
+            let lookupList' = map (\(newIndex, (si, (score, name, _))) -> (si, (name, newIndex * 8))) $ zip [0..] $ sortBy (\(si, (score, name, idx)) (si2, (score2, name2, idx2)) -> if score == score2 then compare name name2 else compare score score2) lookupList
+            gen $ lift $ lift $ printLogInfoStr $ "generateVTable " ++ show className ++ " RESULT IS = " ++ (show lookupList') 
             return $ VTab (map snd lookupList') (Map.fromList lookupList')
         alignSize :: Int64 -> Int64
         alignSize n = if n `mod` 8 == 0
@@ -117,7 +120,7 @@ genData pos cls allConsts = do
                 return ()
             genNullRefCheck :: a -> Generator a ()
             genNullRefCheck pos = do
-                let (LabIdent nullrefLabelStr) = nullrefLabel
+                let (IRLabelName nullrefLabelStr) = nullrefLabel
                 gen $ X64.label pos nullrefLabelStr $ comment "runtime error on null dereference"
                 gen $ X64.and pos X64.Size64 (X64.LocConst (-16)) (X64.LocReg X64.RSP) $ comment "16 bytes allign"
                 gen $ X64.call pos "__errorNull" Nothing
@@ -129,16 +132,16 @@ genData pos cls allConsts = do
                     "~cl_TopLevel" -> return ()
                     className -> do
                         let chain = clChain cls
-                        let (LabIdent classDefName) = classDefIdent clsName
-                        let (LabIdent methodsTableName) = vTableLabIdent clsName
-                        let (LabIdent parentName) = if length chain == 1 then (LabIdent "0") else classDefIdent $ chain!!1
+                        let (IRLabelName classDefName) = classDefIdent clsName
+                        let (IRLabelName methodsTableName) = vTableIRLabelName clsName
+                        let (IRLabelName parentName) = if length chain == 1 then (IRLabelName "0") else classDefIdent $ chain!!1
                         gen $ X64.dataDef pos $ X64.DataGlobal classDefName
                         gen $ X64.dataDef pos $ X64.DataDef classDefName [X64.Data64From parentName, X64.Data32I $ fromIntegral $ clSize cls, X64.Data64From $ methodsTableName, X64.Data32I 0, X64.Data64I 0]
                         gen $ X64.dataDef pos $ X64.DataGlobal methodsTableName
                         gen $ X64.dataDef pos $ X64.DataDef methodsTableName $ map (\(name, _) -> X64.Data64From name)  (vtabMthds $ clVTable cls)
                         return ()
 
-emitMethod :: (Show a) => (M.Map SymIdent CompiledClass) -> (CFG a Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator a ConstSet
+emitMethod :: (Show a) => (M.Map IRTargetRefName CompiledClass) -> (CFG a Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator a ConstSet
 emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
     let initStack = stackNew (numLocals rs)
         initState = GeneratorEnv [] [] cs initStack Map.empty emptyLiveness 0
@@ -160,10 +163,10 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
         fixMethodOffsetsStack :: Int -> X64.Loc -> X64.Loc
         fixMethodOffsetsStack offset (X64.LocMem (X64.RBP, addrOffset)) = (X64.LocMem (X64.RBP, fromIntegral offset + addrOffset))
         fixMethodOffsetsStack _ loc = loc
-        genMethod :: (Show a) => a -> (Map.Map LabIdent (Node a Liveness)) -> QIdent a -> RegisterAllocation -> Generator a Int
+        genMethod :: (Show a) => a -> (Map.Map IRLabelName (Node a Liveness)) -> QIdent a -> RegisterAllocation -> Generator a Int
         genMethod pos g qi rs = do
             traceM' ("register allocation: " ++ show (Map.toList $ regAlloc rs))
-            traceM' ("========== starting method: " ++ toStr (labelFor qi (LabIdent "")))
+            traceM' ("========== starting method: " ++ toStr (labelFor qi (IRLabelName "")))
             let nodes = Map.elems g
                 entryNode = single $ filter ((== entryLabel) . (^.nodeLabel)) nodes
                 exitNode = single $ filter (any isRet . (^.nodeBody)) nodes
@@ -172,9 +175,9 @@ emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
             let savedRegs = sort $ filter (\r -> X64.regType r == X64.CalleeSaved) $ usedRegs rs
             let needsAlignment = odd $ length savedRegs
             let locs = fromIntegral $ numLocals rs * 8
-            let (LabIdent mainEntryStr) = labelFor (QIdent () (SymIdent "~cl_TopLevel") (SymIdent "main")) entryLabel
-            let (LabIdent entryStr) = labelFor qi entryLabel
-            let (LabIdent labStr) = labelFor qi (LabIdent "")
+            let (IRLabelName mainEntryStr) = labelFor (QIdent () (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) entryLabel
+            let (IRLabelName entryStr) = labelFor qi entryLabel
+            let (IRLabelName labStr) = labelFor qi (IRLabelName "")
             when (entryStr == mainEntryStr) (gen $ X64.label pos "main" Nothing)
             gen $ X64.label pos labStr Nothing
             mapM_ (\r -> gen $ X64.push pos X64.Size64 (X64.LocReg r) Nothing) savedRegs
@@ -215,10 +218,10 @@ genInstr baseInstr =
         fullTrace
         case instr of
             ILabel _ l -> do
-                (LabIdent l') <- label l
+                (IRLabelName l') <- label l
                 gen $ X64.label pos l' Nothing
             ILabelAnn _ l f t -> do
-                (LabIdent l') <- label l
+                (IRLabelName l') <- label l
                 gen $ X64.label pos l' $ comment $ "lines " ++ show f ++ "-" ++ show t
             IVRet _ -> do
                 resetStack pos
@@ -388,13 +391,13 @@ genInstr baseInstr =
                     (Ref _ _) -> genCall pos (CallDirect "__newRefArray") [() <$ val] [] (gen $ X64.mov pos X64.Size64 (X64.LocReg X64.RAX) dest Nothing)
                     _ -> error $ "internal error. invalid array type " ++ show t
             IJmp _ li -> do
-                (LabIdent li') <- label li
+                (IRLabelName li') <- label li
                 resetStack pos
                 gen $ X64.jmp pos li' Nothing
             ICondJmp _ v l1 l2 -> do
                 loc <- getValLoc v
-                (LabIdent l1') <- label l1
-                (LabIdent l2') <- label l2
+                (IRLabelName l1') <- label l1
+                (IRLabelName l2') <- label l2
                 resetStack pos
                 case loc of
                     X64.LocConst 0 -> do
@@ -412,7 +415,7 @@ genInstr baseInstr =
 
 data CallTarget = CallDirect String | CallVirtual Int64 String
 
-data CallArg a = CallArgVal (Val a) | CallArgLabel (LabIdent)
+data CallArg a = CallArgVal (Val a) | CallArgLabel (IRLabelName)
 
 incrStack :: a -> Int64 -> String -> Generator a ()
 incrStack pos n comment_ = gen $ X64.sub pos X64.Size64 (X64.LocConst $ fromIntegral n) (X64.LocReg X64.RSP) Nothing
@@ -420,7 +423,7 @@ incrStack pos n comment_ = gen $ X64.sub pos X64.Size64 (X64.LocConst $ fromInte
 decrStack :: a -> Int64 -> Generator a ()
 decrStack pos n = gen $ X64.add pos X64.Size64 (X64.LocConst $ fromIntegral n) (X64.LocReg X64.RSP) Nothing
 
-genCall :: a -> CallTarget -> [Val b] -> [LabIdent] -> Generator a () -> Generator a ()
+genCall :: a -> CallTarget -> [Val b] -> [IRLabelName] -> Generator a () -> Generator a ()
 genCall pos target varArgs labelArgs cont = do
         let args = (map CallArgVal varArgs) ++ (map CallArgLabel labelArgs)
         regs_ <- getPreservedRegs
@@ -436,7 +439,7 @@ genCall pos target varArgs labelArgs cont = do
         alignStack
         stackAfter <- gEnvGet (stackOverheadSize . (^. stack))
         forM_ locs (\l -> gen $ X64.push pos X64.Size64 l (comment "passing arg"))
-        let (LabIdent nullRefLabelStr) = nullrefLabel
+        let (IRLabelName nullRefLabelStr) = nullrefLabel
         case target of
             CallDirect l              -> gen $ X64.call pos l Nothing
             CallVirtual offset s -> do
@@ -459,7 +462,7 @@ genCall pos target varArgs labelArgs cont = do
             loc <- getValLoc val
             gen $ X64.mov pos (valSize val) loc (X64.LocReg reg_) $ comment $ "passing arg"
           prepOnStack :: CallArg b -> Generator a X64.Loc
-          prepOnStack ((CallArgLabel (LabIdent l))) = do
+          prepOnStack ((CallArgLabel (IRLabelName l))) = do
               s <- gEnvGet (^. stack)
               let s' = stackPush X64.Size64 s
               setStack s'
@@ -549,7 +552,7 @@ getPtrLoc tmpReg doPush ptr = case ptr of
         case Map.lookup fldi (clFlds cl) of
             Just fld -> case src of
                 X64.LocReg reg_ -> do
-                    let offset = if(fldName fld) == (SymIdent "length") then 32 else 36 + fldOffset fld
+                    let offset = if(fldName fld) == (IRTargetRefName "length") then 32 else 36 + fldOffset fld
                     --gen $ X64.mov pos X64.Size64 ( X64.LocMem (reg_, 0x08)) (X64.LocReg X64.RAX) (comment $ "load data (indirect)")
                     --return $  X64.LocMem (X64.RAX, fldOffset fld)
                     return $ (X64.LocMem (reg_, offset), return ())

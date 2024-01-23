@@ -67,11 +67,11 @@ buildInterferenceGraph g = stIg $ execState (go (linearise g)) (St (IG Map.empty
             addEdgesBetween interfering
             precolourI vi dest
             case lhs of
-                VVal _ _ (ValIdent vil) -> addEdge vil divRdx
+                VVal _ _ (IRValueName vil) -> addEdge vil divRdx
                 _                       -> return ()
             case rhs of
-                VVal _ _ (ValIdent vir) -> addEdge vir divRax >> addEdge vir divRdx
-                _                       -> let (VVal _ _ (ValIdent vil)) = lhs in addEdge vil divRax
+                VVal _ _ (IRValueName vir) -> addEdge vir divRax >> addEdge vir divRdx
+                _                       -> let (VVal _ _ (IRValueName vil)) = lhs in addEdge vil divRax
 
 createCallEdges :: Call a -> Liveness -> State InterferenceState ()
 createCallEdges call l = do
@@ -88,7 +88,7 @@ createCallEdges call l = do
                 nodeArg = IN nArg (Just reg_) X64.CallerSaved Set.empty
                 interfering = HashMap.keysSet $ liveUse l
                 interfering' = case val of
-                    VVal _ _ (ValIdent vi) -> HashSet.delete vi interfering
+                    VVal _ _ (IRValueName vi) -> HashSet.delete vi interfering
                     _                      -> interfering
             modify (\st -> st{stIg = IG $ Map.insert nArg nodeArg $ ig $ stIg st})
             forM_ interfering' (addEdge nArg)
@@ -109,8 +109,8 @@ createDivNodes = do
     addEdge nRem nRes
     return (nRes, nRem)
 
-precolourI :: ValIdent -> X64.Reg -> State InterferenceState ()
-precolourI (ValIdent vi) col = do
+precolourI :: IRValueName -> X64.Reg -> State InterferenceState ()
+precolourI (IRValueName vi) col = do
     node <- getNode vi
     let node' = node {iNodeColour = Just col}
     modify (\st -> st{stIg = IG $ Map.insert vi node' $ ig $ stIg st})
