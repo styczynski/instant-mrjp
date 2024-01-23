@@ -38,8 +38,8 @@ builtIns =
         B.Fun BuiltIn Nothing (B.Label BuiltIn "__cast") (B.Reference BuiltIn $ B.Label BuiltIn "Object") [(B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_1"), (B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_2")] []
     ]
 
-builtInsLabels :: [(String, String)]
+builtInsLabels :: [(String, (String, String, String))]
 builtInsLabels = map (\(B.Fun p cls name _ _ _) -> getLabel cls name) builtIns
     where
-        getLabel (Nothing) (B.Label _ name) = ("~cl_TopLevel."++name, name)
-        getLabel (Just (B.Label _ cls)) (B.Label _ name) = (cls ++ "." ++ name, "_" ++ cls ++ "_" ++ name)
+        getLabel (Nothing) (B.Label _ name) = ("~cl_TopLevel."++name, (name, "", name))
+        getLabel (Just (B.Label _ cls)) (B.Label _ name) = (cls ++ "." ++ name, ("_" ++ cls ++ "_" ++ name, cls, name))

@@ -339,7 +339,7 @@ vTableLabIdent :: SymIdent -> LabIdent
 vTableLabIdent (SymIdent i) =  LabIdent $ "_class_" ++ i ++ "_methods"
 
 runtimeSymbols :: [String]
-runtimeSymbols = map snd BuiltIns.builtInsLabels
+runtimeSymbols = map (\(_, (n, _, _)) -> n) BuiltIns.builtInsLabels
 
 
 --- END UTILS ---

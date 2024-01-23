@@ -297,23 +297,33 @@ genInstr baseInstr =
                     UnOpNeg _ -> gen $ X64.neg pos X64.Size32 dest Nothing
                     UnOpNot _ -> gen $ X64.xor pos X64.Size8 (X64.LocConst 1) dest Nothing
             IVCall _ call -> case call of
-                    Call _ _ qi args largs    -> genCall pos (CallDirect $ getCallTarget qi) args largs (return ())
+                    Call _ _ qi args largs    -> genCall pos (CallDirect $ getCallTargetStr qi) args largs (return ())
                     CallVirt _ _ qi args -> genCallVirt qi args (return ())
             ICall _ vi call -> do
                 dest <- getLoc vi
                 case call of
-                        Call _ t qi args largs    -> genCall pos (CallDirect $ getCallTarget qi) args largs (gen $ X64.mov pos (typeSize t) (X64.LocReg X64.RAX) dest Nothing)
+                        Call _ t qi args largs    -> genCall pos (CallDirect $ getCallTargetStr qi) args largs (gen $ X64.mov pos (typeSize t) (X64.LocReg X64.RAX) dest Nothing)
                         CallVirt _ t qi args -> genCallVirt qi args (gen $ X64.mov pos (typeSize t) (X64.LocReg X64.RAX) dest Nothing)
             ILoad _ vi ptr -> do
                 let t = () <$ deref (ptrType ptr)
-                src <- getPtrLoc ptr
+                --let (X64.LocReg tmpReg) = if dest /= X64.argLoc 0 then X64.argLoc 0 else X64.argLoc 1
                 dest <- getLoc vi
+                (X64.LocReg tmpReg, doPush) <- case dest of
+                    X64.LocReg r -> return (X64.LocReg r, False)
+                    d | d /= X64.argLoc 0 -> return (X64.argLoc 0, True)
+                    _ -> return (X64.argLoc 1, True)
+                (src, finalizeLoad) <- getPtrLoc tmpReg doPush ptr
                 gen $ X64.mov pos (typeSize t) src dest (comment $ "load " ++ toStr vi)
+                finalizeLoad
             IStore _ v ptr -> do
                 let t = valType v
                 src <- getValLoc v
-                dest <- getPtrLoc ptr
+                (X64.LocReg tmpReg, doPush) <- case src of
+                    d | d /= X64.argLoc 0 -> return (X64.argLoc 0, True)
+                    _ -> return (X64.argLoc 1, True)
+                (dest, finalizeLoad) <- getPtrLoc tmpReg doPush ptr
                 gen $ X64.mov pos (typeSize t) src dest Nothing
+                finalizeLoad
             INew _ vi t -> case t of
                 Cl _ clIdent -> do
                     cl <- getClass clIdent
@@ -407,9 +417,9 @@ genCall pos target varArgs labelArgs cont = do
                 let self@(X64.LocReg selfReg) = X64.argLoc 0
                 gen $ X64.test pos X64.Size64 self self Nothing
                 gen $ X64.jz pos nullRefLabelStr Nothing
-                gen $ X64.mov pos X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg selfReg) $ comment $ "load address of vtable"
+                gen $ X64.mov pos X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg X64.RAX) $ comment $ "load address of vtable"
                 --X64.mov X64.Size64 ( X64.LocMem (X64.RAX 12) (X64.LocReg selfReg) "load address of vtable"
-                gen $ X64.callIndirect pos selfReg (fromIntegral offset) (comment $ "call " ++ s)
+                gen $ X64.callIndirect pos X64.RAX (fromIntegral offset) (comment $ "call " ++ s)
         decrStack pos (stackAfter - stackBefore)
         gEnvSet (\env -> env & stack %~ (\s -> s {stackOverheadSize = stackBefore}))
         cont
@@ -488,30 +498,34 @@ resetStack pos = do
     decrStack pos n
     setStack s'
 
-getPtrLoc :: Ptr a -> Generator a X64.Loc
-getPtrLoc ptr = case ptr of
+getPtrLoc :: X64.Reg -> Bool -> Ptr a -> Generator a (X64.Loc, Generator a ())
+getPtrLoc tmpReg doPush ptr = case ptr of
     PArrLen _ val -> do
         src <- getValLoc val
         case src of
-            X64.LocReg reg_ -> return $  X64.LocMem (reg_, 0)
+            X64.LocReg reg_ -> return (X64.LocMem (reg_, 32), return ())
             _ -> error $ "internal error. invalid src loc for arrlen " ++ show src
     PElem pos elemT arrVal idxVal -> do
         let elemSize = typeSize $ deref elemT
-            idxOffset = 8
+            idxOffset = 0
             -- idxOffset = if elemSize < Double
             --               then sizeInBytes Double
             --               else sizeInBytes elemSize
         arrSrc <- getValLoc arrVal
         idxSrc <- getValLoc idxVal
+        -- (LocReg arrReg, LocReg idxReg) ->
+        --         return $ LocPtrCmplx arrReg idxReg idxOffset elemSize
+        -- (LocReg arrReg, LocImm idx) ->
+        --         return $ LocPtr arrReg (fromIntegral idx * sizeInBytes elemSize + idxOffset)
         case (arrSrc, idxSrc) of
             (X64.LocReg arrReg, X64.LocReg idxReg) -> do
-                let (X64.LocReg tmpReg) = X64.argLoc 0
-                gen $ X64.mov pos X64.Size64 ( X64.LocMem (arrReg, 0x08)) (X64.LocReg tmpReg) (comment $ "load data (indirect)")
-                return $ X64.LocMemOffset tmpReg idxReg idxOffset elemSize
+                when (doPush) (gen $ X64.push pos X64.Size64 (X64.LocReg tmpReg) Nothing)
+                gen $ X64.mov pos X64.Size64 ( X64.LocMem (arrReg, 8)) (X64.LocReg tmpReg) (comment $ "load obj->data")
+                return (X64.LocMemOffset tmpReg idxReg idxOffset elemSize, when (doPush) (gen $ X64.pop pos (X64.LocReg tmpReg) Nothing))
             (X64.LocReg arrReg, X64.LocConst idx) -> do
-                let (X64.LocReg tmpReg) = X64.argLoc 0
-                gen $ X64.mov pos X64.Size64 ( X64.LocMem (arrReg, 0x08)) (X64.LocReg tmpReg) (comment $ "load data (indirect)")
-                return $  X64.LocMem (tmpReg, fromIntegral idx * X64.toBytes elemSize + idxOffset)
+                when (doPush) (gen $ X64.push pos X64.Size64 (X64.LocReg tmpReg) Nothing)
+                gen $ X64.mov pos X64.Size64 ( X64.LocMem (arrReg, 8)) (X64.LocReg tmpReg) (comment $ "load obj->data")
+                return (X64.LocMem (tmpReg, fromIntegral idx * X64.toBytes elemSize + idxOffset), when (doPush) (gen $ X64.pop pos (X64.LocReg tmpReg) Nothing))
             _ -> error $ "internal error. invalid src loc for elemptr " ++ show arrSrc ++ ", " ++ show idxSrc
     PFld pos _ val (QIdent _ cli fldi) -> do
         src <- getValLoc val
@@ -519,9 +533,11 @@ getPtrLoc ptr = case ptr of
         case Map.lookup fldi (clFlds cl) of
             Just fld -> case src of
                 X64.LocReg reg_ -> do
-                    gen $ X64.mov pos X64.Size64 ( X64.LocMem (reg_, 0x08)) (X64.LocReg X64.RAX) (comment $ "load data (indirect)")
-                    return $  X64.LocMem (X64.RAX, fldOffset fld)
+                    let offset = if(fldName fld) == (SymIdent "length") then 32 else 36 + fldOffset fld
+                    --gen $ X64.mov pos X64.Size64 ( X64.LocMem (reg_, 0x08)) (X64.LocReg X64.RAX) (comment $ "load data (indirect)")
+                    --return $  X64.LocMem (X64.RAX, fldOffset fld)
+                    return $ (X64.LocMem (reg_, offset), return ())
                 _ -> error $ "internal error. invalid src loc for fldptr " ++ show src
             Nothing -> error $ "internal error. no such field " ++ toStr cli ++ "." ++ toStr fldi
-    PParam _ _ n _ -> return $ X64.argLoc n
-    PLocal _ _ n   -> return $  X64.LocMem (X64.RBP, fromInteger $ (n + 1) * (-8))
+    PParam _ _ n _ -> return $ (X64.argLoc n, return ())
+    PLocal _ _ n   -> return $ (X64.LocMem (X64.RBP, fromInteger $ (n + 1) * (-8)), return ())

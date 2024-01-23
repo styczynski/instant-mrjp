@@ -87,3 +87,43 @@ spec = do
     |] [r|
         3
     |]
+
+    it "Testing String methods" $ \h -> expectProgramSuccess [r|
+        void foo(string s) {
+            string ss = "Hello " + s + "!";
+            printString(ss);
+            printInt(ss.length());
+            printString(ss.substring(2, 3));
+            printBoolean(ss.endsWith("!"));
+            printBoolean(ss.endsWith("?"));
+            printBoolean(ss.startsWith("h"));
+            printBoolean(ss.startsWith("H"));
+            printBoolean(ss.equals("Hello Mark!"));
+            printBoolean(ss.equals("Hello John!"));
+            printBoolean(ss.equals("Hello John"));
+            printInt(ss.charAt(0));
+            printInt(ss.getHashCode());
+            printInt(("Hello John!").getHashCode());
+            printInt(("Hello John?").getHashCode());
+        }
+
+        int main() {
+            foo("John");
+            return 0;  
+        }
+    |] [r|
+        Hello John!
+        11
+        llo
+        true
+        false
+        false
+        true
+        false
+        true
+        false
+        72
+        2101530907
+        2101530907
+        1799533765
+    |]

@@ -33,10 +33,12 @@ phiUnfoldJumpFromToLabel (LabIdent from) (LabIdent to) = LabIdent $ to ++ "__fro
         trim xs               = xs
 
 
+getCallTargetStr :: QIdent a -> String
+getCallTargetStr ident = let (name, _, _) = getCallTarget ident in name
 
-getCallTarget :: QIdent a -> String
+getCallTarget :: QIdent a -> (String, String, String)
 getCallTarget (QIdent _ (SymIdent i1) (SymIdent i2)) =
     let defaultTarget = i1 ++ "." ++ i2 in
     case lookup defaultTarget BuiltIns.builtInsLabels of 
-        Nothing -> defaultTarget
+        Nothing -> (defaultTarget, i1, i2)
         (Just mappedTarget) -> mappedTarget

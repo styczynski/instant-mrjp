@@ -5,7 +5,7 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define __LATTE_RUNTIME_DEBUG_ENABLED false
 #define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES true
 #define __LATTE_RUNTIME_GC_ENABLED false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
@@ -28,19 +28,23 @@ obj __new(struct Type *t) {
     DEBUG("Calling __new v3");
     DEBUG("Perform reference malloc type=%p", FORMAT_PTR(t));
     DEBUG("__new examine type: <type parent=%p> [%d]", FORMAT_PTR(t->parent), t->dataSize);
-    obj r = malloc(sizeof(struct Reference)+10);
+    obj r = malloc(sizeof(struct Reference)+t->dataSize);
     DEBUG("Set __new type/counter");
     r->type = t;
     r->counter = 0;
+    r->data = 0;
     DEBUG("Do init for non array non string?");
-    if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
-        DEBUG("Perform init");
-        r->data = malloc(t->dataSize);
-        bzero(r->data, t->dataSize);
-    } else {
-        DEBUG("Just set data to NULL");
-        r->data = NULL;
+    if (t->dataSize > 0) {
+        bzero((r+36), t->dataSize);
     }
+    // if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
+    //     DEBUG("Perform init");
+    //     r->data = malloc(t->dataSize);
+    //     bzero(r->data, t->dataSize);
+    // } else {
+    //     DEBUG("Just set data to NULL");
+    //     r->data = NULL;
+    // }
     r->methods = r->type->methods;
     DEBUG("Completed __new %p <type %p, par %p> inner data=%p size=%d", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), FORMAT_PTR(r->data), t->dataSize);
     return r;
@@ -49,16 +53,16 @@ obj __new(struct Type *t) {
 void __free(obj r) {
     DEBUG("__free %p", FORMAT_PTR(r));
     if (r->type == &_class_Array) {
-        struct Array *arr = r->data;
-        void **els = arr->elements;
-        if (arr->elementSize == sizeof(void *)) {
-            for (int i = 0; i < arr->length; i++)
+        //struct Array *arr = r->data;
+        void **els = r->data;
+        if (r->elementSize == sizeof(void *)) {
+            for (int i = 0; i < r->length; i++)
                 __decRef(els[i]);
         }
         if (els != NULL)
             free(els);
     } else if (r->type == &_class_String) {
-        void *els = ((struct String *)r->data)->data;
+        void *els = (r->data);
         if (els != NULL && els != emptyString)
             free(els);
     }
@@ -100,31 +104,30 @@ obj __newByteArray(int32_t length) {
 }
 obj __newArray(int32_t size, int32_t length) {
     obj r = __new(&_class_Array);
-    struct Array *arr = malloc(sizeof(struct Array)+size * length);
+    void* arr = malloc(size * length);
     r->data = arr;
-    arr->elementSize = size;
-    arr->length = length;
+    r->elementSize = size;
+    r->length = length;
     if (length > 0) {
         //arr->elements = malloc(size * length);
-        bzero(&(arr->elements), size * length);
-    } else {
-        arr->elements = NULL;
+        bzero(arr, size * length);
     }
     return r;
 }
 
 void *__getelementptr(obj array, int32_t index) {
-    if (array == NULL) {
-        errMsg = "ERROR: Array is null.";
-        error();
-    }
-    struct Array *arr = ((struct Array *)array->data);
-    if (index >= arr->length || index < 0) {
-        errMsg = "ERROR: Array index out of range.";
-        fprintf(stderr, "%d, %d\n", index, arr->length);
-        error();
-    }
-    return arr->elements + index * arr->elementSize;
+    // if (array == NULL) {
+    //     errMsg = "ERROR: Array is null.";
+    //     error();
+    // }
+    // struct Array *arr = ((struct Array *)array->data);
+    // if (index >= arr->length || index < 0) {
+    //     errMsg = "ERROR: Array index out of range.";
+    //     fprintf(stderr, "%d, %d\n", index, arr->length);
+    //     error();
+    // }
+    // return arr->elements + index * arr->elementSize;
+    return NULL;
 }
 
 obj __cast(obj o, struct Type *t) {
@@ -168,27 +171,26 @@ obj __createString(char *c) {
     DEBUG("Perform new on _class_String");
     obj r = __new(&_class_String);
     DEBUG("String allocated");
-    struct String *str = malloc(sizeof(struct String));
-    r->data = str;
     DEBUG("Measure strlen");
-    str->length = u8_strlen(c);
-    DEBUG("Check unicode");
-    if (u8_check(c, str->length) != NULL) {
-        DEBUG("Non-unicode string encoding", c);
+    r->length = u8_strlen(c);
+    DEBUG("Check unicode, len=%d", r->length);
+    uint8_t* invalid_unit = u8_check(c, r->length);
+    if (u8_check(c, r->length) != NULL) {
+        DEBUG("Non-unicode string encoding at byte '%s' #%d", c, (int)(((uint64_t)invalid_unit)-((uint64_t)c)));
         errMsg = "ERROR: Non-unicode string encoding.";
         error();
     }
-    if (str->length > 0) {
-        int len = str->length;
-        str->data = malloc(len + 1);
-        memcpy(str->data, c, len);
-        str->data[len] = 0;
+    if (r->length > 0) {
+        int len = r->length;
+        uint8_t *str = malloc(len + 1);
+        r->data = str;
+        memcpy(str, c, len);
+        str[len] = 0;
     } else {
-        str->data = emptyString;
+        r->data = emptyString;
         return r;
     }
-    DEBUG("Str init completed (with data=%p, data_of_str=%p, size=%d)", FORMAT_PTR(str->data), FORMAT_PTR(r->data), str->length);
-    str->length = -1;
+    DEBUG("Str init completed %p (with data=%p, size=%d, str='%s')", FORMAT_PTR(r), FORMAT_PTR(r->data), r->length, r->data);
     return r;
 }
 
@@ -205,21 +207,20 @@ obj _Array_toString(obj arr) {
     char start[] = "[";
     char delim[] = ", ";
     char end[] = "]";
-    struct Array *array = arr->data;
 
-    obj *strings = malloc(sizeof(obj) * array->length);
-    int32_t *lenghts = malloc(sizeof(int32_t) * array->length);
+    obj *strings = malloc(sizeof(obj) * arr->length);
+    int32_t *lenghts = malloc(sizeof(int32_t) * arr->length);
     int32_t totalLenght = 0;
 
-    for (int i = 0; i < array->length; i++) {
-        if (array->elementSize == sizeof(int32_t)) {
-            int32_t *elements = array->elements;
+    for (int i = 0; i < arr->length; i++) {
+        if (arr->elementSize == sizeof(int32_t)) {
+            int32_t *elements = arr->data;
             strings[i] = intToString(elements[i]);
-        } else if (array->elementSize == sizeof(int8_t)) {
-            int8_t *elements = array->elements;
+        } else if (arr->elementSize == sizeof(int8_t)) {
+            int8_t *elements = arr->data;
             strings[i] = byteToString(elements[i]);
         } else {
-            obj *elements = array->elements;
+            obj *elements = arr->data;
             obj element = elements[i];
             if (element == NULL) {
                 strings[i] = __createString("null");
@@ -229,21 +230,21 @@ obj _Array_toString(obj arr) {
                 strings[i] = toString(element);
             }
         }
-        lenghts[i] = u8_strlen(((struct String *)strings[i]->data)->data);
+        lenghts[i] = u8_strlen((strings[i]->data));
         totalLenght += lenghts[i];
     }
 
     int32_t bufferSize = u8_strlen(start) + totalLenght +
-                         (array->length - 1) * u8_strlen(delim) +
+                         (arr->length - 1) * u8_strlen(delim) +
                          u8_strlen(end) + 1;
     uint8_t *buffer = malloc(bufferSize);
     int32_t index = 0;
     u8_strcpy(buffer + index, start);
     index++;
-    for (int i = 0; i < array->length; i++) {
-        u8_strcpy(buffer + index, ((struct String *)strings[i]->data)->data);
+    for (int i = 0; i < arr->length; i++) {
+        u8_strcpy(buffer + index, (strings[i]->data));
         index += lenghts[i];
-        if (i != array->length - 1) {
+        if (i != arr->length - 1) {
             u8_strcpy(buffer + index, delim);
             index += 2;
         }
@@ -265,7 +266,7 @@ obj _String_toString(obj str) {
 }
 int32_t _String_getHashCode(obj str) {
     int32_t hash = 0x811c9dc5;
-    uint8_t *rawstring = ((struct String *)str->data)->data;
+    uint8_t *rawstring = str->data;
     int32_t strlen = u8_strlen(rawstring);
     for (int i = 0; i < strlen; i++) {
         hash ^= rawstring[i];
@@ -280,8 +281,8 @@ int8_t _String_equals(obj o1, obj o2) {
         return false;
     if (_String_length(o1) != _String_length(o2))
         return false;
-    uint8_t *rs1 = ((struct String *)o1->data)->data;
-    uint8_t *rs2 = ((struct String *)o2->data)->data;
+    uint8_t *rs1 = (o1->data);
+    uint8_t *rs2 = (o2->data);
     return u8_strcmp(rs1, rs2) == 0;
 }
 obj _String_substring(obj str, int32_t startIndex, int32_t length) {
@@ -295,7 +296,7 @@ obj _String_substring(obj str, int32_t startIndex, int32_t length) {
         errMsg = "ERROR: Substring starting index is too big.";
         error();
     }
-    uint8_t *rs = ((struct String *)str->data)->data;
+    uint8_t *rs = (str->data);
     uint8_t *offset_str = rs;
     ucs4_t character;
     while (startIndex-- > 0)
@@ -320,11 +321,10 @@ obj _String_substring(obj str, int32_t startIndex, int32_t length) {
     return ret;
 }
 int32_t _String_length(obj str) {
-    struct String *string = str->data;
-    if (string->length < 0) {
-        string->length = u8_mbsnlen(string->data, u8_strlen(string->data));
+    if (str->length < 0) {
+        str->length = u8_mbsnlen(str->data, u8_strlen(str->data));
     }
-    return string->length;
+    return str->length;
 }
 int32_t _String_indexOf(obj str, obj substr, int32_t startFrom) {
     if (substr == NULL) {
@@ -337,8 +337,8 @@ int32_t _String_indexOf(obj str, obj substr, int32_t startFrom) {
     }
     if (_String_length(str) < _String_length(substr))
         return -1;
-    uint8_t *rs = ((struct String *)str->data)->data;
-    uint8_t *rsub = ((struct String *)substr->data)->data;
+    uint8_t *rs = (str->data);
+    uint8_t *rsub = (substr->data);
     uint8_t *start = rs;
     ucs4_t c;
     while (startFrom-- > 0) {
@@ -353,10 +353,10 @@ int32_t _String_indexOf(obj str, obj substr, int32_t startFrom) {
     return counter;
 }
 obj _String_getBytes(obj str) {
-    uint8_t *rs = ((struct String *)str->data)->data;
+    uint8_t *rs = (str->data);
     int32_t len = rs == NULL ? 0 : u8_strlen(rs);
     obj arr = __newByteArray(len + 1);
-    memcpy(((struct Array *)arr->data)->elements, rs, len);
+    memcpy((arr->data), rs, len);
     __incRef(arr);
     return arr;
 }
@@ -365,8 +365,8 @@ int8_t _String_endsWith(obj str, obj substr) {
         errMsg = "ERROR: EndsWith null substring argument.";
         error();
     }
-    uint8_t *rs = ((struct String *)str->data)->data;
-    uint8_t *rsub = ((struct String *)substr->data)->data;
+    uint8_t *rs = (str->data);
+    uint8_t *rsub = (substr->data);
     return u8_endswith(rs, rsub);
 }
 int8_t _String_startsWith(obj str, obj substr) {
@@ -374,8 +374,8 @@ int8_t _String_startsWith(obj str, obj substr) {
         errMsg = "ERROR: StartsWith null substring argument.";
         error();
     }
-    uint8_t *rs = ((struct String *)str->data)->data;
-    uint8_t *rsub = ((struct String *)substr->data)->data;
+    uint8_t *rs = (str->data);
+    uint8_t *rsub = (substr->data);
     return u8_startswith(rs, rsub);
 }
 obj _String_concat(obj str, obj secondstr) {
@@ -384,8 +384,8 @@ obj _String_concat(obj str, obj secondstr) {
         __incRef(str);
         return str;
     }
-    uint8_t *rs1 = ((struct String *)str->data)->data;
-    uint8_t *rs2 = ((struct String *)secondstr->data)->data;
+    uint8_t *rs1 = (str->data);
+    uint8_t *rs2 = (secondstr->data);
     DEBUG("Take strlen");
     int32_t len1 = u8_strlen(rs1);
     int32_t len2 = u8_strlen(rs2);
@@ -394,7 +394,7 @@ obj _String_concat(obj str, obj secondstr) {
     u8_strcpy(buffer, rs1);
     u8_strcpy(buffer + len1, rs2);
     buffer[len1 + len2] = 0;
-    DEBUG("Create final string");
+    DEBUG("Create final string result='%s' (len1=%d, len2=%d, str1='%s', str2='%s')", buffer, len1, len2, rs1, rs2);
     obj ret = __createString(buffer);
     __incRef(ret);
     free(buffer);
@@ -404,7 +404,7 @@ obj _String_concat(obj str, obj secondstr) {
 
 char charAtErr[] = "ERROR: String too short.";
 int32_t _String_charAt(obj str, int32_t index) {
-    uint8_t *rs = ((struct String *)str->data)->data;
+    uint8_t *rs = (str->data);
     ucs4_t c;
     while (index-- > 0) {
         if (u8_next(&c, rs) == NULL) {
@@ -431,7 +431,7 @@ int8_t printString(obj str) {
     if (str == NULL)
         str = __createString("null");
     __incRef(str);
-    uint8_t *rs = ((struct String *)str->data)->data;
+    uint8_t *rs = (str->data);
     DEBUG("Str inner data %p", FORMAT_PTR(rs));
     printf("%s\n", rs);
     __decRef(str);
@@ -507,8 +507,7 @@ int8_t printBinArray(obj arr) {
         return 0;
     }
     __incRef(arr);
-    struct Array *array = arr->data;
-    fwrite(array->elements, sizeof(int8_t), array->length, stdout);
+    fwrite(arr->data, sizeof(int8_t), arr->length, stdout);
     __decRef(arr);
     DEBUG("printBinArray(arr) call completed")
     return 0;

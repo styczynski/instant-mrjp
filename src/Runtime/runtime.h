@@ -10,22 +10,25 @@ struct Type {
 } __attribute__((__packed__));
 
 struct Reference {
-    struct Type *type;
-    void *data;
-    int32_t counter;
-    void *methods;
+    struct Type *type;   // offset 0
+    void *data;          // offset 8
+    int32_t counter;     // offset 16
+    void *methods;       // offset 20
+    int32_t elementSize; // offset 28
+    int32_t length;      // offset 32
+    // Fields go here    // offset 36
 } __attribute__((__packed__ ));
 
-struct Array {
-    int32_t elementSize;
-    int32_t length;
-    void *elements;
-};
+// struct Array {
+//     int32_t elementSize;
+//     int32_t length;
+//     void *elements;
+// };
 
-struct String {
-    int32_t length;
-    uint8_t *data;
-};
+// struct String {
+//     int32_t length;
+//     uint8_t *data;
+// };
 
 typedef struct Reference *obj;
 

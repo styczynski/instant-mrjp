@@ -743,7 +743,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label $ sanitizeLabel label) (map (convertData pos) datas)
         {INDENT}where
             {INDENT}{INDENT}convertData :: a -> Data -> Syntax.Data' a
-            {INDENT}{INDENT}convertData pos (DataStr str) = Syntax.DataString pos str
+            {INDENT}{INDENT}convertData pos (DataStr str) = let directStr = read str in Syntax.DataString pos $ show $ directStr ++ "\0"
             {INDENT}{INDENT}convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos $ val
             {INDENT}{INDENT}convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos $ val
             {INDENT}{INDENT}convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label

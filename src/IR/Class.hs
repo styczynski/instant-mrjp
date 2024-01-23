@@ -1,7 +1,7 @@
 module IR.Class where
 
 import           Data.Int            (Int64)
-import           Data.List           (foldl')
+import           Data.List           (foldl', sortBy)
 import qualified Data.Map            as Map
 import           IR.Syntax.Syntax
 import IR.Identifiers
@@ -51,7 +51,14 @@ layoutFields fldDefs =
                             else fldSize - (offset `mod` fldSize)
             in (fld{fldOffset = offset + padding}:flds, offset + padding + fldSize)
 
+getVTableRelPos :: String -> String -> Int
+getVTableRelPos _ "equals" = 3
+getVTableRelPos _ "getHashCode" = 2
+getVTableRelPos _ "toString" = 1
+getVTableRelPos _ _ = 100
+
 generateVTable :: [MethodDef a] -> VTable
 generateVTable mthdDefs =
-    let lookupList = zipWith (\(MthdDef _ _ qi@(QIdent _ _ si)) idx -> (si, (getCallTarget qi, idx * 8))) mthdDefs [0..]
-    in  VTab (map snd lookupList) (Map.fromList lookupList)
+    let lookupList = zipWith (\(MthdDef _ _ qi@(QIdent _ _ si)) idx -> let (ct, cls, mtd) = getCallTarget qi in (si, (getVTableRelPos cls mtd, ct, idx * 8))) mthdDefs [0..] in
+    let lookupList' = map (\(si, (score, name, offset)) -> (si, (name, offset))) $ sortBy (\(si, (score, name, offset)) (si2, (score2, name2, offset2)) -> compare score score2) lookupList
+    in  VTab (map snd lookupList') (Map.fromList lookupList')
