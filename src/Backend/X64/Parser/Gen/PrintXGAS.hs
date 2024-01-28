@@ -146,7 +146,7 @@ instance Print Backend.X64.Parser.Gen.AbsXGAS.Label where
   prt _ (Backend.X64.Parser.Gen.AbsXGAS.Label i) = doc $ showString i
 instance Print (Backend.X64.Parser.Gen.AbsXGAS.AsmProgram' a) where
   prt i = \case
-    Backend.X64.Parser.Gen.AbsXGAS.AsmProgram _ directives sectiondata sectioncode -> prPrec i 0 (concatD [prt 0 directives, doc (showString "<ENDL>"), prt 0 sectiondata, doc (showString "<ENDL>"), prt 0 sectioncode])
+    Backend.X64.Parser.Gen.AbsXGAS.AsmProgram _ directives sectiondata sectionbss sectioncode -> prPrec i 0 (concatD [prt 0 directives, doc (showString "<ENDL>"), prt 0 sectiondata, doc (showString "<ENDL>"), prt 0 sectionbss, doc (showString "<ENDL>"), prt 0 sectioncode])
 
 instance Print [Backend.X64.Parser.Gen.AbsXGAS.AsmInstr' a] where
   prt _ [] = concatD []
@@ -157,6 +157,10 @@ instance Print [Backend.X64.Parser.Gen.AbsXGAS.AsmInstr' a] where
 instance Print (Backend.X64.Parser.Gen.AbsXGAS.SectionData' a) where
   prt i = \case
     Backend.X64.Parser.Gen.AbsXGAS.SectionData _ asmdatadefs -> prPrec i 0 (concatD [doc (showString ".section"), doc (showString ".rodata"), doc (showString "<ENDL>"), prt 0 asmdatadefs])
+
+instance Print (Backend.X64.Parser.Gen.AbsXGAS.SectionBSS' a) where
+  prt i = \case
+    Backend.X64.Parser.Gen.AbsXGAS.SectionBSS _ asmdatadefs -> prPrec i 0 (concatD [doc (showString ".section"), doc (showString ".data"), doc (showString "<ENDL>"), prt 0 asmdatadefs])
 
 instance Print (Backend.X64.Parser.Gen.AbsXGAS.SectionCode' a) where
   prt i = \case
@@ -181,6 +185,7 @@ instance Print (Backend.X64.Parser.Gen.AbsXGAS.Data' a) where
     Backend.X64.Parser.Gen.AbsXGAS.DataString _ str -> prPrec i 0 (concatD [doc (showString ".string"), printString str, doc (showString "<ENDL>")])
     Backend.X64.Parser.Gen.AbsXGAS.Data64 _ dataconst -> prPrec i 0 (concatD [doc (showString ".quad"), prt 0 dataconst, doc (showString "<ENDL>")])
     Backend.X64.Parser.Gen.AbsXGAS.Data32 _ dataconst -> prPrec i 0 (concatD [doc (showString ".long"), prt 0 dataconst, doc (showString "<ENDL>")])
+    Backend.X64.Parser.Gen.AbsXGAS.Data8 _ dataconst -> prPrec i 0 (concatD [doc (showString ".byte"), prt 0 dataconst, doc (showString "<ENDL>")])
 
 instance Print [Backend.X64.Parser.Gen.AbsXGAS.Data' a] where
   prt _ [] = concatD []

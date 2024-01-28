@@ -4,7 +4,7 @@ CFLAGS:=-fPIE
 
 all: compiler
 
-compiler: src/Parser/Gen src/IR/Parser/Gen
+compiler: lib/runtime.ext src/Parser/Gen src/IR/Parser/Gen
 	./bin/invoke_haskell_stack.sh install --local-bin-path=$(shell pwd)
 
 clean:

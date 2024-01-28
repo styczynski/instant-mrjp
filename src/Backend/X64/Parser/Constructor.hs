@@ -11,6 +11,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , ASMGenerator
 , ASMGeneratorT
 , dataDef
+, bssDef
 , DataDef(..)
 , Data(..)
 , Loc(..)
@@ -104,8 +105,10 @@ data Data
 	= DataStr String
 	| Data64I Integer
 	| Data32I Integer
+	| Data8I Integer
 	| Data64From String
 	| Data32From String
+	| Data8From String
 	deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
 
 convertDataDef :: a -> DataDef -> Syntax.AsmDataDef' a
@@ -113,11 +116,13 @@ convertDataDef pos (DataGlobal label) = Syntax.AsmDataGlobal pos $ Syntax.Label 
 convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label $ sanitizeLabel label) (map (convertData pos) datas)
 	where
 		convertData :: a -> Data -> Syntax.Data' a
-		convertData pos (DataStr str) = Syntax.DataString pos str
+		convertData pos (DataStr str) = Syntax.DataString pos $ str
 		convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos $ val
 		convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos $ val
+		convertData pos (Data8I val) = Syntax.Data8 pos $ Syntax.ConstInt pos $ val
 		convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
 		convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
+		convertData pos (Data8From label) = Syntax.Data8 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
 
 
 -- Error definition
@@ -136,21 +141,24 @@ generatorFail e = throwError e
 type ASMGenerator a anno v = (WriterT (GeneratorOut a anno) (Except (GeneratorError a))) v
 type ASMGeneratorT a anno (m :: * -> *) = (WriterT (GeneratorOut a anno) (ExceptT (GeneratorError a) m))
 
-data GeneratorOut a anno = GeneratorOut (Maybe a) [Instr a anno] [Syntax.AsmDataDef' a]
+data GeneratorOut a anno = GeneratorOut (Maybe a) [Instr a anno] [Syntax.AsmDataDef' a] [Syntax.AsmDataDef' a]
 
 instance Semigroup (GeneratorOut a anno) where
-	(<>) (GeneratorOut Nothing instr1 defs1) (GeneratorOut (Just firstPos2) instr2 defs2) = GeneratorOut (Just firstPos2) (instr1 <> instr2) (defs1 <> defs2)
-	(<>) (GeneratorOut (Just firstPos1) instr1 defs1) (GeneratorOut Nothing instr2 defs2) = GeneratorOut (Just firstPos1) (instr1 <> instr2) (defs1 <> defs2)
-	(<>) (GeneratorOut firstPos1 instr1 defs1) (GeneratorOut _ instr2 defs2) = GeneratorOut firstPos1 (instr1 <> instr2) (defs1 <> defs2)
+	(<>) (GeneratorOut Nothing instr1 defs1 bss1) (GeneratorOut (Just firstPos2) instr2 defs2 bss2) = GeneratorOut (Just firstPos2) (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
+	(<>) (GeneratorOut (Just firstPos1) instr1 defs1 bss1) (GeneratorOut Nothing instr2 defs2 bss2) = GeneratorOut (Just firstPos1) (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
+	(<>) (GeneratorOut firstPos1 instr1 defs1 bss1) (GeneratorOut _ instr2 defs2 bss2) = GeneratorOut firstPos1 (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
 
 instance Monoid (GeneratorOut a anno) where
-	mempty = GeneratorOut Nothing [] []
+	mempty = GeneratorOut Nothing [] [] []
 
 _emitInstr :: (Monad m) => a -> Instr a anno -> ASMGeneratorT a anno m ()
-_emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] []
+_emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] [] []
 
 _emitDef :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
-_emitDef pos def = tell $ GeneratorOut (Just pos) [] [def]
+_emitDef pos def = tell $ GeneratorOut (Just pos) [] [def] []
+
+_emitBSS :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
+_emitBSS pos def = tell $ GeneratorOut (Just pos) [] [] [def]
 
 continueASMGeneratorT :: (Monad m) => GeneratorOut a anno -> ASMGeneratorT a anno m ()
 continueASMGeneratorT out = tell out
@@ -179,12 +187,12 @@ runASMGeneratorT generator externs transformFn = do
 		generateOut externs r transformFn  =
 			case r of
 				Left err -> generatorFail err
-				Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
-				Right (result, GeneratorOut (Just pos) instrs defs) -> do
+				Right (_, GeneratorOut Nothing _ _ _) -> generatorFail ENoOutputCodeGenerated
+				Right (result, GeneratorOut (Just pos) instrs defs bss) -> do
 					instrs' <- lift $ lift $  transformFn instrs
 					instrs'' <- mapM _convertInstr instrs'
 					let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
-					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs'')
+					let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionBSS pos bss) (Syntax.SectionCode pos instrs'')
 					return (result, fullProg)
 		alignASMCommentsText :: [T.Text] -> String
 		alignASMCommentsText fileContents =
@@ -347,7 +355,7 @@ instance (LocFunctor g) => LocFunctor [g] where
 	mapLoc fn = fmap (mapLoc fn)
 
 instance LocFunctor (GeneratorOut a anno) where
-	mapLoc fn (GeneratorOut pos instrs defs) = GeneratorOut pos (mapLoc fn instrs) defs
+	mapLoc fn (GeneratorOut pos instrs defs bss) = GeneratorOut pos (mapLoc fn instrs) defs bss
 
 isReg :: Loc -> Bool
 isReg loc = case loc of
@@ -1108,3 +1116,6 @@ _convertInstr (CALL_INDIRECT pos R15 offset ann) = return $ Syntax.CALLINDIRECT 
 -- Data wrappers
 dataDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
 dataDef pos def = _emitDef pos $ convertDataDef pos def
+
+bssDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
+bssDef pos def = _emitBSS pos $ convertDataDef pos def

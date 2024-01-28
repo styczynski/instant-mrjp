@@ -89,7 +89,7 @@ def create_data_types():
             {INDENT}mapLoc fn = fmap (mapLoc fn)
 
             instance LocFunctor (GeneratorOut a anno) where
-            {INDENT}mapLoc fn (GeneratorOut pos instrs defs) = GeneratorOut pos (mapLoc fn instrs) defs 
+            {INDENT}mapLoc fn (GeneratorOut pos instrs defs bss) = GeneratorOut pos (mapLoc fn instrs) defs bss
 
             isReg :: Loc -> Bool
             isReg loc = case loc of
@@ -697,6 +697,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
         "ASMGenerator",
         "ASMGeneratorT",
         "dataDef",
+        "bssDef",
         "DataDef(..)",
         "Data(..)",
         "Loc(..)",
@@ -734,8 +735,10 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}= DataStr String
     {INDENT}| Data64I Integer
     {INDENT}| Data32I Integer
+    {INDENT}| Data8I Integer
     {INDENT}| Data64From String
     {INDENT}| Data32From String
+    {INDENT}| Data8From String
     {INDENT}deriving (Eq, Ord, Show, Read, D.Data, Typeable, Generic)
 
     convertDataDef :: a -> DataDef -> Syntax.AsmDataDef' a
@@ -743,11 +746,13 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     convertDataDef pos (DataDef label datas) = Syntax.AsmDataDef pos (Syntax.Label $ sanitizeLabel label) (map (convertData pos) datas)
         {INDENT}where
             {INDENT}{INDENT}convertData :: a -> Data -> Syntax.Data' a
-            {INDENT}{INDENT}convertData pos (DataStr str) = let directStr = read str in Syntax.DataString pos $ show $ directStr ++ "\0"
+            {INDENT}{INDENT}convertData pos (DataStr str) = Syntax.DataString pos $ str
             {INDENT}{INDENT}convertData pos (Data64I val) = Syntax.Data64 pos $ Syntax.ConstInt pos $ val
             {INDENT}{INDENT}convertData pos (Data32I val) = Syntax.Data32 pos $ Syntax.ConstInt pos $ val
+            {INDENT}{INDENT}convertData pos (Data8I val) = Syntax.Data8 pos $ Syntax.ConstInt pos $ val
             {INDENT}{INDENT}convertData pos (Data64From label) = Syntax.Data64 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
             {INDENT}{INDENT}convertData pos (Data32From label) = Syntax.Data32 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
+            {INDENT}{INDENT}convertData pos (Data8From label) = Syntax.Data8 pos $ Syntax.ConstLabel pos $ Syntax.Label $ sanitizeLabel label
 
 
     -- Error definition
@@ -766,21 +771,24 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     type ASMGenerator a anno v = (WriterT (GeneratorOut a anno) (Except (GeneratorError a))) v
     type ASMGeneratorT a anno (m :: * -> *) = (WriterT (GeneratorOut a anno) (ExceptT (GeneratorError a) m))
 
-    data GeneratorOut a anno = GeneratorOut (Maybe a) [Instr a anno] [Syntax.AsmDataDef' a]
+    data GeneratorOut a anno = GeneratorOut (Maybe a) [Instr a anno] [Syntax.AsmDataDef' a] [Syntax.AsmDataDef' a]
 
     instance Semigroup (GeneratorOut a anno) where
-        {INDENT}(<>) (GeneratorOut Nothing instr1 defs1) (GeneratorOut (Just firstPos2) instr2 defs2) = GeneratorOut (Just firstPos2) (instr1 <> instr2) (defs1 <> defs2)
-        {INDENT}(<>) (GeneratorOut (Just firstPos1) instr1 defs1) (GeneratorOut Nothing instr2 defs2) = GeneratorOut (Just firstPos1) (instr1 <> instr2) (defs1 <> defs2)
-        {INDENT}(<>) (GeneratorOut firstPos1 instr1 defs1) (GeneratorOut _ instr2 defs2) = GeneratorOut firstPos1 (instr1 <> instr2) (defs1 <> defs2)
+        {INDENT}(<>) (GeneratorOut Nothing instr1 defs1 bss1) (GeneratorOut (Just firstPos2) instr2 defs2 bss2) = GeneratorOut (Just firstPos2) (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
+        {INDENT}(<>) (GeneratorOut (Just firstPos1) instr1 defs1 bss1) (GeneratorOut Nothing instr2 defs2 bss2) = GeneratorOut (Just firstPos1) (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
+        {INDENT}(<>) (GeneratorOut firstPos1 instr1 defs1 bss1) (GeneratorOut _ instr2 defs2 bss2) = GeneratorOut firstPos1 (instr1 <> instr2) (defs1 <> defs2) (bss1 <> bss2)
 
     instance Monoid (GeneratorOut a anno) where
-        {INDENT}mempty = GeneratorOut Nothing [] []
+        {INDENT}mempty = GeneratorOut Nothing [] [] []
 
     _emitInstr :: (Monad m) => a -> Instr a anno -> ASMGeneratorT a anno m ()
-    _emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] []
+    _emitInstr pos instr = tell $ GeneratorOut (Just pos) [instr] [] []
 
     _emitDef :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
-    _emitDef pos def = tell $ GeneratorOut (Just pos) [] [def]
+    _emitDef pos def = tell $ GeneratorOut (Just pos) [] [def] []
+
+    _emitBSS :: (Monad m) => a -> Syntax.AsmDataDef' a -> ASMGeneratorT a anno m ()
+    _emitBSS pos def = tell $ GeneratorOut (Just pos) [] [] [def]
 
     continueASMGeneratorT :: (Monad m) => GeneratorOut a anno -> ASMGeneratorT a anno m ()
     continueASMGeneratorT out = tell out
@@ -809,12 +817,12 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     {INDENT}{INDENT}generateOut externs r transformFn  =
     {INDENT}{INDENT}{INDENT}case r of
     {INDENT}{INDENT}{INDENT}{INDENT}Left err -> generatorFail err
-    {INDENT}{INDENT}{INDENT}{INDENT}Right (_, GeneratorOut Nothing _ _) -> generatorFail ENoOutputCodeGenerated
-    {INDENT}{INDENT}{INDENT}{INDENT}Right (result, GeneratorOut (Just pos) instrs defs) -> do
+    {INDENT}{INDENT}{INDENT}{INDENT}Right (_, GeneratorOut Nothing _ _ _) -> generatorFail ENoOutputCodeGenerated
+    {INDENT}{INDENT}{INDENT}{INDENT}Right (result, GeneratorOut (Just pos) instrs defs bss) -> do
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs' <- lift $ lift $  transformFn instrs
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}instrs'' <- mapM _convertInstr instrs'
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let topDirectives = map (Syntax.Extern pos . Syntax.Label . sanitizeLabel) externs
-    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionCode pos instrs'')
+    {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}let fullProg = Syntax.AsmProgram pos topDirectives (Syntax.SectionData pos defs) (Syntax.SectionBSS pos bss) (Syntax.SectionCode pos instrs'')
     {INDENT}{INDENT}{INDENT}{INDENT}{INDENT}return (result, fullProg)
     {INDENT}{INDENT}alignASMCommentsText :: [T.Text] -> String
     {INDENT}{INDENT}alignASMCommentsText fileContents =
@@ -838,6 +846,9 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
     -- Data wrappers
     dataDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
     dataDef pos def = _emitDef pos $ convertDataDef pos def
+
+    bssDef :: (Monad m) => a -> DataDef -> ASMGeneratorT a anno m ()
+    bssDef pos def = _emitBSS pos $ convertDataDef pos def
     """
     with open(output_haskell_path, "w") as f:
             f.write("\n".join([line.strip().replace(INDENT, "\t") for line in code.splitlines()]))

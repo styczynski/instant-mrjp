@@ -55,6 +55,7 @@ initialLiveness = linearMap nodeInitLive
                     ICondJmp _ v _ _  -> (valSet v, Set.empty)
                     ILoad _ vi p      -> (ptrValSet p, valISet vi)
                     IStore _ v p      -> (valSet v `Map.union` ptrValSet p, Set.empty)
+                    IAddRef _ t vi _     -> (valsSet [vi], Set.empty)
                     IPhi _ vi phis    -> (phiUseSet phis, valISet vi)
                     _                 -> (Map.empty, Set.empty)
               in fmap (\(pos, _) -> (pos, emptyLiveness { liveUse = use, liveKill = kill })) instr

@@ -11,6 +11,7 @@ import qualified Backend.X64.Parser.Constructor as X64
 data CompiledClass = CompiledCl {
     clName   :: IRTargetRefName,
     clFlds   :: Map.Map IRTargetRefName CompiledField,
+    clFldsLayout :: [CompiledField],
     clSize   :: Int64,
     clVTable :: VTable,
     clChain  :: [IRTargetRefName]

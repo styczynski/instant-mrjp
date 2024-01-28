@@ -3,6 +3,7 @@
 
 struct Type {
     struct Type *parent;
+    void* initializer;
     int32_t dataSize;
     void *methods;
     int32_t referenceOffsetsSize;
@@ -16,10 +17,13 @@ struct Reference {
     void *methods;       // offset 20
     int32_t elementSize; // offset 28
     int32_t length;      // offset 32
+    void* others;
     // Fields go here    // offset 36
 } __attribute__((__packed__ ));
 
 typedef struct Reference *obj;
+
+extern obj _LAT_NULL;
 
 obj __new(struct Type *t);
 void __free(obj r);
@@ -62,7 +66,7 @@ int32_t _String_charAt(obj str, int32_t index);
 // functions
 void ddd(obj str);
 int8_t printString(obj str);
-int8_t printInt(int32_t i);
+int8_t printInt(int64_t i);
 int8_t printBoolean(int8_t b);
 int8_t printBinArray(obj arr);
 obj intToString(int32_t i);

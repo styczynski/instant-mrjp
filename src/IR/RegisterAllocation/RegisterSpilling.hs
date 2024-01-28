@@ -82,9 +82,12 @@ rename vif vit instr = case instr of
     INewArr p vi t v   -> INewArr p vi t (f v)
     ICondJmp p v l1 l2 -> ICondJmp p (f v) l1 l2
     IPhi p vi phiVars  -> IPhi p vi (map fp phiVars)
+    IAddRef p t vi cnt -> IAddRef p t (f vi) cnt
     ISwap {}           -> error "swap should not occur before phi removal"
     _                  -> instr
     where
+        fnm vi | vi == vif = vit
+        fnm vi = vi
         f (VVal p t vi) | vi == vif = VVal p t vit
         f val = val
         fc (Call p t qi vs labs)     = Call p t qi (map f vs) labs

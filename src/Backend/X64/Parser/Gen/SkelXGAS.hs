@@ -29,11 +29,15 @@ transLabel x = case x of
 
 transAsmProgram :: Show a => Backend.X64.Parser.Gen.AbsXGAS.AsmProgram' a -> Result
 transAsmProgram x = case x of
-  Backend.X64.Parser.Gen.AbsXGAS.AsmProgram _ directives sectiondata sectioncode -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.AsmProgram _ directives sectiondata sectionbss sectioncode -> failure x
 
 transSectionData :: Show a => Backend.X64.Parser.Gen.AbsXGAS.SectionData' a -> Result
 transSectionData x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.SectionData _ asmdatadefs -> failure x
+
+transSectionBSS :: Show a => Backend.X64.Parser.Gen.AbsXGAS.SectionBSS' a -> Result
+transSectionBSS x = case x of
+  Backend.X64.Parser.Gen.AbsXGAS.SectionBSS _ asmdatadefs -> failure x
 
 transSectionCode :: Show a => Backend.X64.Parser.Gen.AbsXGAS.SectionCode' a -> Result
 transSectionCode x = case x of
@@ -54,6 +58,7 @@ transData x = case x of
   Backend.X64.Parser.Gen.AbsXGAS.DataString _ string -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.Data64 _ dataconst -> failure x
   Backend.X64.Parser.Gen.AbsXGAS.Data32 _ dataconst -> failure x
+  Backend.X64.Parser.Gen.AbsXGAS.Data8 _ dataconst -> failure x
 
 transDataConst :: Show a => Backend.X64.Parser.Gen.AbsXGAS.DataConst' a -> Result
 transDataConst x = case x of

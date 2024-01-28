@@ -106,7 +106,7 @@ getValLoc val = case val of
     VVal _ _ vi -> do
         varS <- getVarS vi
         return $ varS ^. varLoc 
-    VNull {}    -> return $ X64.LocConst 0
+    VNull {}    -> return $ X64.LocLabelPIC "_LAT_NULL_ADDR"
 
 getPreservedRegs :: Generator a [X64.Reg]
 getPreservedRegs = do

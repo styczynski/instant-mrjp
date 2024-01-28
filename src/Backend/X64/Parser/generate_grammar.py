@@ -37,10 +37,11 @@ def generate_grammar(output_grammar_path):
     grammar = f"""
         entrypoints AsmProgram ;
 
-        AsmProgram.   AsmProgram ::= [Directive] {newline} SectionData {newline} SectionCode ;
+        AsmProgram.   AsmProgram ::= [Directive] {newline} SectionData {newline} SectionBSS {newline} SectionCode ;
         separator  AsmInstr "" ;
 
         SectionData. SectionData ::= ".section" ".rodata" {newline} [AsmDataDef];
+        SectionBSS. SectionBSS ::= ".section" ".data" {newline} [AsmDataDef];
         SectionCode. SectionCode ::= ".section" ".text" {newline} [AsmInstr] ;
 
         AsmDataGlobal .AsmDataDef ::= ".global" Label {newline} ;
@@ -53,6 +54,7 @@ def generate_grammar(output_grammar_path):
         DataString. Data ::= ".string" String {newline} ;
         Data64. Data ::= ".quad" DataConst {newline} ;
         Data32. Data ::= ".long" DataConst {newline} ;
+        Data8. Data ::= ".byte" DataConst {newline} ;
         separator Data "" ;
 
         ConstInt. DataConst ::= Integer ;

@@ -18,7 +18,7 @@ import qualified Optimizer.Env as Optimizer
 import qualified Data.Text as T
 import Utils.Time
 
---import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
+import qualified Linearized.Optimizer.ReferenceCounters as ORefCounters
 import qualified Linearized.Optimizer.ValuePropagator as OValuePropagator
 import qualified Linearized.Optimizer.CommonExpressions as OExpressionSubstituter
 import qualified Linearized.IRConverter as OFIRConverter
@@ -39,8 +39,8 @@ runLinearizer prog = do
     --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
     --ir <- runInternal "Value propagator" OValuePropagator.run OValuePropagator.initialState ir
     --ir <- runInternal "Expression substituter" OExpressionSubstituter.run OExpressionSubstituter.initialState ir
-    --irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState optimizedIR 
-    irWithCounters <- return optimizedIR
+    irWithCounters <- runInternal "Reference counters embedding" ORefCounters.run ORefCounters.initialState optimizedIR 
+    --irWithCounters <- return optimizedIR
     fir <- runInternal "Convert to FIR" OFIRConverter.run OFIRConverter.initialState irWithCounters
     liftPipelineOpt $ printLogInfo $ T.pack $ "Linearizer terminated"
     return fir

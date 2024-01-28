@@ -36,7 +36,7 @@ applyRulesSingle prevCode (ASM.ADD pos size (ASM.LocConst 0) target anno : code)
 -- sub $0, a => X
 applyRulesSingle prevCode (ASM.SUB pos size (ASM.LocConst 0) target anno : code) = code
 -- cmp $0, a => test a
-applyRulesSingle prevCode (ASM.CMP pos size (ASM.LocConst 0) target anno : code) = ASM.TEST pos size target target anno : code
+applyRulesSingle prevCode (ASM.CMP pos size (ASM.LocConst 0) target anno : code) | ASM.isReg target = ASM.TEST pos size target target anno : code
 -- mov a, a => X
 applyRulesSingle prevCode (ASM.MOV pos size target1 target2 anno : code) | target1 == target2 = code
 -- xchg a, a => X
@@ -61,5 +61,4 @@ applyRulesSingle prevCode (ASM.MOV pos1 size1 fromA toC anno1 : ASM.MOV pos2 siz
 applyRulesSingle prevCode orig@(ASM.JMP pos1 jmpLabel anno1 : ASM.Label pos2 declLabel anno2 : code) | jmpLabel == declLabel && (not $ elem declLabel $ concatMap ASM.getInstrUsedLabels (prevCode ++ code)) = code
 -- No optimization rule was found
 applyRulesSingle prevCode code = code
-
 

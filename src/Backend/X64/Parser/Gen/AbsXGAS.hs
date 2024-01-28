@@ -25,11 +25,15 @@ import qualified GHC.Generics as C (Generic)
 
 type AsmProgram = AsmProgram' BNFC'Position
 data AsmProgram' a
-    = AsmProgram a [Directive' a] (SectionData' a) (SectionCode' a)
+    = AsmProgram a [Directive' a] (SectionData' a) (SectionBSS' a) (SectionCode' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type SectionData = SectionData' BNFC'Position
 data SectionData' a = SectionData a [AsmDataDef' a]
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
+
+type SectionBSS = SectionBSS' BNFC'Position
+data SectionBSS' a = SectionBSS a [AsmDataDef' a]
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type SectionCode = SectionCode' BNFC'Position
@@ -50,6 +54,7 @@ data Data' a
     = DataString a String
     | Data64 a (DataConst' a)
     | Data32 a (DataConst' a)
+    | Data8 a (DataConst' a)
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Functor, C.Foldable, C.Traversable, C.Data, C.Typeable, C.Generic)
 
 type DataConst = DataConst' BNFC'Position
@@ -291,11 +296,15 @@ class HasPosition a where
 
 instance HasPosition AsmProgram where
   hasPosition = \case
-    AsmProgram p _ _ _ -> p
+    AsmProgram p _ _ _ _ -> p
 
 instance HasPosition SectionData where
   hasPosition = \case
     SectionData p _ -> p
+
+instance HasPosition SectionBSS where
+  hasPosition = \case
+    SectionBSS p _ -> p
 
 instance HasPosition SectionCode where
   hasPosition = \case
@@ -316,6 +325,7 @@ instance HasPosition Data where
     DataString p _ -> p
     Data64 p _ -> p
     Data32 p _ -> p
+    Data8 p _ -> p
 
 instance HasPosition DataConst where
   hasPosition = \case

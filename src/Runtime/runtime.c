@@ -5,12 +5,14 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED false
-#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
-#define __LATTE_RUNTIME_GC_ENABLED false
+#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES true
+#define __LATTE_RUNTIME_GC_ENABLED true
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
 #define XDEBUG(args...) if(true) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
 #define FORMAT_PTR(PTR) ((__LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES)?(PTR):((void*)(0)))
+#define IS_NULL(PTR) (((void*)(PTR)) == ((void*)(&_LAT_NULL)))
+#define VAL_NULL ((obj)(&_LAT_NULL))
 
 extern void bzero(void *s, size_t n);
 extern void *memcpy(void *dest, const void *src, size_t n);
@@ -29,14 +31,17 @@ obj __new(struct Type *t) {
     DEBUG("Calling __new v3");
     DEBUG("Perform reference malloc type=%p", FORMAT_PTR(t));
     DEBUG("__new examine type: <type parent=%p> [%d]", FORMAT_PTR(t->parent), t->dataSize);
-    obj r = malloc(sizeof(struct Reference)+t->dataSize);
+    obj r = malloc(sizeof(struct Reference)+t->dataSize+10);
     DEBUG("Set __new type/counter");
     r->type = t;
     r->counter = 0;
-    r->data = 0;
+    r->data = NULL;
+    r->methods = r->type->methods;
+    r->length=0;
     DEBUG("Do init for non array non string?");
     if (t->dataSize > 0) {
-        bzero((r+36), t->dataSize);
+        //bzero((r+36), t->dataSize);
+        memcpy(&(r->others), t->initializer, t->dataSize);
     }
     // if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
     //     DEBUG("Perform init");
@@ -46,14 +51,19 @@ obj __new(struct Type *t) {
     //     DEBUG("Just set data to NULL");
     //     r->data = NULL;
     // }
-    r->methods = r->type->methods;
     DEBUG("Completed __new %p <type %p, par %p> inner data=%p size=%d", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), FORMAT_PTR(r->data), t->dataSize);
+    uint64_t test = *((uint64_t*)(r+36));DEBUG("Just check. R+36=%p (is null=%d)", FORMAT_PTR(test), IS_NULL(((void*)test)));
     return r;
 }
 
 void __free(obj r) {
     DEBUG("__free %p", FORMAT_PTR(r));
+    if (IS_NULL(r) || r == NULL) {
+        DEBUG("Free completed. Value is nullish");
+        return;
+    }
     if (r->type == &_class_Array) {
+        DEBUG("Free got Array");
         //struct Array *arr = r->data;
         void **els = r->data;
         if (r->elementSize == sizeof(void *)) {
@@ -63,19 +73,23 @@ void __free(obj r) {
         if (els != NULL)
             free(els);
     } else if (r->type == &_class_String) {
+        DEBUG("Free got String");
         void *els = (r->data);
-        if (els != NULL && els != emptyString)
+        if (els != NULL && els != emptyString) {
+            DEBUG("Free underlying String data");
             free(els);
-    }
-    if (r->data != NULL)
+        }
+    } else if (r->data != NULL) {
+        DEBUG("Free got other");
         free(r->data);
+    }
     free(r);
 }
 
 void __incRef(obj r) {
     if (!__LATTE_RUNTIME_GC_ENABLED) return;
     DEBUG("__incRef %p", FORMAT_PTR(r));
-    if (r != NULL) {
+    if (!IS_NULL(r)) {
         r->counter++;
     }
     DEBUG("__incRef end %p", FORMAT_PTR(r));
@@ -83,13 +97,13 @@ void __incRef(obj r) {
 void __decRef(obj r) {
     DEBUG("__decRef %p", FORMAT_PTR(r));
     if (!__LATTE_RUNTIME_GC_ENABLED) return;
-    if (r != NULL) {
+    if (!IS_NULL(r)) {
         r->counter--;
-        if (r->counter <= 0) {
-            if (r->type != &_class_Array) {
-                for (int i = 0; i < r->type->referenceOffsetsSize; i++)
-                    __decRef(*(obj *)(r->data + r->type->referenceOffsets[i]));
-            }
+        if (r->counter <=0) {
+            // if (r->type != &_class_Array) {
+            //     for (int i = 0; i < r->type->referenceOffsetsSize; i++)
+            //         __decRef(*(obj *)(r->data + r->type->referenceOffsets[i]));
+            // }
             __free(r);
         }
     }
@@ -134,9 +148,9 @@ void *__getelementptr(obj array, int32_t index) {
 obj __cast(obj o, struct Type *t) {
     DEBUG("__cast");
     DEBUG("__cast %p %p [%d]", FORMAT_PTR(o), FORMAT_PTR(t), t->dataSize);
-    if (o == NULL) {
+    if (IS_NULL(o)) {
         DEBUG("__cast object is null");
-        return NULL;
+        return VAL_NULL;
     }
     DEBUG("__cast get underlying type");
     struct Type *to = o->type;
@@ -154,7 +168,7 @@ obj __cast(obj o, struct Type *t) {
         }
     }
     DEBUG("finished the cast (FAILED)");
-    return NULL;
+    return VAL_NULL;
 }
 
 void __errorNull() {
@@ -165,7 +179,7 @@ void __errorNull() {
 obj __createString(char *c) {
     DEBUG("Call __createString() v2");
     //DEBUG("Try to create string from %p", FORMAT_PTR(c));
-    if (c == NULL) {
+    if (IS_NULL(c)) {
         DEBUG("C is NULL exit");
         return __createString(emptyString);
     }
@@ -222,7 +236,7 @@ obj _Array_toString(obj arr) {
         } else {
             obj *elements = arr->data;
             obj element = elements[i];
-            if (element == NULL) {
+            if (IS_NULL(element)) {
                 strings[i] = __createString("null");
                 __incRef(strings[i]);
             } else {
@@ -275,7 +289,7 @@ int32_t _String_getHashCode(obj str) {
     return hash;
 }
 int8_t _String_equals(obj o1, obj o2) {
-    if (o2 == NULL)
+    if (IS_NULL(o2))
         return false;
     if (o2->type != &_class_String)
         return false;
@@ -327,7 +341,7 @@ int32_t _String_length(obj str) {
     return str->length;
 }
 int32_t _String_indexOf(obj str, obj substr, int32_t startFrom) {
-    if (substr == NULL) {
+    if (IS_NULL(substr)) {
         errMsg = "ERROR: IndexOf null substring argument.";
         error();
     }
@@ -361,7 +375,7 @@ obj _String_getBytes(obj str) {
     return arr;
 }
 int8_t _String_endsWith(obj str, obj substr) {
-    if (substr == NULL) {
+    if (IS_NULL(substr)) {
         errMsg = "ERROR: EndsWith null substring argument.";
         error();
     }
@@ -370,7 +384,7 @@ int8_t _String_endsWith(obj str, obj substr) {
     return u8_endswith(rs, rsub);
 }
 int8_t _String_startsWith(obj str, obj substr) {
-    if (substr == NULL) {
+    if (IS_NULL(substr)) {
         errMsg = "ERROR: StartsWith null substring argument.";
         error();
     }
@@ -380,7 +394,7 @@ int8_t _String_startsWith(obj str, obj substr) {
 }
 obj _String_concat(obj str, obj secondstr) {
     DEBUG("String concat on %p and %p", str, secondstr);
-    if (secondstr == NULL) {
+    if (IS_NULL(secondstr)) {
         __incRef(str);
         return str;
     }
@@ -428,7 +442,7 @@ void ddd(obj str) {
 int8_t printString(obj str) {
     DEBUG("Calling printString(%p)", FORMAT_PTR(str));
     DEBUG("Str data is %p", FORMAT_PTR(str->data));
-    if (str == NULL)
+    if (IS_NULL(str))
         str = __createString("null");
     __incRef(str);
     uint8_t *rs = (str->data);
@@ -438,9 +452,9 @@ int8_t printString(obj str) {
     DEBUG("printString(%p) completed", FORMAT_PTR(str))
     return 0;
 }
-int8_t printInt(int32_t i) {
+int8_t printInt(int64_t i) {
     DEBUG("Calling printInt()")
-    printf("%d\n", i);
+    printf("%p\n", i);
     DEBUG("printInt() completed")
     return 0;
 }
@@ -486,9 +500,12 @@ obj boolToString(int8_t b) {
 }
 
 int8_t print(obj o) {
-    DEBUG("Calling generic print(obj)")
-    if (o == NULL)
+    DEBUG("Calling generic print(obj)");
+    DEBUG("Calling generic obj.type=%p", FORMAT_PTR(o->type));
+    if (IS_NULL(o)) {
+        DEBUG("DETECTED obj IS NULL");
         o = __createString("null");
+    }
     __incRef(o);
     obj (*toStr)(obj) = ((void **)o->type->methods)[0];
     obj str = toStr(o);
@@ -502,7 +519,7 @@ int8_t print(obj o) {
 
 int8_t printBinArray(obj arr) {
     DEBUG("Calling printBinArray(arr)")
-    if (arr == NULL){
+    if (IS_NULL(arr)){
         print(arr);
         return 0;
     }

@@ -92,106 +92,108 @@ import Backend.X64.Parser.Gen.LexXGAS
   ')'           { PT _ (TS _ 67)         }
   '*'           { PT _ (TS _ 68)         }
   ','           { PT _ (TS _ 69)         }
-  '.extern'     { PT _ (TS _ 70)         }
-  '.global'     { PT _ (TS _ 71)         }
-  '.long'       { PT _ (TS _ 72)         }
-  '.quad'       { PT _ (TS _ 73)         }
-  '.rodata'     { PT _ (TS _ 74)         }
-  '.section'    { PT _ (TS _ 75)         }
-  '.string'     { PT _ (TS _ 76)         }
-  '.text'       { PT _ (TS _ 77)         }
-  ':'           { PT _ (TS _ 78)         }
-  '<ENDL>'      { PT _ (TS _ 79)         }
-  'addb'        { PT _ (TS _ 80)         }
-  'addl'        { PT _ (TS _ 81)         }
-  'addq'        { PT _ (TS _ 82)         }
-  'addw'        { PT _ (TS _ 83)         }
-  'andb'        { PT _ (TS _ 84)         }
-  'andl'        { PT _ (TS _ 85)         }
-  'andq'        { PT _ (TS _ 86)         }
-  'andw'        { PT _ (TS _ 87)         }
-  'call'        { PT _ (TS _ 88)         }
-  'cdq'         { PT _ (TS _ 89)         }
-  'cmpb'        { PT _ (TS _ 90)         }
-  'cmpl'        { PT _ (TS _ 91)         }
-  'cmpq'        { PT _ (TS _ 92)         }
-  'cmpw'        { PT _ (TS _ 93)         }
-  'decb'        { PT _ (TS _ 94)         }
-  'decl'        { PT _ (TS _ 95)         }
-  'decq'        { PT _ (TS _ 96)         }
-  'decw'        { PT _ (TS _ 97)         }
-  'idivb'       { PT _ (TS _ 98)         }
-  'idivl'       { PT _ (TS _ 99)         }
-  'idivq'       { PT _ (TS _ 100)        }
-  'idivw'       { PT _ (TS _ 101)        }
-  'imulb'       { PT _ (TS _ 102)        }
-  'imull'       { PT _ (TS _ 103)        }
-  'imulq'       { PT _ (TS _ 104)        }
-  'imulw'       { PT _ (TS _ 105)        }
-  'incb'        { PT _ (TS _ 106)        }
-  'incl'        { PT _ (TS _ 107)        }
-  'incq'        { PT _ (TS _ 108)        }
-  'incw'        { PT _ (TS _ 109)        }
-  'je'          { PT _ (TS _ 110)        }
-  'jg'          { PT _ (TS _ 111)        }
-  'jge'         { PT _ (TS _ 112)        }
-  'jl'          { PT _ (TS _ 113)        }
-  'jle'         { PT _ (TS _ 114)        }
-  'jmp'         { PT _ (TS _ 115)        }
-  'jne'         { PT _ (TS _ 116)        }
-  'jnz'         { PT _ (TS _ 117)        }
-  'jz'          { PT _ (TS _ 118)        }
-  'leab'        { PT _ (TS _ 119)        }
-  'leal'        { PT _ (TS _ 120)        }
-  'leaq'        { PT _ (TS _ 121)        }
-  'leave'       { PT _ (TS _ 122)        }
-  'leaw'        { PT _ (TS _ 123)        }
-  'movb'        { PT _ (TS _ 124)        }
-  'movl'        { PT _ (TS _ 125)        }
-  'movq'        { PT _ (TS _ 126)        }
-  'movw'        { PT _ (TS _ 127)        }
-  'negb'        { PT _ (TS _ 128)        }
-  'negl'        { PT _ (TS _ 129)        }
-  'negq'        { PT _ (TS _ 130)        }
-  'negw'        { PT _ (TS _ 131)        }
-  'pop'         { PT _ (TS _ 132)        }
-  'pushb'       { PT _ (TS _ 133)        }
-  'pushl'       { PT _ (TS _ 134)        }
-  'pushq'       { PT _ (TS _ 135)        }
-  'pushw'       { PT _ (TS _ 136)        }
-  'ret'         { PT _ (TS _ 137)        }
-  'salb'        { PT _ (TS _ 138)        }
-  'sall'        { PT _ (TS _ 139)        }
-  'salq'        { PT _ (TS _ 140)        }
-  'salw'        { PT _ (TS _ 141)        }
-  'sarb'        { PT _ (TS _ 142)        }
-  'sarl'        { PT _ (TS _ 143)        }
-  'sarq'        { PT _ (TS _ 144)        }
-  'sarw'        { PT _ (TS _ 145)        }
-  'sete'        { PT _ (TS _ 146)        }
-  'setg'        { PT _ (TS _ 147)        }
-  'setge'       { PT _ (TS _ 148)        }
-  'setl'        { PT _ (TS _ 149)        }
-  'setle'       { PT _ (TS _ 150)        }
-  'setne'       { PT _ (TS _ 151)        }
-  'setnz'       { PT _ (TS _ 152)        }
-  'setz'        { PT _ (TS _ 153)        }
-  'subb'        { PT _ (TS _ 154)        }
-  'subl'        { PT _ (TS _ 155)        }
-  'subq'        { PT _ (TS _ 156)        }
-  'subw'        { PT _ (TS _ 157)        }
-  'testb'       { PT _ (TS _ 158)        }
-  'testl'       { PT _ (TS _ 159)        }
-  'testq'       { PT _ (TS _ 160)        }
-  'testw'       { PT _ (TS _ 161)        }
-  'xchgb'       { PT _ (TS _ 162)        }
-  'xchgl'       { PT _ (TS _ 163)        }
-  'xchgq'       { PT _ (TS _ 164)        }
-  'xchgw'       { PT _ (TS _ 165)        }
-  'xorb'        { PT _ (TS _ 166)        }
-  'xorl'        { PT _ (TS _ 167)        }
-  'xorq'        { PT _ (TS _ 168)        }
-  'xorw'        { PT _ (TS _ 169)        }
+  '.byte'       { PT _ (TS _ 70)         }
+  '.data'       { PT _ (TS _ 71)         }
+  '.extern'     { PT _ (TS _ 72)         }
+  '.global'     { PT _ (TS _ 73)         }
+  '.long'       { PT _ (TS _ 74)         }
+  '.quad'       { PT _ (TS _ 75)         }
+  '.rodata'     { PT _ (TS _ 76)         }
+  '.section'    { PT _ (TS _ 77)         }
+  '.string'     { PT _ (TS _ 78)         }
+  '.text'       { PT _ (TS _ 79)         }
+  ':'           { PT _ (TS _ 80)         }
+  '<ENDL>'      { PT _ (TS _ 81)         }
+  'addb'        { PT _ (TS _ 82)         }
+  'addl'        { PT _ (TS _ 83)         }
+  'addq'        { PT _ (TS _ 84)         }
+  'addw'        { PT _ (TS _ 85)         }
+  'andb'        { PT _ (TS _ 86)         }
+  'andl'        { PT _ (TS _ 87)         }
+  'andq'        { PT _ (TS _ 88)         }
+  'andw'        { PT _ (TS _ 89)         }
+  'call'        { PT _ (TS _ 90)         }
+  'cdq'         { PT _ (TS _ 91)         }
+  'cmpb'        { PT _ (TS _ 92)         }
+  'cmpl'        { PT _ (TS _ 93)         }
+  'cmpq'        { PT _ (TS _ 94)         }
+  'cmpw'        { PT _ (TS _ 95)         }
+  'decb'        { PT _ (TS _ 96)         }
+  'decl'        { PT _ (TS _ 97)         }
+  'decq'        { PT _ (TS _ 98)         }
+  'decw'        { PT _ (TS _ 99)         }
+  'idivb'       { PT _ (TS _ 100)        }
+  'idivl'       { PT _ (TS _ 101)        }
+  'idivq'       { PT _ (TS _ 102)        }
+  'idivw'       { PT _ (TS _ 103)        }
+  'imulb'       { PT _ (TS _ 104)        }
+  'imull'       { PT _ (TS _ 105)        }
+  'imulq'       { PT _ (TS _ 106)        }
+  'imulw'       { PT _ (TS _ 107)        }
+  'incb'        { PT _ (TS _ 108)        }
+  'incl'        { PT _ (TS _ 109)        }
+  'incq'        { PT _ (TS _ 110)        }
+  'incw'        { PT _ (TS _ 111)        }
+  'je'          { PT _ (TS _ 112)        }
+  'jg'          { PT _ (TS _ 113)        }
+  'jge'         { PT _ (TS _ 114)        }
+  'jl'          { PT _ (TS _ 115)        }
+  'jle'         { PT _ (TS _ 116)        }
+  'jmp'         { PT _ (TS _ 117)        }
+  'jne'         { PT _ (TS _ 118)        }
+  'jnz'         { PT _ (TS _ 119)        }
+  'jz'          { PT _ (TS _ 120)        }
+  'leab'        { PT _ (TS _ 121)        }
+  'leal'        { PT _ (TS _ 122)        }
+  'leaq'        { PT _ (TS _ 123)        }
+  'leave'       { PT _ (TS _ 124)        }
+  'leaw'        { PT _ (TS _ 125)        }
+  'movb'        { PT _ (TS _ 126)        }
+  'movl'        { PT _ (TS _ 127)        }
+  'movq'        { PT _ (TS _ 128)        }
+  'movw'        { PT _ (TS _ 129)        }
+  'negb'        { PT _ (TS _ 130)        }
+  'negl'        { PT _ (TS _ 131)        }
+  'negq'        { PT _ (TS _ 132)        }
+  'negw'        { PT _ (TS _ 133)        }
+  'pop'         { PT _ (TS _ 134)        }
+  'pushb'       { PT _ (TS _ 135)        }
+  'pushl'       { PT _ (TS _ 136)        }
+  'pushq'       { PT _ (TS _ 137)        }
+  'pushw'       { PT _ (TS _ 138)        }
+  'ret'         { PT _ (TS _ 139)        }
+  'salb'        { PT _ (TS _ 140)        }
+  'sall'        { PT _ (TS _ 141)        }
+  'salq'        { PT _ (TS _ 142)        }
+  'salw'        { PT _ (TS _ 143)        }
+  'sarb'        { PT _ (TS _ 144)        }
+  'sarl'        { PT _ (TS _ 145)        }
+  'sarq'        { PT _ (TS _ 146)        }
+  'sarw'        { PT _ (TS _ 147)        }
+  'sete'        { PT _ (TS _ 148)        }
+  'setg'        { PT _ (TS _ 149)        }
+  'setge'       { PT _ (TS _ 150)        }
+  'setl'        { PT _ (TS _ 151)        }
+  'setle'       { PT _ (TS _ 152)        }
+  'setne'       { PT _ (TS _ 153)        }
+  'setnz'       { PT _ (TS _ 154)        }
+  'setz'        { PT _ (TS _ 155)        }
+  'subb'        { PT _ (TS _ 156)        }
+  'subl'        { PT _ (TS _ 157)        }
+  'subq'        { PT _ (TS _ 158)        }
+  'subw'        { PT _ (TS _ 159)        }
+  'testb'       { PT _ (TS _ 160)        }
+  'testl'       { PT _ (TS _ 161)        }
+  'testq'       { PT _ (TS _ 162)        }
+  'testw'       { PT _ (TS _ 163)        }
+  'xchgb'       { PT _ (TS _ 164)        }
+  'xchgl'       { PT _ (TS _ 165)        }
+  'xchgq'       { PT _ (TS _ 166)        }
+  'xchgw'       { PT _ (TS _ 167)        }
+  'xorb'        { PT _ (TS _ 168)        }
+  'xorl'        { PT _ (TS _ 169)        }
+  'xorq'        { PT _ (TS _ 170)        }
+  'xorw'        { PT _ (TS _ 171)        }
   L_integ       { PT _ (TI _)            }
   L_quoted      { PT _ (TL _)            }
   L_CommentLike { PT _ (T_CommentLike _) }
@@ -217,7 +219,7 @@ Label  : L_Label { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenL
 
 AsmProgram :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.AsmProgram) }
 AsmProgram
-  : ListDirective '<ENDL>' SectionData '<ENDL>' SectionCode { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.AsmProgram (fst $1) (snd $1) (snd $3) (snd $5)) }
+  : ListDirective '<ENDL>' SectionData '<ENDL>' SectionBSS '<ENDL>' SectionCode { (fst $1, Backend.X64.Parser.Gen.AbsXGAS.AsmProgram (fst $1) (snd $1) (snd $3) (snd $5) (snd $7)) }
 
 ListAsmInstr :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, [Backend.X64.Parser.Gen.AbsXGAS.AsmInstr]) }
 ListAsmInstr
@@ -229,6 +231,10 @@ ListAsmInstr
 SectionData :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.SectionData) }
 SectionData
   : '.section' '.rodata' '<ENDL>' ListAsmDataDef { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.SectionData (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $4)) }
+
+SectionBSS :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.SectionBSS) }
+SectionBSS
+  : '.section' '.data' '<ENDL>' ListAsmDataDef { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.SectionBSS (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $4)) }
 
 SectionCode :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, Backend.X64.Parser.Gen.AbsXGAS.SectionCode) }
 SectionCode
@@ -254,6 +260,7 @@ Data
   : '.string' String '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.DataString (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | '.quad' DataConst '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.Data64 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
   | '.long' DataConst '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.Data32 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
+  | '.byte' DataConst '<ENDL>' { (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1), Backend.X64.Parser.Gen.AbsXGAS.Data8 (uncurry Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position (tokenLineCol $1)) (snd $2)) }
 
 ListData :: { (Backend.X64.Parser.Gen.AbsXGAS.BNFC'Position, [Backend.X64.Parser.Gen.AbsXGAS.Data]) }
 ListData

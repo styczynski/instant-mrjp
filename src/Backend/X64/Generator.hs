@@ -69,7 +69,7 @@ genProgram (Meta pos clDefs) mthds = do
         compileClass (ClDef _ i@(IRTargetRefName className) chain fldDefs mthdDefs) = do
             let (flds, unalignedSize) = layoutFields fldDefs
             vTable <- generateVTable className mthdDefs chain
-            return $ CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) (alignSize unalignedSize) vTable chain
+            return $ CompiledCl i (Map.fromList $ map (\f -> (fldName f, f)) flds) flds (alignSize unalignedSize) vTable chain
         getVTableRelPos :: [String] -> [String] -> String -> String -> Int
         getVTableRelPos _ _ _ "equals" = 3
         getVTableRelPos _ _ _ "getHashCode" = 2
@@ -112,6 +112,7 @@ genData pos cls allConsts = do
         mapM_ (\cns -> gen $ X64.dataDef pos $ X64.DataDef (constName cns) [X64.DataStr $ constValue cns]) $ constsElems allConsts
         mapM_ (genClassDef pos) cls
         genNullRefCheck pos
+        genLatNullConst pos
         gen $ X64.dataDef pos $ X64.DataGlobal "main"
         where
             genConst :: a -> Const -> Generator a ()
@@ -125,6 +126,13 @@ genData pos cls allConsts = do
                 gen $ X64.and pos X64.Size64 (X64.LocConst (-16)) (X64.LocReg X64.RSP) $ comment "16 bytes allign"
                 gen $ X64.call pos "__errorNull" Nothing
                 return ()
+            genLatNullConst :: a -> Generator a ()
+            genLatNullConst pos = do
+                gen $ X64.bssDef pos $ X64.DataGlobal "_LAT_NULL"
+                gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL" [X64.Data64I 0, X64.Data64I 0, X64.Data32I 0, X64.Data64I 0, X64.Data32I 0, X64.Data32I 0]
+                gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL_ADDR" [X64.Data64From "_LAT_NULL"]
+                return ()
+            -- _LAT_NULL
             genClassDef :: a -> CompiledClass -> Generator a ()
             genClassDef pos cls = do
                 let clsName = clName cls
@@ -134,12 +142,34 @@ genData pos cls allConsts = do
                         let chain = clChain cls
                         let (IRLabelName classDefName) = classDefIdent clsName
                         let (IRLabelName methodsTableName) = vTableIRLabelName clsName
+                        let initializerName = classDefName ++ "_initializer"
                         let (IRLabelName parentName) = if length chain == 1 then (IRLabelName "0") else classDefIdent $ chain!!1
                         gen $ X64.dataDef pos $ X64.DataGlobal classDefName
-                        gen $ X64.dataDef pos $ X64.DataDef classDefName [X64.Data64From parentName, X64.Data32I $ fromIntegral $ clSize cls, X64.Data64From $ methodsTableName, X64.Data32I 0, X64.Data64I 0]
+                        gen $ X64.dataDef pos $ X64.DataDef classDefName [X64.Data64From parentName, X64.Data64From initializerName, X64.Data32I $ fromIntegral $ clSize cls, X64.Data64From $ methodsTableName, X64.Data32I 0, X64.Data64I 0]
                         gen $ X64.dataDef pos $ X64.DataGlobal methodsTableName
                         gen $ X64.dataDef pos $ X64.DataDef methodsTableName $ map (\(name, _) -> X64.Data64From name)  (vtabMthds $ clVTable cls)
+                        initFields <- mapM (initField) $ clFldsLayout cls
+                        gen $ X64.dataDef pos $ X64.DataGlobal initializerName
+                        gen $ X64.dataDef pos $ X64.DataDef initializerName initFields
                         return ()
+                where
+                    initField :: CompiledField -> Generator a X64.Data
+                    initField field = do
+                        case (fldType field) of 
+                            Ref _ _ -> return $ X64.Data64From "_LAT_NULL" 
+                            Cl _ _ -> return $ X64.Data64From "_LAT_NULL"
+                            Arr _ _ -> return $ X64.Data64From "_LAT_NULL"
+                            Int _ -> return $ X64.Data32I 0
+                            Bool _ -> return $ X64.Data8I 0
+                            _ -> return $ X64.Data32I 0
+
+-- data SType a
+--     = Int a
+--     | Bool a
+--     | Void a
+--     | Arr a (SType a)
+--     | Cl a IRTargetRefName
+--     | Ref a (SType a)
 
 emitMethod :: (Show a) => (M.Map IRTargetRefName CompiledClass) -> (CFG a Liveness, Method a, RegisterAllocation) -> (ConstSet) -> Generator a ConstSet
 emitMethod classMap (CFG g, m@(Mthd pos _ qi _ _), rs) cs = do
@@ -354,6 +384,24 @@ genInstr baseInstr =
                 (src, finalizeLoad) <- getPtrLoc tmpReg doPush ptr
                 gen $ X64.mov pos (typeSize t) src dest (comment $ "load " ++ toStr vi)
                 finalizeLoad
+            IAddRef _ t vi count -> do
+                --return ()
+                let t = () <$ deref (t)
+                objLoc <- getValLoc vi
+                case (objLoc, count) of
+                    -- (_, 0) -> do
+                    --     return ()
+                    ((X64.LocReg objReg), c) | c > 0 -> do
+                        gen $ X64.add pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, 16)) (comment $ "incr ref count on "++show vi)
+                    ((X64.LocReg objReg), c) | c < 0 -> do
+                        gen $ X64.sub pos X64.Size32 (X64.LocConst (-c)) (X64.LocMem (objReg, 16)) (comment $ "incr ref count on "++show vi)
+                    ((X64.LocMem (objReg, objOffset)), c) | c > 0 -> do
+                        gen $ X64.add pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, objOffset+16)) (comment $ "incr ref count on "++show vi)
+                    ((X64.LocMem (objReg, objOffset)), c) | c < 0 -> do
+                        gen $ X64.sub pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, objOffset+16)) (comment $ "incr ref count on "++show vi)
+                    (loc@(X64.LocMemOffset objReg idxReg idxOffset elemSize), c) -> do
+                        error $ "Unsupported location for object in IAddRef: "++show loc
+                --gen $ X64.mov pos (typeSize t) src dest (comment $ "load " ++ toStr vi)
             IStore _ v ptr -> do
                 let t = valType v
                 src <- getValLoc v
@@ -444,10 +492,13 @@ genCall pos target varArgs labelArgs cont = do
             CallDirect l              -> gen $ X64.call pos l Nothing
             CallVirtual offset s -> do
                 let self@(X64.LocReg selfReg) = X64.argLoc 0
-                gen $ X64.test pos X64.Size64 self self Nothing
+                -- Old test
+                -- gen $ X64.test pos X64.Size64 self self Nothing
+                -- gen $ X64.jz pos nullRefLabelStr Nothing
+                -- New test
+                gen $ X64.cmp pos X64.Size64 (X64.LocConst 0) (X64.LocMem (selfReg, 0)) Nothing
                 gen $ X64.jz pos nullRefLabelStr Nothing
                 gen $ X64.mov pos X64.Size64 (X64.LocMem (selfReg, 20)) (X64.LocReg X64.RAX) $ comment $ "load address of vtable"
-                --X64.mov X64.Size64 ( X64.LocMem (X64.RAX 12) (X64.LocReg selfReg) "load address of vtable"
                 gen $ X64.callIndirect pos X64.RAX (fromIntegral offset) (comment $ "call " ++ s)
         decrStack pos (stackAfter - stackBefore)
         gEnvSet (\env -> env & stack %~ (\s -> s {stackOverheadSize = stackBefore}))

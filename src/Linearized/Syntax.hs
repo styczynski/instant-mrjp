@@ -126,8 +126,8 @@ data Stmt a = VarDecl a (Type a) (Name a) (Expr a)
           | Assign a (Type a) (Target a) (Expr a)
           | VCall a (Type a) (Label a) [Value a] --function call
           | VMCall a (Type a) (Name a) (Label a) (Label a) [Value a] --method call
-          | IncrCounter a (Name a)
-          | DecrCounter a (Name a)
+          | IncrCounter a (Type a) (Name a)
+          | DecrCounter a (Type a) (Name a)
           | ReturnVal a (Type a) (Expr a)
           | Return a
           | SetLabel a (Label a)
@@ -218,8 +218,8 @@ instance Show (DataDef a) where
 instance Show (Stmt a) where
     show (VarDecl _ t n e) = "    "++show t ++ " "++show n++" = "++show e
     show (Assign _ t g e) = "    "++show g ++" = "++show e
-    show (IncrCounter _ n) = "    inc "++show n
-    show (DecrCounter _ n) = "    decr "++show n
+    show (IncrCounter _ t n) = "    inc <"++show t++">"++show n
+    show (DecrCounter _ t n) = "    decr <"++show t++">"++show n
     show (ReturnVal _ t e) = "    return "++show e
     show (Return _) = "    return"
     show (SetLabel _ l) = "  "++show l++":"

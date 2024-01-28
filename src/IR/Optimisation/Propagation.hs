@@ -65,6 +65,9 @@ propagate instr = case instr of
             Nothing -> do
                 setComplex vi
                 return [IUnOp pos vi unOp x]
+    IAddRef pos t n cnt -> do
+        x <- tryPropagate n
+        return [IAddRef pos t x cnt]
     IVCall pos call -> do
         call' <- propagateInCall call
         return [IVCall pos call']

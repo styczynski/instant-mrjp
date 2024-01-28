@@ -230,6 +230,10 @@ convertStmtToFIR (A.VarDecl p vt vn expr) = case expr of
     A.BinOp p' op v1 v2 -> return [B.IOp p (nameToIRValueName vn) (convertValue v1) (convertOp op) (convertValue v2)]
     A.Cast p' l@(A.Label _ clsName) v ->
         return [B.ICall p (nameToIRValueName vn) (B.Call p (convertType $ A.Reference p l) (functionName Nothing $ A.Label p "__cast") [convertValue v] [B.IRLabelName $ "_class_" ++ clsName])]
+convertStmtToFIR (A.IncrCounter p t n) = 
+    return [B.IAddRef p (convertType t) (convertValue $ A.Var p n t) (1)]
+convertStmtToFIR (A.DecrCounter p t n) =
+    return [B.IAddRef p (convertType t) (convertValue $ A.Var p n t) (-1)]
 convertStmtToFIR (A.VCall p vt fnLabel params) = do
     return [B.IVCall p (B.Call p (convertType vt) (functionName Nothing fnLabel) (map convertValue params) [])]
 convertStmtToFIR (A.VMCall p vt _ (A.Label _ methodName) (A.Label _ clsName) params) = do

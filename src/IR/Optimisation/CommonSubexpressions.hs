@@ -146,6 +146,7 @@ split instr = case (() <$ instr) of
     IRet {}           -> Nothing
     ISet {}           -> Nothing 
     ISwap {}          -> Nothing 
+    IAddRef {}        -> Nothing
     IVCall {}         -> Nothing 
     ICall {}          -> Nothing 
     INew {}           -> Nothing 

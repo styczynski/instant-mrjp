@@ -103,6 +103,7 @@ data Instr a
     | IStore a (Val a) (Ptr a)
     | IPhi a IRValueName [PhiVariant a]
     | IEndPhi a
+    | IAddRef a (SType a) (Val a) Integer
   deriving (Eq, Ord, Show, Read, Foldable)
 
 instance Functor Instr where
@@ -114,6 +115,7 @@ instance Functor Instr where
         IOp a valident val1 op val2 -> IOp (f a) valident (fmap f val1) (fmap f op) (fmap f val2)
         ISet a valident val -> ISet (f a) valident (fmap f val)
         ISwap a stype valident1 valident2 -> ISwap (f a) (fmap f stype) valident1 valident2
+        IAddRef a stype val cnt -> IAddRef (f a) (fmap f stype) (fmap f val) cnt
         IUnOp a valident unop val -> IUnOp (f a) valident (fmap f unop) (fmap f val)
         IVCall a call -> IVCall (f a) (fmap f call)
         ICall a valident call -> ICall (f a) valident (fmap f call)
@@ -322,7 +324,7 @@ sanitiseAssembly s = case s of
 
 
 nullrefLabel :: IRLabelName
-nullrefLabel = IRLabelName "__errorNull"
+nullrefLabel = IRLabelName "__handleErrorNull"
 
 
 valIdent :: String -> IRValueName

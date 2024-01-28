@@ -1,10 +1,11 @@
 
 entrypoints AsmProgram ;
 
-AsmProgram.   AsmProgram ::= [Directive] "<ENDL>" SectionData "<ENDL>" SectionCode ;
+AsmProgram.   AsmProgram ::= [Directive] "<ENDL>" SectionData "<ENDL>" SectionBSS "<ENDL>" SectionCode ;
 separator  AsmInstr "" ;
 
 SectionData. SectionData ::= ".section" ".rodata" "<ENDL>" [AsmDataDef];
+SectionBSS. SectionBSS ::= ".section" ".data" "<ENDL>" [AsmDataDef];
 SectionCode. SectionCode ::= ".section" ".text" "<ENDL>" [AsmInstr] ;
 
 AsmDataGlobal .AsmDataDef ::= ".global" Label "<ENDL>" ;
@@ -17,6 +18,7 @@ NoComment. CommentAnn ::= ;
 DataString. Data ::= ".string" String "<ENDL>" ;
 Data64. Data ::= ".quad" DataConst "<ENDL>" ;
 Data32. Data ::= ".long" DataConst "<ENDL>" ;
+Data8. Data ::= ".byte" DataConst "<ENDL>" ;
 separator Data "" ;
 
 ConstInt. DataConst ::= Integer ;

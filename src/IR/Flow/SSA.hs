@@ -99,6 +99,9 @@ transformLocally g params =
                 x <- renameVal val
                 vi' <- newVersion vi
                 return $ ISet a vi' x
+            IAddRef a t vi cnt -> do
+                vi' <- renameVal vi
+                return $ IAddRef a t vi' cnt
             ISwap a t vi1 vi2 -> do
                 mbvi1' <- gets (Map.lookup vi1 . fst)
                 let vi1' = fromMaybe vi1 mbvi1'

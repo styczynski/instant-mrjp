@@ -14,8 +14,8 @@ instance WithVariables L.Stmt where
     used (L.VarDecl _ t n e) = used e
     used (L.Assign _ t tg e) = used tg ++ used e
     used (L.ReturnVal _ t e) = used e
-    used (L.IncrCounter _ n) = [n]
-    used (L.DecrCounter _ n) = [n]
+    used (L.IncrCounter _ _ n) = [n]
+    used (L.DecrCounter _ _ n) = [n]
     used (L.JumpCmp _ _ _ _ vl vr) = used vl ++ used vr
     used (L.VCall _ _ _ vs) = concat $ map used vs
     used (L.VMCall _ _ n cls i vs) = concat $ map used vs

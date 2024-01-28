@@ -177,6 +177,7 @@ instance Print (Instr a) where
     IRet _ val -> prPrec i 0 (concatD [doc (showString "return"), prt 0 val, doc (showString ";")])
     IOp _ valident val1 op val2 -> prPrec i 0 (concatD [prt 0 valident, doc (showString ":="), prt 0 val1, prt 0 op, prt 0 val2, doc (showString ";")])
     ISet _ valident val -> prPrec i 0 (concatD [prt 0 valident, doc (showString ":="), prt 0 val, doc (showString ";")])
+    IAddRef _ stype valident cnt -> prPrec i 0 (concatD [doc (showString "addref"), prt 0 stype, prt 0 valident, prt 0 cnt, doc (showString ";")])
     ISwap _ stype valident1 valident2 -> prPrec i 0 (concatD [doc (showString "swap"), prt 0 stype, prt 0 valident1, prt 0 valident2, doc (showString ";")])
     IUnOp _ valident unop val -> prPrec i 0 (concatD [prt 0 valident, doc (showString ":="), prt 0 unop, prt 0 val, doc (showString ";")])
     IVCall _ call -> prPrec i 0 (concatD [prt 0 call, doc (showString ";")])

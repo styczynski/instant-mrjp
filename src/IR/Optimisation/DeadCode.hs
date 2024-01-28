@@ -28,6 +28,7 @@ loopRemove reachable (instr:instrs) =
             IJmp {}           -> instr:cont False
             ICondJmp {}       -> instr:cont False
             IVCall {}         -> instr:cont True
+            IAddRef {}        -> instr:cont True
             ICall {}          -> instr:cont True
             IStore {}         -> instr:cont True
             IEndPhi {}        -> instr:cont True
@@ -49,6 +50,8 @@ loopRemove reachable (instr:instrs) =
                 | toStr vi `Map.member` live -> instr:cont True
             ISwap _ _ vi _
                 | toStr vi `Map.member` live -> instr:cont True
+            -- IAddRef _ _ vi _
+            --     | toStr vi `Map.member` live -> instr:cont True
             _                 -> cont reachable
     where
         cont b = loopRemove b instrs
