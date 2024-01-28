@@ -4,6 +4,7 @@ import qualified Backend.X64.Parser.Constructor as ASM
 
 import Reporting.Logs
 import IR.Utils
+import Data.Maybe
 
 type ASMOptRule a anno = [ASM.Instr a anno] -> [ASM.Instr a anno] -> [ASM.Instr a anno]
 
@@ -24,7 +25,30 @@ optimizeASM instrs = do
                 [] -> return prevInstrs
                 (newInstr:otherNewInstrs) -> applyRulesPass' rule (prevInstrs ++ [newInstr]) otherNewInstrs
 
+combineConstAritm :: ASM.Instr a anno -> ASM.Instr a anno -> Maybe (ASM.Instr a anno)
+combineConstAritm instrA instrB =
+    case (instrConstAritm instrA, instrConstAritm instrB) of 
+        (Just (pos, size, Nothing, Just val, target, anno), Just (pos', size', Nothing, Just val', target', anno')) | size == size' && target == target' ->
+            Just $ ASM.ADD pos size (ASM.LocConst $ val+val') target anno
+        (Just (pos, size, Just const, Nothing, target, anno), Just (pos', size', Nothing, Just val', target', anno')) | size == size' && target == target' ->
+            Just $ ASM.MOV pos size (ASM.LocConst $ const+val') target anno
+        (Just (pos, size, _, _, target, anno), Just (pos', size', Just const', Nothing, target', anno')) | size == size' && target == target' ->
+            Just $ ASM.MOV pos size (ASM.LocConst $ const') target anno
+        (_, _) -> Nothing
+    where
+        instrConstAritm :: ASM.Instr a anno -> Maybe (a, ASM.Size, Maybe Integer, Maybe Integer, ASM.Loc, ASM.Annotation a anno)
+        instrConstAritm (ASM.ADD pos size (ASM.LocConst val) target anno) = Just (pos, size, Nothing, Just $ val, target, anno)
+        instrConstAritm (ASM.SUB pos size (ASM.LocConst val) target anno) = Just (pos, size, Nothing, Just $ -val, target, anno)
+        instrConstAritm (ASM.INC pos size target anno) = Just (pos, size, Nothing, Just $ 1, target, anno)
+        instrConstAritm (ASM.DEC pos size target anno) = Just (pos, size, Nothing, Just $ -1, target, anno)
+        instrConstAritm (ASM.MOV pos size (ASM.LocConst val) target anno) = Just (pos, size, Just val, Nothing, target, anno)
+        instrConstAritm _ = Nothing
+
+
+
 applyRulesSingle :: ASMOptRule a anno
+-- Combines artihmetic operations of form { [add|sub|inc|dec|mov] $a, b | [add|sub|inc|dec|mov] $c, b } => { [add|sub|inc|dec|mov] $(a+/-c), b }
+applyRulesSingle prevCode (instrA : instrB : code) | isJust (combineConstAritm instrA instrB) = (fromJust $ combineConstAritm instrA instrB) : code
 -- mov $0, a => xor a, a
 applyRulesSingle prevCode (ASM.MOV pos size (ASM.LocConst 0) target anno : code) | ASM.isReg target = ASM.XOR pos size target target anno : code
 -- add $1, a => inc a

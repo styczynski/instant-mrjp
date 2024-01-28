@@ -16,6 +16,7 @@ module Backend.X64.Parser.Constructor(runASMGeneratorT
 , Data(..)
 , Loc(..)
 , Size(..)
+, Annotation(..)
 , mapInstrData
 , getInstrUsedLabels
 , mapAnnotationData

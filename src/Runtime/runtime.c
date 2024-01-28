@@ -452,9 +452,9 @@ int8_t printString(obj str) {
     DEBUG("printString(%p) completed", FORMAT_PTR(str))
     return 0;
 }
-int8_t printInt(int64_t i) {
+int8_t printInt(int32_t i) {
     DEBUG("Calling printInt()")
-    printf("%p\n", i);
+    printf("%d\n", i);
     DEBUG("printInt() completed")
     return 0;
 }

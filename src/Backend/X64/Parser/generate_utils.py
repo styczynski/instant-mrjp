@@ -702,6 +702,7 @@ def generate_utils(module, module_name, syntax_module, syntax_postfix, output_ha
         "Data(..)",
         "Loc(..)",
         "Size(..)",
+        "Annotation(..)",
     ] + [sym for sym in (syms1 + syms2 + syms3)]
 
     code = f"""

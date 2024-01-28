@@ -26,6 +26,8 @@ import Control.DeepSeq
 import GHC.Generics (Generic)
 import Data.List
 
+import IR.Utils
+
 import Reporting.Logs
 import qualified Reporting.Errors.Def as Errors
 
@@ -48,8 +50,15 @@ initialState = RCEnv {
 run :: L.Program L.IRPosition -> RCEnnricher (L.Program L.IRPosition)
 run (L.Program p sts funs strs) = do
     let dupErr = (idMapFailure "addRefCount" Errors.ILNEDuplicateFunctionName)
-    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p lp l t args body) -> (\nbody -> L.Fun p lp l t args nbody) <$> addRefCounters (analize body) args) funs
+    let normalizeCounters = fixpointBy (map (fmap $ const ())) (fuseCounters)
+    nfuncs <- IM.mapElemsM dupErr (\_ (L.Fun p lp l t args body) -> (\nbody -> L.Fun p lp l t args nbody) <$> normalizeCounters <$> addRefCounters (analize body) args) funs
     return (L.Program p sts nfuncs strs)
+
+fuseCounters :: [L.Stmt L.IRPosition] -> [L.Stmt L.IRPosition]
+fuseCounters (L.IncrCounter pos vtype n val : L.IncrCounter pos' vtype' n' val' : rest) | n == n' && vtype == vtype' = (L.IncrCounter pos vtype n $ val + val') : fuseCounters rest
+fuseCounters (L.IncrCounter pos vtype n 0 : rest) = fuseCounters rest
+fuseCounters (stmt:rest) = stmt : fuseCounters rest
+fuseCounters [] = []
 
 registerVarsOf :: L.Stmt L.IRPosition -> RCEnnricher (L.Stmt L.IRPosition)
 registerVarsOf stmt@(L.VarDecl p vtype (L.Name _ name) _) = do
@@ -77,13 +86,13 @@ decrByName pos name@(L.Name _ nameStr) = do
     vTypes <- oStateGet (^. varTypes)
     case M.lookup nameStr vTypes of
         Nothing -> error $ "Cannot find var "++show nameStr++" in RC context: "++show vTypes
-        Just t -> return (L.DecrCounter pos t name)
+        Just t -> return (L.IncrCounter pos t name (-1))
 decr :: L.IRPosition -> L.Type L.IRPosition -> L.Name L.IRPosition -> RCEnnricher (L.Stmt L.IRPosition)
 decr pos vtype name = do
-    return (L.DecrCounter pos vtype name)
+    return (L.IncrCounter pos vtype name (-1))
 incr :: L.IRPosition -> L.Type L.IRPosition -> L.Name L.IRPosition -> RCEnnricher (L.Stmt L.IRPosition)
 incr pos vtype name = do
-    return (L.IncrCounter pos vtype name)
+    return (L.IncrCounter pos vtype name 1)
 
 incArgs :: [LivenessEntry] -> [(L.Type L.IRPosition, L.Name L.IRPosition)] -> RCEnnricher ([L.Stmt L.IRPosition], [L.Name L.IRPosition])
 incArgs sts ((L.Reference p l, n):as) = do

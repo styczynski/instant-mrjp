@@ -92,7 +92,22 @@ Node genNull()
 
 int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<???>(s);
+	s = new Rectangle;
+	stk.push<???>(s);
+	s = new Square;
+	stk.push<???>(s);
+	s = new Circle;
+	stk.push<???>(s);
+	while (!stk.isEmpty<???>())
+		{
+			s = stk.top<???>();
+			s.tell<???>();
+			s.tellAgain<???>();
+			stk.pop<???>();
+		}
 	print(stk);
 	return 0;
 }
@@ -421,13 +436,102 @@ int main()
 }
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<???>(s);
+	s = new Rectangle;
+	stk.push<???>(s);
+	s = new Square;
+	stk.push<???>(s);
+	s = new Circle;
+	stk.push<???>(s);
+	while (!stk.isEmpty<???>())
+		{
+			s = stk.top<???>();
+			s.tell<???>();
+			s.tellAgain<???>();
+			stk.pop<???>();
+		}
 	print(stk);
 	return 0;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> Node stk = genNull();
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:51:6 (ClassT example.lat:51:1 (Ident example.lat:51:1 "Node")) []
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- Node stk = genNull();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> Stack stk = new Stack;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- Stack stk = new Stack;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> Shape s = new Shape;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- Shape s = new Shape;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> stk.push<???>(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:11:10 (VoidT example.lat:11:5) [ClassT example.lat:11:15 (Ident example.lat:11:15 "Shape")]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- stk.push<"Stack">(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s = new Rectangle;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> s
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s = new Rectangle;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> stk.push<???>(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:11:10 (VoidT example.lat:11:5) [ClassT example.lat:11:15 (Ident example.lat:11:15 "Shape")]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- stk.push<"Stack">(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s = new Square;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> s
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s = new Square;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> stk.push<???>(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:11:10 (VoidT example.lat:11:5) [ClassT example.lat:11:15 (Ident example.lat:11:15 "Shape")]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- stk.push<"Stack">(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s = new Circle;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> s
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s = new Circle;
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> stk.push<???>(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:11:10 (VoidT example.lat:11:5) [ClassT example.lat:11:15 (Ident example.lat:11:15 "Shape")]
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- stk.push<"Stack">(s);
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> while (!stk.isEmpty<???>())
+	{
+		s = stk.top<???>();
+		s.tell<???>();
+		s.tellAgain<???>();
+		stk.pop<???>();
+	}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:17:13 (BoolT example.lat:17:5) []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+	s = stk.top<???>();
+	s.tell<???>();
+	s.tellAgain<???>();
+	stk.pop<???>();
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> {
+s = stk.top<???>();
+s.tell<???>();
+s.tellAgain<???>();
+stk.pop<???>();
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s = stk.top<???>();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assignemnt mapped LEFT ?=> s
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:20:11 (ClassT example.lat:20:5 (Ident example.lat:20:5 "Shape")) []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s = stk.top<"Stack">();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s.tell<???>();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:28:10 (VoidT example.lat:28:5) []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s.tell<"Shape">();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> s.tellAgain<???>();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:31:10 (VoidT example.lat:31:5) []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- s.tellAgain<"Shape">();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> stk.pop<???>();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT example.lat:23:10 (VoidT example.lat:23:5) []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- stk.pop<"Stack">();
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+s = stk.top<"Stack">();
+s.tell<"Shape">();
+s.tellAgain<"Shape">();
+stk.pop<"Stack">();
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- {
+	s = stk.top<"Stack">();
+	s.tell<"Shape">();
+	s.tellAgain<"Shape">();
+	stk.pop<"Stack">();
+}
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- while (!stk.isEmpty<"Stack">())
+	{
+		s = stk.top<"Stack">();
+		s.tell<"Shape">();
+		s.tellAgain<"Shape">();
+		stk.pop<"Stack">();
+	}
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] before -> print(stk);
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGELO App ===> FunT inside standard library (VoidT inside standard library) [ClassT inside standard library (Ident inside standard library "Object")]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- print(stk);
@@ -435,7 +539,22 @@ int main()
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- return (int)(0);
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] after  <- int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<"Stack">(s);
+	s = new Rectangle;
+	stk.push<"Stack">(s);
+	s = new Square;
+	stk.push<"Stack">(s);
+	s = new Circle;
+	stk.push<"Stack">(s);
+	while (!stk.isEmpty<"Stack">())
+		{
+			s = stk.top<"Stack">();
+			s.tell<"Shape">();
+			s.tellAgain<"Shape">();
+			stk.pop<"Stack">();
+		}
 	print(stk);
 	return (int)(0);
 }
@@ -528,7 +647,22 @@ Node genNull()
 
 int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<"Stack">(s);
+	s = new Rectangle;
+	stk.push<"Stack">(s);
+	s = new Square;
+	stk.push<"Stack">(s);
+	s = new Circle;
+	stk.push<"Stack">(s);
+	while (!stk.isEmpty<"Stack">())
+		{
+			s = stk.top<"Stack">();
+			s.tell<"Shape">();
+			s.tellAgain<"Shape">();
+			stk.pop<"Stack">();
+		}
 	print(stk);
 	return (int)(0);
 }
@@ -623,7 +757,22 @@ Node genNull()
 
 int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<"Stack">(s);
+	s = new Rectangle;
+	stk.push<"Stack">(s);
+	s = new Square;
+	stk.push<"Stack">(s);
+	s = new Circle;
+	stk.push<"Stack">(s);
+	while (!stk.isEmpty<"Stack">())
+		{
+			s = stk.top<"Stack">();
+			s.tell<"Shape">();
+			s.tellAgain<"Shape">();
+			stk.pop<"Stack">();
+		}
 	print(stk);
 	return (int)(0);
 }
@@ -716,7 +865,22 @@ Node genNull()
 
 int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<"Stack">(s);
+	s = new Rectangle;
+	stk.push<"Stack">(s);
+	s = new Square;
+	stk.push<"Stack">(s);
+	s = new Circle;
+	stk.push<"Stack">(s);
+	while (!stk.isEmpty<"Stack">())
+		{
+			s = stk.top<"Stack">();
+			s.tell<"Shape">();
+			s.tellAgain<"Shape">();
+			stk.pop<"Stack">();
+		}
 	print(stk);
 	return (int)(0);
 }
@@ -809,7 +973,22 @@ Node genNull()
 
 int main()
 {
-	Node stk = genNull();
+	Stack stk = new Stack;
+	Shape s = new Shape;
+	stk.push<"Stack">(s);
+	s = new Rectangle;
+	stk.push<"Stack">(s);
+	s = new Square;
+	stk.push<"Stack">(s);
+	s = new Circle;
+	stk.push<"Stack">(s);
+	while (!stk.isEmpty<"Stack">())
+		{
+			s = stk.top<"Stack">();
+			s.tell<"Shape">();
+			s.tellAgain<"Shape">();
+			stk.pop<"Stack">();
+		}
 	print(stk);
 	return (int)(0);
 }
@@ -902,10 +1081,33 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return (int)(0);
 }
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> False
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> False
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:class Node extends Object
 {
 	Shape elem;
@@ -998,11 +1200,26 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 1 (took 0 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 1 (took 29 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run before:class Node extends Object
 {
 	Shape elem;
@@ -1095,7 +1312,22 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
@@ -1191,7 +1423,22 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
@@ -1287,10 +1534,33 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> False
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> True
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] DBGNSCP isInCurrentScope[_var_1000063#s] ~> False
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] ConstPropagation.run after:class Node extends Object
 {
 	Shape elem;
@@ -1383,11 +1653,26 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 10 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing AST round 2 (took 34 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimization doneexample.lat
 
 class Node extends Object
@@ -1491,7 +1776,22 @@ Node genNull()
 
 int main()
 {
-	Node _var_1000062#stk = genNull();
+	Stack _var_1000062#stk = new Stack;
+	Shape _var_1000063#s = new Shape;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Rectangle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Square;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	_var_1000063#s = new Circle;
+	_var_1000062#stk.push<"Stack">(_var_1000063#s);
+	while (!_var_1000062#stk.isEmpty<"Stack">())
+		{
+			_var_1000063#s = _var_1000062#stk.top<"Stack">();
+			_var_1000063#s.tell<"Shape">();
+			_var_1000063#s.tellAgain<"Shape">();
+			_var_1000062#stk.pop<"Stack">();
+		}
 	print(_var_1000062#stk);
 	return 0;
 }
@@ -1505,7 +1805,11 @@ int main()
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<String>]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET []
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assign Var example.lat:60:5 (Ident example.lat:60:5 "_var_1000063#s")
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assign Var example.lat:62:5 (Ident example.lat:62:5 "_var_1000063#s")
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assign Var example.lat:64:5 (Ident example.lat:64:5 "_var_1000063#s")
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Assign Var example.lat:67:9 (Ident example.lat:67:9 "_var_1000063#s")
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] transform condition: UnaryOp example.lat:66:12 (Not example.lat:66:12) (App example.lat:66:13 (Member example.lat:66:13 (Var example.lat:66:13 (Ident example.lat:66:13 "_var_1000062#stk")) (Ident example.lat:66:17 "isEmpty") (Just "Stack")) [])
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] APPDET [obj<Object>]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] DEBUG COLLECT_FUNCTIONS PROTOTYPES
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] [int Node.setElem(obj<Node> t_16, obj<Shape> t_17)
@@ -1571,11 +1875,35 @@ int main()
     obj<Node> t_65 = <obj<Node>>null
     return <obj<Node>>t_65
 ,int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
-    byte t_68 =     call<function> print(<obj<Object>>t_67)
-    int t_69 = <int>0
-    return <int>t_69
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    int t_70 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    int t_72 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    int t_74 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    int t_76 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    int t_81 =     call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    int t_82 =     call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    int t_83 =     call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
+    byte t_85 =     call<function> print(<obj<Object>>t_67)
+    int t_86 = <int>0
+    return <int>t_86
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] END DEBUG
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Initial IR: 
@@ -1731,11 +2059,35 @@ obj<Node> genNull()
     return <obj<Node>>t_65
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
-    byte t_68 =     call<function> print(<obj<Object>>t_67)
-    int t_69 = <int>0
-    return <int>t_69
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    int t_70 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    int t_72 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    int t_74 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    int t_76 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    int t_81 =     call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    int t_82 =     call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    int t_83 =     call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
+    byte t_85 =     call<function> print(<obj<Object>>t_67)
+    int t_86 = <int>0
+    return <int>t_86
 
 data string _S46 = "I'm a shape"
 data string _S50 = "I'm just a shape"
@@ -1900,11 +2252,35 @@ obj<Node> genNull()
     return <obj<Node>>t_65
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
-    byte t_68 =     call<function> print(<obj<Object>>t_67)
-    int t_69 = <int>0
-    return <int>t_69
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    int t_70 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    int t_72 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    int t_74 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    int t_76 =     call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    int t_81 =     call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    int t_82 =     call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    int t_83 =     call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
+    byte t_85 =     call<function> print(<obj<Object>>t_67)
+    int t_86 = <int>0
+    return <int>t_86
 
 data string _S46 = "I'm a shape"
 data string _S50 = "I'm just a shape"
@@ -2060,8 +2436,32 @@ obj<Node> genNull()
     return <obj<Node>>null
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    discard<int> call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
     discard<byte> call<function> print(<obj<Object>>t_67)
     return <int>0
 
@@ -2074,7 +2474,7 @@ data string _S62 = "I'm really a square"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Value propagator
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Expression substituter
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Expression substituter
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 6 ms)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Optimizing IR round 2 (took 9 ms)
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] > BEFORE ROUND
 struct Array extends [Array, Object]
     field obj<Object> elements;
@@ -2224,8 +2624,32 @@ obj<Node> genNull()
     return <obj<Node>>null
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    discard<int> call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
     discard<byte> call<function> print(<obj<Object>>t_67)
     return <int>0
 
@@ -2383,8 +2807,32 @@ obj<Node> genNull()
     return <obj<Node>>null
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
+    obj<Stack> t_66 = new Stack
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    obj<Shape> t_68 = new Shape
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Rectangle> t_71 = new Rectangle
+    t_69 = <obj<Rectangle>>t_71
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Square> t_73 = new Square
+    t_69 = <obj<Square>>t_73
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    obj<Circle> t_75 = new Circle
+    t_69 = <obj<Circle>>t_75
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    discard<int> call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
     discard<byte> call<function> print(<obj<Object>>t_67)
     return <int>0
 
@@ -2447,8 +2895,19 @@ data string _S62 = "I'm really a square"
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_63" of type obj<String> in stmt     obj<String> t_63 =     new string _S62
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] addRefCounters for new function!
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] addRefCounters for new function!
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_66" of type obj<Node> in stmt     obj<Node> t_66 =     call<function> genNull()
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_67" of type obj<Node> in stmt     obj<Node> t_67 = <obj<Node>>t_66
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_66" of type obj<Stack> in stmt     obj<Stack> t_66 = new Stack
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_67" of type obj<Stack> in stmt     obj<Stack> t_67 = <obj<Stack>>t_66
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_68" of type obj<Shape> in stmt     obj<Shape> t_68 = new Shape
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_69" of type obj<Shape> in stmt     obj<Shape> t_69 = <obj<Shape>>t_68
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_71" of type obj<Rectangle> in stmt     obj<Rectangle> t_71 = new Rectangle
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_69" of type obj<Shape> in stmt     t_69 = <obj<Rectangle>>t_71
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_73" of type obj<Square> in stmt     obj<Square> t_73 = new Square
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_69" of type obj<Shape> in stmt     t_69 = <obj<Square>>t_73
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_75" of type obj<Circle> in stmt     obj<Circle> t_75 = new Circle
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_69" of type obj<Shape> in stmt     t_69 = <obj<Circle>>t_75
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_84" of type byte in stmt     byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_80" of type obj<Shape> in stmt     obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] Register var "t_69" of type obj<Shape> in stmt     t_69 = <obj<Shape>>t_80
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Successfully completed internal linearizer transformation: Reference counters embedding
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running linearizer internal transformation: Convert to FIR
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] AST to convert:
@@ -2529,71 +2988,71 @@ struct String extends [String, Object]
 
 int Node.setElem(obj<Node> t_16, obj<Shape> t_17)
     obj<Shape> c0 = t_16.field<obj<Shape>>[Node.elem]
-    decr <obj<Shape>>c0
+    incr_counter <obj<Shape>>c0 by -1
     c0 = <obj<Shape>>t_17
-    inc <obj<Shape>>c0
+    incr_counter <obj<Shape>>c0 by 1
     t_16.field[Node.elem] = <obj<Shape>>c0
-    decr <obj<Shape>>t_17
-    decr <obj<Node>>t_16
+    incr_counter <obj<Shape>>t_17 by -1
+    incr_counter <obj<Node>>t_16 by -1
     return
 
 int Node.setNext(obj<Node> t_18, obj<Node> t_19)
     obj<Node> c1 = t_18.field<obj<Node>>[Node.next]
-    decr <obj<Node>>c1
+    incr_counter <obj<Node>>c1 by -1
     c1 = <obj<Node>>t_19
-    inc <obj<Node>>c1
+    incr_counter <obj<Node>>c1 by 1
     t_18.field[Node.next] = <obj<Node>>c1
-    decr <obj<Node>>t_19
-    decr <obj<Node>>t_18
+    incr_counter <obj<Node>>t_19 by -1
+    incr_counter <obj<Node>>t_18 by -1
     return
 
 obj<Shape> Node.getElem(obj<Node> t_20)
     obj<Shape> t_21 = t_20.field<obj<Shape>>[Node.elem]
-    inc <obj<Shape>>t_21
-    decr <obj<Node>>t_20
+    incr_counter <obj<Shape>>t_21 by 1
+    incr_counter <obj<Node>>t_20 by -1
     obj<Shape> c2 = <obj<Shape>>t_21
-    inc <obj<Shape>>c2
-    decr <obj<Shape>>t_21
+    incr_counter <obj<Shape>>c2 by 1
+    incr_counter <obj<Shape>>t_21 by -1
     return <obj<Shape>>c2
 
 obj<Node> Node.getNext(obj<Node> t_22)
     obj<Node> t_23 = t_22.field<obj<Node>>[Node.next]
-    inc <obj<Node>>t_23
-    decr <obj<Node>>t_22
+    incr_counter <obj<Node>>t_23 by 1
+    incr_counter <obj<Node>>t_22 by -1
     obj<Node> c3 = <obj<Node>>t_23
-    inc <obj<Node>>c3
-    decr <obj<Node>>t_23
+    incr_counter <obj<Node>>c3 by 1
+    incr_counter <obj<Node>>t_23 by -1
     return <obj<Node>>c3
 
 int Stack.push(obj<Stack> t_24, obj<Shape> t_25)
     obj<Node> t_26 = new Node
-    inc <obj<Node>>t_26
+    incr_counter <obj<Node>>t_26 by 1
     obj<Node> t_27 = <obj<Node>>t_26
-    inc <obj<Node>>t_27
-    decr <obj<Node>>t_26
+    incr_counter <obj<Node>>t_27 by 1
+    incr_counter <obj<Node>>t_26 by -1
     discard<int> call<method:Node, class:setElem> t_27(<obj<Node>>t_27, <obj<Shape>>t_25)
-    decr <obj<Node>>t_27
-    decr <obj<Shape>>t_25
+    incr_counter <obj<Node>>t_27 by -1
+    incr_counter <obj<Shape>>t_25 by -1
     obj<Node> t_29 = t_24.field<obj<Node>>[Stack.head]
-    inc <obj<Node>>t_29
-    decr <obj<Stack>>t_24
+    incr_counter <obj<Node>>t_29 by 1
+    incr_counter <obj<Stack>>t_24 by -1
     discard<int> call<method:Node, class:setNext> t_27(<obj<Node>>t_27, <obj<Node>>t_29)
-    decr <obj<Node>>t_27
-    decr <obj<Node>>t_29
+    incr_counter <obj<Node>>t_27 by -1
+    incr_counter <obj<Node>>t_29 by -1
     obj<Node> c4 = t_24.field<obj<Node>>[Stack.head]
-    decr <obj<Node>>c4
+    incr_counter <obj<Node>>c4 by -1
     c4 = <obj<Node>>t_27
-    inc <obj<Node>>c4
+    incr_counter <obj<Node>>c4 by 1
     t_24.field[Stack.head] = <obj<Node>>c4
-    decr <obj<Node>>t_27
-    decr <obj<Stack>>t_24
+    incr_counter <obj<Node>>t_27 by -1
+    incr_counter <obj<Stack>>t_24 by -1
     return
 
 byte Stack.isEmpty(obj<Stack> t_31)
     obj<Node> t_35 = t_31.field<obj<Node>>[Stack.head]
-    inc <obj<Node>>t_35
-    decr <obj<Stack>>t_31
-    decr <obj<Node>>t_35
+    incr_counter <obj<Node>>t_35 by 1
+    incr_counter <obj<Stack>>t_31 by -1
+    incr_counter <obj<Node>>t_35 by -1
     jump _IIF32 if <obj<Node>>t_35 == <obj<?>>null or pass-through to _IELSE33
   _IIF32:
     return <byte>1
@@ -2602,75 +3061,122 @@ byte Stack.isEmpty(obj<Stack> t_31)
 
 obj<Shape> Stack.top(obj<Stack> t_39)
     obj<Node> t_40 = t_39.field<obj<Node>>[Stack.head]
-    inc <obj<Node>>t_40
-    decr <obj<Stack>>t_39
+    incr_counter <obj<Node>>t_40 by 1
+    incr_counter <obj<Stack>>t_39 by -1
     obj<Shape> t_41 =     call<method:Node, class:getElem> t_40(<obj<Node>>t_40)
-    decr <obj<Node>>t_40
+    incr_counter <obj<Node>>t_40 by -1
     obj<Shape> c5 = <obj<Shape>>t_41
-    inc <obj<Shape>>c5
-    decr <obj<Shape>>t_41
+    incr_counter <obj<Shape>>c5 by 1
+    incr_counter <obj<Shape>>t_41 by -1
     return <obj<Shape>>c5
 
 int Stack.pop(obj<Stack> t_42)
     obj<Node> t_43 = t_42.field<obj<Node>>[Stack.head]
-    inc <obj<Node>>t_43
-    decr <obj<Stack>>t_42
+    incr_counter <obj<Node>>t_43 by 1
+    incr_counter <obj<Stack>>t_42 by -1
     obj<Node> t_44 =     call<method:Node, class:getNext> t_43(<obj<Node>>t_43)
-    decr <obj<Node>>t_43
+    incr_counter <obj<Node>>t_43 by -1
     obj<Node> c6 = t_42.field<obj<Node>>[Stack.head]
-    decr <obj<Node>>c6
+    incr_counter <obj<Node>>c6 by -1
     c6 = <obj<Node>>t_44
-    inc <obj<Node>>c6
+    incr_counter <obj<Node>>c6 by 1
     t_42.field[Stack.head] = <obj<Node>>c6
-    decr <obj<Stack>>t_42
-    decr <obj<Node>>t_44
+    incr_counter <obj<Stack>>t_42 by -1
+    incr_counter <obj<Node>>t_44 by -1
     return
 
 int Shape.tell(obj<Shape> t_45)
     obj<String> t_47 =     new string _S46
-    inc <obj<String>>t_47
+    incr_counter <obj<String>>t_47 by 1
     discard<byte> call<function> printString(<obj<String>>t_47)
-    decr <obj<String>>t_47
+    incr_counter <obj<String>>t_47 by -1
     return
 
 int Shape.tellAgain(obj<Shape> t_49)
     obj<String> t_51 =     new string _S50
-    inc <obj<String>>t_51
+    incr_counter <obj<String>>t_51 by 1
     discard<byte> call<function> printString(<obj<String>>t_51)
-    decr <obj<String>>t_51
+    incr_counter <obj<String>>t_51 by -1
     return
 
 int Rectangle.tellAgain(obj<Rectangle> t_53)
     obj<String> t_55 =     new string _S54
-    inc <obj<String>>t_55
+    incr_counter <obj<String>>t_55 by 1
     discard<byte> call<function> printString(<obj<String>>t_55)
-    decr <obj<String>>t_55
+    incr_counter <obj<String>>t_55 by -1
     return
 
 int Circle.tellAgain(obj<Circle> t_57)
     obj<String> t_59 =     new string _S58
-    inc <obj<String>>t_59
+    incr_counter <obj<String>>t_59 by 1
     discard<byte> call<function> printString(<obj<String>>t_59)
-    decr <obj<String>>t_59
+    incr_counter <obj<String>>t_59 by -1
     return
 
 int Square.tellAgain(obj<Square> t_61)
     obj<String> t_63 =     new string _S62
-    inc <obj<String>>t_63
+    incr_counter <obj<String>>t_63 by 1
     discard<byte> call<function> printString(<obj<String>>t_63)
-    decr <obj<String>>t_63
+    incr_counter <obj<String>>t_63 by -1
     return
 
 obj<Node> genNull()
     return <obj<Node>>null
 
 int main()
-    obj<Node> t_66 =     call<function> genNull()
-    obj<Node> t_67 = <obj<Node>>t_66
-    inc <obj<Node>>t_67
-    decr <obj<Node>>t_66
+    obj<Stack> t_66 = new Stack
+    incr_counter <obj<Stack>>t_66 by 1
+    obj<Stack> t_67 = <obj<Stack>>t_66
+    incr_counter <obj<Stack>>t_67 by 1
+    incr_counter <obj<Stack>>t_66 by -1
+    obj<Shape> t_68 = new Shape
+    incr_counter <obj<Shape>>t_68 by 1
+    obj<Shape> t_69 = <obj<Shape>>t_68
+    incr_counter <obj<Shape>>t_69 by 1
+    incr_counter <obj<Shape>>t_68 by -1
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    incr_counter <obj<Stack>>t_67 by -1
+    incr_counter <obj<Shape>>t_69 by -1
+    obj<Rectangle> t_71 = new Rectangle
+    incr_counter <obj<Rectangle>>t_71 by 1
+    t_69 = <obj<Rectangle>>t_71
+    incr_counter <obj<Shape>>t_69 by 1
+    incr_counter <obj<Rectangle>>t_71 by -1
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    incr_counter <obj<Stack>>t_67 by -1
+    incr_counter <obj<Shape>>t_69 by -1
+    obj<Square> t_73 = new Square
+    incr_counter <obj<Square>>t_73 by 1
+    t_69 = <obj<Square>>t_73
+    incr_counter <obj<Shape>>t_69 by 1
+    incr_counter <obj<Square>>t_73 by -1
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    incr_counter <obj<Stack>>t_67 by -1
+    incr_counter <obj<Shape>>t_69 by -1
+    obj<Circle> t_75 = new Circle
+    incr_counter <obj<Circle>>t_75 by 1
+    t_69 = <obj<Circle>>t_75
+    incr_counter <obj<Shape>>t_69 by 1
+    incr_counter <obj<Circle>>t_75 by -1
+    discard<int> call<method:Stack, class:push> t_67(<obj<Stack>>t_67, <obj<Shape>>t_69)
+    incr_counter <obj<Stack>>t_67 by -1
+    incr_counter <obj<Shape>>t_69 by -1
+    jump _WCOND77
+  _WCOND77:
+    byte t_84 =     call<method:Stack, class:isEmpty> t_67(<obj<Stack>>t_67)
+    jump _WBEG78 if <byte>t_84 == <byte>0 or pass-through to _WEND79
+  _WBEG78:
+    obj<Shape> t_80 =     call<method:Stack, class:top> t_67(<obj<Stack>>t_67)
+    t_69 = <obj<Shape>>t_80
+    incr_counter <obj<Shape>>t_69 by 1
+    incr_counter <obj<Shape>>t_80 by -1
+    discard<int> call<method:Shape, class:tell> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Shape, class:tellAgain> t_69(<obj<Shape>>t_69)
+    discard<int> call<method:Stack, class:pop> t_67(<obj<Stack>>t_67)
+    jump _WCOND77
+  _WEND79:
     discard<byte> call<function> print(<obj<Object>>t_67)
-    decr <obj<Node>>t_67
+    incr_counter <obj<Stack>>t_67 by -1
     return <int>0
 
 data string _S46 = "I'm a shape"
@@ -3060,14 +3566,62 @@ data string _S62 = "I'm really a square"
 ]
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -3259,15 +3813,21 @@ data string _S62 = "I'm really a square"
 
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 
 ]
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge .L_entry == to => .L_exit
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Collapse eligible edge _WEND79 == to => .L_exit
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] collapseOnce: Try collapsing CFG nodes in CFG [
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
+[".L_entry","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [] <- fromList [IRLabelName "_WCOND77"]
 
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> GENERATED CFGS
@@ -3571,20 +4131,71 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -3893,20 +4504,71 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -4278,24 +4940,81 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_t_67",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_67",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
 Liveness at start of .L_exit: in = [("%v_return",(1,Int ()))], out = [("%v_return",(0,Int ()))], use = [], kill = []
 Liveness at end of .L_exit: in = [("%v_return",(0,Int ()))], out = [], use = [("%v_return",Int ())], kill = []
+Liveness at start of _WBEG78: in = [("%v_t_67",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_67",(0,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WBEG78: in = [("%v_t_67",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_67",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at start of _WCOND77: in = [("%v_t_67",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_67",(0,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WCOND77: in = [("%v_t_67",(3,Ref () (Cl () (IRTargetRefName "Object")))),("%v___temp_11",(0,Bool ()))], out = [("%v_t_67",(2,Ref () (Cl () (IRTargetRefName "Object"))))], use = [("%v___temp_11",Bool ())], kill = []
+Liveness at start of _WEND79: in = [("%v_t_67",(1,Ref () (Cl () (IRTargetRefName "Object"))))], out = [("%v_t_67",(0,Ref () (Cl () (IRTargetRefName "Object"))))], use = [], kill = []
+Liveness at end of _WEND79: in = [("%v_return",(3,Int ()))], out = [("%v_return",(2,Int ()))], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -4607,20 +5326,71 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -4677,10 +5447,13 @@ Code:
 ,Mthd example.lat:46:5 (Int example.lat:46:5) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain")) [Param example.lat:46:5 (Ref  (Cl  (IRTargetRefName "Square"))) (IRValueName "%a_t_61")] [ILabel example.lat:46:5 (IRLabelName ".L_entry"),ILoad example.lat:46:5 (IRValueName "%v_t_61") (PParam example.lat:46:5 (Ref example.lat:46:5 (Ref  (Cl  (IRTargetRefName "Square")))) 0 (IRValueName "%a_t_61")),INewStr example.lat:47:21 (IRValueName "%v_t_63") "I'm really a square",IAddRef example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) 1,IVCall example.lat:47:9 (Call example.lat:47:9 (Bool inside standard library) (QIdent example.lat:47:9 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printString")) [VVal example.lat:47:9 (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) (IRValueName "%v_t_63")] []),IAddRef example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) (-1),IJmp inside standard library (IRLabelName ".L_exit"),ILabel example.lat:46:5 (IRLabelName ".L_exit"),IRet example.lat:46:5 (VVal example.lat:46:5 (Int example.lat:46:5) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
-,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),ISet example.lat:52:5 (IRValueName "%v___temp_10") (VNull example.lat:52:12 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node")))),ISet example.lat:52:5 (IRValueName "%v_return") (VVal example.lat:52:5 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v___temp_10")),IJmp example.lat:52:5 (IRLabelName ".L_exit"),ILabel example.lat:51:1 (IRLabelName ".L_exit"),IRet example.lat:51:1 (VVal example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
-,Mthd example.lat:55:1 (Int example.lat:55:1) (QIdent example.lat:55:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:55:1 (IRLabelName ".L_entry"),ICall example.lat:56:16 (IRValueName "%v_t_66") (Call example.lat:56:16 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:56:16 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] []),ISet example.lat:56:10 (IRValueName "%v_t_67") (VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")),IAddRef example.lat:56:10 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_67")) 1,IAddRef example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")) (-1),IVCall example.lat:57:5 (Call example.lat:57:5 (Bool inside standard library) (QIdent example.lat:57:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:57:5 (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRValueName "%v_t_67")] []),IAddRef example.lat:57:5 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:57:5 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_67")) (-1),ISet example.lat:58:5 (IRValueName "%v___temp_11") (VInt example.lat:58:5 0),ISet example.lat:58:5 (IRValueName "%v_return") (VVal example.lat:58:5 (Int example.lat:58:12) (IRValueName "%v___temp_11")),IJmp example.lat:58:5 (IRLabelName ".L_exit"),ILabel example.lat:55:1 (IRLabelName ".L_exit"),IRet example.lat:55:1 (VVal example.lat:55:1 (Int example.lat:55:1) (IRValueName "%v_return"))])]
+,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),ISet example.lat:52:5 (IRValueName "%v___temp_10") (VNull example.lat:52:12 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node")))),ISet example.lat:52:5 (IRValueName "%v_return") (VVal example.lat:52:5 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v___temp_10")),IJmp example.lat:52:5 (IRLabelName ".L_exit"),ILabel example.lat:51:1 (IRLabelName ".L_exit"),IRet example.lat:51:1 (VVal example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
+,Mthd example.lat:56:1 (Int example.lat:56:1) (QIdent example.lat:56:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:56:1 (IRLabelName ".L_entry"),INew example.lat:57:17 (IRValueName "%v_t_66") (Cl example.lat:57:17 (IRTargetRefName "Stack")),IAddRef example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) 1,ISet example.lat:57:11 (IRValueName "%v_t_67") (VVal example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")),IAddRef example.lat:57:11 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) 1,IAddRef example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),INew example.lat:58:15 (IRValueName "%v_t_68") (Cl example.lat:58:15 (IRTargetRefName "Shape")),IAddRef example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) 1,ISet example.lat:58:11 (IRValueName "%v_t_69") (VVal example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")),IAddRef example.lat:58:11 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) (-1),IVCall example.lat:59:5 (CallVirt example.lat:59:5 (Int example.lat:11:5) (QIdent example.lat:59:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:59:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:59:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:59:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:60:9 (IRValueName "%v_t_71") (Cl example.lat:60:9 (IRTargetRefName "Rectangle")),IAddRef example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) 1,ISet example.lat:60:5 (IRValueName "%v_t_69") (VVal example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")),IAddRef example.lat:60:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:60:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) (-1),IVCall example.lat:61:5 (CallVirt example.lat:61:5 (Int example.lat:11:5) (QIdent example.lat:61:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:61:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:61:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:61:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:62:9 (IRValueName "%v_t_73") (Cl example.lat:62:9 (IRTargetRefName "Square")),IAddRef example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) 1,ISet example.lat:62:5 (IRValueName "%v_t_69") (VVal example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")),IAddRef example.lat:62:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:62:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) (-1),IVCall example.lat:63:5 (CallVirt example.lat:63:5 (Int example.lat:11:5) (QIdent example.lat:63:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:63:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:63:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:63:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:64:9 (IRValueName "%v_t_75") (Cl example.lat:64:9 (IRTargetRefName "Circle")),IAddRef example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) 1,ISet example.lat:64:5 (IRValueName "%v_t_69") (VVal example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")),IAddRef example.lat:64:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:64:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) (-1),IVCall example.lat:65:5 (CallVirt example.lat:65:5 (Int example.lat:11:5) (QIdent example.lat:65:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:65:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:65:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:65:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WCOND77"),ICall example.lat:66:13 (IRValueName "%v_t_84") (CallVirt example.lat:66:13 (Bool example.lat:17:5) (QIdent example.lat:66:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")) [VVal example.lat:66:13 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),IOp example.lat:66:13 (IRValueName "%v___temp_11") (VVal example.lat:66:13 (Bool example.lat:17:5) (IRValueName "%v_t_84")) (OpEQU example.lat:66:13) (VInt example.lat:66:13 0),ICondJmp example.lat:66:13 (VVal example.lat:66:13 (Bool example.lat:66:13) (IRValueName "%v___temp_11")) (IRLabelName "_WBEG78") (IRLabelName "_WEND79"),ILabel example.lat:66:5 (IRLabelName "_WBEG78"),ICall example.lat:67:13 (IRValueName "%v_t_80") (CallVirt example.lat:67:13 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (QIdent example.lat:67:13 (IRTargetRefName "Stack") (IRTargetRefName "top")) [VVal example.lat:67:13 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),ISet example.lat:67:9 (IRValueName "%v_t_69") (VVal example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")),IAddRef example.lat:67:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")) (-1),IVCall example.lat:68:9 (CallVirt example.lat:68:9 (Int example.lat:28:5) (QIdent example.lat:68:9 (IRTargetRefName "Shape") (IRTargetRefName "tell")) [VVal example.lat:68:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IVCall example.lat:69:9 (CallVirt example.lat:69:9 (Int example.lat:31:5) (QIdent example.lat:69:9 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain")) [VVal example.lat:69:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IVCall example.lat:70:9 (CallVirt example.lat:70:9 (Int example.lat:23:5) (QIdent example.lat:70:9 (IRTargetRefName "Stack") (IRTargetRefName "pop")) [VVal example.lat:70:9 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WEND79"),IVCall example.lat:72:5 (Call example.lat:72:5 (Bool inside standard library) (QIdent example.lat:72:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:72:5 (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRValueName "%v_t_67")] []),IAddRef example.lat:72:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:72:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),ISet example.lat:73:5 (IRValueName "%v___temp_12") (VInt example.lat:73:5 0),ISet example.lat:73:5 (IRValueName "%v_return") (VVal example.lat:73:5 (Int example.lat:73:12) (IRValueName "%v___temp_12")),IJmp example.lat:73:5 (IRLabelName ".L_exit"),ILabel example.lat:56:1 (IRLabelName ".L_exit"),IRet example.lat:56:1 (VVal example.lat:56:1 (Int example.lat:56:1) (IRValueName "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END SSA CODE DUMP 
 
 
@@ -4986,20 +5759,71 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -5056,10 +5880,13 @@ Code:
 ,Mthd example.lat:46:5 (Int example.lat:46:5) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain")) [Param example.lat:46:5 (Ref  (Cl  (IRTargetRefName "Square"))) (IRValueName "%a_t_61")] [ILabel example.lat:46:5 (IRLabelName ".L_entry"),ILoad example.lat:46:5 (IRValueName "%v_t_61") (PParam example.lat:46:5 (Ref example.lat:46:5 (Ref  (Cl  (IRTargetRefName "Square")))) 0 (IRValueName "%a_t_61")),INewStr example.lat:47:21 (IRValueName "%v_t_63") "I'm really a square",IAddRef example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) 1,IVCall example.lat:47:9 (Call example.lat:47:9 (Bool inside standard library) (QIdent example.lat:47:9 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printString")) [VVal example.lat:47:9 (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) (IRValueName "%v_t_63")] []),IAddRef example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) (-1),IJmp inside standard library (IRLabelName ".L_exit"),ILabel example.lat:46:5 (IRLabelName ".L_exit"),IRet example.lat:46:5 (VVal example.lat:46:5 (Int example.lat:46:5) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit"]
 ".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
 ".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
-,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),ISet example.lat:52:5 (IRValueName "%v___temp_10") (VNull example.lat:52:12 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node")))),ISet example.lat:52:5 (IRValueName "%v_return") (VVal example.lat:52:5 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v___temp_10")),IJmp example.lat:52:5 (IRLabelName ".L_exit"),ILabel example.lat:51:1 (IRLabelName ".L_exit"),IRet example.lat:51:1 (VVal example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
-,Mthd example.lat:55:1 (Int example.lat:55:1) (QIdent example.lat:55:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:55:1 (IRLabelName ".L_entry"),ICall example.lat:56:16 (IRValueName "%v_t_66") (Call example.lat:56:16 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:56:16 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] []),ISet example.lat:56:10 (IRValueName "%v_t_67") (VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")),IAddRef example.lat:56:10 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_67")) 1,IAddRef example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")) (-1),IVCall example.lat:57:5 (Call example.lat:57:5 (Bool inside standard library) (QIdent example.lat:57:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:57:5 (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRValueName "%v_t_67")] []),IAddRef example.lat:57:5 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:57:5 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_67")) (-1),ISet example.lat:58:5 (IRValueName "%v___temp_11") (VInt example.lat:58:5 0),ISet example.lat:58:5 (IRValueName "%v_return") (VVal example.lat:58:5 (Int example.lat:58:12) (IRValueName "%v___temp_11")),IJmp example.lat:58:5 (IRLabelName ".L_exit"),ILabel example.lat:55:1 (IRLabelName ".L_exit"),IRet example.lat:55:1 (VVal example.lat:55:1 (Int example.lat:55:1) (IRValueName "%v_return"))])]
+,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),ISet example.lat:52:5 (IRValueName "%v___temp_10") (VNull example.lat:52:12 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node")))),ISet example.lat:52:5 (IRValueName "%v_return") (VVal example.lat:52:5 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v___temp_10")),IJmp example.lat:52:5 (IRLabelName ".L_exit"),ILabel example.lat:51:1 (IRLabelName ".L_exit"),IRet example.lat:51:1 (VVal example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_return"))]),(SSA [".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
+,Mthd example.lat:56:1 (Int example.lat:56:1) (QIdent example.lat:56:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:56:1 (IRLabelName ".L_entry"),INew example.lat:57:17 (IRValueName "%v_t_66") (Cl example.lat:57:17 (IRTargetRefName "Stack")),IAddRef example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) 1,ISet example.lat:57:11 (IRValueName "%v_t_67") (VVal example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")),IAddRef example.lat:57:11 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) 1,IAddRef example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),INew example.lat:58:15 (IRValueName "%v_t_68") (Cl example.lat:58:15 (IRTargetRefName "Shape")),IAddRef example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) 1,ISet example.lat:58:11 (IRValueName "%v_t_69") (VVal example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")),IAddRef example.lat:58:11 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) (-1),IVCall example.lat:59:5 (CallVirt example.lat:59:5 (Int example.lat:11:5) (QIdent example.lat:59:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:59:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:59:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:59:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:60:9 (IRValueName "%v_t_71") (Cl example.lat:60:9 (IRTargetRefName "Rectangle")),IAddRef example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) 1,ISet example.lat:60:5 (IRValueName "%v_t_69") (VVal example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")),IAddRef example.lat:60:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:60:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) (-1),IVCall example.lat:61:5 (CallVirt example.lat:61:5 (Int example.lat:11:5) (QIdent example.lat:61:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:61:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:61:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:61:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:62:9 (IRValueName "%v_t_73") (Cl example.lat:62:9 (IRTargetRefName "Square")),IAddRef example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) 1,ISet example.lat:62:5 (IRValueName "%v_t_69") (VVal example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")),IAddRef example.lat:62:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:62:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) (-1),IVCall example.lat:63:5 (CallVirt example.lat:63:5 (Int example.lat:11:5) (QIdent example.lat:63:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:63:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:63:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:63:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),INew example.lat:64:9 (IRValueName "%v_t_75") (Cl example.lat:64:9 (IRTargetRefName "Circle")),IAddRef example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) 1,ISet example.lat:64:5 (IRValueName "%v_t_69") (VVal example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")),IAddRef example.lat:64:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:64:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) (-1),IVCall example.lat:65:5 (CallVirt example.lat:65:5 (Int example.lat:11:5) (QIdent example.lat:65:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67"),VVal example.lat:65:5 (Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IAddRef example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),IAddRef example.lat:65:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:65:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) (-1),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WCOND77"),ICall example.lat:66:13 (IRValueName "%v_t_84") (CallVirt example.lat:66:13 (Bool example.lat:17:5) (QIdent example.lat:66:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")) [VVal example.lat:66:13 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),IOp example.lat:66:13 (IRValueName "%v___temp_11") (VVal example.lat:66:13 (Bool example.lat:17:5) (IRValueName "%v_t_84")) (OpEQU example.lat:66:13) (VInt example.lat:66:13 0),ICondJmp example.lat:66:13 (VVal example.lat:66:13 (Bool example.lat:66:13) (IRValueName "%v___temp_11")) (IRLabelName "_WBEG78") (IRLabelName "_WEND79"),ILabel example.lat:66:5 (IRLabelName "_WBEG78"),ICall example.lat:67:13 (IRValueName "%v_t_80") (CallVirt example.lat:67:13 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (QIdent example.lat:67:13 (IRTargetRefName "Stack") (IRTargetRefName "top")) [VVal example.lat:67:13 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),ISet example.lat:67:9 (IRValueName "%v_t_69") (VVal example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")),IAddRef example.lat:67:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")) 1,IAddRef example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")) (-1),IVCall example.lat:68:9 (CallVirt example.lat:68:9 (Int example.lat:28:5) (QIdent example.lat:68:9 (IRTargetRefName "Shape") (IRTargetRefName "tell")) [VVal example.lat:68:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IVCall example.lat:69:9 (CallVirt example.lat:69:9 (Int example.lat:31:5) (QIdent example.lat:69:9 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain")) [VVal example.lat:69:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_69")]),IVCall example.lat:70:9 (CallVirt example.lat:70:9 (Int example.lat:23:5) (QIdent example.lat:70:9 (IRTargetRefName "Stack") (IRTargetRefName "pop")) [VVal example.lat:70:9 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")]),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WEND79"),IVCall example.lat:72:5 (Call example.lat:72:5 (Bool inside standard library) (QIdent example.lat:72:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:72:5 (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRValueName "%v_t_67")] []),IAddRef example.lat:72:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:72:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_67")) (-1),ISet example.lat:73:5 (IRValueName "%v___temp_12") (VInt example.lat:73:5 0),ISet example.lat:73:5 (IRValueName "%v_return") (VVal example.lat:73:5 (Int example.lat:73:12) (IRValueName "%v___temp_12")),IJmp example.lat:73:5 (IRLabelName ".L_exit"),ILabel example.lat:56:1 (IRLabelName ".L_exit"),IRet example.lat:56:1 (VVal example.lat:56:1 (Int example.lat:56:1) (IRValueName "%v_return"))])]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END OPTIMIZED CODE DUMP 
 
 
@@ -5425,24 +6252,81 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
 Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
 Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at start of _WBEG78: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WBEG78: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at start of _WCOND77: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WCOND77: in = [("%v___temp_11",(0,Bool ())),("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [("%v___temp_11",Bool ())], kill = []
+Liveness at start of _WEND79: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WEND79: in = [], out = [], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -5814,24 +6698,81 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
 Liveness at start of .L_exit: in = [], out = [], use = [], kill = []
 Liveness at end of .L_exit: in = [], out = [], use = [], kill = []
+Liveness at start of _WBEG78: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WBEG78: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at start of _WCOND77: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WCOND77: in = [("%v___temp_11",(0,Bool ())),("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [("%v___temp_11",Bool ())], kill = []
+Liveness at start of _WEND79: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WEND79: in = [], out = [], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -5900,8 +6841,28 @@ Code:
 ,%v_return (reg preference: CalleeSaved) (R12): ["%v_t_63"]
 %v_t_63 (reg preference: CalleeSaved) (RBX): ["%v_return"]
 ~arg_0_RDI (reg preference: CallerSaved) (RDI): []
-,,%v_t_66 (reg preference: CalleeSaved) (RBX): []
-~arg_0_RDI (reg preference: CallerSaved) (RDI): []
+,,%v___temp_11 (reg preference: CallerSaved) (RAX): ["%v_t_66"]
+%v_t_66 (reg preference: CalleeSaved) (RBX): ["%v___temp_11","%v_t_68","%v_t_71","%v_t_73","%v_t_75","%v_t_80","%v_t_84","~arg_1_RSI","~arg_3_RSI","~arg_5_RSI","~arg_7_RSI"]
+%v_t_68 (reg preference: CalleeSaved) (R12): ["%v_t_66","~arg_0_RDI"]
+%v_t_71 (reg preference: CalleeSaved) (R12): ["%v_t_66","~arg_2_RDI"]
+%v_t_73 (reg preference: CalleeSaved) (R12): ["%v_t_66","~arg_4_RDI"]
+%v_t_75 (reg preference: CalleeSaved) (R12): ["%v_t_66","~arg_6_RDI"]
+%v_t_80 (reg preference: CalleeSaved) (R12): ["%v_t_66"]
+%v_t_84 (reg preference: CallerSaved) (RAX): ["%v_t_66"]
+~arg_0_RDI (reg preference: CallerSaved) (RDI): ["%v_t_68"]
+~arg_10_RDI (reg preference: CallerSaved) (RDI): []
+~arg_11_RDI (reg preference: CallerSaved) (RDI): []
+~arg_12_RDI (reg preference: CallerSaved) (RDI): []
+~arg_13_RDI (reg preference: CallerSaved) (RDI): []
+~arg_1_RSI (reg preference: CallerSaved) (RSI): ["%v_t_66"]
+~arg_2_RDI (reg preference: CallerSaved) (RDI): ["%v_t_71"]
+~arg_3_RSI (reg preference: CallerSaved) (RSI): ["%v_t_66"]
+~arg_4_RDI (reg preference: CallerSaved) (RDI): ["%v_t_73"]
+~arg_5_RSI (reg preference: CallerSaved) (RSI): ["%v_t_66"]
+~arg_6_RDI (reg preference: CallerSaved) (RDI): ["%v_t_75"]
+~arg_7_RSI (reg preference: CallerSaved) (RSI): ["%v_t_66"]
+~arg_8_RDI (reg preference: CallerSaved) (RDI): []
+~arg_9_RDI (reg preference: CallerSaved) (RDI): []
 ]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] >> END STEP Allocating registers...
 
@@ -6210,20 +7171,71 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry",".L_exit"]
-".L_entry" -> fromList [IRLabelName ".L_exit"] <- fromList []
-".L_exit" -> fromList [] <- fromList [IRLabelName ".L_entry"]
+[".L_entry",".L_exit","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+".L_exit" -> fromList [] <- fromList [IRLabelName "_WEND79"]
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [IRLabelName ".L_exit"] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  %v_t_67 := Node & %v_t_66;
-  addref Node & Node & %v_t_67 1;
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  %v_t_67 := Stack & %v_t_66;
+  addref Stack & Stack & %v_t_67 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  %v_t_69 := Shape & %v_t_68;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  %v_t_69 := Rectangle & %v_t_71;
+  addref Shape & Shape & %v_t_69 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  %v_t_69 := Square & %v_t_73;
+  addref Shape & Shape & %v_t_69 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  %v_t_69 := Circle & %v_t_75;
+  addref Shape & Shape & %v_t_69 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_67, Shape & %v_t_69);
+  addref Stack & Stack & %v_t_67 -1;
+  addref Shape & Shape & %v_t_69 -1;
+  jump _WCOND77;
+  _WCOND77:
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_67);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_67);
+  %v_t_69 := Shape & %v_t_80;
+  addref Shape & Shape & %v_t_69 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_69);
+  callvirt int Shape.tellAgain (Shape & %v_t_69);
+  callvirt int Stack.pop (Stack & %v_t_67);
+  jump _WCOND77;
+  _WEND79:
   call boolean ~cl_TopLevel.print (Object & %v_t_67);
-  addref Node & Node & %v_t_67 -1;
-  %v___temp_11 := 0;
-  %v_return := int %v___temp_11;
+  addref Stack & Stack & %v_t_67 -1;
+  %v___temp_12 := 0;
+  %v_return := int %v___temp_12;
   jump .L_exit;
 .L_exit:
   return int %v_return;
@@ -6499,17 +7511,66 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
+[".L_entry","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [] <- fromList [IRLabelName "_WCOND77"]
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  addref Node & Node & %v_t_66 1;
-  addref Node & Node & %v_t_66 -1;
-  call boolean ~cl_TopLevel.print (Node & %v_t_66);
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  addref Stack & Stack & %v_t_66 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  addref Shape & Shape & %v_t_68 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Shape & %v_t_68);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Shape & %v_t_68 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  addref Shape & Rectangle & %v_t_71 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Rectangle & %v_t_71);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Rectangle & %v_t_71 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  addref Shape & Square & %v_t_73 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Square & %v_t_73);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Square & %v_t_73 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  addref Shape & Circle & %v_t_75 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Circle & %v_t_75);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Circle & %v_t_75 -1;
+  jump _WCOND77;
+  _WCOND77:
+  endphi;
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_66);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  endphi;
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_66);
+  addref Shape & Shape & %v_t_80 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_80);
+  callvirt int Shape.tellAgain (Shape & %v_t_80);
+  callvirt int Stack.pop (Stack & %v_t_66);
+  jump _WCOND77;
+  _WEND79:
+  endphi;
+  call boolean ~cl_TopLevel.print (Stack & %v_t_66);
+  addref Stack & Stack & %v_t_66 -1;
   endphi;
   return 0;
 ]
@@ -6818,19 +7879,74 @@ Code:
 ]
 
 CFG for ~cl_TopLevel.main:
-[".L_entry"]
-".L_entry" -> fromList [] <- fromList []
+[".L_entry","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [] <- fromList [IRLabelName "_WCOND77"]
 Liveness at start of .L_entry: in = [], out = [], use = [], kill = []
-Liveness at end of .L_entry: in = [], out = [], use = [], kill = []
+Liveness at end of .L_entry: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at start of _WBEG78: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WBEG78: in = [("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at start of _WCOND77: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WCOND77: in = [("%v___temp_11",(0,Bool ())),("%v_t_66",(4,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(3,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [("%v___temp_11",Bool ())], kill = []
+Liveness at start of _WEND79: in = [("%v_t_66",(2,Ref () (Cl () (IRTargetRefName "Stack"))))], out = [("%v_t_66",(1,Ref () (Cl () (IRTargetRefName "Stack"))))], use = [], kill = []
+Liveness at end of _WEND79: in = [], out = [], use = [], kill = []
 Code: 
 .method int ~cl_TopLevel.main (): [
 .L_entry:
   endphi;
-  %v_t_66 := call Node & ~cl_TopLevel.genNull ();
-  addref Node & Node & %v_t_66 1;
-  addref Node & Node & %v_t_66 -1;
-  call boolean ~cl_TopLevel.print (Node & %v_t_66);
-  addref Node & Node & %v_t_66 -1;
+  %v_t_66 := new Stack;
+  addref Stack & Stack & %v_t_66 1;
+  addref Stack & Stack & %v_t_66 1;
+  addref Stack & Stack & %v_t_66 -1;
+  %v_t_68 := new Shape;
+  addref Shape & Shape & %v_t_68 1;
+  addref Shape & Shape & %v_t_68 1;
+  addref Shape & Shape & %v_t_68 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Shape & %v_t_68);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Shape & %v_t_68 -1;
+  %v_t_71 := new Rectangle;
+  addref Rectangle & Rectangle & %v_t_71 1;
+  addref Shape & Rectangle & %v_t_71 1;
+  addref Rectangle & Rectangle & %v_t_71 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Rectangle & %v_t_71);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Rectangle & %v_t_71 -1;
+  %v_t_73 := new Square;
+  addref Square & Square & %v_t_73 1;
+  addref Shape & Square & %v_t_73 1;
+  addref Square & Square & %v_t_73 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Square & %v_t_73);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Square & %v_t_73 -1;
+  %v_t_75 := new Circle;
+  addref Circle & Circle & %v_t_75 1;
+  addref Shape & Circle & %v_t_75 1;
+  addref Circle & Circle & %v_t_75 -1;
+  callvirt int Stack.push (Stack & %v_t_66, Circle & %v_t_75);
+  addref Stack & Stack & %v_t_66 -1;
+  addref Shape & Circle & %v_t_75 -1;
+  jump _WCOND77;
+  _WCOND77:
+  endphi;
+  %v_t_84 := callvirt boolean Stack.isEmpty (Stack & %v_t_66);
+  %v___temp_11 := boolean %v_t_84 == 0;
+  jump if boolean %v___temp_11 then _WBEG78 else _WEND79;
+  _WBEG78:
+  endphi;
+  %v_t_80 := callvirt Shape & Stack.top (Stack & %v_t_66);
+  addref Shape & Shape & %v_t_80 1;
+  addref Shape & Shape & %v_t_80 -1;
+  callvirt int Shape.tell (Shape & %v_t_80);
+  callvirt int Shape.tellAgain (Shape & %v_t_80);
+  callvirt int Stack.pop (Stack & %v_t_66);
+  jump _WCOND77;
+  _WEND79:
+  endphi;
+  call boolean ~cl_TopLevel.print (Stack & %v_t_66);
+  addref Stack & Stack & %v_t_66 -1;
   endphi;
   return 0;
 ]
@@ -6841,7 +7957,7 @@ Code:
 
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] COMPL_ DONEexample.lat
 
-CompiledProg example.lat:1:1 (Meta example.lat:1:1 [ClDef inside standard library (IRTargetRefName "Array") [IRTargetRefName "Array",IRTargetRefName "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRTargetRefName "elements"),FldDef inside standard library (Int inside standard library) (IRTargetRefName "length"),FldDef inside standard library (Int inside standard library) (IRTargetRefName "elementSize")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Array") (IRTargetRefName "toString"))],ClDef example.lat:40:7 (IRTargetRefName "Circle") [IRTargetRefName "Circle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:41:10 "Shape" (FType example.lat:41:10 (Int example.lat:41:5) []) (QIdent example.lat:41:10 (IRTargetRefName "Circle") (IRTargetRefName "tellAgain"))],ClDef example.lat:1:7 (IRTargetRefName "Node") [IRTargetRefName "Node",IRTargetRefName "Object"] [FldDef example.lat:2:11 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (IRTargetRefName "elem"),FldDef example.lat:3:10 (Ref example.lat:3:5 (Cl example.lat:3:5 (IRTargetRefName "Node"))) (IRTargetRefName "next")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:4:10 "Node" (FType example.lat:4:10 (Int example.lat:4:5) [Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))]) (QIdent example.lat:4:10 (IRTargetRefName "Node") (IRTargetRefName "setElem")),MthdDef example.lat:5:10 "Node" (FType example.lat:5:10 (Int example.lat:5:5) [Ref example.lat:5:18 (Cl example.lat:5:18 (IRTargetRefName "Node"))]) (QIdent example.lat:5:10 (IRTargetRefName "Node") (IRTargetRefName "setNext")),MthdDef example.lat:6:11 "Node" (FType example.lat:6:11 (Ref example.lat:6:5 (Cl example.lat:6:5 (IRTargetRefName "Shape"))) []) (QIdent example.lat:6:11 (IRTargetRefName "Node") (IRTargetRefName "getElem")),MthdDef example.lat:7:10 "Node" (FType example.lat:7:10 (Ref example.lat:7:5 (Cl example.lat:7:5 (IRTargetRefName "Node"))) []) (QIdent example.lat:7:10 (IRTargetRefName "Node") (IRTargetRefName "getNext"))],ClDef inside standard library (IRTargetRefName "Object") [IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString"))],ClDef example.lat:35:7 (IRTargetRefName "Rectangle") [IRTargetRefName "Rectangle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:36:10 "Shape" (FType example.lat:36:10 (Int example.lat:36:5) []) (QIdent example.lat:36:10 (IRTargetRefName "Rectangle") (IRTargetRefName "tellAgain"))],ClDef example.lat:27:7 (IRTargetRefName "Shape") [IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:31:10 "Shape" (FType example.lat:31:10 (Int example.lat:31:5) []) (QIdent example.lat:31:10 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain"))],ClDef example.lat:45:7 (IRTargetRefName "Square") [IRTargetRefName "Square",IRTargetRefName "Rectangle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:46:10 "Shape" (FType example.lat:46:10 (Int example.lat:46:5) []) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain"))],ClDef example.lat:9:7 (IRTargetRefName "Stack") [IRTargetRefName "Stack",IRTargetRefName "Object"] [FldDef example.lat:10:10 (Ref example.lat:10:5 (Cl example.lat:10:5 (IRTargetRefName "Node"))) (IRTargetRefName "head")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:11:10 "Stack" (FType example.lat:11:10 (Int example.lat:11:5) [Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))]) (QIdent example.lat:11:10 (IRTargetRefName "Stack") (IRTargetRefName "push")),MthdDef example.lat:17:13 "Stack" (FType example.lat:17:13 (Bool example.lat:17:5) []) (QIdent example.lat:17:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")),MthdDef example.lat:20:11 "Stack" (FType example.lat:20:11 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) []) (QIdent example.lat:20:11 (IRTargetRefName "Stack") (IRTargetRefName "top")),MthdDef example.lat:23:10 "Stack" (FType example.lat:23:10 (Int example.lat:23:5) []) (QIdent example.lat:23:10 (IRTargetRefName "Stack") (IRTargetRefName "pop"))],ClDef inside standard library (IRTargetRefName "String") [IRTargetRefName "String",IRTargetRefName "Object"] [] [MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "charAt")),MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "equals")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "concat")),MthdDef inside standard library "String" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "startsWith")),MthdDef inside standard library "String" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "endsWith")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "getBytes")),MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String")),Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "indexOf")),MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "length")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) [Int inside standard library,Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "substring")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "toString")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "getHashCode"))],ClDef example.lat:1:1 (IRTargetRefName "~cl_TopLevel") [] [] [MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Array"))) []) (QIdent example.lat:1:1 (IRTargetRefName "Array") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))) []) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "equals")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "getHashCode")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "substring")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "length")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String")),Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "indexOf")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "getBytes")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "endsWith")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "startsWith")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String")),Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "concat")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "charAt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printInt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printByte")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printBoolean")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Array"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printBinArray")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "byteToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "boolToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "intToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "error")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "readInt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "readString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object")),Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "__cast")),MthdDef example.lat:4:5 "" (FType example.lat:4:5 (Int example.lat:4:5) [Ref  (Cl  (IRTargetRefName "Node")),Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))]) (QIdent example.lat:4:10 (IRTargetRefName "Node") (IRTargetRefName "setElem")),MthdDef example.lat:5:5 "" (FType example.lat:5:5 (Int example.lat:5:5) [Ref  (Cl  (IRTargetRefName "Node")),Ref example.lat:5:18 (Cl example.lat:5:18 (IRTargetRefName "Node"))]) (QIdent example.lat:5:10 (IRTargetRefName "Node") (IRTargetRefName "setNext")),MthdDef example.lat:6:5 "" (FType example.lat:6:5 (Ref example.lat:6:5 (Cl example.lat:6:5 (IRTargetRefName "Shape"))) [Ref  (Cl  (IRTargetRefName "Node"))]) (QIdent example.lat:6:11 (IRTargetRefName "Node") (IRTargetRefName "getElem")),MthdDef example.lat:7:5 "" (FType example.lat:7:5 (Ref example.lat:7:5 (Cl example.lat:7:5 (IRTargetRefName "Node"))) [Ref  (Cl  (IRTargetRefName "Node"))]) (QIdent example.lat:7:10 (IRTargetRefName "Node") (IRTargetRefName "getNext")),MthdDef example.lat:11:5 "" (FType example.lat:11:5 (Int example.lat:11:5) [Ref  (Cl  (IRTargetRefName "Stack")),Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))]) (QIdent example.lat:11:10 (IRTargetRefName "Stack") (IRTargetRefName "push")),MthdDef example.lat:17:5 "" (FType example.lat:17:5 (Bool example.lat:17:5) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:17:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")),MthdDef example.lat:20:5 "" (FType example.lat:20:5 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:20:11 (IRTargetRefName "Stack") (IRTargetRefName "top")),MthdDef example.lat:23:5 "" (FType example.lat:23:5 (Int example.lat:23:5) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:23:10 (IRTargetRefName "Stack") (IRTargetRefName "pop")),MthdDef example.lat:28:5 "" (FType example.lat:28:5 (Int example.lat:28:5) [Ref  (Cl  (IRTargetRefName "Shape"))]) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:31:5 "" (FType example.lat:31:5 (Int example.lat:31:5) [Ref  (Cl  (IRTargetRefName "Shape"))]) (QIdent example.lat:31:10 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain")),MthdDef example.lat:36:5 "" (FType example.lat:36:5 (Int example.lat:36:5) [Ref  (Cl  (IRTargetRefName "Rectangle"))]) (QIdent example.lat:36:10 (IRTargetRefName "Rectangle") (IRTargetRefName "tellAgain")),MthdDef example.lat:41:5 "" (FType example.lat:41:5 (Int example.lat:41:5) [Ref  (Cl  (IRTargetRefName "Circle"))]) (QIdent example.lat:41:10 (IRTargetRefName "Circle") (IRTargetRefName "tellAgain")),MthdDef example.lat:46:5 "" (FType example.lat:46:5 (Int example.lat:46:5) [Ref  (Cl  (IRTargetRefName "Square"))]) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain")),MthdDef example.lat:51:1 "" (FType example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) []) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")),MthdDef example.lat:55:1 "" (FType example.lat:55:1 (Int example.lat:55:1) []) (QIdent example.lat:55:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main"))]]) [([".L_entry"]
+CompiledProg example.lat:1:1 (Meta example.lat:1:1 [ClDef inside standard library (IRTargetRefName "Array") [IRTargetRefName "Array",IRTargetRefName "Object"] [FldDef inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))) (IRTargetRefName "elements"),FldDef inside standard library (Int inside standard library) (IRTargetRefName "length"),FldDef inside standard library (Int inside standard library) (IRTargetRefName "elementSize")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Array") (IRTargetRefName "toString"))],ClDef example.lat:40:7 (IRTargetRefName "Circle") [IRTargetRefName "Circle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:41:10 "Shape" (FType example.lat:41:10 (Int example.lat:41:5) []) (QIdent example.lat:41:10 (IRTargetRefName "Circle") (IRTargetRefName "tellAgain"))],ClDef example.lat:1:7 (IRTargetRefName "Node") [IRTargetRefName "Node",IRTargetRefName "Object"] [FldDef example.lat:2:11 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (IRTargetRefName "elem"),FldDef example.lat:3:10 (Ref example.lat:3:5 (Cl example.lat:3:5 (IRTargetRefName "Node"))) (IRTargetRefName "next")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:4:10 "Node" (FType example.lat:4:10 (Int example.lat:4:5) [Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))]) (QIdent example.lat:4:10 (IRTargetRefName "Node") (IRTargetRefName "setElem")),MthdDef example.lat:5:10 "Node" (FType example.lat:5:10 (Int example.lat:5:5) [Ref example.lat:5:18 (Cl example.lat:5:18 (IRTargetRefName "Node"))]) (QIdent example.lat:5:10 (IRTargetRefName "Node") (IRTargetRefName "setNext")),MthdDef example.lat:6:11 "Node" (FType example.lat:6:11 (Ref example.lat:6:5 (Cl example.lat:6:5 (IRTargetRefName "Shape"))) []) (QIdent example.lat:6:11 (IRTargetRefName "Node") (IRTargetRefName "getElem")),MthdDef example.lat:7:10 "Node" (FType example.lat:7:10 (Ref example.lat:7:5 (Cl example.lat:7:5 (IRTargetRefName "Node"))) []) (QIdent example.lat:7:10 (IRTargetRefName "Node") (IRTargetRefName "getNext"))],ClDef inside standard library (IRTargetRefName "Object") [IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString"))],ClDef example.lat:35:7 (IRTargetRefName "Rectangle") [IRTargetRefName "Rectangle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:36:10 "Shape" (FType example.lat:36:10 (Int example.lat:36:5) []) (QIdent example.lat:36:10 (IRTargetRefName "Rectangle") (IRTargetRefName "tellAgain"))],ClDef example.lat:27:7 (IRTargetRefName "Shape") [IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:31:10 "Shape" (FType example.lat:31:10 (Int example.lat:31:5) []) (QIdent example.lat:31:10 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain"))],ClDef example.lat:45:7 (IRTargetRefName "Square") [IRTargetRefName "Square",IRTargetRefName "Rectangle",IRTargetRefName "Shape",IRTargetRefName "Object"] [] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:28:10 "Shape" (FType example.lat:28:10 (Int example.lat:28:5) []) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:46:10 "Shape" (FType example.lat:46:10 (Int example.lat:46:5) []) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain"))],ClDef example.lat:9:7 (IRTargetRefName "Stack") [IRTargetRefName "Stack",IRTargetRefName "Object"] [FldDef example.lat:10:10 (Ref example.lat:10:5 (Cl example.lat:10:5 (IRTargetRefName "Node"))) (IRTargetRefName "head")] [MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:11:10 "Stack" (FType example.lat:11:10 (Int example.lat:11:5) [Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))]) (QIdent example.lat:11:10 (IRTargetRefName "Stack") (IRTargetRefName "push")),MthdDef example.lat:17:13 "Stack" (FType example.lat:17:13 (Bool example.lat:17:5) []) (QIdent example.lat:17:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")),MthdDef example.lat:20:11 "Stack" (FType example.lat:20:11 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) []) (QIdent example.lat:20:11 (IRTargetRefName "Stack") (IRTargetRefName "top")),MthdDef example.lat:23:10 "Stack" (FType example.lat:23:10 (Int example.lat:23:5) []) (QIdent example.lat:23:10 (IRTargetRefName "Stack") (IRTargetRefName "pop"))],ClDef inside standard library (IRTargetRefName "String") [IRTargetRefName "String",IRTargetRefName "Object"] [] [MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) [Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "charAt")),MthdDef inside standard library "Object" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "Object"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "equals")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "concat")),MthdDef inside standard library "String" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "startsWith")),MthdDef inside standard library "String" (FType inside standard library (Bool inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "endsWith")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Arr inside standard library (Int inside standard library))) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "getBytes")),MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) [Ref inside standard library (Cl inside standard library (IRTargetRefName "String")),Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "indexOf")),MthdDef inside standard library "String" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "length")),MthdDef inside standard library "String" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) [Int inside standard library,Int inside standard library]) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "substring")),MthdDef inside standard library "Object" (FType inside standard library (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "toString")),MthdDef inside standard library "Object" (FType inside standard library (Int inside standard library) []) (QIdent inside standard library (IRTargetRefName "String") (IRTargetRefName "getHashCode"))],ClDef example.lat:1:1 (IRTargetRefName "~cl_TopLevel") [] [] [MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Array"))) []) (QIdent example.lat:1:1 (IRTargetRefName "Array") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))) []) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "getHashCode")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "Object") (IRTargetRefName "equals")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "equals")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "getHashCode")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "toString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "substring")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "length")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String")),Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "indexOf")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "getBytes")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "endsWith")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "startsWith")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String")),Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "concat")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "String") (IRTargetRefName "charAt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printInt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printByte")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printBoolean")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Array"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printBinArray")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "byteToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Bool example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "boolToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) [Int example.lat:1:1]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "intToString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Bool example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "error")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Int example.lat:1:1) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "readInt")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "String"))) []) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "readString")),MthdDef example.lat:1:1 "" (FType example.lat:1:1 (Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))) [Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object")),Ref example.lat:1:1 (Cl example.lat:1:1 (IRTargetRefName "Object"))]) (QIdent example.lat:1:1 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "__cast")),MthdDef example.lat:4:5 "" (FType example.lat:4:5 (Int example.lat:4:5) [Ref  (Cl  (IRTargetRefName "Node")),Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))]) (QIdent example.lat:4:10 (IRTargetRefName "Node") (IRTargetRefName "setElem")),MthdDef example.lat:5:5 "" (FType example.lat:5:5 (Int example.lat:5:5) [Ref  (Cl  (IRTargetRefName "Node")),Ref example.lat:5:18 (Cl example.lat:5:18 (IRTargetRefName "Node"))]) (QIdent example.lat:5:10 (IRTargetRefName "Node") (IRTargetRefName "setNext")),MthdDef example.lat:6:5 "" (FType example.lat:6:5 (Ref example.lat:6:5 (Cl example.lat:6:5 (IRTargetRefName "Shape"))) [Ref  (Cl  (IRTargetRefName "Node"))]) (QIdent example.lat:6:11 (IRTargetRefName "Node") (IRTargetRefName "getElem")),MthdDef example.lat:7:5 "" (FType example.lat:7:5 (Ref example.lat:7:5 (Cl example.lat:7:5 (IRTargetRefName "Node"))) [Ref  (Cl  (IRTargetRefName "Node"))]) (QIdent example.lat:7:10 (IRTargetRefName "Node") (IRTargetRefName "getNext")),MthdDef example.lat:11:5 "" (FType example.lat:11:5 (Int example.lat:11:5) [Ref  (Cl  (IRTargetRefName "Stack")),Ref example.lat:11:15 (Cl example.lat:11:15 (IRTargetRefName "Shape"))]) (QIdent example.lat:11:10 (IRTargetRefName "Stack") (IRTargetRefName "push")),MthdDef example.lat:17:5 "" (FType example.lat:17:5 (Bool example.lat:17:5) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:17:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")),MthdDef example.lat:20:5 "" (FType example.lat:20:5 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:20:11 (IRTargetRefName "Stack") (IRTargetRefName "top")),MthdDef example.lat:23:5 "" (FType example.lat:23:5 (Int example.lat:23:5) [Ref  (Cl  (IRTargetRefName "Stack"))]) (QIdent example.lat:23:10 (IRTargetRefName "Stack") (IRTargetRefName "pop")),MthdDef example.lat:28:5 "" (FType example.lat:28:5 (Int example.lat:28:5) [Ref  (Cl  (IRTargetRefName "Shape"))]) (QIdent example.lat:28:10 (IRTargetRefName "Shape") (IRTargetRefName "tell")),MthdDef example.lat:31:5 "" (FType example.lat:31:5 (Int example.lat:31:5) [Ref  (Cl  (IRTargetRefName "Shape"))]) (QIdent example.lat:31:10 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain")),MthdDef example.lat:36:5 "" (FType example.lat:36:5 (Int example.lat:36:5) [Ref  (Cl  (IRTargetRefName "Rectangle"))]) (QIdent example.lat:36:10 (IRTargetRefName "Rectangle") (IRTargetRefName "tellAgain")),MthdDef example.lat:41:5 "" (FType example.lat:41:5 (Int example.lat:41:5) [Ref  (Cl  (IRTargetRefName "Circle"))]) (QIdent example.lat:41:10 (IRTargetRefName "Circle") (IRTargetRefName "tellAgain")),MthdDef example.lat:46:5 "" (FType example.lat:46:5 (Int example.lat:46:5) [Ref  (Cl  (IRTargetRefName "Square"))]) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain")),MthdDef example.lat:51:1 "" (FType example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) []) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")),MthdDef example.lat:56:1 "" (FType example.lat:56:1 (Int example.lat:56:1) []) (QIdent example.lat:56:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main"))]]) [([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
 ,Mthd example.lat:4:5 (Int example.lat:4:5) (QIdent example.lat:4:10 (IRTargetRefName "Node") (IRTargetRefName "setElem")) [Param example.lat:4:5 (Ref  (Cl  (IRTargetRefName "Node"))) (IRValueName "%a_t_16"),Param example.lat:4:5 (Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))) (IRValueName "%a_t_17")] [ILabel example.lat:4:5 (IRLabelName ".L_entry"),IEndPhi example.lat:4:5,ILoad example.lat:4:5 (IRValueName "%v_t_16") (PParam example.lat:4:5 (Ref example.lat:4:5 (Ref  (Cl  (IRTargetRefName "Node")))) 0 (IRValueName "%a_t_16")),ILoad example.lat:4:5 (IRValueName "%v_t_17") (PParam example.lat:4:5 (Ref example.lat:4:5 (Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape")))) 1 (IRValueName "%a_t_17")),ILoad example.lat:4:29 (IRValueName "%v_c0") (PFld example.lat:4:29 (Ref example.lat:4:29 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape")))) (VVal example.lat:4:29 (Cl example.lat:4:29 (IRTargetRefName "Node")) (IRValueName "%v_t_16")) (QIdent example.lat:4:29 (IRTargetRefName "Node") (IRTargetRefName "elem"))),IAddRef example.lat:4:29 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (VVal example.lat:4:29 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (IRValueName "%v_c0")) (-1),IAddRef example.lat:4:29 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (VVal example.lat:4:29 (Ref example.lat:4:29 (Cl example.lat:4:29 (IRTargetRefName "Shape"))) (IRValueName "%v_t_17")) 1,IStore example.lat:4:29 (VVal example.lat:4:29 (Ref example.lat:4:29 (Cl example.lat:4:29 (IRTargetRefName "Shape"))) (IRValueName "%v_t_17")) (PFld example.lat:4:29 (Ref example.lat:4:29 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape")))) (VVal example.lat:4:29 (Cl example.lat:4:29 (IRTargetRefName "Node")) (IRValueName "%v_t_16")) (QIdent example.lat:4:29 (IRTargetRefName "Node") (IRTargetRefName "elem"))),IAddRef example.lat:4:29 (Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))) (VVal example.lat:4:29 (Ref example.lat:4:18 (Cl example.lat:4:18 (IRTargetRefName "Shape"))) (IRValueName "%v_t_17")) (-1),IAddRef example.lat:4:29 (Ref  (Cl  (IRTargetRefName "Node"))) (VVal example.lat:4:29 (Ref  (Cl  (IRTargetRefName "Node"))) (IRValueName "%v_t_16")) (-1),IEndPhi example.lat:4:5,IRet example.lat:4:5 (VVal example.lat:4:5 (Int example.lat:4:5) (IRValueName "%v_return"))],RegisterAllocation {regAlloc = fromList [(IRValueName "%a_t_16",RDI),(IRValueName "%a_t_17",RSI),(IRValueName "%v_c0",RDI),(IRValueName "%v_return",RCX),(IRValueName "%v_t_16",RDX),(IRValueName "%v_t_17",RAX)], numLocals = 0}),([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
@@ -6872,9 +7988,12 @@ CompiledProg example.lat:1:1 (Meta example.lat:1:1 [ClDef inside standard librar
 ".L_entry" -> fromList [] <- fromList []
 ,Mthd example.lat:46:5 (Int example.lat:46:5) (QIdent example.lat:46:10 (IRTargetRefName "Square") (IRTargetRefName "tellAgain")) [Param example.lat:46:5 (Ref  (Cl  (IRTargetRefName "Square"))) (IRValueName "%a_t_61")] [ILabel example.lat:46:5 (IRLabelName ".L_entry"),IEndPhi example.lat:46:5,INewStr example.lat:47:21 (IRValueName "%v_t_63") "I'm really a square",IAddRef example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:21 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) 1,IVCall example.lat:47:9 (Call example.lat:47:9 (Bool inside standard library) (QIdent example.lat:47:9 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "printString")) [VVal example.lat:47:9 (Ref inside standard library (Cl inside standard library (IRTargetRefName "String"))) (IRValueName "%v_t_63")] []),IAddRef example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (VVal example.lat:47:9 (Ref example.lat:47:21 (Cl example.lat:47:21 (IRTargetRefName "String"))) (IRValueName "%v_t_63")) (-1),IEndPhi example.lat:46:5,IRet example.lat:46:5 (VVal example.lat:46:5 (Int example.lat:46:5) (IRValueName "%v_return"))],RegisterAllocation {regAlloc = fromList [(IRValueName "%v_return",R12),(IRValueName "%v_t_63",RBX),(IRValueName "~arg_0_RDI",RDI)], numLocals = 0}),([".L_entry"]
 ".L_entry" -> fromList [] <- fromList []
-,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),IEndPhi example.lat:51:1,IEndPhi example.lat:51:1,IRet example.lat:51:1 (VNull example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))))],RegisterAllocation {regAlloc = fromList [], numLocals = 0}),([".L_entry"]
-".L_entry" -> fromList [] <- fromList []
-,Mthd example.lat:55:1 (Int example.lat:55:1) (QIdent example.lat:55:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:55:1 (IRLabelName ".L_entry"),IEndPhi example.lat:55:1,ICall example.lat:56:16 (IRValueName "%v_t_66") (Call example.lat:56:16 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:56:16 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] []),IAddRef example.lat:56:10 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:56:10 (Cl example.lat:56:10 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")) 1,IAddRef example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")) (-1),IVCall example.lat:57:5 (Call example.lat:57:5 (Bool inside standard library) (QIdent example.lat:57:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:57:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")] []),IAddRef example.lat:57:5 (Ref example.lat:56:5 (Cl example.lat:56:5 (IRTargetRefName "Node"))) (VVal example.lat:57:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_66")) (-1),IEndPhi example.lat:55:1,IRet example.lat:55:1 (VInt example.lat:55:1 0)],RegisterAllocation {regAlloc = fromList [(IRValueName "%v_t_66",RBX),(IRValueName "~arg_0_RDI",RDI)], numLocals = 0})]
+,Mthd example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (QIdent example.lat:51:6 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "genNull")) [] [ILabel example.lat:51:1 (IRLabelName ".L_entry"),IEndPhi example.lat:51:1,IEndPhi example.lat:51:1,IRet example.lat:51:1 (VNull example.lat:51:1 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))))],RegisterAllocation {regAlloc = fromList [], numLocals = 0}),([".L_entry","_WBEG78","_WCOND77","_WEND79"]
+".L_entry" -> fromList [IRLabelName "_WCOND77"] <- fromList []
+"_WBEG78" -> fromList [IRLabelName "_WCOND77"] <- fromList [IRLabelName "_WCOND77"]
+"_WCOND77" -> fromList [IRLabelName "_WBEG78",IRLabelName "_WEND79"] <- fromList [IRLabelName ".L_entry",IRLabelName "_WBEG78"]
+"_WEND79" -> fromList [] <- fromList [IRLabelName "_WCOND77"]
+,Mthd example.lat:56:1 (Int example.lat:56:1) (QIdent example.lat:56:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "main")) [] [ILabel example.lat:56:1 (IRLabelName ".L_entry"),IEndPhi example.lat:56:1,INew example.lat:57:17 (IRValueName "%v_t_66") (Cl example.lat:57:17 (IRTargetRefName "Stack")),IAddRef example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) 1,IAddRef example.lat:57:11 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:11 (Cl example.lat:57:11 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) 1,IAddRef example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (VVal example.lat:57:11 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),INew example.lat:58:15 (IRValueName "%v_t_68") (Cl example.lat:58:15 (IRTargetRefName "Shape")),IAddRef example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) 1,IAddRef example.lat:58:11 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:11 (Cl example.lat:58:11 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) 1,IAddRef example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (VVal example.lat:58:11 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) (-1),IVCall example.lat:59:5 (CallVirt example.lat:59:5 (Int example.lat:11:5) (QIdent example.lat:59:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66"),VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")]),IAddRef example.lat:59:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),IAddRef example.lat:59:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68")) (-1),INew example.lat:60:9 (IRValueName "%v_t_71") (Cl example.lat:60:9 (IRTargetRefName "Rectangle")),IAddRef example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) 1,IAddRef example.lat:60:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:60:5 (Ref example.lat:60:5 (Cl example.lat:60:5 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) 1,IAddRef example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (VVal example.lat:60:5 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) (-1),IVCall example.lat:61:5 (CallVirt example.lat:61:5 (Int example.lat:11:5) (QIdent example.lat:61:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66"),VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")]),IAddRef example.lat:61:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),IAddRef example.lat:61:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71")) (-1),INew example.lat:62:9 (IRValueName "%v_t_73") (Cl example.lat:62:9 (IRTargetRefName "Square")),IAddRef example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) 1,IAddRef example.lat:62:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:62:5 (Ref example.lat:62:5 (Cl example.lat:62:5 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) 1,IAddRef example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (VVal example.lat:62:5 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) (-1),IVCall example.lat:63:5 (CallVirt example.lat:63:5 (Int example.lat:11:5) (QIdent example.lat:63:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66"),VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")]),IAddRef example.lat:63:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),IAddRef example.lat:63:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Square"))) (IRValueName "%v_t_73")) (-1),INew example.lat:64:9 (IRValueName "%v_t_75") (Cl example.lat:64:9 (IRTargetRefName "Circle")),IAddRef example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) 1,IAddRef example.lat:64:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:64:5 (Ref example.lat:64:5 (Cl example.lat:64:5 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) 1,IAddRef example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (VVal example.lat:64:5 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) (-1),IVCall example.lat:65:5 (CallVirt example.lat:65:5 (Int example.lat:11:5) (QIdent example.lat:65:5 (IRTargetRefName "Stack") (IRTargetRefName "push")) [VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66"),VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")]),IAddRef example.lat:65:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),IAddRef example.lat:65:5 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75")) (-1),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WCOND77"),IEndPhi example.lat:66:5,ICall example.lat:66:13 (IRValueName "%v_t_84") (CallVirt example.lat:66:13 (Bool example.lat:17:5) (QIdent example.lat:66:13 (IRTargetRefName "Stack") (IRTargetRefName "isEmpty")) [VVal example.lat:66:13 (Ref example.lat:66:13 (Cl example.lat:66:13 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")]),IOp example.lat:66:13 (IRValueName "%v___temp_11") (VVal example.lat:66:13 (Bool example.lat:17:5) (IRValueName "%v_t_84")) (OpEQU example.lat:66:13) (VInt example.lat:66:13 0),ICondJmp example.lat:66:13 (VVal example.lat:66:13 (Bool example.lat:66:13) (IRValueName "%v___temp_11")) (IRLabelName "_WBEG78") (IRLabelName "_WEND79"),ILabel example.lat:66:5 (IRLabelName "_WBEG78"),IEndPhi example.lat:66:5,ICall example.lat:67:13 (IRValueName "%v_t_80") (CallVirt example.lat:67:13 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (QIdent example.lat:67:13 (IRTargetRefName "Stack") (IRTargetRefName "top")) [VVal example.lat:67:13 (Ref example.lat:67:13 (Cl example.lat:67:13 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")]),IAddRef example.lat:67:9 (Ref example.lat:58:5 (Cl example.lat:58:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:67:9 (Cl example.lat:67:9 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")) 1,IAddRef example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (VVal example.lat:67:9 (Ref example.lat:20:5 (Cl example.lat:20:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")) (-1),IVCall example.lat:68:9 (CallVirt example.lat:68:9 (Int example.lat:28:5) (QIdent example.lat:68:9 (IRTargetRefName "Shape") (IRTargetRefName "tell")) [VVal example.lat:68:9 (Ref example.lat:68:9 (Cl example.lat:68:9 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")]),IVCall example.lat:69:9 (CallVirt example.lat:69:9 (Int example.lat:31:5) (QIdent example.lat:69:9 (IRTargetRefName "Shape") (IRTargetRefName "tellAgain")) [VVal example.lat:69:9 (Ref example.lat:69:9 (Cl example.lat:69:9 (IRTargetRefName "Shape"))) (IRValueName "%v_t_80")]),IVCall example.lat:70:9 (CallVirt example.lat:70:9 (Int example.lat:23:5) (QIdent example.lat:70:9 (IRTargetRefName "Stack") (IRTargetRefName "pop")) [VVal example.lat:70:9 (Ref example.lat:70:9 (Cl example.lat:70:9 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")]),IJmp example.lat:66:5 (IRLabelName "_WCOND77"),ILabel example.lat:66:5 (IRLabelName "_WEND79"),IEndPhi example.lat:66:5,IVCall example.lat:72:5 (Call example.lat:72:5 (Bool inside standard library) (QIdent example.lat:72:5 (IRTargetRefName "~cl_TopLevel") (IRTargetRefName "print")) [VVal example.lat:72:5 (Ref example.lat:72:5 (Cl example.lat:72:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")] []),IAddRef example.lat:72:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Stack"))) (VVal example.lat:72:5 (Ref example.lat:72:5 (Cl example.lat:72:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66")) (-1),IEndPhi example.lat:56:1,IRet example.lat:56:1 (VInt example.lat:56:1 0)],RegisterAllocation {regAlloc = fromList [(IRValueName "%v___temp_11",RAX),(IRValueName "%v_t_66",RBX),(IRValueName "%v_t_68",R12),(IRValueName "%v_t_71",R12),(IRValueName "%v_t_73",R12),(IRValueName "%v_t_75",R12),(IRValueName "%v_t_80",R12),(IRValueName "%v_t_84",RAX),(IRValueName "~arg_0_RDI",RDI),(IRValueName "~arg_10_RDI",RDI),(IRValueName "~arg_11_RDI",RDI),(IRValueName "~arg_12_RDI",RDI),(IRValueName "~arg_13_RDI",RDI),(IRValueName "~arg_1_RSI",RSI),(IRValueName "~arg_2_RDI",RDI),(IRValueName "~arg_3_RSI",RSI),(IRValueName "~arg_4_RDI",RDI),(IRValueName "~arg_5_RSI",RSI),(IRValueName "~arg_6_RDI",RDI),(IRValueName "~arg_7_RSI",RSI),(IRValueName "~arg_8_RDI",RDI),(IRValueName "~arg_9_RDI",RDI)], numLocals = 0})]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] Running correct compiler backend: X64
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] generateVTable "Array" START
  [("Object","Object","equals"),("Object","Object","getHashCode"),("Object","Array","toString")] 
@@ -6955,7 +8074,7 @@ CompiledProg example.lat:1:1 (Meta example.lat:1:1 [ClDef inside standard librar
 ====
 
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] generateVTable fields: [(IRTargetRefName "toString",(1,"_Array_toString",0)),(IRTargetRefName "toString",(1,"_Object_toString",1)),(IRTargetRefName "getHashCode",(2,"_Object_getHashCode",2)),(IRTargetRefName "equals",(3,"_Object_equals",3)),(IRTargetRefName "equals",(3,"_String_equals",4)),(IRTargetRefName "getHashCode",(2,"_String_getHashCode",5)),(IRTargetRefName "toString",(1,"_String_toString",6)),(IRTargetRefName "substring",(1000007,"_String_substring",7)),(IRTargetRefName "length",(1000008,"_String_length",8)),(IRTargetRefName "indexOf",(1000009,"_String_indexOf",9)),(IRTargetRefName "getBytes",(1000010,"_String_getBytes",10)),(IRTargetRefName "endsWith",(1000011,"_String_endsWith",11)),(IRTargetRefName "startsWith",(1000012,"_String_startsWith",12)),(IRTargetRefName "concat",(1000013,"_String_concat",13)),(IRTargetRefName "charAt",(1000014,"_String_charAt",14)),(IRTargetRefName "printString",(1000015,"printString",15)),(IRTargetRefName "printInt",(1000016,"printInt",16)),(IRTargetRefName "printByte",(1000017,"printByte",17)),(IRTargetRefName "printBoolean",(1000018,"printBoolean",18)),(IRTargetRefName "printBinArray",(1000019,"printBinArray",19)),(IRTargetRefName "byteToString",(1000020,"byteToString",20)),(IRTargetRefName "boolToString",(1000021,"boolToString",21)),(IRTargetRefName "intToString",(1000022,"intToString",22)),(IRTargetRefName "print",(1000023,"print",23)),(IRTargetRefName "error",(1000024,"error",24)),(IRTargetRefName "readInt",(1000025,"readInt",25)),(IRTargetRefName "readString",(1000026,"readString",26)),(IRTargetRefName "__cast",(1000027,"__cast",27)),(IRTargetRefName "setElem",(1000028,"Node.setElem",28)),(IRTargetRefName "setNext",(1000029,"Node.setNext",29)),(IRTargetRefName "getElem",(1000030,"Node.getElem",30)),(IRTargetRefName "getNext",(1000031,"Node.getNext",31)),(IRTargetRefName "push",(1000032,"Stack.push",32)),(IRTargetRefName "isEmpty",(1000033,"Stack.isEmpty",33)),(IRTargetRefName "top",(1000034,"Stack.top",34)),(IRTargetRefName "pop",(1000035,"Stack.pop",35)),(IRTargetRefName "tell",(1000036,"Shape.tell",36)),(IRTargetRefName "tellAgain",(1000037,"Shape.tellAgain",37)),(IRTargetRefName "tellAgain",(1000037,"Rectangle.tellAgain",38)),(IRTargetRefName "tellAgain",(1000037,"Circle.tellAgain",39)),(IRTargetRefName "tellAgain",(1000037,"Square.tellAgain",40)),(IRTargetRefName "genNull",(1000041,"~cl_TopLevel.genNull",41)),(IRTargetRefName "main",(1000042,"~cl_TopLevel.main",42))] for chain: []
-[94m[Info]    [0m[Reporting.Logs.logInfo#75] generateVTable "~cl_TopLevel" RESULT IS = [(IRTargetRefName "toString",("_Array_toString",0)),(IRTargetRefName "toString",("_Object_toString",8)),(IRTargetRefName "toString",("_String_toString",16)),(IRTargetRefName "getHashCode",("_Object_getHashCode",24)),(IRTargetRefName "getHashCode",("_String_getHashCode",32)),(IRTargetRefName "equals",("_Object_equals",40)),(IRTargetRefName "equals",("_String_equals",48)),(IRTargetRefName "substring",("_String_substring",56)),(IRTargetRefName "length",("_String_length",64)),(IRTargetRefName "indexOf",("_String_indexOf",72)),(IRTargetRefName "getBytes",("_String_getBytes",80)),(IRTargetRefName "endsWith",("_String_endsWith",88)),(IRTargetRefName "startsWith",("_String_startsWith",96)),(IRTargetRefName "concat",("_String_concat",104)),(IRTargetRefName "charAt",("_String_charAt",112)),(IRTargetRefName "printString",("printString",120)),(IRTargetRefName "printInt",("printInt",128)),(IRTargetRefName "printByte",("printByte",136)),(IRTargetRefName "printBoolean",("printBoolean",144)),(IRTargetRefName "printBinArray",("printBinArray",152)),(IRTargetRefName "byteToString",("byteToString",160)),(IRTargetRefName "boolToString",("boolToString",168)),(IRTargetRefName "intToString",("intToString",176)),(IRTargetRefName "print",("print",184)),(IRTargetRefName "error",("error",192)),(IRTargetRefName "readInt",("readInt",200)),(IRTargetRefName "readString",("readString",208)),(IRTargetRefName "__cast",("__cast",216)),(IRTargetRefName "setElem",("Node.setElem",224)),(IRTargetRefName "setNext",("Node.setNext",232)),(IRTargetRefName "getElem",("Node.getElem",240)),(IRTargetRefName "getNext",("Node.getNext",248)),(IRTargetRefName "push",("Stack.push",256)),(IRTargetRefName "isEmpty",("Stack.isEmpty",264)),(IRTargetRefName "top",("Stack.top",272)),(IRTargetRefName "pop",("Stack.pop",280)),(IRTargetRefName "tell",("Shape.tell",288)),(IRTargetRefName "tellAgain",("Circle.tellAgain",296)),(IRTargetRefName "tellAgain",("Rectangle.tellAgain",304)),(IRT/usr/bin/ld: /tmp/ccbIZjRt.o: warning: relocation in read-only section `.rodata'
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] generateVTable "~cl_TopLevel" RESULT IS = [(IRTargetRefName "toString",("_Array_toString",0)),(IRTargetRefName "toString",("_Object_toString",8)),(IRTargetRefName "toString",("_String_toString",16)),(IRTargetRefName "getHashCode",("_Object_getHashCode",24)),(IRTargetRefName "getHashCode",("_String_getHashCode",32)),(IRTargetRefName "equals",("_Object_equals",40)),(IRTargetRefName "equals",("_String_equals",48)),(IRTargetRefName "substring",("_String_substring",56)),(IRTargetRefName "length",("_String_length",64)),(IRTargetRefName "indexOf",("_String_indexOf",72)),(IRTargetRefName "getBytes",("_String_getBytes",80)),(IRTargetRefName "endsWith",("_String_endsWith",88)),(IRTargetRefName "startsWith",("_String_startsWith",96)),(IRTargetRefName "concat",("_String_concat",104)),(IRTargetRefName "charAt",("_String_charAt",112)),(IRTargetRefName "printString",("printString",120)),(IRTargetRefName "printInt",("printInt",128)),(IRTargetRefName "printByte",("printByte",136)),(IRTargetRefName "printBoolean",("printBoolean",144)),(IRTargetRefName "printBinArray",("printBinArray",152)),(IRTargetRefName "byteToString",("byteToString",160)),(IRTargetRefName "boolToString",("boolToString",168)),(IRTargetRefName "intToString",("intToString",176)),(IRTargetRefName "print",("print",184)),(IRTargetRefName "error",("error",192)),(IRTargetRefName "readInt",("readInt",200)),(IRTargetRefName "readString",("readString",208)),(IRTargetRefName "__cast",("__cast",216)),(IRTargetRefName "setElem",("Node.setElem",224)),(IRTargetRefName "setNext",("Node.setNext",232)),(IRTargetRefName "getElem",("Node.getElem",240)),(IRTargetRefName "getNext",("Node.getNext",248)),(IRTargetRefName "push",("Stack.push",256)),(IRTargetRefName "isEmpty",("Stack.isEmpty",264)),(IRTargetRefName "top",("Stack.top",272)),(IRTargetRefName "pop",("Stack.pop",280)),(IRTargetRefName "tell",("Shape.tell",288)),(IRTargetRefName "tellAgain",("Circle.tellAgain",296)),(IRTargetRefName "tellAgain",("Rectangle.tellAgain",304)),(IRT/usr/bin/ld: /tmp/ccHoDRUV.o: warning: relocation in read-only section `.rodata'
 /usr/bin/ld: warning: creating DT_TEXTREL in a PIE
 argetRefName "tellAgain",("Shape.tellAgain",312)),(IRTargetRefName "tellAgain",("Square.tellAgain",320)),(IRTargetRefName "genNull",("~cl_TopLevel.genNull",328)),(IRTargetRefName "main",("~cl_TopLevel.main",336))]
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 24
@@ -6973,6 +8092,7 @@ argetRefName "tellAgain",("Shape.tellAgain",312)),(IRTargetRefName "tellAgain",(
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 8
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 8
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] emitMethod Fix method stack offsets 8
+[94m[Info]    [0m[Reporting.Logs.logInfo#75] optimizeASM.applyRulePass: Perform another rules pass...
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] optimizeASM.applyRulePass: Perform another rules pass...
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] optimizeASM.applyRulePass: Perform another rules pass...
 [94m[Info]    [0m[Reporting.Logs.logInfo#75] optimizeASM.applyRulePass: Perform another rules pass...

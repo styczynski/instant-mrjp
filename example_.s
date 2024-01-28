@@ -252,107 +252,25 @@ _LAT_NULL_ADDR :
 
 
 .section .text
-main :                               #-- example.lat:56:1 --#
-__cl_TopLevel.main :                 #-- example.lat:56:1 --#
-pushq %RBX                           #-- example.lat:56:1 --#
-pushq %R12                           #-- example.lat:56:1 --#
-pushq %RBP                           #-- example.lat:56:1 --#
-movq %RSP, %RBP                      #-- example.lat:56:1 --#
-__cl_TopLevel.main.L_entry :         #-- example.lat:56:1 --#
-leaq _class_Stack (%RIP), %RDI       #-- example.lat:57:17 --#
-call __new                           #-- example.lat:57:17 --#
-movq %RAX, %RBX                      #-- example.lat:57:17 --#
-incl 16 (%RBX)                       #-- incr ref count on VVal example.lat:57:17 (Ref example.lat:57:21 (Cl example.lat:57:21 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:57:17 --#
-leaq _class_Shape (%RIP), %RDI       #-- example.lat:58:15 --#
-call __new                           #-- example.lat:58:15 --#
-movq %RAX, %R12                      #-- example.lat:58:15 --#
-incl 16 (%R12)                       #-- incr ref count on VVal example.lat:58:15 (Ref example.lat:58:19 (Cl example.lat:58:19 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68") at example.lat:58:15 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:59:5 --#
-movq %R12, %RSI                      #-- passing arg at example.lat:59:5 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:59:5 --#
-jz __handleErrorNull                 #-- example.lat:59:5 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:59:5 --#
-call * 24 (%RAX)                     #-- call push at example.lat:59:5 --#
-decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:59:5 --#
-decl 16 (%R12)                       #-- incr ref count on VVal example.lat:59:5 (Ref example.lat:59:5 (Cl example.lat:59:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_68") at example.lat:59:5 --#
-leaq _class_Rectangle (%RIP), %RDI   #-- example.lat:60:9 --#
-call __new                           #-- example.lat:60:9 --#
-movq %RAX, %R12                      #-- example.lat:60:9 --#
-incl 16 (%R12)                       #-- incr ref count on VVal example.lat:60:9 (Ref example.lat:60:13 (Cl example.lat:60:13 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71") at example.lat:60:9 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:61:5 --#
-movq %R12, %RSI                      #-- passing arg at example.lat:61:5 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:61:5 --#
-jz __handleErrorNull                 #-- example.lat:61:5 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:61:5 --#
-call * 24 (%RAX)                     #-- call push at example.lat:61:5 --#
-decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:61:5 --#
-decl 16 (%R12)                       #-- incr ref count on VVal example.lat:61:5 (Ref example.lat:61:5 (Cl example.lat:61:5 (IRTargetRefName "Rectangle"))) (IRValueName "%v_t_71") at example.lat:61:5 --#
-leaq _class_Square (%RIP), %RDI      #-- example.lat:62:9 --#
-call __new                           #-- example.lat:62:9 --#
-movq %RAX, %R12                      #-- example.lat:62:9 --#
-incl 16 (%R12)                       #-- incr ref count on VVal example.lat:62:9 (Ref example.lat:62:13 (Cl example.lat:62:13 (IRTargetRefName "Square"))) (IRValueName "%v_t_73") at example.lat:62:9 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:63:5 --#
-movq %R12, %RSI                      #-- passing arg at example.lat:63:5 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:63:5 --#
-jz __handleErrorNull                 #-- example.lat:63:5 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:63:5 --#
-call * 24 (%RAX)                     #-- call push at example.lat:63:5 --#
-decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:63:5 --#
-decl 16 (%R12)                       #-- incr ref count on VVal example.lat:63:5 (Ref example.lat:63:5 (Cl example.lat:63:5 (IRTargetRefName "Square"))) (IRValueName "%v_t_73") at example.lat:63:5 --#
-leaq _class_Circle (%RIP), %RDI      #-- example.lat:64:9 --#
-call __new                           #-- example.lat:64:9 --#
-movq %RAX, %R12                      #-- example.lat:64:9 --#
-incl 16 (%R12)                       #-- incr ref count on VVal example.lat:64:9 (Ref example.lat:64:13 (Cl example.lat:64:13 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75") at example.lat:64:9 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:65:5 --#
-movq %R12, %RSI                      #-- passing arg at example.lat:65:5 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:65:5 --#
-jz __handleErrorNull                 #-- example.lat:65:5 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:65:5 --#
-call * 24 (%RAX)                     #-- call push at example.lat:65:5 --#
-decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:65:5 --#
-decl 16 (%R12)                       #-- incr ref count on VVal example.lat:65:5 (Ref example.lat:65:5 (Cl example.lat:65:5 (IRTargetRefName "Circle"))) (IRValueName "%v_t_75") at example.lat:65:5 --#
-jmp __cl_TopLevel.main_WCOND77       #-- example.lat:66:5 --#
-__cl_TopLevel.main_WBEG78 :          #-- example.lat:66:5 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:67:13 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:67:13 --#
-jz __handleErrorNull                 #-- example.lat:67:13 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:67:13 --#
-call * 40 (%RAX)                     #-- call top at example.lat:67:13 --#
-movq %RAX, %R12                      #-- example.lat:67:13 --#
-movq %R12, %RDI                      #-- passing arg at example.lat:68:9 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:68:9 --#
-jz __handleErrorNull                 #-- example.lat:68:9 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:68:9 --#
-call * 24 (%RAX)                     #-- call tell at example.lat:68:9 --#
-movq %R12, %RDI                      #-- passing arg at example.lat:69:9 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:69:9 --#
-jz __handleErrorNull                 #-- example.lat:69:9 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:69:9 --#
-call * 32 (%RAX)                     #-- call tellAgain at example.lat:69:9 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:70:9 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:70:9 --#
-jz __handleErrorNull                 #-- example.lat:70:9 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:70:9 --#
-call * 48 (%RAX)                     #-- call pop at example.lat:70:9 --#
-jmp __cl_TopLevel.main_WCOND77       #-- example.lat:66:5 --#
-__cl_TopLevel.main_WCOND77 :         #-- example.lat:66:5 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:66:13 --#
-cmpq $0, 0 (%RDI)                    #-- example.lat:66:13 --#
-jz __handleErrorNull                 #-- example.lat:66:13 --#
-movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:66:13 --#
-call * 32 (%RAX)                     #-- call isEmpty at example.lat:66:13 --#
-testb %AL, %AL                       #-- example.lat:66:13 --#
-jne __cl_TopLevel.main_WEND79        #-- example.lat:66:13 --#
-jmp __cl_TopLevel.main_WBEG78        #-- example.lat:66:13 --#
-__cl_TopLevel.main_WEND79 :          #-- example.lat:66:5 --#
-movq %RBX, %RDI                      #-- passing arg at example.lat:72:5 --#
-call print                           #-- example.lat:72:5 --#
-decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:72:5 (Ref example.lat:72:5 (Cl example.lat:72:5 (IRTargetRefName "Stack"))) (IRValueName "%v_t_66") at example.lat:72:5 --#
-xorl %EAX, %EAX                      #-- move return value at example.lat:56:1 --#
-leave                                #-- example.lat:56:1 --#
-pop %R12                             #-- example.lat:56:1 --#
-pop %RBX                             #-- example.lat:56:1 --#
-ret                                  #-- example.lat:56:1 --#
+main :                               #-- example.lat:55:1 --#
+__cl_TopLevel.main :                 #-- example.lat:55:1 --#
+pushq %RBX                           #-- example.lat:55:1 --#
+subq $8, %RSP                        #-- example.lat:55:1 --#
+pushq %RBP                           #-- example.lat:55:1 --#
+movq %RSP, %RBP                      #-- example.lat:55:1 --#
+__cl_TopLevel.main.L_entry :         #-- example.lat:55:1 --#
+call __cl_TopLevel.genNull           #-- example.lat:56:16 --#
+movq %RAX, %RBX                      #-- example.lat:56:16 --#
+incl 16 (%RBX)                       #-- incr ref count on VVal example.lat:56:10 (Ref example.lat:56:10 (Cl example.lat:56:10 (IRTargetRefName "Node"))) (IRValueName "%v_t_66") at example.lat:56:10 --#
+decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:56:10 (Ref example.lat:51:1 (Cl example.lat:51:1 (IRTargetRefName "Node"))) (IRValueName "%v_t_66") at example.lat:56:10 --#
+movq %RBX, %RDI                      #-- passing arg at example.lat:57:5 --#
+call print                           #-- example.lat:57:5 --#
+decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:57:5 (Ref example.lat:57:5 (Cl example.lat:57:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_66") at example.lat:57:5 --#
+xorl %EAX, %EAX                      #-- move return value at example.lat:55:1 --#
+leave                                #-- example.lat:55:1 --#
+addq $8, %RSP                        #-- example.lat:55:1 --#
+pop %RBX                             #-- example.lat:55:1 --#
+ret                                  #-- example.lat:55:1 --#
 __cl_TopLevel.genNull :              #-- example.lat:51:1 --#
 pushq %RBP                           #-- example.lat:51:1 --#
 movq %RSP, %RBP                      #-- example.lat:51:1 --#
@@ -502,6 +420,8 @@ jz __handleErrorNull                 #-- example.lat:21:16 --#
 movq 20 (%RDI), %RAX                 #-- load address of vtable at example.lat:21:16 --#
 call * 40 (%RAX)                     #-- call getElem at example.lat:21:16 --#
 decl 16 (%RBX)                       #-- incr ref count on VVal example.lat:21:16 (Ref example.lat:10:5 (Cl example.lat:10:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_40") at example.lat:21:16 --#
+incl 16 (%RAX)                       #-- incr ref count on VVal example.lat:21:9 (Ref example.lat:21:9 (Cl example.lat:21:9 (IRTargetRefName "Shape"))) (IRValueName "%v_t_41") at example.lat:21:9 --#
+decl 16 (%RAX)                       #-- incr ref count on VVal example.lat:21:9 (Ref example.lat:6:5 (Cl example.lat:6:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_41") at example.lat:21:9 --#
 leave                                #-- example.lat:20:5 --#
 addq $8, %RSP                        #-- example.lat:20:5 --#
 pop %RBX                             #-- example.lat:20:5 --#
@@ -540,6 +460,8 @@ leaq _class_Node (%RIP), %RDI        #-- example.lat:12:24 --#
 call __new                           #-- example.lat:12:24 --#
 movq %RAX, %R12                      #-- example.lat:12:24 --#
 incl 16 (%R12)                       #-- incr ref count on VVal example.lat:12:24 (Ref example.lat:12:28 (Cl example.lat:12:28 (IRTargetRefName "Node"))) (IRValueName "%v_t_26") at example.lat:12:24 --#
+incl 16 (%R12)                       #-- incr ref count on VVal example.lat:12:14 (Ref example.lat:12:14 (Cl example.lat:12:14 (IRTargetRefName "Node"))) (IRValueName "%v_t_26") at example.lat:12:14 --#
+decl 16 (%R12)                       #-- incr ref count on VVal example.lat:12:14 (Ref example.lat:12:28 (Cl example.lat:12:28 (IRTargetRefName "Node"))) (IRValueName "%v_t_26") at example.lat:12:14 --#
 movq %R12, %RDI                      #-- passing arg at example.lat:13:9 --#
 movq %R14, %RSI                      #-- passing arg at example.lat:13:9 --#
 cmpq $0, 0 (%RDI)                    #-- example.lat:13:9 --#
@@ -580,6 +502,8 @@ movq %RDI, %RCX                      #-- load %v_t_22 at example.lat:7:5 --#
 movq 44 (%RCX), %RAX                 #-- load %v_t_23 at example.lat:7:29 --#
 incl 16 (%RAX)                       #-- incr ref count on VVal example.lat:7:29 (Ref example.lat:3:5 (Cl example.lat:3:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_23") at example.lat:7:29 --#
 decl 16 (%RCX)                       #-- incr ref count on VVal example.lat:7:29 (Ref  (Cl  (IRTargetRefName "Node"))) (IRValueName "%v_t_22") at example.lat:7:29 --#
+incl 16 (%RAX)                       #-- incr ref count on VVal example.lat:7:22 (Ref example.lat:7:22 (Cl example.lat:7:22 (IRTargetRefName "Node"))) (IRValueName "%v_t_23") at example.lat:7:22 --#
+decl 16 (%RAX)                       #-- incr ref count on VVal example.lat:7:22 (Ref example.lat:3:5 (Cl example.lat:3:5 (IRTargetRefName "Node"))) (IRValueName "%v_t_23") at example.lat:7:22 --#
 leave                                #-- example.lat:7:5 --#
 ret                                  #-- example.lat:7:5 --#
 Node.getElem :                       #-- example.lat:6:5 --#
@@ -590,6 +514,8 @@ movq %RDI, %RCX                      #-- load %v_t_20 at example.lat:6:5 --#
 movq 36 (%RCX), %RAX                 #-- load %v_t_21 at example.lat:6:30 --#
 incl 16 (%RAX)                       #-- incr ref count on VVal example.lat:6:30 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_21") at example.lat:6:30 --#
 decl 16 (%RCX)                       #-- incr ref count on VVal example.lat:6:30 (Ref  (Cl  (IRTargetRefName "Node"))) (IRValueName "%v_t_20") at example.lat:6:30 --#
+incl 16 (%RAX)                       #-- incr ref count on VVal example.lat:6:23 (Ref example.lat:6:23 (Cl example.lat:6:23 (IRTargetRefName "Shape"))) (IRValueName "%v_t_21") at example.lat:6:23 --#
+decl 16 (%RAX)                       #-- incr ref count on VVal example.lat:6:23 (Ref example.lat:2:5 (Cl example.lat:2:5 (IRTargetRefName "Shape"))) (IRValueName "%v_t_21") at example.lat:6:23 --#
 leave                                #-- example.lat:6:5 --#
 ret                                  #-- example.lat:6:5 --#
 Node.setNext :                       #-- example.lat:5:5 --#

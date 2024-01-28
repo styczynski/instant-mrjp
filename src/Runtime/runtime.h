@@ -66,7 +66,7 @@ int32_t _String_charAt(obj str, int32_t index);
 // functions
 void ddd(obj str);
 int8_t printString(obj str);
-int8_t printInt(int64_t i);
+int8_t printInt(int32_t i);
 int8_t printBoolean(int8_t b);
 int8_t printBinArray(obj arr);
 obj intToString(int32_t i);
