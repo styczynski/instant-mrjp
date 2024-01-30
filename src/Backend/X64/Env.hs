@@ -12,9 +12,6 @@ import           IR.Types                (deref, isInt, isStr, ptrType,
                                                 strType, valType)
 import           IR.Utils                     (isPowerOfTwo, log2, single)
 import           IR.CodeGen.Consts
-import qualified IR.CodeGen.Emit           as Emit
-import           IR.CodeGen.Epilogue
-import           IR.CodeGen.Module
 import           IR.CodeGen.Stack
 import           IR.Class
 import           IR.RegisterAllocation.RegisterAllocation

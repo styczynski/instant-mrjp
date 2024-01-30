@@ -1,0 +1,53 @@
+test/Test/Utils/Utils.hs:71:14: 
+  1) Test.Arrays, Latte arrays, Multidimensional arrays and other complex Array scenarios
+       expected: ExitSuccess
+        but got: ExitFailure (-11)
+
+  To rerun use: --match "/Test.Arrays/Latte arrays/Multidimensional arrays and other complex Array scenarios/"
+
+  test/Test/Utils/Utils.hs:71:14: 
+  2) Test.Arrays, Latte arrays, Accessing array of strings
+       expected: ExitSuccess
+        but got: ExitFailure (-11)
+
+  To rerun use: --match "/Test.Arrays/Latte arrays/Accessing array of strings/"
+
+  src/Backend/X64/Generator.hs:391:17: 
+  3) Test.Classes, Latte classes, Simple counter class
+       uncaught exception: PatternMatchFail
+       src/Backend/X64/Generator.hs:(391,17)-(403,88): Non-exhaustive patterns in case
+
+  To rerun use: --match "/Test.Classes/Latte classes/Simple counter class/"
+
+  test/Test/Utils/Utils.hs:71:14: 
+  4) Test.ComplexE2E, Latte complex fully-featured programs, Queue implementation using linked list
+       expected: ExitSuccess
+        but got: ExitFailure (-11)
+
+  To rerun use: --match "/Test.ComplexE2E/Latte complex fully-featured programs/Queue implementation using linked list/"
+
+  src/Backend/X64/Generator.hs:391:17: 
+  5) Test.ComplexE2E, Latte complex fully-featured programs, list
+       uncaught exception: PatternMatchFail
+       src/Backend/X64/Generator.hs:(391,17)-(403,88): Non-exhaustive patterns in case
+
+  To rerun use: --match "/Test.ComplexE2E/Latte complex fully-featured programs/list/"
+
+  src/Backend/X64/Generator.hs:391:17: 
+  6) Test.ComplexE2E, Latte complex fully-featured programs, BFS implementation using Nodes with references and custom List/Queue
+       uncaught exception: PatternMatchFail
+       src/Backend/X64/Generator.hs:(391,17)-(403,88): Non-exhaustive patterns in case
+
+  To rerun use: --match "/Test.ComplexE2E/Latte complex fully-featured programs/BFS implementation using Nodes with references and custom List/Queue/"
+
+  test/Test/Utils/Utils.hs:71:14: 
+  7) Test.ComplexE2E, Latte complex fully-featured programs, ALternative linked-list implemenatation
+       expected: ExitSuccess
+        but got: ExitFailure (-11)
+
+  To rerun use: --match "/Test.ComplexE2E/Latte complex fully-featured programs/ALternative linked-list implemenatation/"
+
+  src/Backend/X64/Generator.hs:391:17: 
+  8) Test.Simple, Latte simple expressions, String and int concatenation
+       uncaught exception: PatternMatchFail
+       src/Backend/X64/Generator.hs:(391,17)-(403,88): Non-exhaustive patterns in case

@@ -8,6 +8,11 @@ struct Type {
     void *methods;
     int32_t referenceOffsetsSize;
     int32_t *referenceOffsets;
+    char* fieldsInfo;
+    int32_t* fieldsInfoOffsets;
+    int32_t* fieldsDataOffsets;
+    int32_t fieldsInfoLength;
+    char* typeName;
 } __attribute__((__packed__));
 
 struct Reference {
@@ -26,7 +31,7 @@ typedef struct Reference *obj;
 extern obj _LAT_NULL;
 
 obj __new(struct Type *t);
-void __free(obj r);
+void __free(obj r, uint32_t gc_pos);
 
 void __incRef(obj r);
 void __decRef(obj r);
@@ -34,7 +39,9 @@ void __decRef(obj r);
 obj __newRefArray(int32_t length);
 obj __newIntArray(int32_t length);
 obj __newByteArray(int32_t length);
-obj __newArray(int32_t size, int32_t length);
+obj __newArray(int32_t size, int32_t length, bool use_null_initializer);
+
+void run_gc();
 
 void *__getelementptr(obj array, int32_t index);
 

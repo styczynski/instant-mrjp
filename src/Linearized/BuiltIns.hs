@@ -35,7 +35,8 @@ builtIns =
         B.Fun BuiltIn Nothing (B.Label BuiltIn "error") (B.ByteT BuiltIn) [] [],
         B.Fun BuiltIn Nothing (B.Label BuiltIn "readInt") (B.IntT BuiltIn) [] [],
         B.Fun BuiltIn Nothing (B.Label BuiltIn "readString") (B.Reference BuiltIn $ B.Label BuiltIn "String") [] [],
-        B.Fun BuiltIn Nothing (B.Label BuiltIn "__cast") (B.Reference BuiltIn $ B.Label BuiltIn "Object") [(B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_1"), (B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_2")] []
+        B.Fun BuiltIn Nothing (B.Label BuiltIn "__cast") (B.Reference BuiltIn $ B.Label BuiltIn "Object") [(B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_1"), (B.Reference BuiltIn $ B.Label BuiltIn "Object", B.Name BuiltIn "_2")] [],
+        B.Fun BuiltIn Nothing (B.Label BuiltIn "run_gc") (B.ByteT BuiltIn) [] []
     ]
 
 builtInsLabels :: [(String, (String, String, String))]

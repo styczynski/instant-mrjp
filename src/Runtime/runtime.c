@@ -5,7 +5,7 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED true
+#define __LATTE_RUNTIME_DEBUG_ENABLED false
 #define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES true
 #define __LATTE_RUNTIME_GC_ENABLED true
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }
@@ -27,64 +27,6 @@ char *errMsg;
 
 uint8_t emptyString[] = "";
 
-obj __new(struct Type *t) {
-    DEBUG("Calling __new v3");
-    DEBUG("Perform reference malloc type=%p", FORMAT_PTR(t));
-    DEBUG("__new examine type: <type parent=%p> [%d]", FORMAT_PTR(t->parent), t->dataSize);
-    obj r = malloc(sizeof(struct Reference)+t->dataSize+10);
-    DEBUG("Set __new type/counter");
-    r->type = t;
-    r->counter = 0;
-    r->data = NULL;
-    r->methods = r->type->methods;
-    r->length=0;
-    DEBUG("Do init for non array non string?");
-    if (t->dataSize > 0) {
-        //bzero((r+36), t->dataSize);
-        memcpy(&(r->others), t->initializer, t->dataSize);
-    }
-    // if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
-    //     DEBUG("Perform init");
-    //     r->data = malloc(t->dataSize);
-    //     bzero(r->data, t->dataSize);
-    // } else {
-    //     DEBUG("Just set data to NULL");
-    //     r->data = NULL;
-    // }
-    DEBUG("Completed __new %p <type %p, par %p> inner data=%p size=%d", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), FORMAT_PTR(r->data), t->dataSize);
-    uint64_t test = *((uint64_t*)(r+36));DEBUG("Just check. R+36=%p (is null=%d)", FORMAT_PTR(test), IS_NULL(((void*)test)));
-    return r;
-}
-
-void __free(obj r) {
-    DEBUG("__free %p", FORMAT_PTR(r));
-    if (IS_NULL(r) || r == NULL) {
-        DEBUG("Free completed. Value is nullish");
-        return;
-    }
-    if (r->type == &_class_Array) {
-        DEBUG("Free got Array");
-        //struct Array *arr = r->data;
-        void **els = r->data;
-        if (r->elementSize == sizeof(void *)) {
-            for (int i = 0; i < r->length; i++)
-                __decRef(els[i]);
-        }
-        if (els != NULL)
-            free(els);
-    } else if (r->type == &_class_String) {
-        DEBUG("Free got String");
-        void *els = (r->data);
-        if (els != NULL && els != emptyString) {
-            DEBUG("Free underlying String data");
-            free(els);
-        }
-    } else if (r->data != NULL) {
-        DEBUG("Free got other");
-        free(r->data);
-    }
-    free(r);
-}
 
 void __incRef(obj r) {
     if (!__LATTE_RUNTIME_GC_ENABLED) return;
@@ -94,38 +36,35 @@ void __incRef(obj r) {
     }
     DEBUG("__incRef end %p", FORMAT_PTR(r));
 }
-void __decRef(obj r) {
-    DEBUG("__decRef %p", FORMAT_PTR(r));
-    if (!__LATTE_RUNTIME_GC_ENABLED) return;
-    if (!IS_NULL(r)) {
-        r->counter--;
-        if (r->counter <=0) {
-            // if (r->type != &_class_Array) {
-            //     for (int i = 0; i < r->type->referenceOffsetsSize; i++)
-            //         __decRef(*(obj *)(r->data + r->type->referenceOffsets[i]));
-            // }
-            __free(r);
-        }
-    }
-    DEBUG("__decRef end %p", FORMAT_PTR(r));
-}
 
-obj __newRefArray(int32_t length) { return __newArray(sizeof(obj), length); }
+static uint32_t gc_level = 0;
+static uint64_t gc_visited[1000000];
+static uint32_t gc_visited_length = 0;
+
+obj __newRefArray(int32_t length) {
+    return __newArray(sizeof(obj), length, true);
+}
 obj __newIntArray(int32_t length) {
-    return __newArray(sizeof(int32_t), length);
+    return __newArray(sizeof(int32_t), length, false);
 }
 obj __newByteArray(int32_t length) {
-    return __newArray(sizeof(int8_t), length);
+    return __newArray(sizeof(int8_t), length, false);
 }
-obj __newArray(int32_t size, int32_t length) {
+obj __newArray(int32_t size, int32_t length, bool use_null_initializer) {
     obj r = __new(&_class_Array);
     void* arr = malloc(size * length);
     r->data = arr;
     r->elementSize = size;
     r->length = length;
     if (length > 0) {
-        //arr->elements = malloc(size * length);
-        bzero(arr, size * length);
+        if (use_null_initializer) {
+            obj* arr_obj = (obj*) arr;
+            for (int i=0; i<length; ++i) {
+                arr_obj[i] = VAL_NULL;
+            }
+        } else {
+            bzero(arr, size * length);
+        }
     }
     return r;
 }
@@ -208,16 +147,145 @@ obj __createString(char *c) {
     return r;
 }
 
+static uint32_t type_info_string_repr_level = 0;
+static uint64_t type_info_string_repr_visited[1000000];
+static uint32_t type_info_string_repr_visited_length = 0;
+
+obj _typeInfoStringRepr(obj o) {
+    if (IS_NULL(o)) {
+        return __createString("null");
+    }
+    if (o->type == &_class_Array) {
+        return _Array_toString(o);
+    }
+    if (o->type == &_class_String) {
+        return _String_concat(__createString("\""), _String_concat(o, __createString("\"")));
+    }
+    for (int i=0;i<type_info_string_repr_visited_length;++i) {
+        if (((uint64_t)o) == type_info_string_repr_visited[i]) {
+            // Recursive call
+            return __createString("<recursive>");
+        }
+    }
+    type_info_string_repr_visited[type_info_string_repr_visited_length++] = (uint64_t)o;
+
+    uint8_t *name_buffer = malloc(200);
+    name_buffer[0] = '\0';
+    u8_strcat(name_buffer, o->type->typeName);
+    u8_strcat(name_buffer, "{");
+    obj result = __createString(name_buffer);
+    free(name_buffer);
+
+    const int fieldsInfoLength = o->type->fieldsInfoLength;
+    for(int i=0;i<fieldsInfoLength;++i) {
+        char* fieldInfo = (char*) (((uint64_t)o->type->fieldsInfo) + ((uint64_t)o->type->fieldsInfoOffsets[i]));
+        char type = fieldInfo[0];
+        char* name = fieldInfo+1;
+        obj* fieldValue = (obj*)(((uint64_t)(&o->others)) + ((uint64_t)(o->type->fieldsDataOffsets[i])));
+
+        //DEBUG("FIELD %c %s (offset=%d, val=%d)", type, name, ((uint64_t)(o->type->fieldsDataOffsets[i])), *((uint32_t*) fieldValue));
+
+        uint8_t *buffer = malloc(200);
+        buffer[0] = '\0';
+        u8_strcat(buffer, name);
+        u8_strcat(buffer, ": ");
+        result = _String_concat(result, __createString(buffer));
+        free(buffer);
+
+        switch(type) {
+            case 'A': {
+                if (IS_NULL(*fieldValue)) {
+                    result = _String_concat(result, __createString("null"));
+                } else {
+                    result = _String_concat(result, _Array_toString(*fieldValue));
+                }
+                break;
+            }
+            case 'S': {
+                if (IS_NULL(*fieldValue)) {
+                    result = _String_concat(result, __createString("null"));
+                } else {
+                    result = _String_concat(result, __createString("\""));
+                    result = _String_concat(result, *fieldValue);
+                    result = _String_concat(result, __createString("\""));
+                }
+                break;
+            }
+            case 'C': {
+                if (IS_NULL(*fieldValue)) {
+                    result = _String_concat(result, __createString("null"));
+                } else {
+                    obj (*toString)(obj) = ((void **)(*fieldValue)->type->methods)[0];
+                    result = _String_concat(result, toString(*fieldValue));
+                }
+                break;
+            }
+            case 'I': {
+                uint32_t* fVal = (uint32_t*)fieldValue;
+                char *val_buf = (char*)malloc(50 * sizeof(char));
+                sprintf(val_buf, "%d", *fVal);
+                result = _String_concat(result, __createString(val_buf));
+                free(val_buf);
+                break;
+            }
+            case 'B': {
+                //DEBUG("GOT B");
+                uint8_t* fVal = (uint8_t*)fieldValue;
+                char *val_buf = (char*)malloc(13 * sizeof(char));
+                if (*fVal) {
+                    sprintf(val_buf, "true");
+                } else {
+                    sprintf(val_buf, "false");
+                }
+                result = _String_concat(result, __createString(val_buf));
+                free(val_buf);
+                break;
+            }
+        }
+
+        if (i!=fieldsInfoLength-1) {
+            result = _String_concat(result, __createString(", "));
+        }
+    }
+    result = _String_concat(result, __createString("}"));
+    return result;
+}
+
+obj typeInfoStringRepr(obj o) {
+    if (type_info_string_repr_level == 0) {
+        type_info_string_repr_visited_length = 0;
+    }
+    type_info_string_repr_level++;
+    //__incRef(o);
+    obj ret = _typeInfoStringRepr(o);
+    __incRef(ret);
+    //__decRef(o);
+    type_info_string_repr_level--;
+    if (type_info_string_repr_level == 0) {
+        type_info_string_repr_visited_length = 0;
+    }
+    return ret;
+}
+
 // BuiltIn classes' methods
 obj _Object_toString(obj o) {
-    obj ret = __createString("Object");
-    __incRef(ret);
-    return ret;
+    //obj ret = __createString("Object");
+    //__incRef(ret);
+    //return ret;
+    return typeInfoStringRepr(o);
 }
 int32_t _Object_getHashCode(obj o) { return (int32_t)(int64_t)o; }
 int8_t _Object_equals(obj o1, obj o2) { return o1 == o2; }
 
+
+
 obj _Array_toString(obj arr) {
+    if (arr->length == 0) {
+        obj ret = __createString("[]");
+        __incRef(ret);
+        return ret;
+    }
+
     char start[] = "[";
     char delim[] = ", ";
     char end[] = "]";
@@ -506,13 +574,13 @@ int8_t print(obj o) {
         DEBUG("DETECTED obj IS NULL");
         o = __createString("null");
     }
-    __incRef(o);
+    //__incRef(o);
     obj (*toStr)(obj) = ((void **)o->type->methods)[0];
     obj str = toStr(o);
     DEBUG("Subcall to internal printString() method")
     printString(str);
-    __decRef(str);
-    __decRef(o);
+    //__decRef(str);
+    //__decRef(o);
     DEBUG("Generic print(obj) completed")
     return 0;
 }
@@ -560,4 +628,186 @@ obj readString() {
     __incRef(l);
     free(line);
     return l;
+}
+
+static obj* gc_ref = NULL;
+static uint32_t gc_ref_cap = 0;
+static uint32_t gc_ref_length = 0;
+
+obj __new(struct Type *t) {
+    DEBUG("Calling __new v3");
+    DEBUG("Perform reference malloc type=%p", FORMAT_PTR(t));
+    DEBUG("__new examine type: <type parent=%p> [%d]", FORMAT_PTR(t->parent), t->dataSize);
+    obj r = malloc(sizeof(struct Reference)+t->dataSize+10);
+
+    if (gc_ref_length+1 >= gc_ref_cap) {
+        // Resize GC table if needed
+        const uint32_t new_gc_ref_cap = gc_ref_cap > 100 ? gc_ref_cap*2 : 100;
+        void** new_gc_ref = malloc(sizeof(obj) * new_gc_ref_cap);
+        for(int i=0;i<gc_ref_length;++i) {
+            new_gc_ref[i] = gc_ref[i];
+        }
+        if (gc_ref != NULL) {
+            free(gc_ref);
+        }
+        gc_ref = new_gc_ref;
+        gc_ref_cap = new_gc_ref_cap;
+    }
+    // Save pointer
+    DEBUG("gc_ref save %p %d %d", gc_ref, gc_ref_cap, gc_ref_length);
+    gc_ref[gc_ref_length++] = (void*)r;
+
+    DEBUG("Set __new type/counter");
+    r->type = t;
+    r->counter = 0;
+    r->data = NULL;
+    r->methods = r->type->methods;
+    r->length=0;
+    DEBUG("Do init for non array non string?");
+    if (t->dataSize > 0) {
+        //bzero((r+36), t->dataSize);
+        memcpy(&(r->others), t->initializer, t->dataSize);
+    }
+    // if (t->dataSize > 0 && t != &_class_Array && t != &_class_String) {
+    //     DEBUG("Perform init");
+    //     r->data = malloc(t->dataSize);
+    //     bzero(r->data, t->dataSize);
+    // } else {
+    //     DEBUG("Just set data to NULL");
+    //     r->data = NULL;
+    // }
+    DEBUG("Completed __new %p <type %p, par %p> inner data=%p size=%d", FORMAT_PTR(r), FORMAT_PTR(r->type), FORMAT_PTR(r->type->parent), FORMAT_PTR(r->data), t->dataSize);
+    uint64_t test = *((uint64_t*)(r+36));DEBUG("Just check. R+36=%p (is null=%d)", FORMAT_PTR(test), IS_NULL(((void*)test)));
+    return r;
+}
+
+static gc_trigger_n = 0;
+
+void run_gc() {
+    gc_trigger_n++;
+    if (gc_trigger_n < 10) {
+        return;
+    }
+    gc_trigger_n = 0;
+    DEBUG("RUN GC");
+    for(int i=0;i<gc_ref_length;++i) {
+        if(gc_ref[i] != NULL && !IS_NULL(gc_ref[i]) && gc_ref[i] != emptyString) {
+            obj p = (obj)gc_ref[i];
+            if (p->counter <= 0) {
+                __free(p, 0);
+            }
+            gc_ref[i] = NULL;
+        }
+    }
+}
+
+void __free(obj r, uint32_t gc_pos) {
+    if (gc_pos == 0) {
+        return;
+    }
+    if (IS_NULL(r) || r == NULL) {
+        DEBUG("Free completed. Value is nullish");
+        return;
+    }
+    //DEBUG("__free %p [%s]", FORMAT_PTR(r), rrepr->data);
+    if (r->type == &_class_Array) {
+        DEBUG("Free got Array");
+        //struct Array *arr = r->data;
+        void **els = r->data;
+        if (r->elementSize == sizeof(void *)) {
+            for (int i = 0; i < r->length; i++)
+                __decRef(els[i]);
+        }
+        if (els != NULL) {
+            free(els);
+        }
+    } else if (r->type == &_class_String) {
+        DEBUG("Free got String");
+        void *els = (r->data);
+        if (els != NULL && els != emptyString) {
+            DEBUG("Free underlying String data");
+            free(els);
+        }
+    } else {
+        DEBUG("Free got other");
+        //free(r->data);
+    }
+    DEBUG("__free end %p", FORMAT_PTR(r));
+    free(r);
+    gc_ref[gc_pos-1] = NULL;
+}
+
+
+void __decRef(obj r) {
+    if (gc_level == 0) {
+        gc_visited_length = 0;
+    }
+    ++gc_level;
+    obj rrepr = typeInfoStringRepr(r);
+    DEBUG("__decRef %p [%s]", FORMAT_PTR(r), rrepr->data);
+    if (!__LATTE_RUNTIME_GC_ENABLED) return;
+    if (!IS_NULL(r) && r != NULL) {
+        for (int i=0;i<gc_visited_length;++i) {
+            if (((uint64_t)r) == gc_visited[i]) {
+                // Recursive call
+                return;
+            }
+        }
+        gc_visited[gc_visited_length++] = (uint64_t)r;
+        r->counter--;
+        if (r->counter <= 0) {
+            if (true) {//r->type != &_class_Array) {
+                const int fieldsInfoLength = r->type->fieldsInfoLength;
+                for(int i=0;i<fieldsInfoLength;++i) {
+                    char* fieldInfo = (char*) (((uint64_t)r->type->fieldsInfo) + ((uint64_t)r->type->fieldsInfoOffsets[i]));
+                    char type = fieldInfo[0];
+                    char* name = fieldInfo+1;
+                    obj* fieldValue = (obj*)(((uint64_t)(&r->others)) + ((uint64_t)(r->type->fieldsDataOffsets[i])));
+                    switch(type) {
+                        case 'A': {
+                            __decRef(*fieldValue);
+                            break;
+                        }
+                        case 'S': {
+                            __decRef(*fieldValue);
+                            break;
+                        }
+                        case 'C': {
+                            __decRef(*fieldValue);
+                            break;
+                        }
+                        case 'I': {
+                            // Do nothing
+                            break;
+                        }
+                        case 'B': {
+                            // Do nothing
+                            break;
+                        }
+                    }
+                }
+            }
+            if (r->type == &_class_Array) {
+                if (r->elementSize == sizeof(void *)) {
+                    void **els = r->data;
+                    for (int i = 0; i < r->length; i++) {
+                        __decRef(els[i]);
+                    }
+                }
+            }
+            // if (r->type != &_class_Array) {
+            //     for (int i = 0; i < r->type->referenceOffsetsSize; i++)
+            //         __decRef(*(obj *)(r->data + r->type->referenceOffsets[i]));
+            // }
+            //__free(r);
+            //DEBUG("FREE!!!!");
+            //free(r);
+
+        }
+    }
+    DEBUG("__decRef end %p %d", FORMAT_PTR(r), gc_level-1);
+    --gc_level;
+    if (gc_level == 0) {
+        gc_visited_length = 0;
+    }
 }

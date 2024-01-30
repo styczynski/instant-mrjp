@@ -35,3 +35,4 @@ extern printBinArray
 extern error
 extern readInt
 extern readString
+extern __run_gc

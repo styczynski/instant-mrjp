@@ -21,9 +21,6 @@ import           IR.Utils                     (isPowerOfTwo, log2, single)
 import           IR.Class
 import IR.Identifiers
 import           IR.CodeGen.Consts
-import           IR.CodeGen.Epilogue
-import           IR.CodeGen.Module
-import           IR.CodeGen.Prologue
 import           IR.CodeGen.Stack
 import           IR.RegisterAllocation.RegisterAllocation
 import           IR.Size
@@ -101,18 +98,18 @@ genProgram (Meta pos clDefs) mthds = do
             where
                 go (flds, offset) fld =
                     let fldSize = X64.toBytes (typeSize (fldType fld))
-                        padding = if offset `mod` fldSize == 0
-                                    then 0
-                                    else fldSize - (offset `mod` fldSize)
+                        padding = 0 --if offset `mod` fldSize == 0
+                                    --then 0
+                                    --else fldSize - (offset `mod` fldSize)
                     in (fld{fldOffset = offset + padding}:flds, offset + padding + fldSize)
 
 
 genData :: (Show a) => a -> [CompiledClass] -> ConstSet -> Generator a ()
 genData pos cls allConsts = do
         mapM_ (\cns -> gen $ X64.dataDef pos $ X64.DataDef (constName cns) [X64.DataStr $ constValue cns]) $ constsElems allConsts
-        mapM_ (genClassDef pos) cls
+        (methodsCounts) <- mapM (genClassDef pos) cls
         genNullRefCheck pos
-        genLatNullConst pos
+        genLatNullConst pos (maximum methodsCounts)
         gen $ X64.dataDef pos $ X64.DataGlobal "main"
         where
             genConst :: a -> Const -> Generator a ()
@@ -126,33 +123,75 @@ genData pos cls allConsts = do
                 gen $ X64.and pos X64.Size64 (X64.LocConst (-16)) (X64.LocReg X64.RSP) $ comment "16 bytes allign"
                 gen $ X64.call pos "__errorNull" Nothing
                 return ()
-            genLatNullConst :: a -> Generator a ()
-            genLatNullConst pos = do
+            genLatNullConst :: a -> Int -> Generator a ()
+            genLatNullConst pos maxVTableSize = do
                 gen $ X64.bssDef pos $ X64.DataGlobal "_LAT_NULL"
-                gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL" [X64.Data64I 0, X64.Data64I 0, X64.Data32I 0, X64.Data64I 0, X64.Data32I 0, X64.Data32I 0]
+                gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL" [X64.Data64From "_class_Object", X64.Data64I 0, X64.Data32I 0, X64.Data64From "_LAT_NULL_METHODS", X64.Data32I 0, X64.Data32I 0]
+                gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL_METHODS" $ replicate maxVTableSize (X64.Data64From "__handleErrorNull")
                 gen $ X64.bssDef pos $ X64.DataDef "_LAT_NULL_ADDR" [X64.Data64From "_LAT_NULL"]
                 return ()
             -- _LAT_NULL
-            genClassDef :: a -> CompiledClass -> Generator a ()
+            genClassDef :: a -> CompiledClass -> Generator a Int
             genClassDef pos cls = do
                 let clsName = clName cls
                 case toStr clsName of
-                    "~cl_TopLevel" -> return ()
+                    "~cl_TopLevel" -> return 0
                     className -> do
                         let chain = clChain cls
                         let (IRLabelName classDefName) = classDefIdent clsName
                         let (IRLabelName methodsTableName) = vTableIRLabelName clsName
                         let initializerName = classDefName ++ "_initializer"
+                        let introFieldsArrName = classDefName ++ "_fields_info"
+                        let introFieldsOffsetsArrName = classDefName ++ "_fields_info_offsets"
+                        let introFieldsPosArrName = classDefName ++ "_fields_info_pos"
+                        let introClassName = classDefName ++ "_name"
                         let (IRLabelName parentName) = if length chain == 1 then (IRLabelName "0") else classDefIdent $ chain!!1
+
+                        (fieldInfoRecords, fieldInfoRecordsLengths) <- (return . unzip) =<< (mapM fieldInfo $ clFldsLayout cls)
+                        let firstFieldInfoRecordsLength = if null fieldInfoRecordsLengths then 0 else head fieldInfoRecordsLengths
+                        let fieldInfoRecordsOffsets = let offs = scanl1 (+) (map (+1) fieldInfoRecordsLengths) in (if null offs then offs else [0]++init offs)
+
                         gen $ X64.dataDef pos $ X64.DataGlobal classDefName
-                        gen $ X64.dataDef pos $ X64.DataDef classDefName [X64.Data64From parentName, X64.Data64From initializerName, X64.Data32I $ fromIntegral $ clSize cls, X64.Data64From $ methodsTableName, X64.Data32I 0, X64.Data64I 0]
+                        gen $ X64.dataDef pos $ X64.DataDef classDefName [X64.Data64From parentName, X64.Data64From initializerName, X64.Data32I $ fromIntegral $ clSize cls, X64.Data64From $ methodsTableName, X64.Data32I 0, X64.Data64I 0, X64.Data64From introFieldsArrName, X64.Data64From introFieldsOffsetsArrName, X64.Data64From introFieldsPosArrName, X64.Data32I (fromIntegral $ length fieldInfoRecordsOffsets), X64.Data64From introClassName]
                         gen $ X64.dataDef pos $ X64.DataGlobal methodsTableName
                         gen $ X64.dataDef pos $ X64.DataDef methodsTableName $ map (\(name, _) -> X64.Data64From name)  (vtabMthds $ clVTable cls)
-                        initFields <- mapM (initField) $ clFldsLayout cls
+                        initFields <- mapM (initField) $ sortOn (\field -> fldOffset field) $ clFldsLayout cls
                         gen $ X64.dataDef pos $ X64.DataGlobal initializerName
                         gen $ X64.dataDef pos $ X64.DataDef initializerName initFields
-                        return ()
+                        
+                        gen $ X64.dataDef pos $ X64.DataGlobal introFieldsArrName
+                        gen $ X64.dataDef pos $ X64.DataDef introFieldsArrName fieldInfoRecords
+
+                        gen $ X64.dataDef pos $ X64.DataGlobal introFieldsOffsetsArrName
+                        gen $ X64.dataDef pos $ X64.DataDef introFieldsOffsetsArrName $ map (X64.Data32I . fromIntegral) fieldInfoRecordsOffsets
+
+                        gen $ X64.dataDef pos $ X64.DataGlobal introFieldsPosArrName
+                        gen $ X64.dataDef pos $ X64.DataDef introFieldsPosArrName $ map (X64.Data32I . fromIntegral) $ map fldOffset $ clFldsLayout cls
+
+                        gen $ X64.dataDef pos $ X64.DataGlobal introClassName
+                        gen $ X64.dataDef pos $ X64.DataDef introClassName $ [X64.DataStr className]
+
+                        return $ length $ vtabMthds $ clVTable cls
                 where
+                    getFieldInfoPrefix :: SType () -> Char
+                    getFieldInfoPrefix (Ref _ (Arr _ _)) = 'A'
+                    getFieldInfoPrefix (Ref _ (Cl _ (IRTargetRefName "String"))) = 'S'
+                    getFieldInfoPrefix (Cl _ (IRTargetRefName "String")) = 'S'
+                    getFieldInfoPrefix (Ref _ (Cl _ (IRTargetRefName "Array"))) = 'A'
+                    getFieldInfoPrefix (Cl _ (IRTargetRefName "Array")) = 'A'
+                    getFieldInfoPrefix (Ref _ _) = 'C'
+                    getFieldInfoPrefix (Cl _ _) = 'C'
+                    getFieldInfoPrefix (Arr _ _) = 'A'
+                    getFieldInfoPrefix (Int _) = 'I'
+                    getFieldInfoPrefix (Bool _) = 'B'
+                    getFieldInfoPrefix t = error $ "Unknown type in fieldInfo: " ++ show t
+                    
+                    fieldInfo :: CompiledField -> Generator a (X64.Data, Int)
+                    fieldInfo field = do
+                        let (IRTargetRefName name) = fldName field
+                        let prefix = getFieldInfoPrefix (fldType field)
+                        let allFieldInfo = [prefix] ++ name
+                        return (X64.DataStr allFieldInfo, length allFieldInfo)
                     initField :: CompiledField -> Generator a X64.Data
                     initField field = do
                         case (fldType field) of 
@@ -389,8 +428,8 @@ genInstr baseInstr =
                 let t = () <$ deref (t)
                 objLoc <- getValLoc vi
                 case (objLoc, count) of
-                    -- (_, 0) -> do
-                    --     return ()
+                    (_, 0) -> return ()
+                    ((X64.LocLabelPIC "_LAT_NULL_ADDR"), c) -> return ()
                     ((X64.LocReg objReg), c) | c > 0 -> do
                         gen $ X64.add pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, 16)) (comment $ "incr ref count on "++show vi)
                     ((X64.LocReg objReg), c) | c < 0 -> do
@@ -399,7 +438,7 @@ genInstr baseInstr =
                         gen $ X64.add pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, objOffset+16)) (comment $ "incr ref count on "++show vi)
                     ((X64.LocMem (objReg, objOffset)), c) | c < 0 -> do
                         gen $ X64.sub pos X64.Size32 (X64.LocConst c) (X64.LocMem (objReg, objOffset+16)) (comment $ "incr ref count on "++show vi)
-                    (loc@(X64.LocMemOffset objReg idxReg idxOffset elemSize), c) -> do
+                    (loc, c) -> do
                         error $ "Unsupported location for object in IAddRef: "++show loc
                 --gen $ X64.mov pos (typeSize t) src dest (comment $ "load " ++ toStr vi)
             IStore _ v ptr -> do

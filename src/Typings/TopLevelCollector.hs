@@ -133,7 +133,8 @@ addBuiltinFunctions fns = return $ builtIn ++ fns
                 Type.Fun (name "print") void (args [object]) builtinFunctionDecl,
                 Type.Fun (name "error") void noargs builtinFunctionDecl,
                 Type.Fun (name "readInt") int noargs builtinFunctionDecl,
-                Type.Fun (name "readString") string noargs builtinFunctionDecl
+                Type.Fun (name "readString") string noargs builtinFunctionDecl,
+                Type.Fun (name "run_gc") void noargs builtinFunctionDecl
             ]
 
 addBuiltinClasses :: [Type.Class] -> TypeChecker [Type.Class]
