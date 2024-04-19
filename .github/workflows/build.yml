@@ -1,0 +1,87 @@
+name: Build project
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  #-- increment this if you think cache of GHC installation needs cold rebuild
+  MANUAL_CACHE_RESET_COMPILER: v0
+  #-- increment this if you think cache of .stack-work needs cold rebuild
+  MANUAL_CACHE_RESET_PRODUCTS: v0
+  #-- increment this to force-rebuild the cache of dependency packages
+  MANUAL_CACHE_RESET_TESTDEPS: v0
+  #-- should never be needed, as stackage snapshots are immutable
+  # MANUAL_CACHE_RESET_SNAPSHOT: v0
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Cache GHC installation
+      uses: actions/cache@v3
+      id: ghcup
+      env:
+        MANUAL_RESET: ${{ env.MANUAL_CACHE_RESET_COMPILER }}
+      with:
+        path: |
+          ~/.ghcup/bin/*
+          ~/.ghcup/cache/*
+          ~/.ghcup/config.yaml
+          ~/.ghcup/ghc/${{ env.GHC_VERSION }}
+        key: CI-ghcup-${{ env.MANUAL_RESET }}--${{ env.GHC_VERSION }}
+    - uses: haskell/actions/setup@v2
+      if: steps.ghcup.outputs.cache-hit != 'true'
+      with:
+        ghc-version: ${{ env.GHC_VERSION }}
+        enable-stack: true
+        stack-version: "latest"
+    - name: Cache Pantry (Stackage package index)
+      id: pantry
+      uses: actions/cache@v3
+      with:
+        path: ~/.stack/pantry
+        key: CI-pantry-${{ env.STACK_LTS }}
+    - name: Recompute Stackage package index
+      if: steps.pantry.outputs.cache-hit != 'true'
+      run: stack update # populates ~/.stack/pantry
+    - name: Cache Haskell dependencies
+      uses: actions/cache@v3
+      env:
+        MANUAL_RESET: ${{ env.MANUAL_CACHE_RESET_TESTDEPS }}
+      with:
+        #-- NOTE no, shouldn't cache the entire ~/.stack -- that'd be bad. just these 2:
+        path: |
+          ~/.stack/stack.sqlite3
+          ~/.stack/snapshots
+        #-- NOTE the caching key structure:
+        #--   * fixed ID string -- to indicate scope & purpose, descriptive;
+        #--   * manual reset -- on top level, stupid simple manual override;
+        #--   * resolver version -- helps maintain sleek size of the cache;
+        #--   * lockfile hashsum -- as invalidation trigger of the correct granularity.
+        #-- Since this cache only stores built *dependency packages* (not project code!),
+        #-- we should invalidate/reupload it on each change to the dependency forest (≈lockfile).
+        #--
+        #-- All this decides when cache gets REBUILT (invalidated & recreated):
+        key: CI-testdeps-${{ env.MANUAL_RESET }}--${{ env.STACK_LTS }}--${{ hashFiles('stack.yaml.lock') }}
+        #-- All this adds fallbacks to UNPACK stale cache copies, prefix-matched:
+        restore-keys: |
+          CI-testdeps-${{ env.MANUAL_RESET }}--${{ env.STACK_LTS }}--
+          CI-testdeps-${{ env.MANUAL_RESET }}--
+    - name: Cache per-branch Haskell project buildstate
+      uses: actions/cache@v3
+      env:
+        MANUAL_RESET: ${{ env.MANUAL_CACHE_RESET_PRODUCTS }}
+      with:
+        path: .stack-work
+        key: CI-builddir-${{ env.MANUAL_RESET }}--${{ env.GHC_VERSION }}
+    - name: Trigger build via Makefile
+      run: make
