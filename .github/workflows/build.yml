@@ -91,3 +91,5 @@ jobs:
       run: stack install alex
     - name: Trigger build via Makefile
       run: make
+    - name: Run tests
+      run: stack test
