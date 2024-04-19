@@ -83,5 +83,11 @@ jobs:
       with:
         path: .stack-work
         key: CI-builddir-${{ env.MANUAL_RESET }}--${{ env.GHC_VERSION }}
+    - name: Configure Home path
+      run: |
+       mkdir -p $HOME/.local/bin
+       echo ::add-path::$HOME/.local/bin
+    - name: Install Alex
+      run: stack install alex
     - name: Trigger build via Makefile
       run: make
