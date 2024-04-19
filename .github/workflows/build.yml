@@ -86,7 +86,7 @@ jobs:
     - name: Configure Home path
       run: |
        mkdir -p $HOME/.local/bin
-       echo ::add-path::$HOME/.local/bin
+       echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Install Alex
       run: stack install alex
     - name: Trigger build via Makefile
