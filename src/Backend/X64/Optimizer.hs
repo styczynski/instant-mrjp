@@ -26,7 +26,7 @@ optimizeASM instrs = do
 
 applyRulesSingle :: ASMOptRule a anno
 -- mov $0, a => xor a, a
-applyRulesSingle prevCode (ASM.MOV pos size (ASM.LocConst 0) target anno : code) = ASM.XOR pos size target target anno : code
+applyRulesSingle prevCode (ASM.MOV pos size (ASM.LocConst 0) target anno : code) | ASM.isReg target = ASM.XOR pos size target target anno : code
 -- add $1, a => inc a
 applyRulesSingle prevCode (ASM.ADD pos size (ASM.LocConst 1) target anno : code) = ASM.INC pos size target anno : code
 -- sub $1, a => dec a
