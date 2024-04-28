@@ -97,6 +97,11 @@ jobs:
     #  run: stack test
     - name: Debug tests
       run: |
-        ./latc_x86 ./trolololo.lat
-        ./trolololo ; echo "EXECUTED"
-        sleep 999999999999
+        ./latc_x86 ./trolololo.lat ; echo "\nCOMPLETED COMPILATION\n"
+        echo "\ncheck ls\n"
+        ls
+        echo "\nNow print asm...\n"
+        cat ./trolololo.s
+        echo "\nNow run the program...\n"
+        ./trolololo
+        echo "\nEXECUTED\n"
