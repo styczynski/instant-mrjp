@@ -31,6 +31,8 @@ tests:
       - random
 
 library:
+  build-tools:
+    - alex
   source-dirs: src
   dependencies:
     - containers
