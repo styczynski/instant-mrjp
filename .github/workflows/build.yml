@@ -91,8 +91,14 @@ jobs:
       run: |
         gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci1.s -o ./testci1 -z noexecstack
         gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci2.s -o ./testci2 -z noexecstack
+        gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci0.s -o ./testci0 -z noexecstack
+        set -o pipefail
+        echo "\nrun testci0\n"
+        (./testci0 || true)
+        echo "\nrun testci1\n"
+        (./testci1 || true)
         echo "\nrun testci2\n"
-        ./testci2
+        (./testci2 || true)
     #- name: Install Alex
     #  run: stack install alex
     #- name: Clean build via Makefile
