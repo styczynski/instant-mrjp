@@ -39,7 +39,7 @@ showCfgs :: [(CFG a d, Method a)] -> String
 showCfgs cfgs = unlines $ map showCfg cfgs
   where
     showCfg (g, m@(Mthd _ _ (QIdent _ (IRTargetRefName i1) (IRTargetRefName i2)) _ body)) =
-      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show g ++ "Code: " ++ printTree m
+      "CFG for " ++ i1 ++ "." ++ i2 ++ ":\n" ++ show g ++ "Code: " ++ "<code-hidden>" -- printTree m TODO: Fix printTree segfault?
 
 cfgsToMthds :: b -> [(CFG a d, Method a)] -> [Method b]
 cfgsToMthds default_ = map (\(g, Mthd _ r i ps _) ->

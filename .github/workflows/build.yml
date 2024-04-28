@@ -89,8 +89,8 @@ jobs:
        echo "$HOME/.local/bin" >> $GITHUB_PATH
     #- name: Install Alex
     #  run: stack install alex
-    - name: Clean build via Makefile
-      run: make clean
+    #- name: Clean build via Makefile
+    #  run: make clean
     - name: Trigger build via Makefile
       run: make
     #- name: Run tests
