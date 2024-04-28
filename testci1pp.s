@@ -97,14 +97,14 @@ movl %EDX, %R14D              #-- load %v_t_59 at ./trolololo.lat:5:1 --#
 movl %ECX, %R13D              #-- load %v_t_60 at ./trolololo.lat:5:1 --#
 movl %R8D, %R12D              #-- load %v_t_61 at ./trolololo.lat:5:1 --#
 movl %R9D, %EBX               #-- load %v_t_62 at ./trolololo.lat:5:1 --#
-movl $10, %R11D         #-- load %v_t_63 at ./trolololo.lat:5:1 --#
-movl $10, %R10D         #-- load %v_t_64 at ./trolololo.lat:5:1 --#
-movl $10, %R9D          #-- load %v_t_65 at ./trolololo.lat:5:1 --#
-movl $10, %EAX          #-- load %v_t_66 at ./trolololo.lat:5:1 --#
-movl $10, %R8D          #-- load %v_t_67 at ./trolololo.lat:5:1 --#
-movl $10, %ESI         #-- load %v_t_68 at ./trolololo.lat:5:1 --#
-movl $10, %EDX         #-- load %v_t_69 at ./trolololo.lat:5:1 --#
-movl $10, %ECX         #-- load %v_t_70 at ./trolololo.lat:5:1 --#
+movl 64 (%RBP), %R11D         #-- load %v_t_63 at ./trolololo.lat:5:1 --#
+movl 72 (%RBP), %R10D         #-- load %v_t_64 at ./trolololo.lat:5:1 --#
+movl 80 (%RBP), %R9D          #-- load %v_t_65 at ./trolololo.lat:5:1 --#
+movl 88 (%RBP), %EAX          #-- load %v_t_66 at ./trolololo.lat:5:1 --#
+movl 96 (%RBP), %R8D          #-- load %v_t_67 at ./trolololo.lat:5:1 --#
+movl 104 (%RBP), %ESI         #-- load %v_t_68 at ./trolololo.lat:5:1 --#
+movl 112 (%RBP), %EDX         #-- load %v_t_69 at ./trolololo.lat:5:1 --#
+movl 120 (%RBP), %ECX         #-- load %v_t_70 at ./trolololo.lat:5:1 --#
 addl %R14D, %R13D             #-- ./trolololo.lat:7:45 --#
 addl %R13D, %R12D             #-- ./trolololo.lat:7:45 --#
 addl %R12D, %EBX              #-- ./trolololo.lat:7:45 --#
@@ -153,6 +153,9 @@ movl $1, %EDX                 #-- passing arg at ./trolololo.lat:3:12 --#
 movl $2, %ECX                 #-- passing arg at ./trolololo.lat:3:12 --#
 movl $1, %R8D                 #-- passing arg at ./trolololo.lat:3:12 --#
 movl $2, %R9D                 #-- passing arg at ./trolololo.lat:3:12 --#
+# STACK ALIGN YOO
+subq $8, %RSP
+# END STACK ALIGN YOO
 pushq $2                      #-- passing arg at ./trolololo.lat:3:12 --#
 pushq $1                      #-- passing arg at ./trolololo.lat:3:12 --#
 pushq $2                      #-- passing arg at ./trolololo.lat:3:12 --#
@@ -160,9 +163,9 @@ pushq $1                      #-- passing arg at ./trolololo.lat:3:12 --#
 pushq $2                      #-- passing arg at ./trolololo.lat:3:12 --#
 pushq $1                      #-- passing arg at ./trolololo.lat:3:12 --#
 pushq $2                      #-- passing arg at ./trolololo.lat:3:12 --#
-pushq $1                      #-- passing arg at ./trolololo.lat:3:12 --#
-AND $0xFFFFFFFFFFFFFFF0, %RSP
+pushq $1                      #-- passing arg at ./trolololo.lat:3:12 --# 
 call __cl_TopLevel.foo        #-- ./trolololo.lat:3:12 --#
+addq $8, %RSP 
 addq $64, %RSP                #-- ./trolololo.lat:3:12 --#
 xor %edi, %edi
 mov $231, %eax
