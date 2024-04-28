@@ -90,7 +90,7 @@ jobs:
     #- name: Install Alex
     #  run: stack install alex
     - name: Clean build via Makefile
-     run: make clean
+      run: make clean
     - name: Trigger build via Makefile
       run: make
     - name: Just debug CI
