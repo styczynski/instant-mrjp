@@ -87,21 +87,27 @@ jobs:
       run: |
        mkdir -p $HOME/.local/bin
        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Just debug CI
+      run: |
+        gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci1.s -o ./testci1 -z noexecstack
+        gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci2.s -o ./testci2 -z noexecstack
+        echo "\nrun testci2\n"
+        ./testci2
     #- name: Install Alex
     #  run: stack install alex
     #- name: Clean build via Makefile
     #  run: make clean
-    - name: Trigger build via Makefile
-      run: make
+    # - name: Trigger build via Makefile
+    #   run: make
     #- name: Run tests
     #  run: stack test
-    - name: Debug tests
-      run: |
-        ./latc_x86 ./trolololo.lat ; echo "\nCOMPLETED COMPILATION\n"
-        echo "\ncheck ls\n"
-        ls
-        echo "\nNow print asm...\n"
-        cat ./trolololo.s
-        echo "\nNow run the program...\n"
-        ./trolololo
-        echo "\nEXECUTED\n"
+    # - name: Debug tests
+    #   run: |
+    #     ./latc_x86 ./trolololo.lat ; echo "\nCOMPLETED COMPILATION\n"
+    #     echo "\ncheck ls\n"
+    #     ls
+    #     echo "\nNow print asm...\n"
+    #     cat ./trolololo.s
+    #     echo "\nNow run the program...\n"
+    #     ./trolololo
+    #     echo "\nEXECUTED\n"
