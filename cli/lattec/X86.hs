@@ -14,7 +14,7 @@ main = do
     args <- liftIO $ getArgs
     case args of
         file : rest -> do
-            let config = (Compiler.defaultConfigFor BackendX64.backend) & Compiler.loggingLevel .~ LogError
+            let config = (Compiler.defaultConfigFor BackendX64.backend) & Compiler.loggingLevel .~ LogEverything
             Compiler.compileLatteThen config (Compiler.inputFile file) resultHandler
     where 
         resultHandler :: Compiler.CompilationResult -> LattePipeline ()

@@ -4,13 +4,15 @@ CFLAGS:=-fPIE
 
 all: compiler
 
-compiler: src/Parser/Gen src/IR/Parser/Gen
+compiler: lib/runtime.ext src/Parser/Gen src/IR/Parser/Gen
 	./bin/invoke_haskell_stack.sh install --local-bin-path=$(shell pwd)
 
 clean:
 	./bin/invoke_haskell_stack.sh clean
 	rm insc_llvm -f
 	rm insc_jvm -f
+	rm lib/runtime.ext
+	rm src/Runtime/dependencies/_built_/done.txt
 
 format:
 	ormolu --mode inplace $(shell find . -name '*.hs')
