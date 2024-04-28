@@ -5,7 +5,7 @@
 
 #include "runtime.h"
 
-#define __LATTE_RUNTIME_DEBUG_ENABLED false
+#define __LATTE_RUNTIME_DEBUG_ENABLED true
 #define __LATTE_RUNTIME_DEBUG_PRINT_ADDRESSES false
 #define __LATTE_RUNTIME_GC_ENABLED false
 #define DEBUG(args...) if(__LATTE_RUNTIME_DEBUG_ENABLED) { fprintf(stderr, "~#LATCINSTR#~ "); fprintf(stderr, args); fprintf(stderr, "\n"); fflush(stderr); }

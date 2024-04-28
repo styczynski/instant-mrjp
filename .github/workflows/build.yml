@@ -87,6 +87,12 @@ jobs:
       run: |
        mkdir -p $HOME/.local/bin
        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    #- name: Install Alex
+    #  run: stack install alex
+    - name: Clean build via Makefile
+     run: make clean
+    - name: Trigger build via Makefile
+      run: make
     - name: Just debug CI
       run: |
         gcc -fPIE -Lsrc/Runtime/dependencies/_built_/lib lib/runtime -l:libunistring.a ./testci1.s -o ./testci1 -z noexecstack
@@ -102,12 +108,6 @@ jobs:
         (./testcistackref || true)
         echo "\nrun testci2\n"
         (./testci2 || true)
-    #- name: Install Alex
-    #  run: stack install alex
-    #- name: Clean build via Makefile
-    #  run: make clean
-    # - name: Trigger build via Makefile
-    #   run: make
     #- name: Run tests
     #  run: stack test
     # - name: Debug tests
