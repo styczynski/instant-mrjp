@@ -2,9 +2,9 @@ name: Build project
 
 on:
   push:
-    branches: [ "main", "fix/ci" ]
+    branches: [ "main", "fix/ci", "feature/wip-debug-merge-all" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "feature/wip-debug-merge-all" ]
 
 env:
   #-- increment this if you think cache of GHC installation needs cold rebuild
