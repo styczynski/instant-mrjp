@@ -8,11 +8,11 @@ on:
 
 env:
   #-- increment this if you think cache of GHC installation needs cold rebuild
-  MANUAL_CACHE_RESET_COMPILER: v0
+  MANUAL_CACHE_RESET_COMPILER: v1
   #-- increment this if you think cache of .stack-work needs cold rebuild
-  MANUAL_CACHE_RESET_PRODUCTS: v0
+  MANUAL_CACHE_RESET_PRODUCTS: v1
   #-- increment this to force-rebuild the cache of dependency packages
-  MANUAL_CACHE_RESET_TESTDEPS: v0
+  MANUAL_CACHE_RESET_TESTDEPS: v1
   #-- should never be needed, as stackage snapshots are immutable
   # MANUAL_CACHE_RESET_SNAPSHOT: v0
 
@@ -38,7 +38,7 @@ jobs:
           ~/.ghcup/config.yaml
           ~/.ghcup/ghc/${{ env.GHC_VERSION }}
         key: CI-ghcup-${{ env.MANUAL_RESET }}--${{ env.GHC_VERSION }}
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2.7.11
       if: steps.ghcup.outputs.cache-hit != 'true'
       with:
         ghc-version: ${{ env.GHC_VERSION }}
